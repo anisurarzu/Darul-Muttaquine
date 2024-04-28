@@ -10,6 +10,8 @@ import { NavLink, Link, useHistory } from "react-router-dom";
 
 import logo from "../images/logoshirley_300x.png";
 
+import "../Pages/scholarship/scholarshipButton.css";
+
 const Navbar = () => {
   const [showMediaIcons, setShowMediaIcons] = useState(false);
   const history = useHistory();
@@ -33,7 +35,7 @@ const Navbar = () => {
     <>
       <nav className="main-nav border-b">
         {/* 1st logo part  */}
-        <div className="logo cursor-pointer ">
+        <div className="logo cursor-pointer">
           <Link to="/">
             <img src={logo} alt="" />
           </Link>
@@ -43,14 +45,9 @@ const Navbar = () => {
         <div
           className={
             showMediaIcons ? "menu-link mobile-menu-link" : "menu-link"
-          }>
+          }
+        >
           <ul>
-            <li>
-              <NavLink to="/about">বইয়ের ধরণ</NavLink>
-            </li>
-            <li>
-              <NavLink to="/service">সকল লেখক</NavLink>
-            </li>
             <li>
               <NavLink to="/contact">যোগাযোগ</NavLink>
             </li>
@@ -66,7 +63,16 @@ const Navbar = () => {
                 <NavLink to="/login">Log In</NavLink>
               </li>
             )}
+
             {isAuthenticated && <li onClick={handleLogout}>Log Out</li>}
+
+            <li>
+              <NavLink to="/scholarship">
+                <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
+                  <span>Scholarship</span>
+                </scholarshipButton>
+              </NavLink>
+            </li>
           </ul>
         </div>
 
@@ -76,21 +82,24 @@ const Navbar = () => {
             <li>
               <a
                 href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa">
+                target="_thapa"
+              >
                 <FaFacebookSquare className="facebook" />
               </a>
             </li>
             <li>
               <a
                 href="https://www.instagram.com/thapatechnical/"
-                target="_thapa">
+                target="_thapa"
+              >
                 <FaInstagramSquare className="instagram" />
               </a>
             </li>
             <li>
               <a
                 href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa">
+                target="_thapa"
+              >
                 <FaYoutubeSquare className="youtube" />
               </a>
             </li>
