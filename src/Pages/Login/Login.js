@@ -7,6 +7,7 @@ import {
   useHistory,
   useLocation,
 } from "react-router-dom/cjs/react-router-dom.min";
+import { coreAxios } from "../../utilities/axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -17,18 +18,19 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://darul-muttaquine-server.vercel.app/login", {
+      const response = await coreAxios.post("/login", {
         email,
         password,
       });
 
       if (response?.status === 200) {
         toast.success("Login successful");
+
         const { token } = response.data;
 
         // Store the token in local storage
         localStorage.setItem("token", token);
-
+        fetchUserInfo(token);
         // Redirect to the intended destination or dashboard if no destination is set
         history.replace(location.state?.from || "/dashboard");
         // Reload the page to reflect the login state
@@ -39,6 +41,18 @@ export default function Login() {
     } catch (error) {
       toast.error(error.response.data?.message);
       // Handle login error
+    }
+  };
+
+  const fetchUserInfo = async (token) => {
+    try {
+      // Call the API to fetch user information
+      const userInfoResponse = await coreAxios.get("/userinfo");
+
+      // Store user information locally
+      localStorage.setItem("userInfo", JSON.stringify(userInfoResponse.data));
+    } catch (error) {
+      console.error("Error fetching user information:", error);
     }
   };
   return (

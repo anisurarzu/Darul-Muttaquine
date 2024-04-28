@@ -3,6 +3,7 @@ import Navbar from "../../components/Navbar";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { coreAxios } from "../../utilities/axios";
 
 export default function Registration() {
   const [firstName, setFirstName] = useState("");
@@ -14,7 +15,7 @@ export default function Registration() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/register", {
+      const response = await coreAxios.post("/register", {
         firstName,
         lastName,
         username,
