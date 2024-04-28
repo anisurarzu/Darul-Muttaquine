@@ -215,27 +215,13 @@ const Scholarship = () => {
         Open Modal
       </Button>
       <Modal
-        title="Basic Modal"
+        title="Please Provided Valid Information"
         open={isModalOpen}
         onOk={handleOk}
-        onCancel={handleCancel}>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        onCancel={handleCancel}
+        width={800}>
+        <ScholarshipInsert />
       </Modal>
-
-      {/* start update dualog */}
-      {/* <Dialog
-        keepInViewport={false}
-        className="custom-dialog"
-        blockScroll
-        header={"Roll Mster Update"}
-        visible={showDialog1}
-        style={{ width: "40vw" }}
-        onHide={onHideDialog}
-        id="fname">
-       
-      </Dialog> */}
     </>
   );
 };
