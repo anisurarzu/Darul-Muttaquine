@@ -3,18 +3,19 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
-const ScholarshipInsert = ({ onHide, fetchRolls }) => {
+const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
-    initialValues: {},
+    initialValues: {}, // Ensure you have proper initial values
     onSubmit: async (values) => {
-      console.log("values", values);
+      console.log("values", values); // Check if values are received correctly
       try {
         const res = await coreAxios.post(`/scholarship-info`, values);
         if (res?.status === 201) {
           toast.success("Successfully Saved!");
-          formik?.resetForm();
+          formik.resetForm();
+          handleCancel(); // Use formik.resetForm() directly
         }
       } catch (err) {
         toast.error(err.response.data?.message);
@@ -140,7 +141,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls }) => {
                   required={required}
                   width="full"
                   onChange={formik.handleChange}
-                  value={formik.values[id]}
+                  value={formik.values?.[id]}
                   className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                 />
               </div>

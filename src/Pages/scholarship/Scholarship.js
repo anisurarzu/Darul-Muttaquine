@@ -220,7 +220,7 @@ const Scholarship = () => {
         onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
-        <ScholarshipInsert />
+        <ScholarshipInsert handleCancel={handleCancel} />
       </Modal>
     </>
   );
