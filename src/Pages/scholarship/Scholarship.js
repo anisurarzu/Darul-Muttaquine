@@ -2,16 +2,31 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 // import RollInsert from "./RollInsert";
 // import RollEdit from "./RollEdit";
-import { Dialog } from 'primereact/dialog';
+
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
+import { Button, Modal } from "antd";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
   const [showDialog, setShowDialog] = useState(false); //insert customer
   const [showDialog1, setShowDialog1] = useState(false); //update customer
   const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   //state for search query
   const [searchQuery, setSearchQuery] = useState("");
@@ -89,8 +104,10 @@ const Scholarship = () => {
             <button
               className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
               onClick={() => setShowDialog(true)}
-              style={{ outline: "none", borderColor: "transparent !important" }}
-            >
+              style={{
+                outline: "none",
+                borderColor: "transparent !important",
+              }}>
               <span>
                 <i className="pi pi-plus font-semibold"></i>
               </span>
@@ -100,12 +117,12 @@ const Scholarship = () => {
             <button
               className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
               onClick={handleBackClick} // Use the handleBackClick function here
-              style={{ outline: "none", borderColor: "transparent !important" }}
-            >
+              style={{
+                outline: "none",
+                borderColor: "transparent !important",
+              }}>
               <span>
-                <i
-                  className="pi pi-arrow-left font-semibold"
-                ></i>
+                <i className="pi pi-arrow-left font-semibold"></i>
               </span>
               BACK
             </button>
@@ -127,8 +144,7 @@ const Scholarship = () => {
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                viewBox="0 0 20 20"
-              >
+                viewBox="0 0 20 20">
                 <path
                   stroke="currentColor"
                   strokeLinecap="round"
@@ -180,9 +196,7 @@ const Scholarship = () => {
                         onClick={() => handleEditClick(roll.RollID)} // Ensure this is correct
                       >
                         <span>
-                          <i
-                            className="pi pi-pencil font-semibold"
-                          ></i>
+                          <i className="pi pi-pencil font-semibold"></i>
                         </span>
                         EDIT
                       </button>
@@ -196,36 +210,18 @@ const Scholarship = () => {
       </div>
 
       {/* start insert dialog */}
-      <Dialog
-        keepInViewport={false}
-        className="custom-dialog"
-        blockScroll
-        header={"Roll Entry"}
-        visible={showDialog}
-        style={{ width: "40vw" }}
-        onHide={onHideDialog}
-        id="fname"
-      >
-        <ScholarshipInsert onHide={onHideDialog} fetchRolls={fetchRolls} />
-      </Dialog>
 
-      {/* start update dualog */}
-      <Dialog
-        keepInViewport={false}
-        className="custom-dialog"
-        blockScroll
-        header={"Roll Mster Update"}
-        visible={showDialog1}
-        style={{ width: "40vw" }}
-        onHide={onHideDialog}
-        id="fname"
-      >
-        {/* <RollEdit
-          onHide={onHideDialog}
-          fetchRolls={fetchRolls}
-          rollData={selectedRoll}
-        /> */}
-      </Dialog>
+      <Button type="primary" onClick={showModal}>
+        Open Modal
+      </Button>
+      <Modal
+        title="Please Provided Valid Information"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <ScholarshipInsert />
+      </Modal>
     </>
   );
 };
