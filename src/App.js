@@ -11,6 +11,7 @@ import Registration from "./Pages/Login/Registration";
 import About from "./Pages/About/About";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
+import Scholarship from "./Pages/scholarship/Scholarship";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
           <Registration />
         </Route>
         <PrivateRoute path="/about" component={About} />
+        <Route path="/scholarship" component={Scholarship} />
       </Switch>
       <ToastContainer />
     </div>
