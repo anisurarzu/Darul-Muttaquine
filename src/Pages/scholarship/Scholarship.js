@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "primereact/button";
-import { Dialog } from "primereact/dialog";
 import { toast } from "react-toastify";
 // import RollInsert from "./RollInsert";
 // import RollEdit from "./RollEdit";
+import { Dialog } from 'primereact/dialog';
 import axios from "axios";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useHistory } from "react-router-dom/cjs/react-router-dom";
+import ScholarshipInsert from "./ScholarshipInsert";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -84,36 +83,32 @@ const Scholarship = () => {
 
   return (
     <>
-      <div className="text-sm">
-        <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white">
+      <div className="text-sm mx-8 my-6">
+        <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
           <div className="ml-1">
-            <Button
-              className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg bg-newButtonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4"
+            <button
+              className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
               onClick={() => setShowDialog(true)}
               style={{ outline: "none", borderColor: "transparent !important" }}
             >
               <span>
-                <i
-                  className="pi pi-plus font-semibold"
-                  style={{ fontSize: "12px" }}
-                ></i>
+                <i className="pi pi-plus font-semibold"></i>
               </span>
               NEW
-            </Button>
+            </button>
 
-            <Button
-              className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg bg-editButtonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
+            <button
+              className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
               onClick={handleBackClick} // Use the handleBackClick function here
               style={{ outline: "none", borderColor: "transparent !important" }}
             >
               <span>
                 <i
                   className="pi pi-arrow-left font-semibold"
-                  style={{ fontSize: "12px" }}
                 ></i>
               </span>
               BACK
-            </Button>
+            </button>
           </div>
 
           <div className="relative mx-8 mr-4">
@@ -147,8 +142,8 @@ const Scholarship = () => {
         </div>
 
         <div className="relative overflow-x-auto shadow-md">
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th className="border border-tableBorder text-center py-2">
                   Roll ID
@@ -180,18 +175,17 @@ const Scholarship = () => {
 
                   <td className="border border-tableBorder pl-1">
                     <div className="flex justify-center items-center py-2">
-                      <Button
-                        className="font-semibold gap-2.5 rounded-lg bg-editButtonColor text-white py-2 px-4"
+                      <button
+                        className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                         onClick={() => handleEditClick(roll.RollID)} // Ensure this is correct
                       >
                         <span>
                           <i
                             className="pi pi-pencil font-semibold"
-                            style={{ fontSize: "12px" }}
                           ></i>
                         </span>
                         EDIT
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -212,7 +206,7 @@ const Scholarship = () => {
         onHide={onHideDialog}
         id="fname"
       >
-        {/* <RollInsert onHide={onHideDialog} fetchRolls={fetchRolls} /> */}
+        <ScholarshipInsert onHide={onHideDialog} fetchRolls={fetchRolls} />
       </Dialog>
 
       {/* start update dualog */}
