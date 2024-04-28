@@ -7,7 +7,17 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
-    initialValues: {}, // Ensure you have proper initial values
+    initialValues: {
+      name: "",
+      parentName: "",
+      institute: "",
+      instituteClass: "",
+      instituteRollNumber: "",
+      gender: "",
+      phoneNumber: 0,
+      bloodGroup: "",
+      presentAddress: "",
+    }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       console.log("values", values); // Check if values are received correctly
       try {
@@ -73,7 +83,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
     {
       id: "phone",
       name: "phone",
-      type: "text",
+      type: "number",
       label: "Phone Number",
       errors: "",
       register: "",
@@ -147,8 +157,6 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
               </div>
             )
           )}
-
-          {/* Student Name */}
 
           {/* Submit Button */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">

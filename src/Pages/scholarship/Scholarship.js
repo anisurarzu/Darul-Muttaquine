@@ -7,6 +7,7 @@ import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
 import { Button, Modal } from "antd";
+import { coreAxios } from "../../utilities/axios";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -26,6 +27,7 @@ const Scholarship = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    fetchScholarshipInfo();
   };
 
   //state for search query
@@ -40,13 +42,11 @@ const Scholarship = () => {
   // Fetch customers from the API
   // Construct the API endpoint URL using the environment variable
 
-  const fetchRolls = async () => {
+  const fetchScholarshipInfo = async () => {
     try {
-      const response = await axios.get(
-        `https://arabian-hunter-backend.vercel.app/api/RollMaster/GetRoles`
-      );
-      if (response.data.success) {
-        setRollData(response.data.data);
+      const response = await coreAxios.get(`/scholarship-info`);
+      if (response.status === 200) {
+        setRollData(response.data);
       }
     } catch (error) {
       console.error("Error fetching rolls:", error);
@@ -54,7 +54,7 @@ const Scholarship = () => {
   };
 
   useEffect(() => {
-    fetchRolls();
+    fetchScholarshipInfo();
   }, []);
 
   const onHideDialog = () => {
@@ -103,7 +103,7 @@ const Scholarship = () => {
           <div className="ml-1">
             <button
               className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
-              onClick={() => setShowDialog(true)}
+              onClick={() => showModal()}
               style={{
                 outline: "none",
                 borderColor: "transparent !important",
@@ -162,38 +162,41 @@ const Scholarship = () => {
             <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
                 <th className="border border-tableBorder text-center py-2">
-                  Roll ID
+                  Scholarship Roll
                 </th>
                 <th className="border border-tableBorder text-center py-2">
-                  Roll Name
+                  Name
                 </th>
                 <th className="border border-tableBorder text-center py-2">
-                  Roll Description
+                  Institute
                 </th>
                 <th className="border border-tableBorder text-center py-2">
-                  {/* Roll Description */}
+                  Class
                 </th>
               </tr>
             </thead>
 
             <tbody>
               {filteredRolls.map((roll) => (
-                <tr key={roll.RollID}>
+                <tr key={roll?.scholarshipRollNumber}>
                   <td className="border border-tableBorder pl-1 text-center">
-                    {roll.RollID}
+                    {roll?.scholarshipRollNumber}
                   </td>
                   <td className="border border-tableBorder pl-1 text-center">
-                    {roll.RollName}
+                    {roll.name}
                   </td>
-                  <td className="border border-tableBorder pl-1">
-                    {roll.RollDescription}
+                  <td className="border border-tableBorder pl-1 text-center">
+                    {roll.institute}
+                  </td>
+                  <td className="border border-tableBorder pl-1 text-center">
+                    {roll.instituteClass}
                   </td>
 
                   <td className="border border-tableBorder pl-1">
                     <div className="flex justify-center items-center py-2">
                       <button
                         className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                        onClick={() => handleEditClick(roll.RollID)} // Ensure this is correct
+                        onClick={() => handleEditClick(roll.userId)} // Ensure this is correct
                       >
                         <span>
                           <i className="pi pi-pencil font-semibold"></i>
@@ -211,9 +214,9 @@ const Scholarship = () => {
 
       {/* start insert dialog */}
 
-      <Button type="primary" onClick={showModal}>
+      {/*  <Button type="primary" onClick={showModal}>
         Open Modal
-      </Button>
+      </Button> */}
       <Modal
         title="Please Provided Valid Information"
         open={isModalOpen}
