@@ -12,6 +12,8 @@ import About from "./Pages/About/About";
 import PrivateRoute from "./components/PrivateRoute/PrivateRoute";
 import "./App.css";
 import Scholarship from "./Pages/scholarship/Scholarship";
+import Dashboard from "./Pages/Dashboard/Dashboard";
+import Contact from "./Pages/Contact/Contact";
 
 const App = () => {
   return (
@@ -24,11 +26,12 @@ const App = () => {
         <Route exact path="/login">
           <Login />
         </Route>
-        <Route exact path="/registration">
-          <Registration />
+        <Route exact path="/contact">
+          <Contact />
         </Route>
         <PrivateRoute path="/about" component={About} />
-        <Route path="/scholarship" component={Scholarship} />
+        <PrivateRoute path="/scholarship" component={Scholarship} />
+        <PrivateRoute path="/dashboard" component={Dashboard} />
       </Switch>
       <ToastContainer />
     </div>

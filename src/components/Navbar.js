@@ -45,26 +45,34 @@ const Navbar = () => {
         <div
           className={
             showMediaIcons ? "menu-link mobile-menu-link" : "menu-link"
-          }
-        >
+          }>
           <ul>
-            <li>
-              <NavLink to="/contact">যোগাযোগ</NavLink>
-            </li>
             <li>
               <NavLink to="/about">About</NavLink>
             </li>
+
             <li>
-              <NavLink to="/registration">প্রবেশ করুন</NavLink>
+              <NavLink to="/dashboard">Dashboard</NavLink>
+            </li>
+            <li>
+              <NavLink to="/contact">Contact</NavLink>
             </li>
             {/* Conditionally render login or logout button based on authentication state */}
             {!isAuthenticated && (
               <li>
-                <NavLink to="/login">Log In</NavLink>
+                <NavLink to="/login ">
+                  <span> Log In</span>
+                </NavLink>
               </li>
             )}
 
-            {isAuthenticated && <li onClick={handleLogout}>Log Out</li>}
+            {isAuthenticated && (
+              <li
+                onClick={handleLogout}
+                className="cursor-pointer hover:border hover:border-green-500 hover:rounded-lg hover:p-3">
+                Log Out
+              </li>
+            )}
 
             <li>
               <NavLink to="/scholarship">
@@ -82,24 +90,21 @@ const Navbar = () => {
             <li>
               <a
                 href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa"
-              >
+                target="_thapa">
                 <FaFacebookSquare className="facebook" />
               </a>
             </li>
             <li>
               <a
                 href="https://www.instagram.com/thapatechnical/"
-                target="_thapa"
-              >
+                target="_thapa">
                 <FaInstagramSquare className="instagram" />
               </a>
             </li>
             <li>
               <a
                 href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa"
-              >
+                target="_thapa">
                 <FaYoutubeSquare className="youtube" />
               </a>
             </li>

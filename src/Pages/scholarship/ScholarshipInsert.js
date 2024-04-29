@@ -14,7 +14,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       instituteClass: "",
       instituteRollNumber: "",
       gender: "",
-      phoneNumber: 0,
+      phone: 0,
       bloodGroup: "",
       presentAddress: "",
     }, // Ensure you have proper initial values
