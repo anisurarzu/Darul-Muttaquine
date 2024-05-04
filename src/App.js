@@ -14,6 +14,7 @@ import "./App.css";
 import Scholarship from "./Pages/scholarship/Scholarship";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Contact from "./Pages/Contact/Contact";
+import History from "./Pages/History/History";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
           <Contact />
         </Route>
         <PrivateRoute path="/about" component={About} />
+        <PrivateRoute path="/history" component={History} />
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
       </Switch>

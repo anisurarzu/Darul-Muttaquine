@@ -7,6 +7,7 @@ import {
 } from "react-router-dom/cjs/react-router-dom";
 import Scholarship from "../scholarship/Scholarship";
 import DashboardHome from "./DashboardHome/DashboardHome";
+import HistoryUpload from "./HistoryUpload/HistoryUpload";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -229,7 +230,7 @@ export default function Dashboard() {
                   </li>
                   <li class="my-px pt-2">
                     <Link
-                      to={`${url}/customerInfo`}
+                      to={`${url}/historyUpload`}
                       class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 hover:bg-gray-100">
                       <span class="flex items-center justify-center text-lg text-gray-400  md:ml-0 menu1">
                         <svg
@@ -243,7 +244,7 @@ export default function Dashboard() {
                           <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
                         </svg>
                       </span>
-                      <span class="ml-3  text-[17px]">User Information</span>
+                      <span class="ml-3  text-[17px]">History Upload</span>
                     </Link>
                   </li>
                 </div>
@@ -259,6 +260,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/dashboard`}>
             <DashboardHome />
+          </Route>
+          <Route path={`${path}/historyUpload`}>
+            <HistoryUpload />
           </Route>
         </Switch>
       </div>
