@@ -178,6 +178,9 @@ const Scholarship = () => {
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center py-2">
+                    Image
+                  </th>
+                  <th className="border border-tableBorder text-center py-2">
                     Scholarship Roll
                   </th>
                   <th className="border border-tableBorder text-center py-2">
@@ -195,6 +198,13 @@ const Scholarship = () => {
               <tbody>
                 {filteredRolls.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      <img
+                        className="w-[80px] h-[40px]"
+                        src={roll?.image}
+                        alt=""
+                      />
+                    </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.scholarshipRollNumber}
                     </td>

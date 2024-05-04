@@ -3,8 +3,10 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
+import { Upload } from "antd";
 const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
+  const [fileList, setFileList] = useState([]);
 
   const formik = useFormik({
     initialValues: {
@@ -19,20 +21,66 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       presentAddress: "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
-      console.log("values", values); // Check if values are received correctly
       try {
-        const res = await coreAxios.post(`/scholarship-info`, values);
-        if (res?.status === 201) {
-          toast.success("Successfully Saved!");
-          formik.resetForm();
-          handleCancel(); // Use formik.resetForm() directly
+        setLoading(true);
+        if (!fileList.length) {
+          toast.error("Please select a file");
+          return;
+        }
+
+        const formData = new FormData();
+        fileList.forEach((file) => {
+          formData.append("image", file.originFileObj);
+        });
+        /*  formData.append("name", historyName);
+        formData.append("date", historyDate);
+        formData.append("details", historyDetails); */
+
+        const response = await axios.post(
+          "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
+          formData
+        );
+        if (response?.status === 200) {
+          console.log("response", response?.data?.data?.display_url);
+          const allData = {
+            ...values,
+            image: response?.data?.data?.display_url,
+          };
+          console.log("allData", allData);
+
+          const res = await coreAxios.post(`/scholarship-info`, allData);
+          if (res?.status === 201) {
+            setLoading(false);
+            toast.success("Successfully Saved!");
+            formik.resetForm();
+            setFileList(null);
+            handleCancel(); // Use formik.resetForm() directly
+          }
         }
       } catch (err) {
+        setLoading(false);
         toast.error(err.response.data?.message);
       }
     },
     enableReinitialize: true,
   });
+
+  const onChange = ({ fileList: newFileList }) => {
+    setFileList(newFileList);
+  };
+
+  const onPreview = async (file) => {
+    let src = file.url;
+    if (!src && file.originFileObj) {
+      src = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file.originFileObj);
+        reader.onload = () => resolve(reader.result);
+      });
+    }
+    const imgWindow = window.open(src);
+    imgWindow?.document.write(`<img src="${src}" alt="Preview" />`);
+  };
 
   const inputData = [
     {
@@ -157,6 +205,15 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
               </div>
             )
           )}
+          <Upload
+            action=""
+            listType="picture-card"
+            fileList={fileList}
+            onChange={onChange}
+            onPreview={onPreview}
+            beforeUpload={() => false}>
+            {fileList.length < 5 && "+ Upload"}
+          </Upload>
 
           {/* Submit Button */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
