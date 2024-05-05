@@ -198,9 +198,9 @@ const Scholarship = () => {
               <tbody>
                 {filteredRolls.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
-                    <td className="border border-tableBorder pl-1 text-center">
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center">
                       <img
-                        className="w-[80px] h-[40px]"
+                        className="w-[60px] h-[60px] rounded-[100px] object-cover "
                         src={roll?.image}
                         alt=""
                       />
