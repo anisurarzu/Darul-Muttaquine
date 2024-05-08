@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
-import { Alert, Button, Modal, Spin } from "antd";
+import { Alert, Button, Modal, Popconfirm, Spin } from "antd";
 import { coreAxios } from "../../utilities/axios";
 
 const Scholarship = () => {
@@ -73,9 +73,7 @@ const Scholarship = () => {
   const handleEditClick = async (RollID) => {
     console.log("RollID", RollID); // Check if this logs the correct RollID
     try {
-      const response = await axios.get(
-        `https://arabian-hunter-backend.vercel.app/api/RollMaster/GetRoleById/${RollID}`
-      );
+      const response = await axios.get(`scholarship-info/${RollID}`);
       if (response.data) {
         // Here, you can set the customer data to a state and pass it to the CustomerUpdate component.
         // For example:
@@ -86,6 +84,21 @@ const Scholarship = () => {
       }
     } catch (error) {
       console.error("Error fetching customer data:", error);
+    }
+  };
+  const handleDelete = async (RollID) => {
+    console.log(RollID);
+    try {
+      setLoading(true);
+      const response = await coreAxios.delete(`/scholarship-info/${RollID}`);
+      if (response.data) {
+        setLoading(false);
+        fetchScholarshipInfo();
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
     }
   };
 
@@ -101,6 +114,14 @@ const Scholarship = () => {
 
   const handleBackClick = () => {
     navigate(-1); // Navigate back to the previous page
+  };
+  const confirm = (e) => {
+    console.log(e);
+    toast.success("Click on Yes");
+  };
+  const cancel = (e) => {
+    console.log(e);
+    toast.error("Click on No");
   };
 
   return (
@@ -219,17 +240,33 @@ const Scholarship = () => {
                     </td>
 
                     <td className="border border-tableBorder pl-1">
-                      <div className="flex justify-center items-center py-2">
+                      <div className="flex justify-center items-center py-2 gap-1">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => handleEditClick(roll.userId)} // Ensure this is correct
+                          onClick={() => handleDelete(roll._id)} // Ensure this is correct
                         >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
                           EDIT
                         </button>
+                        <Popconfirm
+                          title="Delete the task"
+                          description="Are you sure to delete this task?"
+                          onConfirm={() => {
+                            handleDelete(roll._id);
+                          }}
+                          onCancel={cancel}
+                          okText="Yes"
+                          cancelText="No">
+                          <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
+                            <span>
+                              <i className="pi pi-trash font-semibold"></i>
+                            </span>
+                          </button>
+                        </Popconfirm>
                       </div>
+                      |
                     </td>
                   </tr>
                 ))}

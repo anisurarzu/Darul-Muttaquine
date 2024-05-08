@@ -212,7 +212,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
             onChange={onChange}
             onPreview={onPreview}
             beforeUpload={() => false}>
-            {fileList.length < 5 && "+ Upload"}
+            {fileList?.length < 5 && "+ Upload"}
           </Upload>
 
           {/* Submit Button */}
