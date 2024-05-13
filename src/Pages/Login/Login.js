@@ -30,11 +30,22 @@ export default function Login() {
 
         // Store the token in local storage
         localStorage.setItem("token", token);
-        fetchUserInfo(token);
-        // Redirect to the intended destination or dashboard if no destination is set
-        history.replace(location.state?.from || "/dashboard");
-        // Reload the page to reflect the login state
-        window.location.reload();
+        try {
+          // Call the API to fetch user information
+          const userInfoResponse = await coreAxios.get("/userinfo");
+          // Store user information locally
+          localStorage.setItem(
+            "userInfo",
+            JSON.stringify(userInfoResponse?.data)
+          );
+
+          // Redirect to the intended destination or dashboard if no destination is set
+          history.replace(location.state?.from || "/dashboard");
+          // Reload the page to reflect the login state
+          window.location.reload();
+        } catch (error) {
+          console.error("Error fetching user information:", error);
+        }
       }
 
       // Handle successful login
@@ -44,17 +55,6 @@ export default function Login() {
     }
   };
 
-  const fetchUserInfo = async (token) => {
-    try {
-      // Call the API to fetch user information
-      const userInfoResponse = await coreAxios.get("/userinfo");
-
-      // Store user information locally
-      localStorage.setItem("userInfo", JSON.stringify(userInfoResponse.data));
-    } catch (error) {
-      console.error("Error fetching user information:", error);
-    }
-  };
   return (
     <div>
       {/* <Navbar /> */}

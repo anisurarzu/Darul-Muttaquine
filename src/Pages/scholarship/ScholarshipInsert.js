@@ -3,10 +3,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
-import { Upload } from "antd";
+import { Button, Upload } from "antd";
 const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [position, setPosition] = useState("start");
 
   const formik = useFormik({
     initialValues: {
@@ -218,6 +219,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
           {/* Submit Button */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
             <div></div>
+
             <button
               type="submit"
               className=" justify-center rounded bg-primary p-3 font-medium text-gray  border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">

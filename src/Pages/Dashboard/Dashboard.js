@@ -8,9 +8,17 @@ import {
 import Scholarship from "../scholarship/Scholarship";
 import DashboardHome from "./DashboardHome/DashboardHome";
 import HistoryUpload from "./HistoryUpload/HistoryUpload";
+import DepositInfo from "./DepositInfo/DepositInfo";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
+
+  const linkList = [
+    { route: "dashboard", label: "Dashboard" },
+    { route: "scholarship", label: "Scholarship" },
+    { route: "depositInfo", label: "Deposit" },
+    { route: "historyUpload", label: "History" },
+  ];
   return (
     <div className="grid xl:grid-cols-6 lg:grid-cols-3 grid-cols-1  pt-8 ">
       {/*  <div
@@ -189,64 +197,27 @@ export default function Dashboard() {
             <div class="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-1 phone-menu-bar">
               <ul class=" md:flex-col bangla-text w-full phone-menu-bar-text   menu-box">
                 <div className="grid grid-cols-2 lg:grid-cols1 xl:grid-cols-1">
-                  <li class="my-px pt-2">
-                    <Link
-                      to={`${url}/dashboard`}
-                      class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 notification">
-                      <span class="flex items-center justify-center !text-[27px] text-gray-400">
-                        <svg
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          class="h-8 w-8 !text-[17px]">
-                          <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                        </svg>
-                      </span>
-                      <span class="ml-3 text-[17px]">Dashboard</span>
-                    </Link>
-                  </li>
-
-                  <li class="my-px pt-2">
-                    <Link
-                      to={`${url}/scholarship`}
-                      class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 hover:bg-gray-100">
-                      <span class="flex items-center justify-center text-lg text-gray-400  md:ml-0 menu1">
-                        <svg
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          class="h-8 w-8">
-                          <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
-                        </svg>
-                      </span>
-                      <span class="ml-3 text-[17px]">Scholarship</span>
-                    </Link>
-                  </li>
-                  <li class="my-px pt-2">
-                    <Link
-                      to={`${url}/historyUpload`}
-                      class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 hover:bg-gray-100">
-                      <span class="flex items-center justify-center text-lg text-gray-400  md:ml-0 menu1">
-                        <svg
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          class="h-8 w-8">
-                          <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
-                        </svg>
-                      </span>
-                      <span class="ml-3  text-[17px]">History Upload</span>
-                    </Link>
-                  </li>
+                  {linkList?.map((data, index) => (
+                    <li class="my-px pt-2" key={index}>
+                      <Link
+                        to={`${url}/${data?.route}`}
+                        class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 hover:bg-gray-100">
+                        <span class="flex items-center justify-center text-lg text-gray-400  md:ml-0 menu1">
+                          <svg
+                            fill="none"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            class="h-8 w-8">
+                            <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
+                          </svg>
+                        </span>
+                        <span class="ml-3  text-[17px]">{data?.label}</span>
+                      </Link>
+                    </li>
+                  ))}
                 </div>
               </ul>
             </div>
@@ -260,6 +231,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/dashboard`}>
             <DashboardHome />
+          </Route>
+          <Route path={`${path}/depositInfo`}>
+            <DepositInfo />
           </Route>
           <Route path={`${path}/historyUpload`}>
             <HistoryUpload />

@@ -8,6 +8,8 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
 import { Alert, Button, Modal, Popconfirm, Spin } from "antd";
 import { coreAxios } from "../../utilities/axios";
+import jsPDF from "jspdf";
+import AdmitCard from "../Dashboard/AdmitCard";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -16,6 +18,10 @@ const Scholarship = () => {
   const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [rowData, setRowData] = useState(false);
+
+  const history = useHistory();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -27,6 +33,7 @@ const Scholarship = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setIsModalOpen2(false);
     fetchScholarshipInfo();
   };
 
@@ -113,7 +120,7 @@ const Scholarship = () => {
   );
 
   const handleBackClick = () => {
-    navigate(-1); // Navigate back to the previous page
+    history.goBack(); // Navigate back to the previous page
   };
   const confirm = (e) => {
     console.log(e);
@@ -164,6 +171,9 @@ const Scholarship = () => {
                 BACK
               </button>
             </div>
+            <div>
+              <h3 className="text-[17px]">Scholarship Information</h3>
+            </div>
 
             <div className="relative mx-8 mr-4">
               <input
@@ -198,20 +208,26 @@ const Scholarship = () => {
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th className="border border-tableBorder text-center py-2">
+                  <th className="border border-tableBorder text-center p-2">
                     Image
                   </th>
-                  <th className="border border-tableBorder text-center py-2">
+                  <th className="border border-tableBorder text-center p-2">
                     Scholarship Roll
                   </th>
-                  <th className="border border-tableBorder text-center py-2">
+                  <th className="border border-tableBorder text-center p-2">
                     Name
                   </th>
-                  <th className="border border-tableBorder text-center py-2">
+                  <th className="border border-tableBorder text-center p-2">
                     Institute
                   </th>
-                  <th className="border border-tableBorder text-center py-2">
+                  <th className="border border-tableBorder text-center p-2">
                     Class
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Admit Card
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -219,9 +235,9 @@ const Scholarship = () => {
               <tbody>
                 {filteredRolls.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
-                    <td className="border border-tableBorder pl-1 text-center flex justify-center">
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
-                        className="w-[60px] h-[60px] rounded-[100px] object-cover "
+                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
                         src={roll?.image}
                         alt=""
                       />
@@ -238,17 +254,26 @@ const Scholarship = () => {
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.instituteClass}
                     </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      <button
+                        className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                        onClick={() => {
+                          history.push(`/admitCard/${roll?._id}`);
+                        }} // Ensure this is correct
+                      >
+                        <span>Download</span>
+                      </button>
+                    </td>
 
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => handleDelete(roll._id)} // Ensure this is correct
+                          onClick={() => {}} // Ensure this is correct
                         >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
-                          EDIT
                         </button>
                         <Popconfirm
                           title="Delete the task"
@@ -288,6 +313,14 @@ const Scholarship = () => {
         onCancel={handleCancel}
         width={800}>
         <ScholarshipInsert handleCancel={handleCancel} />
+      </Modal>
+      <Modal
+        title="Scholarship 2024"
+        open={isModalOpen2}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <AdmitCard handleCancel={handleCancel} />
       </Modal>
     </>
   );

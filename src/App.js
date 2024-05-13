@@ -15,6 +15,7 @@ import Scholarship from "./Pages/scholarship/Scholarship";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import Contact from "./Pages/Contact/Contact";
 import History from "./Pages/History/History";
+import AdmitCard from "./Pages/Dashboard/AdmitCard";
 
 const App = () => {
   return (
@@ -34,6 +35,7 @@ const App = () => {
           <Contact />
         </Route>
         <PrivateRoute path="/about" component={About} />
+        <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
         <PrivateRoute path="/history" component={History} />
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
