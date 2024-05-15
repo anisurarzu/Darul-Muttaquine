@@ -123,6 +123,15 @@ li {
   align-items: center;
   flex-direction: column;
 }
+.heroDetails{
+  color: #0db960;
+}
+.heroDetails-second{
+  color: #7F2E8D;
+}
+.heroDetails-third{
+  color: #2A82CE;
+}
 
 .hero-section p {
   font-size: 3rem;
@@ -139,16 +148,23 @@ li {
 
 /* hero section */
 .first-div {
-  background-image: url("./images/slider-thumba4_79e7c372-882c-4202-aacc-e22697196e37.webp");
+  background-image: url("./images/scholarship-2-removebg-preview.png");
   height: 500px;
-  width: 400px;
+  width: 600px;
   background-size: contain;
   background-repeat: no-repeat;
 }
 .second-div {
-  background-image: url("./images/slider-thumb5_7e06467d-f048-4715-afd8-49df26eef79a.png");
+  background-image: url("./images/s-2022-removebg-preview.png");
   height: 500px;
-  width: 400px;
+  width: 600px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.third-div {
+  background-image: url("./images/seraat.png");
+  height: 500px;
+  width: 600px;
   background-size: contain;
   background-repeat: no-repeat;
 }
@@ -172,6 +188,7 @@ li {
 .dashboard{
   background-color: #62AB2B;
 }
+
 /* =-------- */
 @media only screen and (max-width: 639px) {
   .google-phone-responsib{

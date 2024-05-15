@@ -8,7 +8,7 @@ import {
 import { GiHamburgerMenu } from "react-icons/gi";
 import { NavLink, Link, useHistory } from "react-router-dom";
 
-import logo from "../images/logoshirley_300x.png";
+import logo from "../images/dmf-logo.png";
 
 import "../Pages/scholarship/scholarshipButton.css";
 
@@ -33,9 +33,9 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="main-nav border-b">
+      <nav className="main-nav border-b sticky top-0 z-50 bg-white">
         {/* 1st logo part  */}
-        <div className="logo cursor-pointer">
+        <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
           <Link to="/">
             <img src={logo} alt="" />
           </Link>

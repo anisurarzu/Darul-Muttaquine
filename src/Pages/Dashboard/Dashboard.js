@@ -10,6 +10,9 @@ import DashboardHome from "./DashboardHome/DashboardHome";
 import HistoryUpload from "./HistoryUpload/HistoryUpload";
 import DepositInfo from "./DepositInfo/DepositInfo";
 
+import ResultPage from "./Result/ResultPage";
+import AddResult from "./AddResult/AddResult";
+
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
 
@@ -18,6 +21,8 @@ export default function Dashboard() {
     { route: "scholarship", label: "Scholarship" },
     { route: "depositInfo", label: "Deposit" },
     { route: "historyUpload", label: "History" },
+    { route: "addResult", label: "Add Result" },
+    { route: "result", label: "Result" },
   ];
   return (
     <div className="grid xl:grid-cols-6 lg:grid-cols-3 grid-cols-1  pt-8 ">
@@ -237,6 +242,12 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/historyUpload`}>
             <HistoryUpload />
+          </Route>
+          <Route path={`${path}/addResult`}>
+            <AddResult />
+          </Route>
+          <Route path={`${path}/result`}>
+            <ResultPage />
           </Route>
         </Switch>
       </div>

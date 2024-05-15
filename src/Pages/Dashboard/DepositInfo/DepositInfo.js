@@ -80,7 +80,7 @@ const DepositInfo = () => {
     console.log(RollID);
     try {
       setLoading(true);
-      const response = await coreAxios.delete(`/scholarship-info/${RollID}`);
+      const response = await coreAxios.delete(`/deposit-info/${RollID}`);
       if (response.data) {
         setLoading(false);
         fetchScholarshipInfo();
@@ -254,7 +254,7 @@ const DepositInfo = () => {
                           title="Delete the task"
                           description="Are you sure to delete this task?"
                           onConfirm={() => {
-                            handleDelete(roll._id);
+                            handleDelete(roll?._id);
                           }}
                           onCancel={cancel}
                           okText="Yes"
