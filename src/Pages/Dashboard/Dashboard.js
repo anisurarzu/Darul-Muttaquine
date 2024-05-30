@@ -12,12 +12,14 @@ import DepositInfo from "./DepositInfo/DepositInfo";
 
 import ResultPage from "./Result/ResultPage";
 import AddResult from "./AddResult/AddResult";
+import Profile from "./Profile/Profile";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
 
   const linkList = [
     { route: "dashboard", label: "Dashboard" },
+    { route: "profile", label: "Profile" },
     { route: "scholarship", label: "Scholarship" },
     { route: "depositInfo", label: "Deposit" },
     { route: "historyUpload", label: "History" },
@@ -248,6 +250,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/result`}>
             <ResultPage />
+          </Route>
+          <Route path={`${path}/profile`}>
+            <Profile />
           </Route>
         </Switch>
       </div>

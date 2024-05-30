@@ -123,15 +123,14 @@ export default function HeroSection() {
                 <br />
               </h4>
               <div className="text-xl   font-mono  text-justify pl-[20px] pt-[20px]">
-                <h4>িরাত পাঠ প্রতিযোগিতায় অংশগ্রহণকারী প্রতিষ্ঠানসমূহ: </h4>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="pt-4">
-                    <p>১.⁠ ⁠কামালিয়া চালা আলীম মাদ্রাসা</p>
+                <div className="flex justify-center gap-4">
+                  <div>
+                    <h4>
+                      সীরাত পাঠ প্রতিযোগিতায় অংশগ্রহণকারী প্রতিষ্ঠানসমূহ: 
+                    </h4>
+                    <p className="pt-4">১.⁠ ⁠কামালিয়া চালা আলীম মাদ্রাসা</p>
                     <p>২. তক্তারচালা দাখিল মাদ্রাসা</p>
                     <p>৩. রফিকরাজু ক্যাডেট স্কুল</p>
-                  </div>
-                  <div>
                     <p>৪. চাকদহ ইসলামিয়া দাখিল মাদ্রাসা</p>
                     <p>৫. সাকসেস ক্যাডেট স্কুল</p>
                     <p>৬. বি.এ.এফ.শাহীন স্কুল এন্ড কলেজ</p>
