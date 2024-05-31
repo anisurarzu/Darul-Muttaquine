@@ -169,6 +169,7 @@ li {
   background-repeat: no-repeat;
 }
 
+
 /* middle section */
 
 .middle-div-one {
@@ -178,6 +179,7 @@ li {
   background-size: contain;
   background-repeat: no-repeat;
 }
+
 .middle-div-two {
   background-image: url("./images/banner02.jpeg");
   height: 500px;
@@ -185,6 +187,14 @@ li {
   background-size: contain;
   background-repeat: no-repeat;
 }
+
+@media (max-width: 768px) { /* Adjust based on your breakpoint */
+  .middle-div-one, .middle-div-two {
+    width: 100%; /* Make the width full for smaller screens */
+    height: auto; /* Allow the height to adjust proportionally */
+  }
+}
+
 .dashboard{
   background-color: #62AB2B;
 }

@@ -4,8 +4,7 @@ import "primeicons/primeicons.css";
 
 export default function HeroSection() {
   const contentStyle = {
-    height: "560px",
-    lineHeight: "160px",
+    lineHeight: "1.5",
     textAlign: "center",
     background: "#F4F8FB",
   };
@@ -13,13 +12,13 @@ export default function HeroSection() {
   return (
     <div>
       <Carousel autoplay>
-        <div className="">
-          <div className="grid grid-cols-2" style={contentStyle}>
+        <div>
+          <div className="grid md:grid-cols-2 grid-cols-1" style={contentStyle}>
             <div className="p-4">
-              <h1 className="text-7xl font-bold pt-[120px] font-mono heroDetails">
+              <h1 className="text-4xl md:text-7xl font-bold pt-[20px] md:pt-[120px] font-mono heroDetails">
                 দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৩
               </h1>
-              <h4 className="text-2xl  pt-[30px] font-mono  text-justify pl-[20px]">
+              <h4 className="text-lg md:text-2xl pt-[10px] md:pt-[30px] font-mono text-justify md:pl-[20px]">
                 "দারুল মুত্তাক্বীন ফাউন্ডেশন শিক্ষাবৃত্তি ২০২৩" এর পুরস্কার
                 বিতরণী অনুষ্ঠান গত ২৯ অক্টোবর ২০২৩ ইং, রোজ: রবিবার, সকাল ১১
                 ঘটিকায় তক্তারচালা দাখিল মাদ্রাসা প্রাঙ্গণে অনুষ্ঠিত হয়। উক্ত
@@ -28,13 +27,12 @@ export default function HeroSection() {
                 <br />
                 <br />
               </h4>
-              <div className="text-xl   font-mono  text-justify pl-[20px] pt-[20px]">
+              <div className="text-base md:text-xl font-mono text-justify md:pl-[20px] pt-[20px]">
                 <h4>
                   শিক্ষাবৃত্তিতে অংশগ্রহণকারী প্রতিষ্ঠানসমূহ (১৬ টি প্রতিষ্ঠানের
-                  বাছাইকৃত ২০৬ জন শিক্ষার্থী):  
+                  বাছাইকৃত ২০৬ জন শিক্ষার্থী):
                 </h4>
-
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="pt-4">
                     <p>১.⁠ ⁠আব্দুর নূর সালাফী মাদ্রাসা  </p>
                     <p>২.⁠ ⁠দরানী পাড়া উচ্চ বিদ্যালয়  </p>
@@ -58,29 +56,27 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-            <div className="first-div  mt-[80px] ml-[100px] "></div>
+            <div className="first-div mt-[20px] md:mt-[80px] mx-auto md:ml-[100px]"></div>
           </div>
         </div>
 
         <div>
-          <div className="grid grid-cols-2" style={contentStyle}>
+          <div className="grid md:grid-cols-2 grid-cols-1" style={contentStyle}>
             <div className="p-4">
-              <h1 className="text-7xl font-bold pt-[120px] font-mono heroDetails-second">
+              <h1 className="text-4xl md:text-7xl font-bold pt-[20px] md:pt-[120px] font-mono heroDetails-second">
                 দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২২
               </h1>
-              <h4 className="text-2xl  pt-[30px] font-mono  text-justify pl-[20px]">
+              <h4 className="text-lg md:text-2xl pt-[10px] md:pt-[30px] font-mono text-justify md:pl-[20px]">
                 "দারুল মুত্তাক্বীন ফাউন্ডেশন শিক্ষাবৃত্তি ২০২২" এর পুরস্কার
                 বিতরণী অনুষ্ঠান গত ১৯ মে ২০২২ ইং, রোজ: বৃহস্পতিবার,তক্তারচালা
                 দাখিল মাদ্রাসা প্রাঙ্গণে অনুষ্ঠিত হয়। উক্ত অনুষ্ঠানে ৩ টি
                 শিক্ষা প্রতিষ্ঠানের ১৬ জন শিক্ষার্থীকে বৃত্তি প্রদান করা হয়।
-                প্রদান করা হয়।
                 <br />
                 <br />
               </h4>
-              <div className="text-xl   font-mono  text-justify pl-[20px] pt-[20px]">
-                <h4>বৃত্তিপ্রাপ্ত শিক্ষার্থীরা:  </h4>
-
-                <div className="grid grid-cols-2 gap-4">
+              <div className="text-base md:text-xl font-mono text-justify md:pl-[20px] pt-[20px]">
+                <h4>বৃত্তিপ্রাপ্ত শিক্ষার্থীরা:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="pt-4">
                     <p>1.⁠ ⁠Md. Tanvir Hasan (KCAM)</p>
                     <p>2.⁠ ⁠Nasrin Akter (KCAM) </p>
@@ -104,16 +100,17 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-            <div className="second-div   mt-[80px] ml-[100px] "></div>
+            <div className="second-div mt-[20px] md:mt-[80px] mx-auto md:ml-[100px]"></div>
           </div>
         </div>
+
         <div>
-          <div className="grid grid-cols-2" style={contentStyle}>
+          <div className="grid md:grid-cols-2 grid-cols-1" style={contentStyle}>
             <div className="p-4">
-              <h1 className="text-7xl font-bold pt-[120px] font-mono heroDetails-third">
+              <h1 className="text-4xl md:text-7xl font-bold pt-[20px] md:pt-[120px] font-mono heroDetails-third">
                 সীরাত পাঠ প্রতিযোগিতা ২০২৩
               </h1>
-              <h4 className="text-2xl  pt-[30px] font-mono  text-justify pl-[20px]">
+              <h4 className="text-lg md:text-2xl pt-[10px] md:pt-[30px] font-mono text-justify md:pl-[20px]">
                 "দারুল মুত্তাক্বীন ফাউন্ডেশন সীরাত পাঠ প্রতিযোগিতা ২০২৩" এর
                 পুরস্কার বিতরণী অনুষ্ঠান গত ২০ শে জানুয়ারি ২০২৩ ইং তক্তারচালা
                 সবুজ বাংলা উচ্চ বিদ্যালয় মাঠ প্রাঙ্গণে অনুষ্ঠিত হয়। উক্ত
@@ -122,12 +119,10 @@ export default function HeroSection() {
                 <br />
                 <br />
               </h4>
-              <div className="text-xl   font-mono  text-justify pl-[20px] pt-[20px]">
+              <div className="text-base md:text-xl font-mono text-justify md:pl-[20px] pt-[20px]">
                 <div className="flex justify-center gap-4">
                   <div>
-                    <h4>
-                      সীরাত পাঠ প্রতিযোগিতায় অংশগ্রহণকারী প্রতিষ্ঠানসমূহ: 
-                    </h4>
+                    <h4>সীরাত পাঠ প্রতিযোগিতায় অংশগ্রহণকারী প্রতিষ্ঠানসমূহ:</h4>
                     <p className="pt-4">১.⁠ ⁠কামালিয়া চালা আলীম মাদ্রাসা</p>
                     <p>২. তক্তারচালা দাখিল মাদ্রাসা</p>
                     <p>৩. রফিকরাজু ক্যাডেট স্কুল</p>
@@ -138,7 +133,7 @@ export default function HeroSection() {
                 </div>
               </div>
             </div>
-            <div className="third-div   mt-[80px] ml-[100px] "></div>
+            <div className="third-div mt-[20px] md:mt-[80px] mx-auto md:ml-[100px]"></div>
           </div>
         </div>
       </Carousel>
