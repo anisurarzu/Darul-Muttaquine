@@ -22,7 +22,7 @@ const AddResult = () => {
           scholarshipRollNumber: values?.scholarshipRollNumber,
           resultDetails: values,
         });
-        if (res?.status === 201) {
+        if (res?.status === 200) {
           toast.success("Successfully Saved!");
           formik.resetForm();
         }

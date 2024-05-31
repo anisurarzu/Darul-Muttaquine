@@ -7,6 +7,7 @@ import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
 
 import InsertDeposit from "./InsertDeposit";
 import { coreAxios } from "../../../utilities/axios";
+import { formatDate } from "../../../utilities/dateFormate";
 
 const DepositInfo = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -226,7 +227,7 @@ const DepositInfo = () => {
                       {roll?.amount}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.depositDate?.slice(0, 10)}
+                      {formatDate(roll?.depositDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.paymentMethod}

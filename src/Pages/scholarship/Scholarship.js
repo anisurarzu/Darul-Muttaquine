@@ -10,6 +10,7 @@ import { Alert, Button, Modal, Popconfirm, Spin } from "antd";
 import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
 import AdmitCard from "../Dashboard/AdmitCard";
+import { formatDate } from "../../utilities/dateFormate";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -224,6 +225,9 @@ const Scholarship = () => {
                     Class
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Date
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Admit Card
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -253,6 +257,9 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.instituteClass}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {formatDate(roll.submittedAt)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button

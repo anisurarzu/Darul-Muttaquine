@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import ChangePassword from "./ChangePassword/ChangePassword";
 import UpdateProfile from "./UpdateProfile/UpdateProfile";
 import { coreAxios } from "../../../utilities/axios";
+import { formatDate } from "../../../utilities/dateFormate";
 
 export default function Profile() {
   // const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -16,16 +17,6 @@ export default function Profile() {
   useEffect(() => {
     getUserInfo();
   }, []);
-
-  const formatDate = (dateString) => {
-    // Parse the date string properly to avoid errors
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      return "Invalid Date";
-    }
-    const options = { year: "numeric", month: "short", day: "2-digit" };
-    return new Intl.DateTimeFormat("en-US", options).format(date);
-  };
 
   const getUserInfo = async () => {
     try {
@@ -80,17 +71,12 @@ export default function Profile() {
                       alt=""
                     />
                   </div>
-                  <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">
+                  <h1 class="text-gray-900 font-bold text-[14px] leading-8 my-1">
                     {userData?.firstName} {userData?.lastName}
                   </h1>
                   <h3 class="text-gray-600 font-lg text-semibold leading-6">
-                    Owner at Her Company Inc.
+                    Member at Darul Muttaquine Foundation
                   </h3>
-                  <p class="text-sm text-gray-500 hover:text-gray-600 leading-6">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Reprehenderit, eligendi dolorum sequi illum qui unde
-                    aspernatur non deserunt
-                  </p>
 
                   <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                     <li class="flex items-center py-3 text-[14px]">
@@ -115,7 +101,9 @@ export default function Profile() {
                     </li>
                     <li class="flex items-center py-3">
                       <span>Member since</span>
-                      <span class="ml-auto">Nov 07, 2016</span>
+                      <span class="ml-auto">
+                        {formatDate(userData?.createdAt)}
+                      </span>
                     </li>
                   </ul>
                 </div>

@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import Scholarship from "../../scholarship/Scholarship";
 
 const ResultPage = () => {
+  const [resultData, setResultData] = useState({});
   const formik = useFormik({
     initialValues: {
       scholarshipRollNumber: "",
@@ -14,13 +15,13 @@ const ResultPage = () => {
     onSubmit: async (values) => {
       console.log("values", values); // Check if values are received correctly
       try {
-        const res = await coreAxios.post(`/add-result`, {
-          scholarshipRollNumber: values?.scholarshipRollNumber,
-          resultDetails: values,
-        });
-        if (res?.status === 201) {
-          toast.success("Successfully Saved!");
+        const res = await coreAxios.get(
+          `search-result/${values?.scholarshipRollNumber}`
+        );
+        if (res?.status === 200) {
+          toast.success("Successfully Get!");
           formik.resetForm();
+          setResultData(res?.data);
         }
       } catch (err) {
         toast.error(err.response.data?.message);
@@ -107,14 +108,16 @@ const ResultPage = () => {
         <div>
           <Result
             status="success"
-            title="Congratulations! You are passed successfully with 100% marks!"
-            subTitle="Order number: 2017182818828182881 Cloud server configuration takes 1-5 minutes, please wait."
-            /*  extra={[
-              <Button type="primary" key="console">
-                Details
-              </Button>,
-              <Button key="buy">Buy Again</Button>,
-            ]} */
+            title={`${
+              resultData?.resultDetails?.[0]?.totalMarks > 79
+                ? "Alhamdulillah! Congratulations! You get an Scholarship with "
+                : resultData?.resultDetails?.[0]?.totalMarks > 0
+                ? "Sorry! Your performance was Really Good! You don't get any scholarship. But Hopefully you will come back strongly Ing Sha Allah."
+                : "Please search Your result with valid Scholarship Roll Number"
+            }${
+              resultData?.resultDetails?.[0]?.totalMarks > 0 &&
+              resultData?.resultDetails?.[0]?.totalMarks
+            } % marks!`}
           />
         </div>
         <div className="flex justify-center">
@@ -140,44 +143,54 @@ const ResultPage = () => {
               </div>
             </div>
             <div className="border-t border-b border-r border-green-500 p-4">
-              <div className="border-b border-green-400 p-1">Test</div>
-              <div className="border-b border-green-400 p-1 bg-green-50">
-                Test
+              <div className="border-b border-green-400 p-1">
+                {resultData?.name}
               </div>
-              <div className="border-b border-green-400 p-1">Test</div>
               <div className="border-b border-green-400 p-1 bg-green-50">
-                Test
+                {resultData?.institute}
               </div>
-              <div className="border-b border-green-400 p-1">Test</div>
+              <div className="border-b border-green-400 p-1">
+                {resultData?.instituteClass}
+              </div>
+              <div className="border-b border-green-400 p-1 bg-green-50">
+                {resultData?.scholarshipRollNumber}
+              </div>
+              <div className="border-b border-green-400 p-1">
+                {resultData?.instituteRollNumber}
+              </div>
             </div>
           </div>
           {/* 2nd div */}
           <div>
-            <Progress percent={100} />
+            <Progress percent={resultData?.resultDetails?.[0]?.totalMarks} />
             <div className="grid grid-cols-2  w-full pt-2">
               <div className="border border-orange-500 p-4 ">
-                <div className="border-b border-orange-400 p-1 ">Name:</div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Institute Name
+                <div className="border-b border-orange-400 p-1 ">
+                  Total Answered:
                 </div>
-                <div className="border-b border-orange-400 p-1">Class</div>
                 <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Scholarship Roll
+                  Correct Answer
                 </div>
                 <div className="border-b border-orange-400 p-1">
-                  Institute Roll
+                  Wrong Answer
+                </div>
+                <div className="border-b border-orange-400 p-1 bg-orange-50">
+                  Total Marks
                 </div>
               </div>
               <div className="border-t border-b border-r border-orange-500 p-4">
-                <div className="border-b border-orange-400 p-1">Test</div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Test
+                <div className="border-b border-orange-400 p-1">
+                  {resultData?.resultDetails?.[0]?.totalGivenAns}
                 </div>
-                <div className="border-b border-orange-400 p-1">Test</div>
                 <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Test
+                  {resultData?.resultDetails?.[0]?.totalCorrectAns}
                 </div>
-                <div className="border-b border-orange-400 p-1">Test</div>
+                <div className="border-b border-orange-400 p-1">
+                  {resultData?.resultDetails?.[0]?.totalWrongAns}
+                </div>
+                <div className="border-b border-orange-400 p-1 bg-orange-50">
+                  {resultData?.resultDetails?.[0]?.totalMarks}
+                </div>
               </div>
             </div>
           </div>
