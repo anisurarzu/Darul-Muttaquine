@@ -78,12 +78,17 @@ export default function Dashboard() {
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
         ]
-      : [
+      : userData?.userRole === "Senior-Member"
+      ? [
           { route: "dashboard", label: "Dashboard" },
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
+        ]
+      : [
+          { route: "dashboard", label: "Dashboard" },
+          { route: "profile", label: "Profile" },
         ];
   return (
     <div className="grid xl:grid-cols-6 lg:grid-cols-3 grid-cols-1  pt-8 ">

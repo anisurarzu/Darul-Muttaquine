@@ -10,7 +10,8 @@ import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
 
 const DepositInfo = () => {
-  const navigate = useHistory(); // Get the navigate function
+  const navigate = useHistory();
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")); // Get the navigate function
   const [showDialog, setShowDialog] = useState(false); //insert customer
   const [showDialog1, setShowDialog1] = useState(false); //update customer
   const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
@@ -40,7 +41,11 @@ const DepositInfo = () => {
   const fetchScholarshipInfo = async () => {
     try {
       setLoading(true);
-      const response = await coreAxios.get(`/deposit-info`);
+      const uri =
+        userInfo?.userRole === "Super-Admin"
+          ? "deposit-info"
+          : "deposit-info-user";
+      const response = await coreAxios.get(uri);
       if (response?.status === 200) {
         const sortedData = response?.data?.sort((a, b) => {
           return new Date(b?.depositDate) - new Date(a?.depositDate);
