@@ -5,15 +5,13 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
 
-import InsertDeposit from "./InsertDeposit";
-import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
+import UpdateUser from "./UpdateUser";
+import { coreAxios } from "../../../utilities/axios";
 
-const DepositInfo = () => {
+const UserDashboard = () => {
   const navigate = useHistory(); // Get the navigate function
-  const [showDialog, setShowDialog] = useState(false); //insert customer
-  const [showDialog1, setShowDialog1] = useState(false); //update customer
-  const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
+  const [rowData, setRowData] = useState({});
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -40,10 +38,10 @@ const DepositInfo = () => {
   const fetchScholarshipInfo = async () => {
     try {
       setLoading(true);
-      const response = await coreAxios.get(`/deposit-info`);
+      const response = await coreAxios.get(`/users`);
       if (response?.status === 200) {
         const sortedData = response?.data?.sort((a, b) => {
-          return new Date(b?.depositDate) - new Date(a?.depositDate);
+          return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
         setRollData(sortedData);
         setLoading(false);
@@ -58,30 +56,11 @@ const DepositInfo = () => {
     fetchScholarshipInfo();
   }, []);
 
-  const onHideDialog = () => {
-    setShowDialog(false);
-    setShowDialog1(false);
-  };
-
-  const handleEditClick = async (RollID) => {
-    console.log("RollID", RollID);
-    try {
-      const response = await axios.get(`scholarship-info/${RollID}`);
-      if (response.data) {
-        setSelectedRoll(response.data);
-        setShowDialog1(true);
-      } else {
-        console.error("Customer data not found");
-      }
-    } catch (error) {
-      console.error("Error fetching customer data:", error);
-    }
-  };
   const handleDelete = async (RollID) => {
     console.log(RollID);
     try {
       setLoading(true);
-      const response = await coreAxios.delete(`/deposit-info/${RollID}`);
+      const response = await coreAxios.delete(`/user-info/${RollID}`);
       if (response.data) {
         setLoading(false);
         fetchScholarshipInfo();
@@ -137,19 +116,6 @@ const DepositInfo = () => {
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
             <div className="ml-1">
               <button
-                className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
-                onClick={() => showModal()}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}>
-                <span>
-                  <i className="pi pi-plus font-semibold"></i>
-                </span>
-                NEW
-              </button>
-
-              <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
                 onClick={handleBackClick}
                 style={{
@@ -163,7 +129,7 @@ const DepositInfo = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">Deposit History</h3>
+              <h3 className="text-[17px]">User Details ({rollData?.length})</h3>
             </div>
 
             <div className="relative mx-8 mr-4">
@@ -200,22 +166,28 @@ const DepositInfo = () => {
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
-                    Amount
+                    Image
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Deposit Date
+                    DMF ID
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Payment Method
+                    Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Phone NO. / ACC NO.
+                    Role
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Tnxld NO.
+                    Phone
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    User ID
+                    Email
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Join Date
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -223,30 +195,42 @@ const DepositInfo = () => {
               <tbody>
                 {currentItems.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.amount}
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
+                      <img
+                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
+                        src={roll?.image}
+                        alt=""
+                      />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll?.depositDate)}
+                      {roll?.uniqueId}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.paymentMethod}
+                      {roll.firstName} {roll?.lastName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.phone}
+                      {roll.userRole}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.tnxID}
+                      {roll.phone}
+                    </td>
+
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.email}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.userID}
+                      {formatDate(roll?.createdAt)}
                     </td>
 
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => handleDelete(roll._id)}>
+                          onClick={() => {
+                            setRowData(roll);
+                            setIsModalOpen(true);
+                          }} // Ensure this is correct
+                        >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
@@ -255,7 +239,7 @@ const DepositInfo = () => {
                           title="Delete the task"
                           description="Are you sure to delete this task?"
                           onConfirm={() => {
-                            handleDelete(roll?._id);
+                            handleDelete(roll._id);
                           }}
                           onCancel={cancel}
                           okText="Yes"
@@ -292,10 +276,10 @@ const DepositInfo = () => {
         // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
-        <InsertDeposit handleCancel={handleCancel} />
+        <UpdateUser handleCancel={handleCancel} rowData={rowData} />
       </Modal>
     </>
   );
 };
 
-export default DepositInfo;
+export default UserDashboard;

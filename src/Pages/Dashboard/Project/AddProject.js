@@ -2,72 +2,62 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
-import { coreAxios } from "../../utilities/axios";
-import { Alert, Button, Spin, Upload } from "antd";
-const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
+
+import { Alert, Button, DatePicker, Spin, Upload } from "antd";
+import { coreAxios } from "../../../utilities/axios";
+const AddProject = ({ handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [position, setPosition] = useState("start");
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      parentName: "",
-      institute: "",
-      instituteClass: "",
-      instituteRollNumber: "",
-      gender: "",
-      phone: 0,
-      bloodGroup: "",
-      presentAddress: "",
+      projectName: "",
+      startDate: "",
+      endDate: "",
+      projectLeader: "",
+      projectFund: "",
+      image: "",
+      details: "",
+      approvalStatus: "Pending",
+      yesVote: 0,
+      noVote: 0,
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       try {
         setLoading(true);
         if (!fileList.length) {
+          toast.error("Please select a file");
+          return;
+        }
+
+        const formData = new FormData();
+        fileList.forEach((file) => {
+          formData.append("image", file.originFileObj);
+        });
+        /*  formData.append("name", historyName);
+        formData.append("date", historyDate);
+        formData.append("details", historyDetails); */
+
+        const response = await axios.post(
+          "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
+          formData
+        );
+        if (response?.status === 200) {
+          console.log("response", response?.data?.data?.display_url);
           const allData = {
             ...values,
-            image: "",
+            image: response?.data?.data?.display_url,
           };
           console.log("allData", allData);
 
-          const res = await coreAxios.post(`/scholarship-info`, allData);
-          if (res?.status === 201) {
+          const res = await coreAxios.post(`add-project-info`, allData);
+          if (res?.status === 200) {
             setLoading(false);
             toast.success("Successfully Saved!");
             formik.resetForm();
             setFileList(null);
             handleCancel(); // Use formik.resetForm() directly
-          }
-        } else {
-          const formData = new FormData();
-          fileList.forEach((file) => {
-            formData.append("image", file.originFileObj);
-          });
-          /*  formData.append("name", historyName);
-        formData.append("date", historyDate);
-        formData.append("details", historyDetails); */
-
-          const response = await axios.post(
-            "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
-            formData
-          );
-          if (response?.status === 200) {
-            console.log("response", response?.data?.data?.display_url);
-            const allData = {
-              ...values,
-              image: response?.data?.data?.display_url,
-            };
-            console.log("allData", allData);
-
-            const res = await coreAxios.post(`/scholarship-info`, allData);
-            if (res?.status === 201) {
-              setLoading(false);
-              toast.success("Successfully Saved!");
-              formik.resetForm();
-              setFileList(null);
-              handleCancel(); // Use formik.resetForm() directly
-            }
           }
         }
       } catch (err) {
@@ -97,82 +87,37 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
 
   const inputData = [
     {
-      id: "name",
-      name: "name",
+      id: "projectName",
+      name: "projectName",
       type: "text",
-      label: "Student Name ",
+      label: "Project Name ",
       errors: "",
       register: "",
       required: true,
     },
     {
-      id: "parentName",
-      name: "parentName",
+      id: "projectLeader",
+      name: "projectLeader",
       type: "text",
-      label: "Parent Name",
+      label: "Project Manager",
       errors: "",
       register: "",
       required: true,
     },
     {
-      id: "institute",
-      name: "institute",
-      type: "text",
-      label: "Institute Name",
-      errors: "",
-      register: "",
-      required: true,
-    },
-    {
-      id: "instituteClass",
-      name: "instituteClass",
-      type: "text",
-      label: "Institute Class",
-      errors: "",
-      register: "",
-      required: true,
-    },
-    {
-      id: "instituteRollNumber",
-      name: "instituteRollNumber",
-      type: "text",
-      label: "Institute Roll",
-      errors: "",
-      register: "",
-      required: true,
-    },
-    {
-      id: "phone",
-      name: "phone",
+      id: "projectFund",
+      name: "projectFund",
       type: "number",
-      label: "Phone Number",
+      label: "Project Budget",
       errors: "",
       register: "",
-      required: false,
+      required: true,
     },
     {
-      id: "gender",
-      name: "gender",
+      id: "details",
+      name: "details",
       type: "text",
-      label: "Gender",
-      errors: "",
-      register: "",
-      required: false,
-    },
-    {
-      id: "bloodGroup",
-      name: "bloodGroup",
-      type: "text",
-      label: "Blood Group",
-      errors: "",
-      register: "",
-      required: false,
-    },
-    {
-      id: "presentAddress",
-      name: "presentAddress",
-      type: "text",
-      label: "Present Address",
+      label: "Details",
       errors: "",
       register: "",
       required: true,
@@ -227,6 +172,26 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
                     </div>
                   )
                 )}
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-white">
+                    Start Date <span className="text-meta-1">*</span>
+                  </label>
+                  <DatePicker
+                    value={formik.values.startDate}
+                    onChange={(date) => formik.setFieldValue("startDate", date)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-white">
+                    End Date <span className="text-meta-1">*</span>
+                  </label>
+                  <DatePicker
+                    value={formik.values.endDate}
+                    onChange={(date) => formik.setFieldValue("endDate", date)}
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -243,8 +208,6 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
 
           {/* Submit Button */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
-            <div></div>
-
             <button
               type="submit"
               className=" justify-center rounded bg-primary p-3 font-medium text-gray  border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
@@ -257,4 +220,4 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   );
 };
 
-export default ScholarshipInsert;
+export default AddProject;

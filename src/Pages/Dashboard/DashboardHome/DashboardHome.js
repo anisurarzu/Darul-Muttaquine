@@ -6,13 +6,15 @@ import { coreAxios } from "../../../utilities/axios";
 import { Alert } from "antd";
 import { Spin } from "antd";
 import { Link } from "react-router-dom/cjs/react-router-dom";
+import ProfileCard from "../Profile/ProfileCard";
+import ProjectCard from "../Project/ProjectCard";
 
 export default function DashboardHome() {
   const userInfo = useUserInfo();
   const [users, setUsers] = useState([]);
   const [scholarShipInfo, setScholarShipInfo] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [chartData, setChartData] = useState({});
+  const [projectInfo, setProjectInfo] = useState([]);
   const [chartOptions, setChartOptions] = useState({});
 
   const getAllUserList = async () => {
@@ -41,9 +43,30 @@ export default function DashboardHome() {
       toast.error(err.response.data?.message);
     }
   };
+  const getProjectInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get("project-info");
+      if (response?.status === 200) {
+        const sortedData = response?.data?.sort((a, b) => {
+          return new Date(b?.createdAt) - new Date(a?.createdAt);
+        });
+        const approvedProjects = sortedData?.filter(
+          (project) => project.approvalStatus === "Approve"
+        );
+        setProjectInfo(approvedProjects);
+      }
+    } catch (err) {
+      toast.error(err.response.data?.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const percentage = ((Number(scholarShipInfo?.length) / 249) * 100).toFixed(2);
 
   useEffect(() => {
+    getProjectInfo();
     getAllUserList();
     getScholarShipInfo();
   }, []);
@@ -180,7 +203,16 @@ export default function DashboardHome() {
               </a>
             </div>
           </div>
-          {/* <Chart type="bar" data={chartData} options={chartOptions} /> */}
+          <h2 className="py-2 text-[17px] font-semibold">
+            Running DMF Projects
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
+            {projectInfo?.map((project, index) => (
+              <div key={index}>
+                <ProjectCard rowData={project} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

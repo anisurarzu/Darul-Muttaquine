@@ -53,6 +53,9 @@ const Navbar = () => {
             <li>
               <NavLink to="/history">History</NavLink>
             </li>
+            <li>
+              <NavLink to="/result">Result</NavLink>
+            </li>
 
             <li>
               <NavLink to="/dashboard">Dashboard</NavLink>
@@ -61,13 +64,13 @@ const Navbar = () => {
               <NavLink to="/contact">Contact</NavLink>
             </li>
             {/* Conditionally render login or logout button based on authentication state */}
-            {!isAuthenticated && (
+            {/*  {!isAuthenticated && (
               <li>
                 <NavLink to="/login ">
                   <span> Log In</span>
                 </NavLink>
               </li>
-            )}
+            )} */}
 
             {isAuthenticated && (
               <li

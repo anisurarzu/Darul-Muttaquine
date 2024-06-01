@@ -64,6 +64,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   };
 
   const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount"]; // Define payment methods
+  const projectList = ["bkash", "rocket", "nagad", "bankAccount"]; // Define payment methods
 
   return (
     <div className="">
@@ -99,7 +100,26 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
               onChange={(value) => formik.setFieldValue("paymentMethod", value)}
               value={formik.values.paymentMethod}
               className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-              {paymentMethods.map((method) => (
+              {paymentMethods?.map((method) => (
+                <Option key={method} value={method}>
+                  {method}
+                </Option>
+              ))}
+            </Select>
+          </div>
+          <div className="w-full  mb-4">
+            <label
+              htmlFor="project"
+              className="block text-black dark:text-white">
+              Project <span className="text-meta-1">*</span>
+            </label>
+            <Select
+              id="project"
+              name="project"
+              onChange={(value) => formik.setFieldValue("project", value)}
+              value={formik.values.project}
+              className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+              {projectList?.map((method) => (
                 <Option key={method} value={method}>
                   {method}
                 </Option>

@@ -2,20 +2,23 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
-
-import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
-
-import InsertDeposit from "./InsertDeposit";
+import { Alert, Button, Modal, Popconfirm, Spin } from "antd";
 import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
+import AddProject from "./AddProject";
+import UpdateProjectStatus from "./UpdateProjectStatus";
 
-const DepositInfo = () => {
+const ProjectDashboard = () => {
   const navigate = useHistory(); // Get the navigate function
   const [showDialog, setShowDialog] = useState(false); //insert customer
   const [showDialog1, setShowDialog1] = useState(false); //update customer
   const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [rowData, setRowData] = useState(false);
+
+  const history = useHistory();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -27,23 +30,30 @@ const DepositInfo = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-    fetchScholarshipInfo();
+    setIsModalOpen2(false);
+    fetchProjectDashboardInfo();
   };
 
+  //state for search query
   const [searchQuery, setSearchQuery] = useState("");
+
+  // delete
   const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
   const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
-  const [rollData, setRollData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Change the number of items per page as needed
 
-  const fetchScholarshipInfo = async () => {
+  const [rollData, setRollData] = useState([]);
+
+  // Fetch customers from the API
+  // Construct the API endpoint URL using the environment variable
+
+  const fetchProjectDashboardInfo = async () => {
     try {
       setLoading(true);
-      const response = await coreAxios.get(`/deposit-info`);
+      const response = await coreAxios.get(`project-info`);
       if (response?.status === 200) {
+        // Sort the data by the submittedAt field in descending order
         const sortedData = response?.data?.sort((a, b) => {
-          return new Date(b?.depositDate) - new Date(a?.depositDate);
+          return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
         setRollData(sortedData);
         setLoading(false);
@@ -55,7 +65,7 @@ const DepositInfo = () => {
   };
 
   useEffect(() => {
-    fetchScholarshipInfo();
+    fetchProjectDashboardInfo();
   }, []);
 
   const onHideDialog = () => {
@@ -63,11 +73,14 @@ const DepositInfo = () => {
     setShowDialog1(false);
   };
 
+  // handle Update or Edit
   const handleEditClick = async (RollID) => {
-    console.log("RollID", RollID);
+    console.log("RollID", RollID); // Check if this logs the correct RollID
     try {
-      const response = await axios.get(`scholarship-info/${RollID}`);
+      const response = await axios.get(`ProjectDashboard-info/${RollID}`);
       if (response.data) {
+        // Here, you can set the customer data to a state and pass it to the CustomerUpdate component.
+        // For example:
         setSelectedRoll(response.data);
         setShowDialog1(true);
       } else {
@@ -81,10 +94,10 @@ const DepositInfo = () => {
     console.log(RollID);
     try {
       setLoading(true);
-      const response = await coreAxios.delete(`/deposit-info/${RollID}`);
+      const response = await coreAxios.delete(`/project-info/${RollID}`);
       if (response.data) {
         setLoading(false);
-        fetchScholarshipInfo();
+        fetchProjectDashboardInfo();
       } else {
         setLoading(false);
       }
@@ -93,21 +106,18 @@ const DepositInfo = () => {
     }
   };
 
+  // Step 2: Modify rendering to filter customers based on search
   const filteredRolls = rollData.filter((roll) =>
     searchQuery
       ? Object.values(roll)
-          .join("")
-          .toLowerCase()
+          .join("") // Concatenate all values of a customer object to a string
+          .toLowerCase() // Convert to lowercase for case-insensitive matching
           .includes(searchQuery.toLowerCase())
       : true
   );
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
-
   const handleBackClick = () => {
-    // navigate(-1);
+    history.goBack(); // Navigate back to the previous page
   };
   const confirm = (e) => {
     console.log(e);
@@ -116,10 +126,6 @@ const DepositInfo = () => {
   const cancel = (e) => {
     console.log(e);
     toast.error("Click on No");
-  };
-
-  const onChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
   };
 
   return (
@@ -151,7 +157,7 @@ const DepositInfo = () => {
 
               <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-                onClick={handleBackClick}
+                onClick={handleBackClick} // Use the handleBackClick function here
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
@@ -163,7 +169,7 @@ const DepositInfo = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">Deposit History</h3>
+              <h3 className="text-[17px]">Project Dashboard Information</h3>
             </div>
 
             <div className="relative mx-8 mr-4">
@@ -200,53 +206,71 @@ const DepositInfo = () => {
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
-                    Amount
+                    Image
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Deposit Date
+                    Project Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Payment Method
+                    Project Budget
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Phone NO. / ACC NO.
+                    Start Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Tnxld NO.
+                    End Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    User ID
+                    Project Manager
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Status
+                  </th>
+
+                  <th className="border border-tableBorder text-center p-2">
+                    Actions
                   </th>
                 </tr>
               </thead>
 
               <tbody>
-                {currentItems.map((roll) => (
-                  <tr key={roll?.scholarshipRollNumber}>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.amount}
+                {filteredRolls.map((roll, index) => (
+                  <tr key={roll?.index}>
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
+                      <img
+                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
+                        src={roll?.image}
+                        alt=""
+                      />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll?.depositDate)}
+                      {roll?.projectName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.paymentMethod}
+                      {roll.projectFund}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.phone}
+                      {formatDate(roll.startDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.tnxID}
+                      {formatDate(roll.endDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.userID}
+                      {roll.projectLeader}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.approvalStatus}
                     </td>
 
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => handleDelete(roll._id)}>
+                          onClick={() => {
+                            setRowData(roll);
+                            setIsModalOpen2(true);
+                          }} // Ensure this is correct
+                        >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
@@ -255,7 +279,7 @@ const DepositInfo = () => {
                           title="Delete the task"
                           description="Are you sure to delete this task?"
                           onConfirm={() => {
-                            handleDelete(roll?._id);
+                            handleDelete(roll._id);
                           }}
                           onCancel={cancel}
                           okText="Yes"
@@ -273,18 +297,11 @@ const DepositInfo = () => {
                 ))}
               </tbody>
             </table>
-            <div className="flex justify-center p-2">
-              <Pagination
-                showQuickJumper
-                current={currentPage}
-                total={filteredRolls.length}
-                pageSize={itemsPerPage}
-                onChange={onChange}
-              />
-            </div>
           </div>
         </div>
       )}
+
+      {/* start insert dialog */}
 
       <Modal
         title="Please Provided Valid Information"
@@ -292,10 +309,18 @@ const DepositInfo = () => {
         // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
-        <InsertDeposit handleCancel={handleCancel} />
+        <AddProject handleCancel={handleCancel} rowData={rowData} />
+      </Modal>
+      <Modal
+        title="Please Provided Valid Information"
+        open={isModalOpen2}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <UpdateProjectStatus handleCancel={handleCancel} rowData={rowData} />
       </Modal>
     </>
   );
 };
 
-export default DepositInfo;
+export default ProjectDashboard;

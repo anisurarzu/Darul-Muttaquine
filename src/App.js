@@ -16,6 +16,7 @@ import Dashboard from "./Pages/Dashboard/Dashboard";
 import Contact from "./Pages/Contact/Contact";
 import History from "./Pages/History/History";
 import AdmitCard from "./Pages/Dashboard/AdmitCard";
+import ResultPage from "./Pages/Dashboard/Result/ResultPage";
 
 const App = () => {
   return (
@@ -33,6 +34,9 @@ const App = () => {
         </Route>
         <Route exact path="/contact">
           <Contact />
+        </Route>
+        <Route exact path="/result">
+          <ResultPage />
         </Route>
         <PrivateRoute path="/about" component={About} />
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
