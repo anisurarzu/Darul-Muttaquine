@@ -63,6 +63,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
       userID: "",
       phone: 0,
       tnxID: "",
+      status: "Pending",
     },
     onSubmit: async (values) => {
       try {

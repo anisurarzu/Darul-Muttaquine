@@ -8,15 +8,18 @@ import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
 import InsertDeposit from "./InsertDeposit";
 import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
+import UpdateDepositStatus from "./UpdateDepositStatus";
 
 const DepositInfo = () => {
-  const navigate = useHistory();
+  const history = useHistory();
   const userInfo = JSON.parse(localStorage.getItem("userInfo")); // Get the navigate function
   const [showDialog, setShowDialog] = useState(false); //insert customer
   const [showDialog1, setShowDialog1] = useState(false); //update customer
   const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [rowData, setRowData] = useState({});
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -28,7 +31,8 @@ const DepositInfo = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-    fetchScholarshipInfo();
+    setIsModalOpen2(false);
+    fetchDepositInfo();
   };
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,13 +42,13 @@ const DepositInfo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Change the number of items per page as needed
 
-  const fetchScholarshipInfo = async () => {
+  const fetchDepositInfo = async () => {
     try {
       setLoading(true);
       const uri =
         userInfo?.userRole === "Super-Admin"
           ? "deposit-info"
-          : "deposit-info-user";
+          : `deposit-info/${userInfo?._id}`;
       const response = await coreAxios.get(uri);
       if (response?.status === 200) {
         const sortedData = response?.data?.sort((a, b) => {
@@ -60,7 +64,7 @@ const DepositInfo = () => {
   };
 
   useEffect(() => {
-    fetchScholarshipInfo();
+    fetchDepositInfo();
   }, []);
 
   const onHideDialog = () => {
@@ -89,7 +93,7 @@ const DepositInfo = () => {
       const response = await coreAxios.delete(`/deposit-info/${RollID}`);
       if (response.data) {
         setLoading(false);
-        fetchScholarshipInfo();
+        fetchDepositInfo();
       } else {
         setLoading(false);
       }
@@ -112,7 +116,7 @@ const DepositInfo = () => {
   const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleBackClick = () => {
-    // navigate(-1);
+    history.goBack();
   };
   const confirm = (e) => {
     console.log(e);
@@ -225,6 +229,9 @@ const DepositInfo = () => {
                   <th className="border border-tableBorder text-center p-2">
                     User ID
                   </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Payment Status
+                  </th>
                 </tr>
               </thead>
 
@@ -252,14 +259,28 @@ const DepositInfo = () => {
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.userID}
                     </td>
+                    <td
+                      className={`border border-tableBorder pl-1 text-center text-[14px] font-semi-bold ${
+                        roll?.status === "Approved"
+                          ? "text-green-500 "
+                          : roll?.status === "Rejected"
+                          ? "text-red-500"
+                          : roll?.status === "Hold"
+                          ? "text-yellow-500"
+                          : ""
+                      }`}>
+                      {roll?.status}
+                    </td>
 
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
                         {userInfo?.userRole === "Super-Admin" && (
                           <button
                             className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                            /*  onClick={() => handleEdit(roll._id)} */
-                          >
+                            onClick={() => {
+                              setRowData(roll);
+                              setIsModalOpen2(true);
+                            }}>
                             <span>
                               <i className="pi pi-pencil font-semibold"></i>
                             </span>
@@ -308,6 +329,14 @@ const DepositInfo = () => {
         onCancel={handleCancel}
         width={800}>
         <InsertDeposit handleCancel={handleCancel} />
+      </Modal>
+      <Modal
+        title="Please Provided Valid Information"
+        open={isModalOpen2}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <UpdateDepositStatus handleCancel={handleCancel} rowData={rowData} />
       </Modal>
     </>
   );
