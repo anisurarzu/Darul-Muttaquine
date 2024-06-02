@@ -211,6 +211,9 @@ const DepositInfo = () => {
                     Deposit Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Project
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Payment Method
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -235,6 +238,9 @@ const DepositInfo = () => {
                       {formatDate(roll?.depositDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.project}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
                       {roll?.paymentMethod}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
@@ -249,13 +255,17 @@ const DepositInfo = () => {
 
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
-                        <button
-                          className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => handleDelete(roll._id)}>
-                          <span>
-                            <i className="pi pi-pencil font-semibold"></i>
-                          </span>
-                        </button>
+                        {userInfo?.userRole === "Super-Admin" && (
+                          <button
+                            className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                            /*  onClick={() => handleEdit(roll._id)} */
+                          >
+                            <span>
+                              <i className="pi pi-pencil font-semibold"></i>
+                            </span>
+                          </button>
+                        )}
+
                         <Popconfirm
                           title="Delete the task"
                           description="Are you sure to delete this task?"

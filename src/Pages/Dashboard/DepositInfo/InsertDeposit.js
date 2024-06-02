@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -11,7 +11,47 @@ const { Option } = Select; // Destructure Option from Select
 
 const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
-  const [fileList, setFileList] = useState([]);
+  const [projectList, setProjectList] = useState([]);
+
+  const fetchProjectDashboardInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get("project-info");
+      if (response?.status === 200) {
+        // Filter the projects with approval status "Approve"
+        const approvedProjects = response.data.filter(
+          (project) => project.approvalStatus === "Approve"
+        );
+
+        // Create an array containing only the project names
+        const projectNames = approvedProjects?.map(
+          (project) => project.projectName
+        );
+
+        // Sort the project names by the createdAt field in descending order
+        const sortedProjectNames = projectNames.sort((a, b) => {
+          const projectA = approvedProjects.find(
+            (project) => project.projectName === a
+          );
+          const projectB = approvedProjects.find(
+            (project) => project.projectName === b
+          );
+          return new Date(projectB?.createdAt) - new Date(projectA?.createdAt);
+        });
+
+        // Set the sorted project names
+        setProjectList(sortedProjectNames);
+      }
+    } catch (error) {
+      console.error("Error fetching project info:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjectDashboardInfo();
+  }, []);
 
   const userInfo = useUserInfo();
   console?.log("userInfo", userInfo);
@@ -46,25 +86,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
     enableReinitialize: true,
   });
 
-  const onChange = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
-  };
-
-  const onPreview = async (file) => {
-    let src = file.url;
-    if (!src && file.originFileObj) {
-      src = await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file.originFileObj);
-        reader.onload = () => resolve(reader.result);
-      });
-    }
-    const imgWindow = window.open(src);
-    imgWindow?.document.write(`<img src="${src}" alt="Preview" />`);
-  };
-
   const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount"]; // Define payment methods
-  const projectList = ["bkash", "rocket", "nagad", "bankAccount"]; // Define payment methods
 
   return (
     <div className="">
