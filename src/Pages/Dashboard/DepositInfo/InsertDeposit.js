@@ -60,7 +60,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
     initialValues: {
       amount: 0,
       paymentMethod: "bankAccount", // Initialize paymentMethod
-      userID: "",
+      userName: "",
       phone: 0,
       tnxID: "",
       status: "Pending",
@@ -69,7 +69,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
       try {
         const allData = {
           ...values,
-          userID: userInfo?._id || "",
+          userName: userInfo?.username || "",
         };
         setLoading(true);
         const res = await coreAxios.post(`/deposit-info`, allData);
@@ -87,11 +87,18 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
     enableReinitialize: true,
   });
 
-  const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount"]; // Define payment methods
+  const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount", "cash"]; // Define payment methods
 
   return (
     <div className="">
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <p className="p-2 text-[14px] text-center ">
+          সাময়িক সময়ের জন্য আমরা ম্যানুয়ালি টাকা গ্রহণ করছি , শুরুতে আপনি আমাদের
+          বিকাশ <span className="font-bold">(01791556184)</span>,নগদ
+          <span className="font-bold pl-1">(01791556184)</span> নম্বরে টাকা
+          পাঠিয়ে নিচের ঘরগুলো যথাযথ ভাবে পূরণ করুন, আমরা আপনাকে অতিশিঘ্রই
+          কনফার্ম করবো। অবশ্যই ট্রানজেকশন আইডি ঘরে যথাযথ ট্রানজেকশন আইডি বসাবেন।
+        </p>
         <form
           className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
           onSubmit={formik.handleSubmit}>

@@ -50,7 +50,7 @@ export default function Login() {
 
       // Handle successful login
     } catch (error) {
-      toast.error(error.response.data?.message);
+      toast.error(error?.response?.data?.message);
       // Handle login error
     }
   };
