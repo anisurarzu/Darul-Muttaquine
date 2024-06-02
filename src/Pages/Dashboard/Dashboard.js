@@ -7,7 +7,7 @@ import {
 } from "react-router-dom/cjs/react-router-dom";
 import Scholarship from "../scholarship/Scholarship";
 import DashboardHome from "./DashboardHome/DashboardHome";
-import HistoryUpload from "./HistoryUpload/HistoryUpload";
+
 import DepositInfo from "./DepositInfo/DepositInfo";
 
 import ResultPage from "./Result/ResultPage";
@@ -16,6 +16,7 @@ import Profile from "./Profile/Profile";
 import UserDashboard from "./UserList/UserDashboard";
 import ProjectDashboard from "./Project/ProjectDashboard";
 import { coreAxios } from "../../utilities/axios";
+import HistoryDashboard from "./HistoryUpload/HistoryDashboard/HistoryDashboard";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -45,7 +46,7 @@ export default function Dashboard() {
           { route: "profile", label: "Profile" },
           { route: "scholarship", label: "Scholarship" },
           { route: "depositInfo", label: "Deposit" },
-          { route: "historyUpload", label: "History" },
+          { route: "historyDashboard", label: "History" },
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
           { route: "users", label: "Users" },
@@ -57,7 +58,7 @@ export default function Dashboard() {
           { route: "profile", label: "Profile" },
           { route: "scholarship", label: "Scholarship" },
           { route: "depositInfo", label: "Deposit" },
-          { route: "historyUpload", label: "History" },
+          { route: "historyDashboard", label: "History" },
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
           { route: "project", label: "Projects" },
@@ -69,6 +70,7 @@ export default function Dashboard() {
           { route: "depositInfo", label: "Deposit" },
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
+          { route: "historyDashboard", label: "History" },
         ]
       : userData?.userRole === "Senior-Member"
       ? [
@@ -142,8 +144,8 @@ export default function Dashboard() {
           <Route path={`${path}/depositInfo`}>
             <DepositInfo />
           </Route>
-          <Route path={`${path}/historyUpload`}>
-            <HistoryUpload />
+          <Route path={`${path}/historyDashboard`}>
+            <HistoryDashboard />
           </Route>
           <Route path={`${path}/addResult`}>
             <AddResult />

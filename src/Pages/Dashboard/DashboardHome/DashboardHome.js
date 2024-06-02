@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import useUserInfo from "../../../hooks/useUserInfo";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../../utilities/axios";
 import { Alert } from "antd";
 import { Spin } from "antd";
-import { Link } from "react-router-dom/cjs/react-router-dom";
+
 import ProfileCard from "../Profile/ProfileCard";
 import ProjectCard from "../Project/ProjectCard";
+import { Link } from "react-router-dom";
 
 export default function DashboardHome() {
-  const userInfo = useUserInfo();
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const [users, setUsers] = useState([]);
   const [scholarShipInfo, setScholarShipInfo] = useState([]);
   const [loading, setLoading] = useState(false);
   const [projectInfo, setProjectInfo] = useState([]);
-  const [chartOptions, setChartOptions] = useState({});
+  const [depositData, setDepositData] = useState([]);
+  const [singleDepositData, setSingleDepositData] = useState([]);
 
   const getAllUserList = async () => {
     try {
@@ -62,13 +63,60 @@ export default function DashboardHome() {
       setLoading(false);
     }
   };
+  const fetchDepositInfo = async () => {
+    try {
+      setLoading(true);
+      const uri = "deposit-info";
+      const response = await coreAxios.get(uri);
+      if (response?.status === 200) {
+        const approvedDeposits = response?.data.filter(
+          (deposit) => deposit.status === "Approved"
+        );
+        setDepositData(approvedDeposits);
 
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching rolls:", error);
+    }
+  };
+  const getSingleDeposit = async () => {
+    try {
+      setLoading(true);
+
+      const response = await coreAxios.get(`deposit-info/${userInfo?._id}`);
+      if (response?.status === 200) {
+        setSingleDepositData(response?.data);
+
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching rolls:", error);
+    }
+  };
+  // Calculate the total amount
+  const totalDepositAmount = depositData?.reduce(
+    (total, deposit) => total + deposit?.amount,
+    0
+  );
+
+  const data = singleDepositData?.deposits?.filter(
+    (deposit) => deposit.status === "Approved"
+  );
+  const depositAmount = data?.reduce(
+    (total, deposit) => total + deposit?.amount,
+    0
+  );
   const percentage = ((Number(scholarShipInfo?.length) / 249) * 100).toFixed(2);
 
   useEffect(() => {
+    fetchDepositInfo();
     getProjectInfo();
     getAllUserList();
     getScholarShipInfo();
+    getSingleDeposit();
   }, []);
 
   return (
@@ -82,45 +130,17 @@ export default function DashboardHome() {
           />
         </Spin>
       ) : (
-        <div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+        <div className="">
+          <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
+            <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
               <div class="flex justify-between mb-6">
                 <div>
                   <div class="flex items-center mb-1">
-                    <div class="text-2xl font-semibold">{users?.length}</div>
+                    <div class="text-3xl font-semibold">{users?.length}</div>
                   </div>
-                  <div class="text-sm font-medium text-gray-400">Users</div>
-                </div>
-                <div class="dropdown">
-                  <button
-                    type="button"
-                    class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                    <i class="ri-more-fill"></i>
-                  </button>
-                  <ul class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Profile
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Settings
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Logout
-                      </a>
-                    </li>
-                  </ul>
+                  <div class="text-[14px] font-medium text-green-800">
+                    Users
+                  </div>
                 </div>
               </div>
 
@@ -130,18 +150,18 @@ export default function DashboardHome() {
                 View
               </a>
             </div>
-            <div class="bg-white rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+            <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
               <div class="flex justify-between mb-4">
                 <div>
                   <div class="flex items-center mb-1">
-                    <div class="text-2xl font-semibold">
+                    <div class="text-3xl font-semibold">
                       {scholarShipInfo?.length}
                     </div>
-                    <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[12px] font-semibold leading-none ml-2">
+                    <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2">
                       +{percentage}%
                     </div>
                   </div>
-                  <div class="text-sm font-medium text-gray-400">
+                  <div class="text-[14px] font-medium text-blue-800">
                     Applications
                   </div>
                 </div>
@@ -159,51 +179,42 @@ export default function DashboardHome() {
                 View
               </Link>
             </div>
-            <div class="bg-white rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
               <div class="flex justify-between mb-6">
                 <div>
-                  <div class="text-2xl font-semibold mb-1">100</div>
-                  <div class="text-sm font-medium text-gray-400">Blogs</div>
-                </div>
-                <div class="dropdown">
-                  <button
-                    type="button"
-                    class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                    <i class="ri-more-fill"></i>
-                  </button>
-                  <ul class="dropdown-menu shadow-md shadow-black/5 z-30 hidden py-1.5 rounded-md bg-white border border-gray-100 w-full max-w-[140px]">
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Profile
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Settings
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="flex items-center text-[13px] py-1.5 px-4 text-gray-600 hover:text-blue-500 hover:bg-gray-50">
-                        Logout
-                      </a>
-                    </li>
-                  </ul>
+                  <div class="text-3xl font-semibold mb-1">
+                    ৳{depositAmount}
+                  </div>
+                  <div class="text-[14px] font-medium text-purple-800">
+                    My Deposit
+                  </div>
                 </div>
               </div>
-              <a
-                href=""
+              <Link
+                to="/dashboard/depositInfo"
                 class="text-[#f84525] font-medium text-sm hover:text-red-800">
                 View
-              </a>
+              </Link>
+            </div>
+            <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+              <div class="flex justify-between mb-6">
+                <div>
+                  <div class="text-3xl font-semibold mb-1">
+                    ৳{totalDepositAmount}
+                  </div>
+                  <div class="text-[14px] font-medium text-yellow-800">
+                    DMF Fund
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/depositInfo"
+                class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                View
+              </Link>
             </div>
           </div>
-          <h2 className="py-2 text-[17px] font-semibold">
+          <h2 className="py-2 text-[17px] font-semibold text-center">
             Running DMF Projects
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3">
