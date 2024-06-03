@@ -278,43 +278,45 @@ const DepositInfo = () => {
                     </td>
 
                     <td className="border border-tableBorder pl-1">
-                      <div className="flex justify-center items-center py-2 gap-1">
-                        {userInfo?.userRole === "Super-Admin" && (
-                          <button
-                            className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                            onClick={() => {
-                              setRowData(roll);
-                              setIsModalOpen2(true);
-                            }}>
-                            <span>
-                              <i className="pi pi-pencil font-semibold"></i>
-                            </span>
-                          </button>
-                        )}
+                      {roll?.status !== "Approved" && (
+                        <div className="flex justify-center items-center py-2 gap-1">
+                          {userInfo?.userRole === "Super-Admin" && (
+                            <button
+                              className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                              onClick={() => {
+                                setRowData(roll);
+                                setIsModalOpen2(true);
+                              }}>
+                              <span>
+                                <i className="pi pi-pencil font-semibold"></i>
+                              </span>
+                            </button>
+                          )}
 
-                        <Popconfirm
-                          title="Delete the task"
-                          description="Are you sure to delete this task?"
-                          onConfirm={() => {
-                            if (
-                              userInfo?.userRole === "Super-Admin" ||
-                              "Admin"
-                            ) {
-                              handleDelete(roll?._id);
-                            } else {
-                              toast.error("Please contact with DMF Admin!");
-                            }
-                          }}
-                          onCancel={cancel}
-                          okText="Yes"
-                          cancelText="No">
-                          <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                            <span>
-                              <i className="pi pi-trash font-semibold"></i>
-                            </span>
-                          </button>
-                        </Popconfirm>
-                      </div>
+                          <Popconfirm
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            onConfirm={() => {
+                              if (
+                                userInfo?.userRole === "Super-Admin" ||
+                                "Admin"
+                              ) {
+                                handleDelete(roll?._id);
+                              } else {
+                                toast.error("Please contact with DMF Admin!");
+                              }
+                            }}
+                            onCancel={cancel}
+                            okText="Yes"
+                            cancelText="No">
+                            <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
+                              <span>
+                                <i className="pi pi-trash font-semibold"></i>
+                              </span>
+                            </button>
+                          </Popconfirm>
+                        </div>
+                      )}
                       |
                     </td>
                   </tr>
