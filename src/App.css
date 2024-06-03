@@ -255,6 +255,7 @@ li {
 /* responsive css style  */
 @media (max-width: 1080px) {
   .main-nav {
+    padding: 5px;
     height: 8rem;
     grid-template-columns: 2rem 3fr 3fr 1fr 2rem;
   }
@@ -262,6 +263,7 @@ li {
   .logo,
   .menu-link ul,
   .social-media ul {
+    padding:5px;
     height: 8rem;
   }
 }

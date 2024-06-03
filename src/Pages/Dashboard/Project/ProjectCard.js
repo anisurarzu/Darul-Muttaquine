@@ -50,8 +50,8 @@ export default function ProjectCard({ rowData, depositData }) {
           <div className="flex-none sm:flex pt-3 ">
             <div className="flex-auto sm:ml-5 justify-evenly">
               <div className="flex flex-row items-center text-justify">
-                <p className="h-[110px]">
-                  {rowData?.details?.slice(0, 350)}.....{" "}
+                <p className="h-[100px]">
+                  {rowData?.details?.slice(0, 300)}.....{" "}
                   <span
                     className="text-blue-800 cursor-ponter"
                     onClick={() => {
@@ -60,6 +60,13 @@ export default function ProjectCard({ rowData, depositData }) {
                     See More
                   </span>
                 </p>
+              </div>
+              <div>
+                <p className="underline">CoorDinators:</p>
+
+                {Array.isArray(rowData.projectCoordinators)
+                  ? rowData.projectCoordinators.join(", ")
+                  : ""}
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <p>End Date : {formatDate(rowData?.endDate)}</p>

@@ -169,7 +169,7 @@ const ProjectDashboard = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">Project Dashboard Information</h3>
+              <h3 className="text-[17px]">Project Information</h3>
             </div>
 
             <div className="relative mx-8 mr-4">
@@ -209,10 +209,10 @@ const ProjectDashboard = () => {
                     Image
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Project Name
+                    Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Project Budget
+                    Budget
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     Start Date
@@ -221,7 +221,10 @@ const ProjectDashboard = () => {
                     End Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Project Manager
+                    Manager
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Coordinators
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     Status
@@ -234,11 +237,11 @@ const ProjectDashboard = () => {
               </thead>
 
               <tbody>
-                {filteredRolls.map((roll, index) => (
-                  <tr key={roll?.index}>
-                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
+                {filteredRolls.map((roll) => (
+                  <tr key={roll._id}>
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center">
                       <img
-                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
+                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0 lg:rounded-[100px] xl:rounded-[100px] object-cover"
                         src={roll?.image}
                         alt=""
                       />
@@ -259,9 +262,22 @@ const ProjectDashboard = () => {
                       {roll.projectLeader}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
+                      {Array.isArray(roll.projectCoordinators)
+                        ? roll.projectCoordinators.join(", ")
+                        : ""}
+                    </td>
+                    <td
+                      className={`border border-tableBorder pl-1 text-center text-[14px] font-semi-bold ${
+                        roll?.approvalStatus === "Approve"
+                          ? "text-green-500 "
+                          : roll?.approvalStatus === "Reject"
+                          ? "text-red-500"
+                          : roll?.approvalStatus === "Hold"
+                          ? "text-yellow-500"
+                          : ""
+                      }`}>
                       {roll.approvalStatus}
                     </td>
-
                     <td className="border border-tableBorder pl-1">
                       <div className="flex justify-center items-center py-2 gap-1">
                         <button
@@ -269,8 +285,7 @@ const ProjectDashboard = () => {
                           onClick={() => {
                             setRowData(roll);
                             setIsModalOpen2(true);
-                          }} // Ensure this is correct
-                        >
+                          }}>
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
@@ -291,7 +306,6 @@ const ProjectDashboard = () => {
                           </button>
                         </Popconfirm>
                       </div>
-                      |
                     </td>
                   </tr>
                 ))}

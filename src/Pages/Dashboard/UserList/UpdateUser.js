@@ -12,7 +12,7 @@ const UpdateUser = ({ handleCancel, rowData }) => {
   console.log("values", rowData);
   const formik = useFormik({
     initialValues: {
-      userRole: "",
+      userRole: rowData?.userRole || "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       // Check if values are received correctly
@@ -43,7 +43,7 @@ const UpdateUser = ({ handleCancel, rowData }) => {
 
   return (
     <div className="">
-      <div className="bg-white p-4 shadow rounded">
+      <div className="bg-white p-4  rounded">
         <ProfileCard rowData={rowData} />
         <div className="flex justify-center pt-2">
           <div>
@@ -80,7 +80,7 @@ const UpdateUser = ({ handleCancel, rowData }) => {
             <div></div>
             <button
               type="submit"
-              className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+              className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-yellow-400 m-8 rounded hover:bg-yellow-400 hover:text-white hover:shadow-md">
               Update
             </button>
           </div>

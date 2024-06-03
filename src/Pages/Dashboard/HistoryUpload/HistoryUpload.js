@@ -146,6 +146,7 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
                     </div>
                   )
                 )}
+                <p>Description</p>
                 <textarea
                   id="description"
                   name="description"

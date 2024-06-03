@@ -17,6 +17,7 @@ import UserDashboard from "./UserList/UserDashboard";
 import ProjectDashboard from "./Project/ProjectDashboard";
 import { coreAxios } from "../../utilities/axios";
 import HistoryDashboard from "./HistoryUpload/HistoryDashboard/HistoryDashboard";
+import SuggestionBox from "./SuggestionBox/SuggestionBox";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -51,6 +52,7 @@ export default function Dashboard() {
           { route: "result", label: "Result" },
           { route: "users", label: "Users" },
           { route: "project", label: "Projects" },
+          { route: "suggestionBox", label: "SuggestionBox" },
         ]
       : userData?.userRole === "Admin"
       ? [
@@ -62,6 +64,7 @@ export default function Dashboard() {
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
           { route: "project", label: "Projects" },
+          { route: "suggestionBox", label: "SuggestionBox" },
         ]
       : userData?.userRole === "Co-Admin"
       ? [
@@ -71,6 +74,7 @@ export default function Dashboard() {
           { route: "addResult", label: "Add Result" },
           { route: "result", label: "Result" },
           { route: "historyDashboard", label: "History" },
+          { route: "suggestionBox", label: "SuggestionBox" },
         ]
       : userData?.userRole === "Senior-Member"
       ? [
@@ -83,8 +87,10 @@ export default function Dashboard() {
       : userData?.userRole === "Member"
       ? [
           { route: "dashboard", label: "Dashboard" },
+
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
+          { route: "suggestionBox", label: "SuggestionBox" },
 
           { route: "result", label: "Result" },
         ]
@@ -161,6 +167,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/project`}>
             <ProjectDashboard />
+          </Route>
+          <Route path={`${path}/suggestionBox`}>
+            <SuggestionBox />
           </Route>
         </Switch>
       </div>

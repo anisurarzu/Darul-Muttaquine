@@ -175,6 +175,9 @@ const UserDashboard = () => {
                     Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    User Name
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Role
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -210,6 +213,9 @@ const UserDashboard = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.firstName} {roll?.lastName}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.username}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.userRole}

@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
-
-import { Alert, Button, DatePicker, Spin, Upload } from "antd";
+import { Alert, Button, DatePicker, Select, Spin, Upload } from "antd";
 import { coreAxios } from "../../../utilities/axios";
+const { Option } = Select;
+
 const AddProject = ({ handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
-  const [position, setPosition] = useState("start");
+  const [usersList, setUsersList] = useState([]);
+
+  useEffect(() => {
+    getUserList();
+  }, []);
 
   const formik = useFormik({
     initialValues: {
@@ -16,48 +21,55 @@ const AddProject = ({ handleCancel }) => {
       startDate: "",
       endDate: "",
       projectLeader: "",
+      projectCoordinators: [],
       projectFund: "",
       image: "",
       details: "",
       approvalStatus: "Pending",
       yesVote: 0,
       noVote: 0,
-    }, // Ensure you have proper initial values
+    },
     onSubmit: async (values) => {
       try {
         setLoading(true);
         if (!fileList.length) {
-          toast.error("Please select a file");
-          return;
-        }
-
-        const formData = new FormData();
-        fileList.forEach((file) => {
-          formData.append("image", file.originFileObj);
-        });
-        /*  formData.append("name", historyName);
-        formData.append("date", historyDate);
-        formData.append("details", historyDetails); */
-
-        const response = await axios.post(
-          "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
-          formData
-        );
-        if (response?.status === 200) {
-          console.log("response", response?.data?.data?.display_url);
           const allData = {
             ...values,
-            image: response?.data?.data?.display_url,
+            image: "",
           };
-          console.log("allData", allData);
 
           const res = await coreAxios.post(`add-project-info`, allData);
           if (res?.status === 200) {
             setLoading(false);
             toast.success("Successfully Saved!");
             formik.resetForm();
-            setFileList(null);
-            handleCancel(); // Use formik.resetForm() directly
+            setFileList([]);
+            handleCancel();
+          }
+        } else {
+          const formData = new FormData();
+          fileList.forEach((file) => {
+            formData.append("image", file.originFileObj);
+          });
+
+          const response = await axios.post(
+            "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
+            formData
+          );
+          if (response?.status === 200) {
+            const allData = {
+              ...values,
+              image: response?.data?.data?.display_url,
+            };
+
+            const res = await coreAxios.post(`add-project-info`, allData);
+            if (res?.status === 200) {
+              setLoading(false);
+              toast.success("Successfully Saved!");
+              formik.resetForm();
+              setFileList([]);
+              handleCancel();
+            }
           }
         }
       } catch (err) {
@@ -67,6 +79,17 @@ const AddProject = ({ handleCancel }) => {
     },
     enableReinitialize: true,
   });
+
+  const getUserList = async () => {
+    try {
+      const res = await coreAxios.get(`usersDropdown`);
+      if (res?.status === 200) {
+        setUsersList(res?.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const onChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -91,26 +114,27 @@ const AddProject = ({ handleCancel }) => {
       name: "projectName",
       type: "text",
       label: "Project Name ",
-      errors: "",
-      register: "",
       required: true,
     },
-    {
+    /* {
       id: "projectLeader",
       name: "projectLeader",
       type: "text",
       label: "Project Manager",
-      errors: "",
-      register: "",
       required: true,
-    },
+    }, */
+    /* {
+      id: "projectCoordinators",
+      name: "projectCoordinators",
+      type: "text",
+      label: "Project Coordinators",
+      required: true,
+    }, */
     {
       id: "projectFund",
       name: "projectFund",
       type: "number",
       label: "Project Budget",
-      errors: "",
-      register: "",
       required: true,
     },
     {
@@ -118,8 +142,6 @@ const AddProject = ({ handleCancel }) => {
       name: "details",
       type: "text",
       label: "Details",
-      errors: "",
-      register: "",
       required: true,
     },
   ];
@@ -139,39 +161,65 @@ const AddProject = ({ handleCancel }) => {
               </Spin>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2">
-                {inputData?.map(
-                  ({
-                    id,
-                    name,
-                    type,
-                    label,
-                    labelFor,
-                    errors,
-                    register,
-                    required,
-                    optionLabel = "",
-                    selectedAutoValue,
-                    setSelectedAutoValue,
-                    autoCompleteMethod,
-                    autoFilteredValue,
-                  }) => (
-                    <div className="w-full mb-4">
-                      <label className="block text-black dark:text-white">
-                        {label} <span className="text-meta-1">*</span>
-                      </label>
-                      <input
-                        id={id}
-                        name={name}
-                        type={type}
-                        required={required}
-                        width="full"
-                        onChange={formik.handleChange}
-                        value={formik.values?.[id]}
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                      />
-                    </div>
-                  )
-                )}
+                {inputData?.map(({ id, name, type, label, required }) => (
+                  <div className="w-full mb-4" key={id}>
+                    <label className="block text-black dark:text-white">
+                      {label} <span className="text-meta-1">*</span>
+                    </label>
+                    <input
+                      id={id}
+                      name={name}
+                      type={type}
+                      required={required}
+                      width="full"
+                      onChange={formik.handleChange}
+                      value={formik.values?.[id]}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    />
+                  </div>
+                ))}
+                <div className="w-full  mb-4">
+                  <label
+                    htmlFor="projectLeader"
+                    className="block text-black dark:text-white">
+                    Project Manager <span className="text-meta-1">*</span>
+                  </label>
+                  <Select
+                    id="projectLeader"
+                    name="projectLeader"
+                    onChange={(value) =>
+                      formik.setFieldValue("projectLeader", value)
+                    }
+                    value={formik.values.projectLeader}
+                    className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    options={usersList?.map((user) => ({
+                      value: user?.username,
+                      label: user?.username,
+                    }))}
+                  />
+                </div>
+                <div className="w-full mb-4">
+                  <label
+                    htmlFor="projectCoordinators"
+                    className="block text-black dark:text-white">
+                    Project Coordinators <span className="text-meta-1">*</span>
+                  </label>
+                  <Select
+                    id="projectCoordinators"
+                    name="projectCoordinators"
+                    mode="multiple"
+                    onChange={(value) =>
+                      formik.setFieldValue("projectCoordinators", value)
+                    }
+                    value={formik.values.projectCoordinators}
+                    className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    options={usersList?.map((user) => ({
+                      value: user?.username,
+                      label: user?.username,
+                    }))}
+                  />
+                </div>
+
                 <div className="w-full mb-4">
                   <label className="block text-black dark:text-white">
                     Start Date <span className="text-meta-1">*</span>
@@ -210,7 +258,7 @@ const AddProject = ({ handleCancel }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
             <button
               type="submit"
-              className=" justify-center rounded bg-primary p-3 font-medium text-gray  border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+              className=" justify-center rounded bg-primary p-3 font-medium text-gray border border-green-600 m-4 hover:bg-green-600 hover:text-white hover:shadow-md">
               Submit
             </button>
           </div>

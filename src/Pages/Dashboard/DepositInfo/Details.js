@@ -1,13 +1,10 @@
-
-
 import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { Modal } from "antd";
 
-
 export default function Details({ rowData, depositData }) {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   // Filter deposits based on the current project
   const projectDeposits = depositData?.filter(
@@ -20,7 +17,6 @@ export default function Details({ rowData, depositData }) {
     0
   );
 
-  
   return (
     <div>
       <div className="flex flex-col">
@@ -49,28 +45,44 @@ export default function Details({ rowData, depositData }) {
           <div className="flex-none sm:flex pt-2">
             <div className="flex-auto  justify-evenly">
               <div className="flex flex-row items-center text-justify">
-                <p className='text-[10px] lg:text-[14px] xl:text-[14px] pt-2'>{rowData?.details}</p>
+                <p className="text-[10px] lg:text-[14px] xl:text-[14px] pt-2">
+                  {rowData?.details}
+                </p>
+              </div>
+              <div>
+                <p className="underline">CoorDinators:</p>
+                {Array.isArray(rowData.projectCoordinators)
+                  ? rowData.projectCoordinators.join(", ")
+                  : ""}
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
-                <p className=' text-red-900 '>End Date : {formatDate(rowData?.endDate)}</p>
-                {userInfo?.uniqueId&&<div className="">
-                  <h3 className="text-[14px] text-green-900 font-semibold">
-                    Balance : ৳{totalAmount}
-                  </h3>
-
-                   
-                </div>}
+                <p className=" text-red-900 ">
+                  End Date : {formatDate(rowData?.endDate)}
+                </p>
+                {userInfo?.uniqueId && (
+                  <div className="">
+                    <h3 className="text-[14px] text-green-900 font-semibold">
+                      Balance : ৳{totalAmount}
+                    </h3>
+                  </div>
+                )}
               </div>
-             {userInfo?.uniqueId&&<div>
-                <h3 className="py-1 font-semibold text-[14px]"> History Of Deposit :</h3>
-                <ul className="list-disc  mt-2">
+              {userInfo?.uniqueId && (
+                <div>
+                  <h3 className="py-1 font-semibold text-[14px]">
+                    {" "}
+                    History Of Deposit :
+                  </h3>
+                  <ul className="list-disc  mt-2">
                     {projectDeposits?.map((deposit) => (
                       <li key={deposit._id}>
-                       {deposit?.username || deposit?.userName} - 
-                       ৳{deposit?.amount}
+                        {deposit?.username || deposit?.userName} - ৳
+                        {deposit?.amount}
                       </li>
                     ))}
-                  </ul></div>}
+                  </ul>
+                </div>
+              )}
               <div className="flex pt-8 text-sm text-red-500">
                 <div className="flex-1 inline-flex items-center">
                   <svg
@@ -87,15 +99,11 @@ export default function Details({ rowData, depositData }) {
                     Budget : ৳{rowData?.projectFund}
                   </p>
                 </div>
-                
               </div>
-             
             </div>
           </div>
         </div>
       </div>
-
-      
     </div>
   );
 }
