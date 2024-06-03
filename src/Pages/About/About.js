@@ -4,6 +4,7 @@ import { coreAxios } from "../../utilities/axios";
 import { toast } from "react-toastify";
 import { Alert, Spin } from "antd";
 import ProjectCard from "../Dashboard/Project/ProjectCard";
+import axios from "axios";
 
 export default function About() {
   const [users, setUsers] = useState([]);
@@ -52,8 +53,7 @@ export default function About() {
   useEffect(() => {
     getAllProject();
     getAllUserList();
-    // Call the reloadUntilToken function on initial render
-    // reloadUntilToken();
+
   }, []);
 
   return (
@@ -119,7 +119,7 @@ export default function About() {
             </div>
           </div>
 
-          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-4 underline">
+          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 underline">
             Darul Muttaquine Runnig Projects
           </h2>
 
@@ -132,7 +132,7 @@ export default function About() {
               ))}
             </div>
           </div>
-          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-4 underline">
+          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 underline">
             Darul Muttaquine Foundations Active Members
           </h2>
           <div>

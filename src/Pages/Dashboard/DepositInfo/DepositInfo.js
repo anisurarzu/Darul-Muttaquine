@@ -243,7 +243,7 @@ const DepositInfo = () => {
                 {currentItems.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.username}
+                      {roll?.userName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center font-bold text-green-900">
                       ৳{roll?.amount}

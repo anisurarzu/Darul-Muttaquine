@@ -70,6 +70,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
         const allData = {
           ...values,
           userName: userInfo?.username || "",
+          userID: userInfo?._id || "",
         };
         setLoading(true);
         const res = await coreAxios.post(`/deposit-info`, allData);

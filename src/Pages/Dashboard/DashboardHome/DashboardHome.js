@@ -220,7 +220,7 @@ export default function DashboardHome() {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {projectInfo?.map((project, index) => (
               <div key={index}>
-                <ProjectCard rowData={project} />
+                <ProjectCard rowData={project} depositData={depositData} />
               </div>
             ))}
           </div>
