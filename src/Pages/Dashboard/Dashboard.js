@@ -77,15 +77,15 @@ export default function Dashboard() {
           { route: "dashboard", label: "Dashboard" },
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
-          { route: "addResult", label: "Add Result" },
+
           { route: "result", label: "Result" },
         ]
-      : userData?.userRole === "Senior-Member"
+      : userData?.userRole === "Member"
       ? [
           { route: "dashboard", label: "Dashboard" },
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
-          { route: "addResult", label: "Add Result" },
+
           { route: "result", label: "Result" },
         ]
       : [
