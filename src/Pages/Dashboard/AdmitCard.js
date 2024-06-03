@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { jsPDF } from "jspdf";
 import { useHistory, useParams } from "react-router-dom/cjs/react-router-dom";
-import { coreAxios } from "../../utilities/axios";
 import { ArrowLeftOutlined, PrinterOutlined } from "@ant-design/icons";
-
 import DMFLogo from "../../images/dmf-logo-report.png";
-
+import React, { useEffect, useState } from "react";
+import { coreAxios } from "../../utilities/axios";
 import { Button } from "antd";
-// import { Button } from "antd";
 
 const AdmitCard = () => {
   const history = useHistory();
@@ -38,18 +34,11 @@ const AdmitCard = () => {
   };
 
   return (
-    // <div className="">
-    //   <h1>Admit Card</h1>
-    //   <p>Name: {data?.scholarship?.name}</p>
-    //   <p>Exam Date: 01/01/2025</p>
-    //   <button onClick={print}>Download Admit Card</button>
-    // </div>
-
     // START
     <div>
-      <div className="layout-invoice-page">
+      <div className="layout-invoice-page  mx-28">
         {/* START BUTTON */}
-        <div className="flex justify-between  w-full mt-8 mx-24">
+        <div className="flex gap-8  w-full mt-8 mx-0">
           <Button
             type="primary"
             onClick={print}
@@ -71,21 +60,6 @@ const AdmitCard = () => {
         </div>
         {/* END BUTTON */}
       </div>
-
-      {/* START MAIN ADMIN CARD REPORT */}
-      {/* <div className="p-grid layout-invoice-content mt-8">
-        <div className="card">
-          <div className="grid grid-cols-12 gap-2 border p-1 border-black">
-            <div className="col-span-11 text-center">
-              <div>
-                <h1 className="text-xl font-bold ">
-                  {data?.scholarship?.name}
-                </h1>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
 
       <div className="layout-invoice-content w-full mt-8 bg-[#F1F5F9] print:!bg-white">
         <div>
