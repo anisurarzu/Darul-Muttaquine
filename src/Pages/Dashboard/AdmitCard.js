@@ -43,8 +43,7 @@ const AdmitCard = () => {
             type="primary"
             onClick={print}
             className="p-mb-3"
-            icon={<PrinterOutlined />}
-          >
+            icon={<PrinterOutlined />}>
             Print
           </Button>
 
@@ -55,8 +54,7 @@ const AdmitCard = () => {
             className="p-mr-2"
             title="Back"
             type="primary"
-            icon={<ArrowLeftOutlined />}
-          >
+            icon={<ArrowLeftOutlined />}>
             Back
           </Button>
         </div>
@@ -153,8 +151,7 @@ const AdmitCard = () => {
                     </td>
                     <td
                       className="border border-black print:!border-black pl-1 uppercase"
-                      colSpan={3}
-                    >
+                      colSpan={3}>
                       {data?.scholarship?.phone}
                     </td>
                   </tr>
@@ -164,8 +161,7 @@ const AdmitCard = () => {
                     </td>
                     <td
                       className="border border-black print:!border-black pl-1 uppercase"
-                      colSpan={3}
-                    >
+                      colSpan={3}>
                       {data?.scholarship?.presentAddress}
                     </td>
                   </tr>
@@ -175,8 +171,7 @@ const AdmitCard = () => {
                     </td>
                     <td
                       className="border border-black print:!border-black pl-1 uppercase"
-                      colSpan={3}
-                    >
+                      colSpan={3}>
                       {data?.scholarship?.institute}
                     </td>
                   </tr>
@@ -186,8 +181,7 @@ const AdmitCard = () => {
                     </td>
                     <td
                       className="border border-black print:!border-black pl-1 uppercase"
-                      colSpan={3}
-                    >
+                      colSpan={3}>
                       {data?.scholarship?.instituteRollNumber}
                     </td>
                   </tr>
@@ -197,8 +191,7 @@ const AdmitCard = () => {
                     </td>
                     <td
                       className="border border-black print:!border-black pl-1 uppercase"
-                      colSpan={3}
-                    >
+                      colSpan={3}>
                       {data?.scholarship?.examCenter}
                     </td>
                   </tr>

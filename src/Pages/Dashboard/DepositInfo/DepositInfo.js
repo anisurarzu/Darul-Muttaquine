@@ -209,6 +209,9 @@ const DepositInfo = () => {
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
+                    User Name
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Amount
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -226,11 +229,12 @@ const DepositInfo = () => {
                   <th className="border border-tableBorder text-center p-2">
                     Tnxld NO.
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    User ID
-                  </th>
+
                   <th className="border border-tableBorder text-center p-2">
                     Payment Status
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Actions
                   </th>
                 </tr>
               </thead>
@@ -239,7 +243,10 @@ const DepositInfo = () => {
                 {currentItems.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.amount}
+                      {roll?.username}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center font-bold text-green-900">
+                      ৳{roll?.amount}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {formatDate(roll?.depositDate)}
@@ -256,9 +263,7 @@ const DepositInfo = () => {
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.tnxID}
                     </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.userID}
-                    </td>
+
                     <td
                       className={`border border-tableBorder pl-1 text-center text-[14px] font-semi-bold ${
                         roll?.status === "Approved"
@@ -291,7 +296,14 @@ const DepositInfo = () => {
                           title="Delete the task"
                           description="Are you sure to delete this task?"
                           onConfirm={() => {
-                            handleDelete(roll?._id);
+                            if (
+                              userInfo?.userRole === "Super-Admin" ||
+                              "Admin"
+                            ) {
+                              handleDelete(roll?._id);
+                            } else {
+                              toast.error("Please contact with DMF Admin!");
+                            }
                           }}
                           onCancel={cancel}
                           okText="Yes"
