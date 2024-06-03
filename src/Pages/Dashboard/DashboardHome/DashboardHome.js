@@ -216,56 +216,6 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-            <div class="flex justify-between mb-6">
-              <div>
-                <div class="flex items-center mb-1">
-                  <div class="text-3xl font-semibold">{users?.length}</div>
-                </div>
-                <div class="text-[14px] font-medium text-green-800">Users</div>
-              </div>
-            </div>
-
-            <a
-              href="/gebruikers"
-              class="text-[#f84525] font-medium text-sm hover:text-red-800">
-              View
-            </a>
-          </div>
-
-          <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-            <div class="flex justify-between mb-6">
-              <div>
-                <div class="text-3xl font-semibold mb-1">
-                  {/* ৳{depositAmount} */}
-                </div>
-                <div class="text-[14px] font-medium text-purple-800"></div>
-              </div>
-            </div>
-            <Link
-              to="/dashboard/depositInfo"
-              class="text-[#f84525] font-medium text-sm hover:text-red-800">
-              View
-            </Link>
-          </div>
-          <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-            <div class="flex justify-between mb-6">
-              <div>
-                <div class="text-3xl font-semibold mb-1">
-                  ৳{totalDepositAmount}
-                </div>
-                <div class="text-[14px] font-medium text-yellow-800">
-                  DMF Fund
-                </div>
-              </div>
-            </div>
-            <Link
-              to="/dashboard/depositInfo"
-              class="text-[#f84525] font-medium text-sm hover:text-red-800">
-              View
-            </Link>
-          </div>
-
           <h2 className="py-2 text-[17px] font-semibold text-center">
             Running DMF Projects
           </h2>
