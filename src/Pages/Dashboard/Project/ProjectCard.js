@@ -30,7 +30,7 @@ export default function ProjectCard({ rowData, depositData }) {
             <img
               src={rowData?.image}
               alt="project"
-              className="w-full h-full object-cover rounded-2xl"
+              className="w-full h-[90px] object-cover rounded-2xl"
             />
             <div className="flex items-center justify-between sm:mt-2">
               <div>
@@ -47,17 +47,28 @@ export default function ProjectCard({ rowData, depositData }) {
               </div>
             </div>
           </div>
-          <div className="flex-none sm:flex pt-2 ">
+          <div className="flex-none sm:flex pt-3 ">
             <div className="flex-auto sm:ml-5 justify-evenly">
               <div className="flex flex-row items-center text-justify">
-                <p>{rowData?.details?.slice(0,400)}..... <span className='text-blue-800 cursor-ponter' onClick={()=>{setIsModalOpen(true)}}>See More</span></p>
+                <p className="h-[110px]">
+                  {rowData?.details?.slice(0, 350)}.....{" "}
+                  <span
+                    className="text-blue-800 cursor-ponter"
+                    onClick={() => {
+                      setIsModalOpen(true);
+                    }}>
+                    See More
+                  </span>
+                </p>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <p>End Date : {formatDate(rowData?.endDate)}</p>
                 <div className="">
-                 {userInfo?.uniqueId && <h3 className="text-[12px] text-green-900 font-semibold">
-                    Balance : ৳{totalAmount}
-                  </h3>}
+                  {userInfo?.uniqueId && (
+                    <h3 className="text-[12px] text-green-900 font-semibold">
+                      Balance : ৳{totalAmount}
+                    </h3>
+                  )}
 
                   {/*  <ul className="list-disc ml-5 mt-2">
                     {projectDeposits?.map((deposit) => (
@@ -85,15 +96,15 @@ export default function ProjectCard({ rowData, depositData }) {
                     Budget : ৳{rowData?.projectFund}
                   </p>
                 </div>
-                
               </div>
               <div className="flex pt-2 justify-between text-[12px]">
-              <div className="flex-no-shrink bg-yellow-400 hover:bg-yellow-500 px-5  py-2 text-xs shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-yellow-300 hover:border-yellow-500 text-white rounded-full transition ease-in duration-300 cursor-pointer" onClick={()=>{
-                setIsModalOpen(true)
-
-              }} >
-                    Details
-                  </div>
+                <div
+                  className="flex-no-shrink bg-yellow-400 hover:bg-yellow-500 px-5  py-2 text-xs shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-yellow-300 hover:border-yellow-500 text-white rounded-full transition ease-in duration-300 cursor-pointer"
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}>
+                  Details
+                </div>
 
                 <Link to="/dashboard/depositInfo">
                   <button className="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-xs shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-full transition ease-in duration-300">
@@ -112,7 +123,11 @@ export default function ProjectCard({ rowData, depositData }) {
         // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
-        <Details handleCancel={handleCancel} rowData={rowData} depositData={depositData} />
+        <Details
+          handleCancel={handleCancel}
+          rowData={rowData}
+          depositData={depositData}
+        />
       </Modal>
     </div>
   );

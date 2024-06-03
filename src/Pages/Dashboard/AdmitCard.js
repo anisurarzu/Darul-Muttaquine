@@ -4,6 +4,7 @@ import DMFLogo from "../../images/dmf-logo-report.png";
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
 import { Button } from "antd";
+import { formatDate } from "../../utilities/dateFormate";
 
 const AdmitCard = () => {
   const history = useHistory();
@@ -122,7 +123,7 @@ const AdmitCard = () => {
                       DOB
                     </td>
                     <td className="border border-black print:!border-black pl-1 uppercase">
-                      {data?.scholarship?.dateOfBirth}
+                      {formatDate(data?.scholarship?.dateOfBirth)}
                     </td>
                     <td className="border border-black print:!border-black pl-1">
                       GENDER

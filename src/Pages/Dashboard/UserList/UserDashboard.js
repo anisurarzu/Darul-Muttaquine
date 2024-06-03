@@ -198,7 +198,10 @@ const UserDashboard = () => {
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
                         className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
-                        src={roll?.image}
+                        src={
+                          roll?.image ||
+                          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
+                        }
                         alt=""
                       />
                     </td>

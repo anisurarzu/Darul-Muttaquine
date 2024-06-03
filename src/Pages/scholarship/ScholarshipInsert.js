@@ -3,11 +3,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
-import { Alert, Button, Spin, Upload } from "antd";
+import { Alert, Button, DatePicker, Radio, Spin, Upload } from "antd";
+
 const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
-  const [position, setPosition] = useState("start");
 
   const formik = useFormik({
     initialValues: {
@@ -20,6 +20,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       phone: 0,
       bloodGroup: "",
       presentAddress: "",
+      dateOfBirth: "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       try {
@@ -27,7 +28,8 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
         if (!fileList.length) {
           const allData = {
             ...values,
-            image: "",
+            image:
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU",
           };
           console.log("allData", allData);
 
@@ -36,7 +38,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
             setLoading(false);
             toast.success("Successfully Saved!");
             formik.resetForm();
-            setFileList(null);
+            setFileList([]);
             handleCancel(); // Use formik.resetForm() directly
           }
         } else {
@@ -44,9 +46,6 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
           fileList.forEach((file) => {
             formData.append("image", file.originFileObj);
           });
-          /*  formData.append("name", historyName);
-        formData.append("date", historyDate);
-        formData.append("details", historyDetails); */
 
           const response = await axios.post(
             "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
@@ -65,7 +64,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
               setLoading(false);
               toast.success("Successfully Saved!");
               formik.resetForm();
-              setFileList(null);
+              setFileList([]);
               handleCancel(); // Use formik.resetForm() directly
             }
           }
@@ -151,15 +150,6 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       required: false,
     },
     {
-      id: "gender",
-      name: "gender",
-      type: "text",
-      label: "Gender",
-      errors: "",
-      register: "",
-      required: false,
-    },
-    {
       id: "bloodGroup",
       name: "bloodGroup",
       type: "text",
@@ -194,39 +184,49 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
               </Spin>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2">
-                {inputData?.map(
-                  ({
-                    id,
-                    name,
-                    type,
-                    label,
-                    labelFor,
-                    errors,
-                    register,
-                    required,
-                    optionLabel = "",
-                    selectedAutoValue,
-                    setSelectedAutoValue,
-                    autoCompleteMethod,
-                    autoFilteredValue,
-                  }) => (
-                    <div className="w-full mb-4">
-                      <label className="block text-black dark:text-white">
-                        {label} <span className="text-meta-1">*</span>
-                      </label>
-                      <input
-                        id={id}
-                        name={name}
-                        type={type}
-                        required={required}
-                        width="full"
-                        onChange={formik.handleChange}
-                        value={formik.values?.[id]}
-                        className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                      />
-                    </div>
-                  )
-                )}
+                {inputData?.map(({ id, name, type, label, required }) => (
+                  <div className="w-full mb-4" key={id}>
+                    <label className="block text-black dark:text-white">
+                      {label}{" "}
+                      {required && <span className="text-meta-1">*</span>}
+                    </label>
+                    <input
+                      id={id}
+                      name={name}
+                      type={type}
+                      required={required}
+                      onChange={formik.handleChange}
+                      value={formik.values[id]}
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                    />
+                  </div>
+                ))}
+
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-white">
+                    Gender <span className="text-meta-1">*</span>
+                  </label>
+                  <Radio.Group
+                    name="gender"
+                    onChange={formik.handleChange}
+                    value={formik.values.gender}>
+                    <Radio value="male">Male</Radio>
+                    <Radio value="female">Female</Radio>
+                    <Radio value="other">Other</Radio>
+                  </Radio.Group>
+                </div>
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-white">
+                    Birth Date <span className="text-meta-1">*</span>
+                  </label>
+                  <DatePicker
+                    value={formik.values.dateOfBirth}
+                    onChange={(date) =>
+                      formik.setFieldValue("dateOfBirth", date)
+                    }
+                    className="w-full"
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -238,7 +238,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
             onChange={onChange}
             onPreview={onPreview}
             beforeUpload={() => false}>
-            {fileList?.length < 5 && "+ Upload"}
+            {fileList.length < 5 && "+ Upload"}
           </Upload>
 
           {/* Submit Button */}
@@ -247,7 +247,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
 
             <button
               type="submit"
-              className=" justify-center rounded bg-primary p-3 font-medium text-gray  border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+              className="justify-center rounded bg-primary p-3 font-medium text-gray border border-green-600 m-4 hover:bg-green-600 hover:text-white hover:shadow-md">
               Submit
             </button>
           </div>

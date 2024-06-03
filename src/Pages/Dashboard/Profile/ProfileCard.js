@@ -9,21 +9,13 @@ export default function ProfileCard({ rowData }) {
           <div class="flex-none sm:flex">
             <div class=" relative h-32 w-32   sm:mb-0 mb-3">
               <img
-                src={rowData?.image}
+                src={
+                  rowData?.image ||
+                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
+                }
                 alt="aji"
                 class=" w-32 h-32 object-cover rounded-2xl"
               />
-              <a
-                href="#"
-                class="absolute -right-2 bottom-2   -ml-3  text-white p-1 text-xs bg-green-400 hover:bg-green-500 font-medium tracking-wider rounded-full transition ease-in duration-300">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="h-4 w-4">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
-                </svg>
-              </a>
             </div>
             <div class="flex-auto sm:ml-5 justify-evenly">
               <div class="flex items-center justify-between sm:mt-2">
