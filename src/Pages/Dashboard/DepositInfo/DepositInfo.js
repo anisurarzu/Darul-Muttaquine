@@ -51,11 +51,19 @@ const DepositInfo = () => {
           : `deposit-info/${userInfo?._id}`;
       const response = await coreAxios.get(uri);
       if (response?.status === 200) {
-        const sortedData = response?.data?.sort((a, b) => {
-          return new Date(b?.depositDate) - new Date(a?.depositDate);
-        });
-        setRollData(sortedData);
-        setLoading(false);
+        if (userInfo?.userRole === "Super-Admin") {
+          const sortedData = response?.data?.sort((a, b) => {
+            return new Date(b?.depositDate) - new Date(a?.depositDate);
+          });
+          setRollData(sortedData);
+          setLoading(false);
+        } else {
+          const sortedData = response?.data?.deposits?.sort((a, b) => {
+            return new Date(b?.depositDate) - new Date(a?.depositDate);
+          });
+          setRollData(sortedData);
+          setLoading(false);
+        }
       }
     } catch (error) {
       setLoading(false);
