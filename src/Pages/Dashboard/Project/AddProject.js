@@ -163,7 +163,7 @@ const AddProject = ({ handleCancel }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                 {inputData?.map(({ id, name, type, label, required }) => (
                   <div className="w-full mb-4" key={id}>
-                    <label className="block text-black dark:text-white">
+                    <label className="block text-black dark:text-black">
                       {label} <span className="text-meta-1">*</span>
                     </label>
                     <input
@@ -181,7 +181,7 @@ const AddProject = ({ handleCancel }) => {
                 <div className="w-full  mb-4">
                   <label
                     htmlFor="projectLeader"
-                    className="block text-black dark:text-white">
+                    className="block text-black dark:text-black">
                     Project Manager <span className="text-meta-1">*</span>
                   </label>
                   <Select
@@ -201,7 +201,7 @@ const AddProject = ({ handleCancel }) => {
                 <div className="w-full mb-4">
                   <label
                     htmlFor="projectCoordinators"
-                    className="block text-black dark:text-white">
+                    className="block text-black dark:text-black">
                     Project Coordinators <span className="text-meta-1">*</span>
                   </label>
                   <Select
@@ -221,7 +221,7 @@ const AddProject = ({ handleCancel }) => {
                 </div>
 
                 <div className="w-full mb-4">
-                  <label className="block text-black dark:text-white">
+                  <label className="block text-black dark:text-black">
                     Start Date <span className="text-meta-1">*</span>
                   </label>
                   <DatePicker
@@ -231,7 +231,7 @@ const AddProject = ({ handleCancel }) => {
                   />
                 </div>
                 <div className="w-full mb-4">
-                  <label className="block text-black dark:text-white">
+                  <label className="block text-black dark:text-black">
                     End Date <span className="text-meta-1">*</span>
                   </label>
                   <DatePicker

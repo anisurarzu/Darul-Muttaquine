@@ -186,7 +186,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2">
                 {inputData?.map(({ id, name, type, label, required }) => (
                   <div className="w-full mb-4" key={id}>
-                    <label className="block text-black dark:text-white">
+                    <label className="block text-black dark:text-black">
                       {label}{" "}
                       {required && <span className="text-meta-1">*</span>}
                     </label>
@@ -203,7 +203,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
                 ))}
 
                 <div className="w-full mb-4">
-                  <label className="block text-black dark:text-white">
+                  <label className="block text-black dark:text-black">
                     Gender <span className="text-meta-1">*</span>
                   </label>
                   <Radio.Group
@@ -216,7 +216,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
                   </Radio.Group>
                 </div>
                 <div className="w-full mb-4">
-                  <label className="block text-black dark:text-white">
+                  <label className="block text-black dark:text-black">
                     Birth Date <span className="text-meta-1">*</span>
                   </label>
                   <DatePicker

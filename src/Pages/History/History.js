@@ -40,7 +40,7 @@ const History = () => {
           <div class="py-16">
             <div class="mx-auto  px-4 lg:px-24 xl:px-24  text-gray-500">
               <div class="text-center">
-                <h2 class="text-3xl text-gray-950 dark:text-white font-semibold">
+                <h2 class="text-3xl text-gray-950 dark:text-black font-semibold">
                   Memorable History Of Darul Muttaquine Family
                 </h2>
                 <p class="mt-6 text-gray-700 dark:text-gray-300">

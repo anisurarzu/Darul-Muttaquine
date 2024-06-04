@@ -104,7 +104,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
           onSubmit={formik.handleSubmit}>
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               Amount <span className="text-meta-1">*</span>
             </label>
             <input
@@ -122,7 +122,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           <div className="w-full  mb-4">
             <label
               htmlFor="paymentMethod"
-              className="block text-black dark:text-white">
+              className="block text-black dark:text-black">
               Payment Method <span className="text-meta-1">*</span>
             </label>
             <Select
@@ -141,7 +141,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           <div className="w-full  mb-4">
             <label
               htmlFor="project"
-              className="block text-black dark:text-white">
+              className="block text-black dark:text-black">
               Project <span className="text-meta-1">*</span>
             </label>
             <Select
@@ -158,7 +158,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
             </Select>
           </div>
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               Phone NO. / ACC NO. <span className="text-meta-1">*</span>
             </label>
             <input
@@ -173,7 +173,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
             />
           </div>
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               Transaction NO. <span className="text-meta-1">*</span>
             </label>
             <input

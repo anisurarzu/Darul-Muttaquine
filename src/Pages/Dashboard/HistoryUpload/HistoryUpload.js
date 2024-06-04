@@ -130,7 +130,7 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
                     autoFilteredValue,
                   }) => (
                     <div className="w-full mb-4">
-                      <label className="block text-black dark:text-white">
+                      <label className="block text-black dark:text-black">
                         {label} <span className="text-meta-1">*</span>
                       </label>
                       <input

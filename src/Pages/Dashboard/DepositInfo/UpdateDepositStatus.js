@@ -51,7 +51,7 @@ const UpdateDepositStatus = ({ handleCancel, rowData }) => {
           <div className="w-full  mb-4">
             <label
               htmlFor="userRole"
-              className="block text-black dark:text-white">
+              className="block text-black dark:text-black">
               Select Status <span className="text-meta-1">*</span>
             </label>
             <Select

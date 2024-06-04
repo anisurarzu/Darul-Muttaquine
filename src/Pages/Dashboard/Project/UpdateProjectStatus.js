@@ -112,7 +112,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
           {inputData?.map(({ id, name, type, label, required }) => (
             <div key={id} className="w-full mb-4">
-              <label className="block text-black dark:text-white">
+              <label className="block text-black dark:text-black">
                 {label} {required && <span className="text-meta-1">*</span>}
               </label>
               <input
@@ -129,7 +129,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
           <div className="w-full  mb-4">
             <label
               htmlFor="projectLeader"
-              className="block text-black dark:text-white">
+              className="block text-black dark:text-black">
               Project Manager <span className="text-meta-1">*</span>
             </label>
             <Select
@@ -145,7 +145,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
             />
           </div>
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               Project Coordinators <span className="text-meta-1">*</span>
             </label>
             <Select
@@ -167,7 +167,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               Start Date <span className="text-meta-1">*</span>
             </label>
             <DatePicker
@@ -177,7 +177,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
             />
           </div>
           <div className="w-full mb-4">
-            <label className="block text-black dark:text-white">
+            <label className="block text-black dark:text-black">
               End Date <span className="text-meta-1">*</span>
             </label>
             <DatePicker
@@ -212,7 +212,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
           <div className="w-full mb-4">
             <label
               htmlFor="approvalStatus"
-              className="block text-black dark:text-white">
+              className="block text-black dark:text-black">
               Select Status <span className="text-meta-1">*</span>
             </label>
             <Select

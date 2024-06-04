@@ -114,7 +114,7 @@ const AddResult = () => {
               autoFilteredValue,
             }) => (
               <div className="w-full mb-4">
-                <label className="block text-black dark:text-white text-[12px] py-1">
+                <label className="block text-black dark:text-black text-[12px] py-1">
                   {label} <span className="text-meta-1">*</span>
                 </label>
                 <input
