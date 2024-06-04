@@ -17,6 +17,8 @@ export default function DashboardHome() {
   const [projectInfo, setProjectInfo] = useState([]);
   const [depositData, setDepositData] = useState([]);
   const [singleDepositData, setSingleDepositData] = useState([]);
+  const [costData, setCostData] = useState([]);
+  const [singleCostData, setSingleCostData] = useState([]);
 
   const getAllUserList = async () => {
     try {
@@ -63,6 +65,7 @@ export default function DashboardHome() {
       setLoading(false);
     }
   };
+  /* deposit info */
   const fetchDepositInfo = async () => {
     try {
       setLoading(true);
@@ -81,6 +84,7 @@ export default function DashboardHome() {
       console.error("Error fetching rolls:", error);
     }
   };
+
   const getSingleDeposit = async () => {
     try {
       setLoading(true);
@@ -88,6 +92,41 @@ export default function DashboardHome() {
       const response = await coreAxios.get(`deposit-info/${userInfo?._id}`);
       if (response?.status === 200) {
         setSingleDepositData(response?.data);
+
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching rolls:", error);
+    }
+  };
+
+  /* cost info */
+  const fetchCostInfo = async () => {
+    try {
+      setLoading(true);
+      const uri = "cost-info";
+      const response = await coreAxios.get(uri);
+      if (response?.status === 200) {
+        const approvedDeposits = response?.data.filter(
+          (deposit) => deposit.status === "Approved"
+        );
+        setCostData(approvedDeposits);
+
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      console.error("Error fetching rolls:", error);
+    }
+  };
+  const getSingleCost = async () => {
+    try {
+      setLoading(true);
+
+      const response = await coreAxios.get(`cost-info/${userInfo?._id}`);
+      if (response?.status === 200) {
+        setSingleCostData(response?.data);
 
         setLoading(false);
       }
@@ -109,6 +148,19 @@ export default function DashboardHome() {
     (total, deposit) => total + deposit?.amount,
     0
   );
+
+  // Calculate the cost amount
+  const totalCostAmount = costData?.reduce(
+    (total, cost) => total + cost?.amount,
+    0
+  );
+
+  const data2 = singleCostData?.deposits?.filter(
+    (cost) => cost?.status === "Approved"
+  );
+  const costAmount =
+    data2?.reduce((total, cost) => total + cost?.amount, 0) || 0;
+
   const percentage = ((Number(scholarShipInfo?.length) / 249) * 100).toFixed(2);
 
   useEffect(() => {
@@ -117,6 +169,8 @@ export default function DashboardHome() {
     getAllUserList();
     getScholarShipInfo();
     getSingleDeposit();
+    getSingleCost();
+    fetchCostInfo();
   }, []);
 
   return (
@@ -204,7 +258,86 @@ export default function DashboardHome() {
                     ৳{totalDepositAmount}
                   </div>
                   <div class="text-[14px] font-medium text-yellow-800">
-                    DMF Fund
+                    Total Deposit
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/depositInfo"
+                class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                View
+              </Link>
+            </div>
+          </div>
+          {/* ----------------- 2nd div ---------------------*/}
+          <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
+            <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+              <div class="flex justify-between mb-6">
+                <div>
+                  <div class="flex items-center mb-1">
+                    <div class="text-3xl font-semibold">{costData?.length}</div>
+                  </div>
+                  <div class="text-[14px] font-medium text-green-800">
+                    Approved Withdrawal Request
+                  </div>
+                </div>
+              </div>
+
+              <a
+                href="/gebruikers"
+                class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                View
+              </a>
+            </div>
+
+            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+              <div class="flex justify-between mb-6">
+                <div>
+                  <div class="text-3xl font-semibold mb-1">৳{costAmount}</div>
+                  <div class="text-[14px] font-medium text-purple-800">
+                    My Withdrawal
+                  </div>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/withdraw"
+                class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                View
+              </Link>
+            </div>
+            <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+              <div class="flex justify-between mb-4">
+                <div>
+                  <div class="flex items-center mb-1">
+                    <div class="text-3xl font-semibold">৳{totalCostAmount}</div>
+                    <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
+                  </div>
+                  <div class="text-[14px] font-medium text-blue-800">
+                    Withdrawal Amount
+                  </div>
+                </div>
+                <div class="dropdown">
+                  <button
+                    type="button"
+                    class="dropdown-toggle text-gray-400 hover:text-gray-600">
+                    <i class="ri-more-fill"></i>
+                  </button>
+                </div>
+              </div>
+              <Link
+                to="/dashboard/withdraw"
+                class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                View
+              </Link>
+            </div>
+            <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+              <div class="flex justify-between mb-6">
+                <div>
+                  <div class="text-3xl font-semibold mb-1">
+                    ৳{Number(totalDepositAmount) - Number(totalCostAmount)}
+                  </div>
+                  <div class="text-[14px] font-medium text-yellow-800">
+                    Current Balance
                   </div>
                 </div>
               </div>
@@ -222,7 +355,11 @@ export default function DashboardHome() {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
             {projectInfo?.map((project, index) => (
               <div key={index}>
-                <ProjectCard rowData={project} depositData={depositData} />
+                <ProjectCard
+                  rowData={project}
+                  depositData={depositData}
+                  costData={costData}
+                />
               </div>
             ))}
           </div>

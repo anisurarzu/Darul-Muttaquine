@@ -18,6 +18,7 @@ import ProjectDashboard from "./Project/ProjectDashboard";
 import { coreAxios } from "../../utilities/axios";
 import HistoryDashboard from "./HistoryUpload/HistoryDashboard/HistoryDashboard";
 import SuggestionBox from "./SuggestionBox/SuggestionBox";
+import Withdraw from "./Withdraw/Withdraw";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -53,6 +54,7 @@ export default function Dashboard() {
           { route: "users", label: "Users" },
           { route: "project", label: "Projects" },
           { route: "suggestionBox", label: "SuggestionBox" },
+          { route: "withdraw", label: "Withdraw" },
         ]
       : userData?.userRole === "Admin"
       ? [
@@ -65,6 +67,7 @@ export default function Dashboard() {
           { route: "result", label: "Result" },
           { route: "project", label: "Projects" },
           { route: "suggestionBox", label: "SuggestionBox" },
+          { route: "withdraw", label: "Withdraw" },
         ]
       : userData?.userRole === "Co-Admin"
       ? [
@@ -75,23 +78,23 @@ export default function Dashboard() {
           { route: "result", label: "Result" },
           { route: "historyDashboard", label: "History" },
           { route: "suggestionBox", label: "SuggestionBox" },
+          { route: "withdraw", label: "Withdraw" },
         ]
       : userData?.userRole === "Senior-Member"
       ? [
           { route: "dashboard", label: "Dashboard" },
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
-
+          { route: "withdraw", label: "Withdraw" },
           { route: "result", label: "Result" },
         ]
       : userData?.userRole === "Member"
       ? [
           { route: "dashboard", label: "Dashboard" },
-
           { route: "profile", label: "Profile" },
           { route: "depositInfo", label: "Deposit" },
           { route: "suggestionBox", label: "SuggestionBox" },
-
+          { route: "withdraw", label: "Withdraw" },
           { route: "result", label: "Result" },
         ]
       : [
@@ -170,6 +173,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/suggestionBox`}>
             <SuggestionBox />
+          </Route>
+          <Route path={`${path}/withdraw`}>
+            <Withdraw />
           </Route>
         </Switch>
       </div>

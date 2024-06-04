@@ -4,7 +4,7 @@ import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { Modal } from "antd";
 import Details from "../DepositInfo/Details";
 
-export default function ProjectCard({ rowData, depositData }) {
+export default function ProjectCard({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Filter deposits based on the current project
@@ -15,6 +15,18 @@ export default function ProjectCard({ rowData, depositData }) {
   // Calculate the total amount of deposits for the current project
   const totalAmount = projectDeposits?.reduce(
     (total, deposit) => total + deposit?.amount,
+    0
+  );
+
+  /* ------cost calculation-------- */
+  // Filter deposits based on the current project
+  const projectCost = costData?.filter(
+    (deposit) => deposit?.project === rowData?.projectName
+  );
+
+  // Calculate the total amount of deposits for the current project
+  const totalCost = projectCost?.reduce(
+    (total, cost) => total + cost?.amount,
     0
   );
 
@@ -47,7 +59,7 @@ export default function ProjectCard({ rowData, depositData }) {
               </div>
             </div>
           </div>
-          <div className="flex-none sm:flex pt-3 ">
+          <div className="flex-none sm:flex pt-3 h-[210px]">
             <div className="flex-auto sm:ml-5 justify-evenly">
               <div className="flex flex-row items-center text-justify">
                 <p className="h-[100px]">
@@ -72,9 +84,11 @@ export default function ProjectCard({ rowData, depositData }) {
                 <p>End Date : {formatDate(rowData?.endDate)}</p>
                 <div className="">
                   {userInfo?.uniqueId && (
-                    <h3 className="text-[12px] text-green-900 font-semibold">
-                      Balance : ৳{totalAmount}
-                    </h3>
+                    <div>
+                      <h3 className="text-[12px] text-green-900 font-semibold">
+                        Balance : ৳{Number(totalAmount) - Number(totalCost)}
+                      </h3>
+                    </div>
                   )}
 
                   {/*  <ul className="list-disc ml-5 mt-2">
@@ -87,23 +101,7 @@ export default function ProjectCard({ rowData, depositData }) {
                   </ul> */}
                 </div>
               </div>
-              <div className="flex pt-2 text-sm text-red-500">
-                <div className="flex-1 inline-flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor">
-                    <path
-                      fillRule="evenodd"
-                      d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
-                      clipRule="evenodd"></path>
-                  </svg>
-                  <p className="text-[12px] font-bold text-red-900">
-                    Budget : ৳{rowData?.projectFund}
-                  </p>
-                </div>
-              </div>
+
               <div className="flex pt-2 justify-between text-[12px]">
                 <div
                   className="flex-no-shrink bg-yellow-400 hover:bg-yellow-500 px-5  py-2 text-xs shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-yellow-300 hover:border-yellow-500 text-white rounded-full transition ease-in duration-300 cursor-pointer"
@@ -111,6 +109,13 @@ export default function ProjectCard({ rowData, depositData }) {
                     setIsModalOpen(true);
                   }}>
                   Details
+                </div>
+                <div className="flex  text-sm text-red-500">
+                  <div className="flex-1 inline-flex items-center">
+                    <p className="text-[12px] font-bold text-red-900">
+                      Budget : ৳{rowData?.projectFund}
+                    </p>
+                  </div>
                 </div>
 
                 <Link to="/dashboard/depositInfo">
@@ -134,6 +139,7 @@ export default function ProjectCard({ rowData, depositData }) {
           handleCancel={handleCancel}
           rowData={rowData}
           depositData={depositData}
+          costData={costData}
         />
       </Modal>
     </div>

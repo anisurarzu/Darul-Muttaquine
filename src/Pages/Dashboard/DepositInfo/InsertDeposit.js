@@ -59,7 +59,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   const formik = useFormik({
     initialValues: {
       amount: 0,
-      paymentMethod: "bankAccount", // Initialize paymentMethod
+      paymentMethod: "", // Initialize paymentMethod
       userName: "",
       phone: 0,
       tnxID: "",

@@ -48,7 +48,7 @@ const History = () => {
                   temporibus ariatur.
                 </p>
               </div>
-              <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3">
+              <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4">
                 {historyData?.map((data, index) => (
                   <div key={index}>
                     <div
@@ -58,7 +58,7 @@ const History = () => {
                         aria-hidden="true"
                         class="inset-0 absolute aspect-video border rounded-full -translate-y-1/2 group-hover:-translate-y-1/4 duration-300 bg-gradient-to-b from-green-500 to-white dark:from-white dark:to-white blur-2xl opacity-25 dark:opacity-5 dark:group-hover:opacity-10"></div>
                       <div class="relative">
-                        <h1 className="text-center text-[15px] shadow text-green-800 font-semibold  p-1 mx-2  lg:mx-[120px] xl:mx-[120px] rounded-lg my-2">
+                        <h1 className="text-center text-[15px] shadow text-green-800 font-semibold  p-1 mx-2   rounded-lg my-2">
                           {data?.name}
                         </h1>
                         <h3 className="text-center text-green-800 text-[14px] py-2">

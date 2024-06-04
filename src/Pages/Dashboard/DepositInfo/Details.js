@@ -3,7 +3,7 @@ import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { Modal } from "antd";
 
-export default function Details({ rowData, depositData }) {
+export default function Details({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
   // Filter deposits based on the current project
@@ -14,6 +14,18 @@ export default function Details({ rowData, depositData }) {
   // Calculate the total amount of deposits for the current project
   const totalAmount = projectDeposits?.reduce(
     (total, deposit) => total + deposit?.amount,
+    0
+  );
+
+  /* ------cost calculation-------- */
+  // Filter deposits based on the current project
+  const projectCost = costData?.filter(
+    (deposit) => deposit?.project === rowData?.projectName
+  );
+
+  // Calculate the total amount of deposits for the current project
+  const totalCost = projectCost?.reduce(
+    (total, cost) => total + cost?.amount,
     0
   );
 
@@ -62,25 +74,44 @@ export default function Details({ rowData, depositData }) {
                 {userInfo?.uniqueId && (
                   <div className="">
                     <h3 className="text-[14px] text-green-900 font-semibold">
-                      Balance : ৳{totalAmount}
+                      Total Deposit : ৳{totalAmount}
+                    </h3>
+                    <h3 className="text-[14px] text-green-900 font-semibold">
+                      Total Withdraw : ৳{totalCost}
+                    </h3>
+                    <h3 className="text-[14px] text-green-900 font-semibold">
+                      Balance : ৳{Number(totalAmount) - Number(totalCost)}
                     </h3>
                   </div>
                 )}
               </div>
               {userInfo?.uniqueId && (
-                <div>
-                  <h3 className="py-1 font-semibold text-[14px]">
-                    {" "}
-                    History Of Deposit :
-                  </h3>
-                  <ul className="list-disc  mt-2">
-                    {projectDeposits?.map((deposit) => (
-                      <li key={deposit._id}>
-                        {deposit?.username || deposit?.userName} - ৳
-                        {deposit?.amount}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="grid grid-cols-2 gap-1">
+                  <div>
+                    <h3 className="py-1 font-semibold text-[14px] underline">
+                      History Of Deposit :
+                    </h3>
+                    <ul className="list-disc  mt-2">
+                      {projectDeposits?.map((deposit) => (
+                        <li key={deposit._id}>
+                          {deposit?.username || deposit?.userName} - ৳
+                          {deposit?.amount}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="py-1 font-semibold text-[14px] underline">
+                      History Of Withdraw :
+                    </h3>
+                    <ul className="list-disc  mt-2">
+                      {projectCost?.map((cost) => (
+                        <li key={cost._id}>
+                          {cost?.username || cost?.userName} - ৳{cost?.amount}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
               <div className="flex pt-8 text-sm text-red-500">
