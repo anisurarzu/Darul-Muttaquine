@@ -168,9 +168,11 @@ export default function MiddleHome() {
             <img className="w-1/2" src={icon1} alt="" />
           </div>
           <div className="col-span-2">
-            <h3 className="text-[20px] ">Quick Delivery</h3>
+            <h3 className="text-[14px] lg:text-[20px] xl:text-[20px] ">
+              Quick Delivery
+            </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[16px]">
+            <p className="text-[10px] lg:text-[16px] xl:text-[16px]">
               Most product are free <br />
               shipping.
             </p>
@@ -182,9 +184,11 @@ export default function MiddleHome() {
             <img className="w-1/2" src={icon2} alt="" />
           </div>
           <div className="col-span-2">
-            <h3 className="text-[20px] ">Pay with Easy</h3>
+            <h3 className="text-[14px] lg:text-[20px] xl:text--[20px] ">
+              Pay with Easy
+            </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[16px]">
+            <p className="text-[10px] lg:text-[16px] xl:text-[16px]">
               Most product are free <br /> shipping.
             </p>
           </div>
@@ -195,9 +199,11 @@ export default function MiddleHome() {
             <img className="w-1/2" src={icon3} alt="" />
           </div>
           <div className="col-span-2">
-            <h3 className="text-[20px] ">Best Deal</h3>
+            <h3 className="text-[14px] lg:text-[20px] xl:text--[20px] ">
+              Best Deal
+            </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[16px]">
+            <p className="text-[10px] lg:text-[16px] xl:text-[16px]">
               Most product are free <br /> shipping.
             </p>
           </div>
@@ -208,9 +214,11 @@ export default function MiddleHome() {
             <img className="w-1/2" src={icon4} alt="" />
           </div>
           <div className="col-span-2">
-            <h3 className="text-[20px] ">Secured Payment</h3>
+            <h3 className="text-[14px] lg:text-[20px] xl:text--[20px] ">
+              Secured Payment
+            </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[16px]">
+            <p className="text-[10px] lg:text-[16px] xl:text-[16px]">
               Most product are free <br /> shipping.
             </p>
           </div>

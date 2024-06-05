@@ -4,6 +4,7 @@ import "primeicons/primeicons.css";
 
 import bannerImage from "../../../images/home-banner-1.jpg";
 import bannerImage2 from "../../../images/home-banner-2.jpg";
+import bannerImage3 from "../../../images/home-banner-3.jpg";
 
 export default function HeroSection() {
   const contentStyle = {
@@ -30,6 +31,13 @@ export default function HeroSection() {
           <img
             className="lg:h-[670px] xl:h-[679px] w-full"
             src={bannerImage2}
+            alt=""
+          />
+        </div>
+        <div className="hero-div">
+          <img
+            className="lg:h-[670px] xl:h-[679px] w-full"
+            src={bannerImage3}
             alt=""
           />
         </div>
