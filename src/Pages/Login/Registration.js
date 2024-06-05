@@ -152,14 +152,13 @@ export default function Registration() {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
+                <button
+                  type="submit"
+                  class="w-36 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white py-4 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 mb-2">
+                  Registration
+                </button>
               </div>
             )}
-
-            <button
-              type="submit"
-              class="w-36 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white py-4 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 mb-2">
-              Registration
-            </button>
           </form>
           <div class="text-center">
             <p class="text-2xl">

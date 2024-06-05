@@ -4,6 +4,8 @@ import icon1 from "../../../images/icon01_small.png";
 import icon2 from "../../../images/icon02_small.png";
 import icon3 from "../../../images/icon03_small.png";
 import icon4 from "../../../images/icon04_small.png";
+import voulenteer from "../../../images/voluenteer.jpg";
+import eidCard from "../../../images/eid-card.jpg";
 
 import { Tag } from "primereact/tag";
 
@@ -216,19 +218,13 @@ export default function MiddleHome() {
       </div>
       {/* 2nd part */}
 
-      <div className="mx-32 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 pt-24">
-        <di className="middle-div-one text-white">
-          <h4 className="text-[18px] py-4 pl-4 font-semibold">SPECIAL OFFER</h4>
-          <h2 className="text-[38px] font-semibold pl-4">
-            Buy 3. Get <br /> 1 Free
-          </h2>
+      <div className="lg:mx-32 xl:mx-32 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16 py-4 lg:py-24 xl:py-24 ">
+        <di className=" text-white">
+          <img src={voulenteer} alt="" />
         </di>
-        <div className="middle-div-two text-white">
-          <h4 className="text-[18px] py-4 pl-4 font-semibold">$50.00</h4>
-          <h2 className="text-[38px] font-semibold pl-4">
-            Praise for <br /> The Night Child
-          </h2>
-        </div>
+        <di className=" text-white">
+          <img src={eidCard} alt="" />
+        </di>
       </div>
 
       {/* 3rd part */}
