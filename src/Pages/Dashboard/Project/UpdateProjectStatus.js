@@ -60,8 +60,28 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
 
   const statusList = ["Approve", "Reject", "Pending", "Hold"];
 
+  const findCoordinatorImages = (coordinators) => {
+    return coordinators
+      .map((coordinator) => {
+        const user = usersList?.find((user) => user.username === coordinator);
+        return user ? user.image : null;
+      })
+      .filter((image) => image !== null); // Filter out any null values
+  };
+  const findUserImage = (username) => {
+    const user = usersList.find((user) => user.username === username);
+    return user ? user.image : null;
+  };
+
   const updateProjectInfo = async (values) => {
     try {
+      const projectLeaderImage = findUserImage(
+        values?.projectLeader || rowData?.projectLeader
+      );
+      const coordinators =
+        values?.projectCoordinators || rowData?.projectCoordinators || [];
+      const coordinatorImages = findCoordinatorImages(coordinators);
+
       const response = await coreAxios?.put(
         `/update-project-info/${rowData?._id}`,
         {
@@ -69,8 +89,11 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
           startDate: values?.startDate || rowData?.startDate || "",
           endDate: values?.endDate || rowData?.endDate || "",
           projectLeader: values?.projectLeader || rowData?.projectLeader || "",
-          projectCoordinators:
-            values?.projectCoordinators || rowData?.projectCoordinators || "",
+          projectLeaderImage:
+            projectLeaderImage || rowData?.projectLeaderImage || "",
+          projectCoordinators: coordinators,
+          projectCoordinatorImages:
+            coordinatorImages || rowData?.coordinatorImages || [],
           projectFund: values?.projectFund || rowData?.projectFund || "",
           details: values?.details || rowData?.details || "",
           approvalStatus:

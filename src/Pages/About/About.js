@@ -119,7 +119,7 @@ export default function About() {
           </div>
 
           <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 underline">
-            Darul Muttaquine Runnig Projects
+            Darul Muttaquine Running Projects
           </h2>
 
           <div className="pb-4">

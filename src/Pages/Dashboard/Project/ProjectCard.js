@@ -47,13 +47,21 @@ export default function ProjectCard({ rowData, depositData, costData }) {
             <div className="flex items-center justify-between sm:mt-2">
               <div>
                 <div>
-                  <div className="w-full flex-none text-lg text-gray-800 font-bold leading-none">
+                  <div className="w-full flex-none text-[13px] text-gray-800 font-bold leading-none">
                     {rowData?.projectName}
                   </div>
-                  <div className="text-gray-500 my-1">
-                    <span className="mr-3">Project Manager</span>
-                    <span className="mr-3 border-r border-gray-200 max-h-0"></span>
-                    <span>{rowData?.projectLeader}</span>
+                  <div className="text-gray-500 my-1 flex gap-2">
+                    <span className="text-center pt-4 text-[10px]">
+                      Project Manager
+                    </span>
+                    <span className=" border-r border-gray-200 max-h-0"></span>
+                    <span>
+                      <img
+                        src={`${rowData?.projectLeaderImage}`}
+                        alt={"product.name"}
+                        className="w-[42px] h-[42px] rounded-full border border-green-300"
+                      />
+                    </span>
                   </div>
                 </div>
               </div>
@@ -74,11 +82,20 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                 </p>
               </div>
               <div>
-                <p className="underline">CoorDinators:</p>
+                <p className="underline pb-2">CoorDinators:</p>
 
-                {Array.isArray(rowData.projectCoordinators)
+                {/* {Array.isArray(rowData.projectCoordinators)
                   ? rowData.projectCoordinators.join(", ")
-                  : ""}
+                  : ""} */}
+                <div className=" flex  gap-2 justify-content-center ">
+                  {rowData?.projectCoordinatorImages?.map((img, index) => (
+                    <img
+                      src={`${img}`}
+                      alt={"product.name"}
+                      className="w-[30px] h-[30px] rounded-full"
+                    />
+                  ))}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">
                 <p>End Date : {formatDate(rowData?.endDate)}</p>
@@ -86,7 +103,8 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                   {userInfo?.uniqueId && (
                     <div>
                       <h3 className="text-[12px] text-green-900 font-semibold">
-                        Balance : ৳{Number(totalAmount) - Number(totalCost)}
+                        Balance : ৳
+                        {Number(totalAmount) - Number(totalCost) || 0}
                       </h3>
                     </div>
                   )}
