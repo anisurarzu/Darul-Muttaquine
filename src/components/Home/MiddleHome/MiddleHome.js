@@ -110,10 +110,10 @@ export default function MiddleHome() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-2 pt-16 mx-4 lg:mx-32 xl:mx-32 ">
         {/* 1 */}
         <div className="grid grid-cols-3">
-          <div className="col-span-2 lg:col-span-1 xl:col-span-1">
+          <div className="col-span-1 lg:col-span-1 xl:col-span-1">
             <img className="w-full" src={icon1} alt="" />
           </div>
-          <div className="col-span-1 lg:col-span-2 xl:col-span-2">
+          <div className="col-span-2 lg:col-span-2 xl:col-span-2">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] ">
               Donate Us
             </h3>
@@ -126,10 +126,10 @@ export default function MiddleHome() {
         </div>
         {/* 2 */}
         <div className="grid grid-cols-3">
-          <div className="col-span-2 lg:col-span-1 xl:col-span-1">
+          <div className="col-span-1 lg:col-span-1 xl:col-span-1">
             <img className="w-full" src={icon2} alt="" />
           </div>
-          <div className="col-span-1 lg:col-span-2 xl:col-span-2">
+          <div className="col-span-2 lg:col-span-2 xl:col-span-2">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] ">
               Join In Scholarship
             </h3>
@@ -142,10 +142,10 @@ export default function MiddleHome() {
         </div>
         {/* 3 */}
         <div className="grid grid-cols-3">
-          <div className="col-span-2 lg:col-span-1 xl:col-span-1">
+          <div className="col-span-1 lg:col-span-1 xl:col-span-1">
             <img className="w-full" src={icon3} alt="" />
           </div>
-          <div className="col-span-1 lg:col-span-2 xl:col-span-2">
+          <div className="col-span-2 lg:col-span-2 xl:col-span-2">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] ">
               Food Donation
             </h3>
@@ -168,7 +168,7 @@ export default function MiddleHome() {
         </di>
       </div>
       {/* 3rd part */}
-      <div className="card lg:mx-32 xl:mx-32 py-8">
+      <div className="card mx:8 lg:mx-32 xl:mx-32 py-8">
         <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8 underline text-center font-semibold">
           DMF RUNNING PROJECTS
         </h3>
