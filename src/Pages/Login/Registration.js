@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import Navbar from "../../components/Navbar";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { coreAxios } from "../../utilities/axios";
+import Loader from "../../components/Loader/Loader";
 
 export default function Registration() {
   const [firstName, setFirstName] = useState("");
@@ -11,10 +12,13 @@ export default function Registration() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const history = useHistory();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const response = await coreAxios.post("/register", {
         firstName,
         lastName,
@@ -23,17 +27,45 @@ export default function Registration() {
         password,
       });
       if (response?.status === 201) {
-        toast.success("Verification email sent. Please check your inbox!");
+        toast.success("Successfully Registered! Please wait until login!");
+        /* toast.success("Verification email sent. Please check your inbox!"); */
+
+        // After successful registration, perform automatic login
+        const loginResponse = await coreAxios.post("/login", {
+          email,
+          password,
+        });
+
+        if (loginResponse?.status === 200) {
+          setLoading(false);
+          toast.success("Login successful");
+
+          const { token } = loginResponse.data;
+
+          // Store the token in local storage
+          localStorage.setItem("token", token);
+          try {
+            // Call the API to fetch user information
+            const userInfoResponse = await coreAxios.get("/userinfo");
+            // Store user information locally
+            localStorage.setItem(
+              "userInfo",
+              JSON.stringify(userInfoResponse?.data)
+            );
+
+            // Redirect to the intended destination or dashboard
+            history.replace("/dashboard");
+          } catch (error) {
+            console.error("Error fetching user information:", error);
+          }
+        }
       } else {
         toast.error(response.data);
       }
-
-      // Handle successful registration (e.g., show success message)
     } catch (error) {
+      setLoading(false);
       toast.error(error.response.data?.message);
       console.log("err", error?.data?.message);
-
-      // Handle registration error (e.g., display error message to user)
     }
   };
   return (
@@ -45,71 +77,83 @@ export default function Registration() {
             Registraion
           </h1>
           <form onSubmit={handleRegister}>
-            <div class="mb-4">
-              <label for="nombre" class="block mb-2 text-xl text-gray-600">
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-            </div>
-            <div class="mb-4">
-              <label for="apellido" class="block mb-2 text-xl text-gray-600">
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-                onChange={(e) => setLastName(e.target.value)}
-              />
-            </div>
-            <div class="mb-4">
-              <label for="apellido" class="block mb-2 text-xl text-gray-600">
-                User Name
-              </label>
-              <input
-                type="text"
-                id="userName"
-                name="userName"
-                class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div class="mb-4">
-              <label for="email" class="block mb-2 text-xl text-gray-600">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div class="mb-4">
-              <label for="password" class="block mb-2 text-xl text-gray-600">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            {loading ? (
+              <Loader />
+            ) : (
+              <div>
+                <div class="mb-4">
+                  <label for="nombre" class="block mb-2 text-xl text-gray-600">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    required
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                </div>
+                <div class="mb-4">
+                  <label
+                    for="apellido"
+                    class="block mb-2 text-xl text-gray-600">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    required
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                </div>
+                <div class="mb-4">
+                  <label
+                    for="apellido"
+                    class="block mb-2 text-xl text-gray-600">
+                    User Name
+                  </label>
+                  <input
+                    type="text"
+                    id="userName"
+                    name="userName"
+                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    required
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
+                </div>
+                <div class="mb-4">
+                  <label for="email" class="block mb-2 text-xl text-gray-600">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    required
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div class="mb-4">
+                  <label
+                    for="password"
+                    class="block mb-2 text-xl text-gray-600">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    required
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"

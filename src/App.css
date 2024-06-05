@@ -1,10 +1,12 @@
-* {
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500&family=Rajdhani&display=swap");* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: "Jost", sans-serif;
 }
-
+.bangla-text {
+  font-family: "Hind Siliguri", sans-serif !important;
+}
 html {
   font-size: 62.5%;
 }
