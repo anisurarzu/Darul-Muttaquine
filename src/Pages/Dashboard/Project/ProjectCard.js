@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import { Modal } from "antd";
+import { Avatar, Modal, Tooltip } from "antd";
 import Details from "../DepositInfo/Details";
 
 export default function ProjectCard({ rowData, depositData, costData }) {
@@ -87,14 +87,29 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                 {/* {Array.isArray(rowData.projectCoordinators)
                   ? rowData.projectCoordinators.join(", ")
                   : ""} */}
-                <div className=" flex  gap-2 justify-content-center ">
-                  {rowData?.projectCoordinatorImages?.map((img, index) => (
-                    <img
+
+                {/* <img
                       src={`${img}`}
                       alt={"product.name"}
                       className="w-[30px] h-[30px] rounded-full"
-                    />
-                  ))}
+                    /> */}
+
+                <div className=" flex  gap-2 justify-content-center ">
+                  <Avatar.Group
+                    size=""
+                    max={{
+                      count: 2,
+                      style: {
+                        color: "#f56a00",
+                        backgroundColor: "#fde3cf",
+                        cursor: "pointer",
+                      },
+                      popover: { trigger: "click" },
+                    }}>
+                    {rowData?.projectCoordinatorImages?.map((img, index) => (
+                      <Avatar src={img} />
+                    ))}
+                  </Avatar.Group>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-2">

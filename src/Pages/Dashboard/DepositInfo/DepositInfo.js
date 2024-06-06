@@ -3,12 +3,13 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
-import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
+import { Alert, Button, Modal, Pagination, Popconfirm, Spin, Tag } from "antd";
 
 import InsertDeposit from "./InsertDeposit";
 import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
 import UpdateDepositStatus from "./UpdateDepositStatus";
+import TableData from "../../../components/TableData";
 
 const DepositInfo = () => {
   const history = useHistory();
@@ -251,38 +252,36 @@ const DepositInfo = () => {
                 {currentItems.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.userName}
+                      <TableData status={roll?.status} data={roll?.userName} />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center font-bold text-green-900">
-                      ৳{roll?.amount}
+                      <TableData status={roll?.status} data={roll?.amount} />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll?.depositDate)}
+                      <TableData
+                        status={roll?.status}
+                        data={formatDate(roll?.depositDate)}
+                      />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.project}
+                      <TableData status={roll?.status} data={roll?.project} />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.paymentMethod}
+                      <TableData
+                        status={roll?.status}
+                        data={roll?.paymentMethod}
+                      />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.phone}
+                      <TableData status={roll?.status} data={roll?.phone} />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.tnxID}
+                      <TableData status={roll?.status} data={roll?.tnxID} />
                     </td>
 
                     <td
-                      className={`border border-tableBorder pl-1 text-center text-[14px] font-semi-bold ${
-                        roll?.status === "Approved"
-                          ? "text-green-500 "
-                          : roll?.status === "Rejected"
-                          ? "text-red-500"
-                          : roll?.status === "Hold"
-                          ? "text-yellow-500"
-                          : ""
-                      }`}>
-                      {roll?.status}
+                      className={`border border-tableBorder pl-1 text-center text-[14px] font-semi-bold `}>
+                      <TableData status={roll?.status} data={roll?.status} />
                     </td>
 
                     <td className="border border-tableBorder pl-1">
@@ -325,7 +324,6 @@ const DepositInfo = () => {
                           </Popconfirm>
                         </div>
                       )}
-                      |
                     </td>
                   </tr>
                 ))}
