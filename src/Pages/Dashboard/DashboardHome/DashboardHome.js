@@ -234,10 +234,10 @@ export default function DashboardHome() {
                 View
               </Link>
             </div>
-            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5 card-5">
+            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
               <div class="flex justify-between mb-6">
                 <div>
-                  <div class="text-3xl font-semibold mb-1 text-right">
+                  <div class="text-3xl font-semibold mb-1">
                     ৳{depositAmount}
                   </div>
                   <div class="text-[14px] font-medium text-purple-800">
