@@ -14,7 +14,7 @@ export default function HeroSection() {
   };
 
   return (
-    <div>
+    <div data-aos="fade-down">
       <Carousel autoplay>
         <div>
           <div className="" style={contentStyle}>
