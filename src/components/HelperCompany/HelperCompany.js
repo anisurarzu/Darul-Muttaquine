@@ -27,7 +27,7 @@ export default function HelperCompany() {
   ];
   return (
     <div style={{ background: "#F5F5F5" }}>
-      <div className="mx-2 lg:mx-28 xl:mx-28 py-2 lg:py-8 xl:py-8">
+      <div className="mx-4 lg:mx-28 xl:mx-28 py-2 lg:py-8 xl:py-8">
         <h3 className="text-[15px] lg:text-[26px] xl:text-[26px] text-center py-4 bangla-text text-green-800 font-semibold">
           সহযোগী প্রতিষ্ঠানসমূহ
         </h3>

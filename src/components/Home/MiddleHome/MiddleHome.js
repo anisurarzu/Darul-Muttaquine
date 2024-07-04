@@ -125,7 +125,7 @@ export default function MiddleHome() {
               প্রতিদিন কুরআন পড়ুন
             </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify">
+            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify pr-4">
               "কুরআন পড়ার প্রতি উদ্বুদ্ধ হন, কারণ এটি আমাদের জীবনে সঠিক পথ
               দেখায়, মানসিক শান্তি আনে এবং আল্লাহর নিকটবর্তী করে।"
             </p>
@@ -137,11 +137,11 @@ export default function MiddleHome() {
             <img className="w-full" src={islamic2} alt="" />
           </div>
           <div className="col-span-3 ">
-            <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] bangla-text">
+            <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] bangla-text ">
               শিশুকে ইসলামী শিক্ষা দিন
             </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify">
+            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify pr-4">
               "আপনার শিশুকে ইসলামী শিক্ষা দিন, যাতে তারা ধর্মীয় মূল্যবোধ,
               নৈতিকতা এবং জীবনের সঠিক পথে চলার নির্দেশনা পায়।"
             </p>
@@ -157,7 +157,7 @@ export default function MiddleHome() {
               পরিবারের সঙ্গে সময় কাটান
             </h3>
             <hr className="w-[50px] h-2" />
-            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify">
+            <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify pr-4">
               "আপনার পরিবারের সঙ্গে সময় কাটান, কারণ এটি সম্পর্কের বন্ধনকে মজবুত
               করে, ভালবাসা ও সুখ বাড়ায় এবং একটি সুস্থ জীবন নিশ্চিত করে।"
             </p>
@@ -235,7 +235,7 @@ export default function MiddleHome() {
           <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8  text-center font-semibold bangla-text">
             চলমান প্রজেক্ট সমূহ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4 mx-2">
             {projects?.map((project, index) => (
               <div key={index}>
                 <ProjectCard rowData={project} />
