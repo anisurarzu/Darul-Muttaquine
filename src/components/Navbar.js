@@ -11,6 +11,7 @@ import { NavLink, Link, useHistory } from "react-router-dom";
 import logo from "../images/dmf-logo.png";
 
 import "../Pages/scholarship/scholarshipButton.css";
+import Scholarship from "../Pages/scholarship/Scholarship";
 
 const Navbar = () => {
   const [showMediaIcons, setShowMediaIcons] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="main-nav border-b sticky top-0 z-50 bg-white">
+      <nav className="main-nav border-b sticky top-0 z-50 bg-white bangla-text">
         {/* 1st logo part  */}
         <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
           <Link to="/">
@@ -48,29 +49,22 @@ const Navbar = () => {
           }>
           <ul>
             <li>
-              <NavLink to="/about">About</NavLink>
+              <NavLink to="/about">আমাদের সম্পর্কে</NavLink>
             </li>
             <li>
-              <NavLink to="/history">History</NavLink>
+              <NavLink to="/history">গ্যালারী</NavLink>
             </li>
             <li>
-              <NavLink to="/result">Result</NavLink>
+              <NavLink to="/result">ফলাফল</NavLink>
             </li>
 
             <li>
-              <NavLink to="/dashboard">Dashboard</NavLink>
+              <NavLink to="/dashboard">ড্যাশবোর্ড</NavLink>
             </li>
             <li>
-              <NavLink to="/contact">Contact</NavLink>
+              <NavLink to="/contact">যোগাযোগ</NavLink>
             </li>
-            {/* Conditionally render login or logout button based on authentication state */}
-            {/*  {!isAuthenticated && (
-              <li>
-                <NavLink to="/login ">
-                  <span> Log In</span>
-                </NavLink>
-              </li>
-            )} */}
+            <li></li>
 
             {isAuthenticated && (
               <li
@@ -92,30 +86,6 @@ const Navbar = () => {
 
         {/* 3rd social media links */}
         <div className="social-media">
-          <ul className="social-media-desktop">
-            <li>
-              <a
-                href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa">
-                <FaFacebookSquare className="facebook" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.instagram.com/thapatechnical/"
-                target="_thapa">
-                <FaInstagramSquare className="instagram" />
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.youtube.com/channel/UCwfaAHy4zQUb2APNOGXUCCA"
-                target="_thapa">
-                <FaYoutubeSquare className="youtube" />
-              </a>
-            </li>
-          </ul>
-
           {/* hamburget menu start  */}
           <div className="hamburger-menu">
             <a href="#" onClick={() => setShowMediaIcons(!showMediaIcons)}>

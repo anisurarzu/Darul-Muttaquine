@@ -43,12 +43,15 @@ const App = () => {
         <Route exact path="/result">
           <ResultPage />
         </Route>
+        <Route exact path="/history">
+          <History />
+        </Route>
         <Route exact path="/about">
           <About />
         </Route>
         {/* <PrivateRoute path="/about" component={About} /> */}
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
-        <PrivateRoute path="/history" component={History} />
+        {/* <PrivateRoute path="/history" component={History} /> */}
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
       </Switch>
