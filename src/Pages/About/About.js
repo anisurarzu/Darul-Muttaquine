@@ -274,7 +274,7 @@ export default function About() {
                       </div>
                       <img
                         className="w-20 h-20 rounded-full border-2 border-green-400"
-                        src="https://i.ibb.co/XDsfYG3/inbound2876202773919974830.jpg"
+                        src="https://i.ibb.co/sKV2T4H/IMG-20240704-WA0013.jpg"
                         alt=""
                       />
                     </div>
