@@ -169,7 +169,7 @@ export default function About() {
       <div className="w-full ">
         <div>
           <div style={{ background: "#408F49" }}>
-            <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 text-center bangla-text">
+            <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text">
               আমাদের সম্পর্কে
             </h2>
           </div>
