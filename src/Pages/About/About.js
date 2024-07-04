@@ -54,7 +54,7 @@ export default function About() {
   const items1 = [
     {
       title: ` পবিত্র কুরআন ও আল্লাহর রাসুল মুহাম্মাদ (সাল্লাল্লাহু আলাইহি
-                    ওয়া সাল্লাম)-এর সুন্নাহ তথা কর্মনীতিই আস-সুন্নাহ ফাউন্ডেশনের
+                    ওয়া সাল্লাম)-এর সুন্নাহ তথা কর্মনীতিই দারুল মুত্তাক্বীন ফাউন্ডেশনের
                     মূল আদর্শ।`,
     },
     {
@@ -353,8 +353,8 @@ export default function About() {
         </div>
 
         <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
-          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
-            চলমান প্রকল্পসমূহ
+          {/* <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 bangla-text">
+            চলমান প্রজেক্ট সমূহ
           </h2>
 
           <div className="pb-4">
@@ -365,7 +365,7 @@ export default function About() {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
           <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
             সক্রিয় সদস্যগণ
           </h2>

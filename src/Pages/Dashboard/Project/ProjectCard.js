@@ -37,7 +37,7 @@ export default function ProjectCard({ rowData, depositData, costData }) {
   return (
     <div>
       <div className="flex flex-col">
-        <div className="bg-white border border-white shadow-lg rounded-3xl p-4 m-4">
+        <div className="bg-white border border-white shadow-lg rounded-2xl p-4 m-4">
           <div className="px-4 object-cover sm:mb-0 mb-3 grid grid-cols-2 gap-2">
             <img
               src={rowData?.image}

@@ -27,13 +27,13 @@ export default function HeroSection() {
             </div>
           </div>
         </div>
-        <div className="hero-div">
+        {/* <div className="hero-div">
           <img
             className="lg:h-[670px] xl:h-[679px] w-full"
             src={bannerImage2}
             alt=""
           />
-        </div>
+        </div> */}
         <div className="hero-div">
           <img
             className="lg:h-[670px] xl:h-[679px] w-full"

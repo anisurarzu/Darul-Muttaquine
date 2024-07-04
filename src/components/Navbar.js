@@ -70,14 +70,14 @@ const Navbar = () => {
               <li
                 onClick={handleLogout}
                 className="cursor-pointer hover:border hover:border-green-500 hover:rounded-lg hover:p-3">
-                Log Out
+                লগ আউট
               </li>
             )}
 
             <li>
               <NavLink to="/scholarship">
                 <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
-                  <span>Scholarship</span>
+                  <span>শিহ্মাবৃত্তি</span>
                 </scholarshipButton>
               </NavLink>
             </li>

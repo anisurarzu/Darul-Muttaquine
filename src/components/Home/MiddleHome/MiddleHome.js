@@ -165,16 +165,18 @@ export default function MiddleHome() {
         {/* 4 */}
       </div>
       {/* 2nd part */}
-      <div className="lg:mx-32 xl:mx-32 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16 py-4 lg:py-24 xl:py-24 ">
-        <di className=" text-white">
-          <img src={voulenteer} alt="" />
+      <div
+        className=" grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16 py-4 lg:py-24 xl:py-24 "
+        style={{ background: "#F5F5F5" }}>
+        <di className=" text-white lg:ml-20 xl:ml-20 ">
+          <img className="rounded-lg" src={voulenteer} alt="" />
         </di>
-        <di className=" text-white">
-          <img src={eidCard} alt="" />
-        </di>
+        <div className=" text-white lg:mr-20 xl:mr-20">
+          <img className="rounded-lg" src={eidCard} alt="" />
+        </div>
       </div>
       {/* 3rd part */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 pb-8">
         {/* 1 */}
         <div className="grid grid-cols-5" data-aos="fade-down">
           <div className="col-span-3">
@@ -227,21 +229,55 @@ export default function MiddleHome() {
         </div>
       </div>
       {/* 4th part */}
-      <div className="card mx:8 lg:mx-32 xl:mx-32 py-8">
-        <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8 underline text-center font-semibold">
-          DMF RUNNING PROJECTS
-        </h3>
-        <Carousel
-          value={projects}
-          numScroll={1}
-          numVisible={4}
-          responsiveOptions={responsiveOptions}
-          itemTemplate={productTemplate}
-        />
+      <div className=" py-8" style={{ background: "#F5F5F5" }}>
+        <div className="card mx:8 lg:mx-32 xl:mx-32">
+          <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8  text-center font-semibold bangla-text">
+            চলমান প্রজেক্ট সমূহ
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
+            {projects?.map((project, index) => (
+              <div key={index}>
+                <ProjectCard rowData={project} />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      {/*  <di className=" text-white pt-2 lg:pt-16 xl:pt-20">
-        <img src={eidCard} alt="" />
-      </di> */}
+
+      {/* 
+     একনজরে  দারুল মুত্তাক্বীন ফাউন্ডেশন
+      */}
+
+      <div className="mx-2 lg:mx-28 xl:mx-28 py-4">
+        <h3 className="text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8 text-center font-semibold bangla-text">
+          একনজরে দারুল মুত্তাক্বীন ফাউন্ডেশন
+        </h3>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-4">
+          <div className="hidden lg:block"></div>
+          <div className="flex flex-col items-center lg:flex-row lg:items-center py-2 gap-4 lg:gap-16 pb-8">
+            <img
+              className="h-[100px] w-[130px]"
+              src="http://localhost:3000/static/media/dmf-logo.5cedfc295c17cf19e4d9.png"
+              alt=""
+            />
+            <div className="text-center lg:text-left">
+              <h3 className="text-[13px] lg:text-[17px] xl:text-[17px]">
+                কেন্দ্রীয় কার্যালয়
+              </h3>
+              <p className="py-2 text-[10px] lg:text-[12px] xl:text-[12px]">
+                তক্তারচালা বাজার,মির্জাপুর,টাংগাইল,ঢাকা। <br />
+                মোবাইলঃ 01791556184
+              </p>
+              <p className="py-2 text-[10px] lg:text-[12px] xl:text-[12px]">
+                কার্যক্রম <br />
+                শিক্ষা, গবেষণা, মানবসেবা
+              </p>
+            </div>
+          </div>
+          <div className="hidden lg:block"></div>
+        </div>
+      </div>
     </div>
   );
 }

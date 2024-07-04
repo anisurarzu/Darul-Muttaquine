@@ -19,6 +19,7 @@ import AdmitCard from "./Pages/Dashboard/AdmitCard";
 import ResultPage from "./Pages/Dashboard/Result/ResultPage";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Fotter from "./components/Fotter";
 
 const App = () => {
   useEffect(() => {
@@ -55,6 +56,7 @@ const App = () => {
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
       </Switch>
+      <Fotter />
       <ToastContainer />
     </div>
   );
