@@ -139,7 +139,7 @@ const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
 
           <button
             type="submit"
-            className="justify-center rounded bg-primary  font-medium text-gray  border border-green-600 ml-8 mt-12 mb-4 mr-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+            className="justify-center rounded bg-primary  font-medium text-gray  border border-green-600 lg:ml-8 xl:ml-8 mt-12 p-3 lg:mb-4 lg:mr-8 xl:mb-4 xl:mr-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
             দান করুন
           </button>
         </form>

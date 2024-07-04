@@ -10,6 +10,7 @@ import eidCard from "../../../images/eid-card.jpg";
 import islamic1 from "../../../images/em040421n08.gif";
 import islamic2 from "../../../images/animation-1.gif";
 import islamic3 from "../../../images/animation-2.gif";
+import logo from "../../../images/dmf-logo.png";
 
 import { Tag } from "primereact/tag";
 
@@ -256,11 +257,7 @@ export default function MiddleHome() {
         <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-3 gap-4">
           <div className="hidden lg:block"></div>
           <div className="flex flex-col items-center lg:flex-row lg:items-center py-2 gap-4 lg:gap-16 pb-8">
-            <img
-              className="h-[100px] w-[130px]"
-              src="http://localhost:3000/static/media/dmf-logo.5cedfc295c17cf19e4d9.png"
-              alt=""
-            />
+            <img className="h-[100px] w-[130px]" src={logo} alt="" />
             <div className="text-center lg:text-left">
               <h3 className="text-[13px] lg:text-[17px] xl:text-[17px]">
                 কেন্দ্রীয় কার্যালয়

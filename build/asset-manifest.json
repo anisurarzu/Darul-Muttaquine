@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.fb4db9d5.css",
-    "main.js": "/static/js/main.4b0850f9.js",
+    "main.js": "/static/js/main.93bf11b1.js",
     "static/js/239.2012888f.chunk.js": "/static/js/239.2012888f.chunk.js",
     "static/js/213.72d1b2c1.chunk.js": "/static/js/213.72d1b2c1.chunk.js",
     "static/js/667.88df4c56.chunk.js": "/static/js/667.88df4c56.chunk.js",
@@ -29,10 +29,11 @@
     "static/media/primeicons.woff2": "/static/media/primeicons.024b32cc7bf399b1a847.woff2",
     "static/media/banner02.jpeg": "/static/media/banner02.638a62a361197d8b590e.jpeg",
     "static/media/dmf-logo.png": "/static/media/dmf-logo.5cedfc295c17cf19e4d9.png",
+    "static/media/tss.png": "/static/media/tss.604ffcfa4a53170310e0.png",
     "static/media/icon04_small.png": "/static/media/icon04_small.319e8a390f4f4c085d2e.png",
     "index.html": "/index.html",
     "main.fb4db9d5.css.map": "/static/css/main.fb4db9d5.css.map",
-    "main.4b0850f9.js.map": "/static/js/main.4b0850f9.js.map",
+    "main.93bf11b1.js.map": "/static/js/main.93bf11b1.js.map",
     "239.2012888f.chunk.js.map": "/static/js/239.2012888f.chunk.js.map",
     "213.72d1b2c1.chunk.js.map": "/static/js/213.72d1b2c1.chunk.js.map",
     "667.88df4c56.chunk.js.map": "/static/js/667.88df4c56.chunk.js.map",
@@ -40,6 +41,6 @@
   },
   "entrypoints": [
     "static/css/main.fb4db9d5.css",
-    "static/js/main.4b0850f9.js"
+    "static/js/main.93bf11b1.js"
   ]
 }
