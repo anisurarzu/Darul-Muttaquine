@@ -106,13 +106,13 @@ export default function MiddleHome() {
 
   const productTemplate = (product) => {
     return (
-      <div className="" data-aos="fade-down">
+      <div className="">
         <ProjectCard rowData={product} />
       </div>
     );
   };
   return (
-    <div data-aos="fade-down">
+    <div>
       {/* 1st part */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 ">
         {/* 1 */}
@@ -179,7 +179,7 @@ export default function MiddleHome() {
       {/* 3rd part */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 pb-8">
         {/* 1 */}
-        <div className="grid grid-cols-5" data-aos="fade-down">
+        <div className="grid grid-cols-5">
           <div className="col-span-3">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] bangla-text">
               দান করুন
@@ -196,7 +196,7 @@ export default function MiddleHome() {
           </div>
         </div>
         {/* 2 */}
-        <div className="grid grid-cols-5" data-aos="fade-down">
+        <div className="grid grid-cols-5">
           <div className="col-span-3 ">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] bangla-text">
               বৃত্তিতে যোগ দিন
@@ -213,7 +213,7 @@ export default function MiddleHome() {
           </div>
         </div>
         {/* 3 */}
-        <div className="grid grid-cols-3" data-aos="fade-down">
+        <div className="grid grid-cols-3">
           <div className="col-span-2 lg:col-span-2 xl:col-span-2">
             <h3 className="text-[13px] lg:text-[20px] xl:text-[20px] bangla-text">
               খাদ্য দান

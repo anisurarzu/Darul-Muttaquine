@@ -79,7 +79,7 @@ const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
   return (
     <div className=" py-2 lg:py-8 xl:py-8 " style={{ background: "#F5F5F5" }}>
       <div
-        className="rounded-lg border my-4 mx-2 lg:mx-28 xl:mx-28 p-8"
+        className="rounded-lg border my-4 mx-8 lg:mx-28 xl:mx-28 p-8"
         style={{ background: "#FFFFFF" }}>
         <form
           className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-4 gap-1 lg:gap-8 xl:gap-8 text-[12px] lg:text-[18px] xl:text-[18px]"
@@ -139,7 +139,7 @@ const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
 
           <button
             type="submit"
-            className="justify-center rounded bg-primary  font-medium text-gray  border border-green-600 lg:ml-8 xl:ml-8 mt-12 p-3 lg:mb-4 lg:mr-8 xl:mb-4 xl:mr-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+            className="justify-center rounded bg-green-600 text-white  font-medium text-gray  border border-green-600 lg:ml-8 xl:ml-8 mt-12 p-3 lg:mb-4 lg:mr-8 xl:mb-4 xl:mr-8 rounded hover:bg-green-800 hover:text-white hover:shadow-md">
             দান করুন
           </button>
         </form>

@@ -10,6 +10,8 @@ import {
 import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
 
+import logo from "../../images/dmf-logo.png";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,11 +69,7 @@ export default function Login() {
       <div class="min-h-screen flex items-center justify-center bg-blue-50">
         <div class="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
           <div class="flex justify-center mb-8">
-            <img
-              src="https://www.emprenderconactitud.com/img/POC%20WCS%20(1).png"
-              alt="Logo"
-              class="w-30 h-20"
-            />
+            <img src={logo} alt="Logo" class="w-30 h-20" />
           </div>
           <h1 class="text-3xl font-semibold text-center text-gray-500 mt-8 mb-6">
             Log In

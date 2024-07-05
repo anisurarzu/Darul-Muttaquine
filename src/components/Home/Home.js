@@ -5,13 +5,14 @@ import MiddleHome from "./MiddleHome/MiddleHome";
 import Fotter from "../Fotter";
 import DonationBox from "../DnationBox/DonationBox";
 import HelperCompany from "../HelperCompany/HelperCompany";
+import Slider from "./Slider/Slider";
 
 export default function Home() {
   return (
     <div>
       {/* <Navbar /> */}
-
-      <HeroSection />
+      <Slider />
+      {/*   <HeroSection /> */}
       <DonationBox />
       <MiddleHome />
       <HelperCompany />
