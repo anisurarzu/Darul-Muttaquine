@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.fb4db9d5.css",
-    "main.js": "/static/js/main.973d9a1e.js",
+    "main.css": "/static/css/main.8727335f.css",
+    "main.js": "/static/js/main.4552d1a5.js",
     "static/js/239.2012888f.chunk.js": "/static/js/239.2012888f.chunk.js",
     "static/js/213.72d1b2c1.chunk.js": "/static/js/213.72d1b2c1.chunk.js",
     "static/js/667.88df4c56.chunk.js": "/static/js/667.88df4c56.chunk.js",
@@ -14,6 +14,7 @@
     "static/media/home-banner-3.jpg": "/static/media/home-banner-3.82c36b4ae1aaa59ca1f4.jpg",
     "static/media/eid-card.jpg": "/static/media/eid-card.b0ed3402ed422c64ea62.jpg",
     "static/media/566.jpg": "/static/media/566.6473c081d17277b63873.jpg",
+    "static/media/slider-image.jpeg": "/static/media/slider-image.f13c6563d96828f7a46c.jpeg",
     "static/media/scholarship-2-removebg-preview.png": "/static/media/scholarship-2-removebg-preview.85acd15ce62426e0ec9a.png",
     "static/media/voluenteer.jpg": "/static/media/voluenteer.4e7507684013097e1a47.jpg",
     "static/media/s-2022-removebg-preview.png": "/static/media/s-2022-removebg-preview.b1fc58418d7b54959a05.png",
@@ -32,15 +33,15 @@
     "static/media/tss.png": "/static/media/tss.604ffcfa4a53170310e0.png",
     "static/media/icon04_small.png": "/static/media/icon04_small.319e8a390f4f4c085d2e.png",
     "index.html": "/index.html",
-    "main.fb4db9d5.css.map": "/static/css/main.fb4db9d5.css.map",
-    "main.973d9a1e.js.map": "/static/js/main.973d9a1e.js.map",
+    "main.8727335f.css.map": "/static/css/main.8727335f.css.map",
+    "main.4552d1a5.js.map": "/static/js/main.4552d1a5.js.map",
     "239.2012888f.chunk.js.map": "/static/js/239.2012888f.chunk.js.map",
     "213.72d1b2c1.chunk.js.map": "/static/js/213.72d1b2c1.chunk.js.map",
     "667.88df4c56.chunk.js.map": "/static/js/667.88df4c56.chunk.js.map",
     "453.b4be1faa.chunk.js.map": "/static/js/453.b4be1faa.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.fb4db9d5.css",
-    "static/js/main.973d9a1e.js"
+    "static/css/main.8727335f.css",
+    "static/js/main.4552d1a5.js"
   ]
 }

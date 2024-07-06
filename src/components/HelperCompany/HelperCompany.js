@@ -10,9 +10,8 @@ export default function HelperCompany() {
         "https://i.ibb.co/tCpkZhB/Whats-App-Image-2024-06-04-at-13-59-32.jpg",
     },
     {
-      title: "দারুল মুত্তাক্বীন মডেল মাদ্রাসা",
-      image:
-        "https://i.ibb.co/tCpkZhB/Whats-App-Image-2024-06-04-at-13-59-32.jpg",
+      title: "টাংগাইল সিল্কস & স্টাইল",
+      image: "https://i.ibb.co/MVdB066/elena-removebg-preview.png",
     },
     {
       title: "দারুল মুত্তাক্বীন মডেল মাদ্রাসা",

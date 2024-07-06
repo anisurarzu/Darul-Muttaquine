@@ -3,8 +3,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 
-import { Alert, Button, Spin, Upload } from "antd";
+import { Alert, Button, Select, Spin, Upload } from "antd";
 import { coreAxios } from "../../../utilities/axios";
+const { Option } = Select;
 const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
@@ -16,6 +17,7 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
       subtitle: "",
       description: "",
       image: "",
+      projectName: "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       try {
@@ -37,6 +39,8 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
               ...values,
               image: response?.data?.data?.display_url,
             };
+
+            console.log("====", allData);
 
             const res = await coreAxios.post(`/history-info`, allData);
             if (res?.status === 200) {
@@ -91,8 +95,16 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
       label: "Sub Title",
       errors: "",
       register: "",
-      required: true,
+      required: false,
     },
+  ];
+
+  const imageProjectList = [
+    "শিহ্মাবৃত্তি",
+    "ঈদের খুশি",
+    "ওয়াজ মাহফিল",
+    "আনন্দ ভ্রমণ",
+    "স্বাবলম্বীকরণ",
   ];
 
   return (
@@ -113,6 +125,27 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
               </Spin>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2">
+                <div className="w-full  mb-4">
+                  <label
+                    htmlFor="project"
+                    className="block text-black dark:text-black">
+                    Project <span className="text-meta-1">*</span>
+                  </label>
+                  <Select
+                    id="projectName"
+                    name="project Name"
+                    onChange={(value) =>
+                      formik.setFieldValue("projectName", value)
+                    }
+                    value={formik.values.projectName}
+                    className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                    {imageProjectList?.map((method) => (
+                      <Option key={method} value={method}>
+                        {method}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
                 {inputData?.map(
                   ({
                     id,
@@ -146,15 +179,17 @@ const HistoryUpload = ({ onHide, fetchRolls, handleCancel }) => {
                     </div>
                   )
                 )}
-                <p>Description</p>
-                <textarea
-                  id="description"
-                  name="description"
-                  onChange={formik.handleChange}
-                  value={formik.values?.description}
-                  rows="4"
-                  cols="50"
-                  className="border border-gray-200"></textarea>
+                <div>
+                  <p>Description</p>
+                  <textarea
+                    id="description"
+                    name="description"
+                    onChange={formik.handleChange}
+                    value={formik.values?.description}
+                    rows="4"
+                    cols="50"
+                    className="border border-gray-200"></textarea>
+                </div>
               </div>
             )}
           </div>
