@@ -1,0 +1,35 @@
+[debug] [2024-07-06T09:36:55.257Z] ----------------------------------------------------------------------
+[debug] [2024-07-06T09:36:55.260Z] Command:       /Users/macbookair/.nvm/versions/node/v18.17.1/bin/node /Users/macbookair/.nvm/versions/node/v18.17.1/bin/firebase deploy --only hosting
+[debug] [2024-07-06T09:36:55.260Z] CLI Version:   13.11.2
+[debug] [2024-07-06T09:36:55.261Z] Platform:      darwin
+[debug] [2024-07-06T09:36:55.261Z] Node Version:  v18.17.1
+[debug] [2024-07-06T09:36:55.263Z] Time:          Sat Jul 06 2024 15:36:55 GMT+0600 (Bangladesh Standard Time)
+[debug] [2024-07-06T09:36:55.263Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-07-06T09:36:55.435Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-07-06T09:36:55.437Z] > authorizing via signed-in user (anisurarzu@gmail.com)
+[debug] [2024-07-06T09:36:55.437Z] [iam] checking project our-dmf-80476 for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2024-07-06T09:36:55.440Z] > refreshing access token with scopes: []
+[debug] [2024-07-06T09:36:55.521Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2024-07-06T09:36:55.521Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-07-06T09:36:55.995Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2024-07-06T09:36:55.996Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2024-07-06T09:36:56.033Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/our-dmf-80476:testIamPermissions [none]
+[debug] [2024-07-06T09:36:56.033Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/our-dmf-80476:testIamPermissions x-goog-quota-user=projects/our-dmf-80476
+[debug] [2024-07-06T09:36:56.033Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/our-dmf-80476:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-07-06T09:36:56.647Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/our-dmf-80476:testIamPermissions 200
+[debug] [2024-07-06T09:36:56.647Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/our-dmf-80476:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2024-07-06T09:36:56.651Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/our-dmf-80476 [none]
+[debug] [2024-07-06T09:36:57.565Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/our-dmf-80476 200
+[debug] [2024-07-06T09:36:57.565Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/our-dmf-80476 {"projectId":"our-dmf-80476","projectNumber":"919021508962","displayName":"our-dmf","name":"projects/our-dmf-80476","resources":{"hostingSite":"our-dmf-80476"},"state":"ACTIVE","etag":"1_03584334-db83-4633-b8a6-098bf7fc6858"}
+[info] 
+[info] === Deploying to 'our-dmf-80476'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2024-07-06T09:36:57.575Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/our-dmf-80476/versions [none]
+[debug] [2024-07-06T09:36:57.575Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/our-dmf-80476/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2024-07-06T09:36:59.274Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/our-dmf-80476/versions 200
+[debug] [2024-07-06T09:36:59.274Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/our-dmf-80476/versions {"name":"projects/919021508962/sites/our-dmf-80476/versions/d6f5e987d3941a5f","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[our-dmf-80476]: beginning deploy... 
+[info] i  hosting[our-dmf-80476]: found 48 files in build 
+[debug] [2024-07-06T09:36:59.301Z] [hosting] uploading with 200 concurrency
