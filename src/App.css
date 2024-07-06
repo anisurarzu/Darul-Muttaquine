@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500&family=Rajdhani&display=swap");* {
+@import url("https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500&family=Rajdhani&display=swap");
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -10,7 +11,6 @@
 html {
   font-size: 62.5%;
 }
-
 
 a {
   text-decoration: none;
@@ -80,7 +80,6 @@ li {
 }
 
 .social-media {
- 
 }
 
 .social-media ul {
@@ -265,7 +264,7 @@ li {
   .logo,
   .menu-link ul,
   .social-media ul {
-    padding:5px;
+    padding: 5px;
     height: 8rem;
   }
 }
@@ -409,6 +408,48 @@ li {
   background-color: #3f51b5;
 }
 
-
 /* slider */
 
+.step-finish {
+  .ant-steps-item-icon {
+    background-color: green;
+    border-color: green;
+  }
+  .ant-steps-item-title,
+  .ant-steps-item-subtitle {
+    color: green;
+  }
+}
+
+.step-process {
+  .ant-steps-item-icon {
+    background-color: blue;
+    border-color: blue;
+  }
+  .ant-steps-item-title,
+  .ant-steps-item-subtitle {
+    color: blue;
+  }
+}
+
+.step-wait {
+  .ant-steps-item-icon {
+    background-color: gray;
+    border-color: gray;
+  }
+  .ant-steps-item-title,
+  .ant-steps-item-subtitle {
+    color: gray;
+  }
+}
+
+.step-error {
+  .ant-steps-item-icon {
+    background-color: red;
+    border-color: red;
+  }
+  .ant-steps-item-title,
+  .ant-steps-item-subtitle {
+    color: red;
+  }
+}

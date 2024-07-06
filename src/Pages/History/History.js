@@ -32,6 +32,12 @@ const History = () => {
   const filteredData2 = historyData?.filter(
     (item) => item?.projectName === "ঈদের খুশি"
   );
+  const filteredData3 = historyData?.filter(
+    (item) => item?.projectName === "ওয়াজ মাহফিল"
+  );
+  const filteredData4 = historyData?.filter(
+    (item) => item?.projectName === "আনন্দ ভ্রমণ"
+  );
   const filteredData5 = historyData?.filter(
     (item) => item?.projectName === "স্বাবলম্বীকরণ"
   );
@@ -96,7 +102,7 @@ const History = () => {
                     }`}>
                     স্বাবলম্বীকরণ
                   </p>
-                  <p
+                  {/*  <p
                     onClick={() => setTabNumber(5)}
                     className={`bg-white shadow-md rounded-lg p-2 md:p-0 md:shadow-none md:bg-transparent hover:bg-green-100 lg:hover:bg-transparent  xl:hover:bg-transparent hover:shadow-lg lg:hover:shadow-none xl:hover:shadow-none hover:text-green-700 cursor-pointer ${
                       tabNumber === 5
@@ -104,7 +110,7 @@ const History = () => {
                         : ""
                     }`}>
                     ব্যয়ের নীতিমালা
-                  </p>
+                  </p> */}
                 </div>
 
                 <div className="md:col-span-5 rounded-lg shadow-lg p-4 bg-white mx-4  my-4 md:my-8">
@@ -122,7 +128,7 @@ const History = () => {
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
                                   <img
-                                    className="h-[90px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
                                     src={data?.image}
                                     alt=""
                                   />
@@ -170,7 +176,7 @@ const History = () => {
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
                                   <img
-                                    className="h-[90px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
                                     src={data?.image}
                                     alt=""
                                   />
@@ -186,9 +192,64 @@ const History = () => {
                       </div>
                     </div>
                   ) : tabNumber === 2 ? (
-                    <div></div>
+                    <div>
+                      {" "}
+                      <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
+                        ওয়াজ মাহফিল
+                      </h3>
+                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                        {filteredData3?.map((data, index) => (
+                          <div key={index}>
+                            <div
+                              href="#"
+                              class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+                              <div class="relative">
+                                <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
+                                  <img
+                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                    src={data?.image}
+                                    alt=""
+                                  />
+
+                                  <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
+                                    {data?.name}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : tabNumber === 3 ? (
-                    <div></div>
+                    <div>
+                      <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
+                        আনন্দ ভ্রমণ
+                      </h3>
+                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                        {filteredData4?.map((data, index) => (
+                          <div key={index}>
+                            <div
+                              href="#"
+                              class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+                              <div class="relative">
+                                <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
+                                  <img
+                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                    src={data?.image}
+                                    alt=""
+                                  />
+
+                                  <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
+                                    {data?.name}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : tabNumber === 4 ? (
                     <div>
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
@@ -203,7 +264,7 @@ const History = () => {
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
                                   <img
-                                    className="h-[90px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
                                     src={data?.image}
                                     alt=""
                                   />
@@ -219,7 +280,36 @@ const History = () => {
                       </div>
                     </div>
                   ) : (
-                    tabNumber === 5 && <div></div>
+                    tabNumber === 5 && (
+                      <div>
+                        <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
+                          অসহায়কে স্বাবলম্বীকরণ
+                        </h3>
+                        <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                          {filteredData5?.map((data, index) => (
+                            <div key={index}>
+                              <div
+                                href="#"
+                                class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
+                                <div class="relative">
+                                  <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
+                                    <img
+                                      className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
+                                      src={data?.image}
+                                      alt=""
+                                    />
+
+                                    <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
+                                      {data?.name}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
                   )}
                 </div>
               </div>

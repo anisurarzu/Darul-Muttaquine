@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../../utilities/axios";
-import { Alert } from "antd";
+import { Alert, Progress, Steps } from "antd";
 import { Spin } from "antd";
 
 import ProfileCard from "../Profile/ProfileCard";
@@ -144,6 +144,7 @@ export default function DashboardHome() {
   const data = singleDepositData?.deposits?.filter(
     (deposit) => deposit.status === "Approved"
   );
+  console.log("---", data);
   const depositAmount = data?.reduce(
     (total, deposit) => total + deposit?.amount,
     0
@@ -172,9 +173,39 @@ export default function DashboardHome() {
     getSingleCost();
     fetchCostInfo();
   }, []);
+  const [stepsCount, setStepsCount] = useState(12);
+  const [stepsGap, setStepsGap] = useState(12);
+  const [stepsData, setStepsData] = useState([
+    { title: "Jan", status: "finish" },
+
+    { title: "Feb", status: "wait" },
+    { title: "Mar", status: "wait" },
+    { title: "Apr", status: "wait" },
+    { title: "May", status: "wait" },
+    { title: "June", status: "wait" },
+    { title: "July", status: "wait" },
+    { title: "Aug", status: "wait" },
+    { title: "Sep", status: "wait" },
+    { title: "Oct", status: "wait" },
+    { title: "Nov", status: "wait" },
+    { title: "Dec", status: "wait" },
+  ]);
+  const [direction, setDirection] = useState("vertical");
+
+  const getMonthCount = (dateString) => {
+    const date = new Date(dateString);
+    return date.getMonth() + 1; // getMonth() returns 0 for January, so we add 1
+  };
+
+  const finishedMonths = data?.map((item) => getMonthCount(item?.depositDate));
+  const updatedStepsData = stepsData?.map((step, index) => ({
+    ...step,
+    status: finishedMonths?.includes(index + 1) ? "finish" : "wait",
+    amount: finishedMonths?.amount,
+  }));
 
   return (
-    <div>
+    <div className="lg:mr-8 xl:mr-8">
       {loading ? (
         <Spin tip="Loading...">
           <Alert
@@ -185,183 +216,218 @@ export default function DashboardHome() {
         </Spin>
       ) : (
         <div className="">
-          {/* ----------------1st div------------- */}
-          <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
-            <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="flex items-center mb-1">
-                    <div class="text-3xl font-semibold">{users?.length}</div>
+          <div className="grid grid-cols-12">
+            <div className="rounded-lg col-span-4 lg:col-span-1 xl:col-span-1">
+              <small className="text-center text-[10px] p-2">
+                2024 (DMF FUND)
+              </small>{" "}
+              <br />
+              <Steps
+                current={1}
+                percent={100}
+                direction={direction}
+                className=" p-1  h-[10px] "
+                items={updatedStepsData?.map((step) => ({
+                  title: step.title,
+                  subTitle: step.subTitle,
+                  status: step.status,
+                  className: `step-${step.status} text-[10px] `,
+                }))}
+              />
+            </div>
+            <div className="col-span-8 lg:col-span-11 xl:col-span-11">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
+                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="flex items-center mb-1">
+                        <div class="text-3xl font-semibold">
+                          {users?.length}
+                        </div>
+                      </div>
+                      <div class="text-[14px] font-medium text-green-800">
+                        Users
+                      </div>
+                    </div>
                   </div>
-                  <div class="text-[14px] font-medium text-green-800">
-                    Users
+
+                  <a
+                    href="/gebruikers"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </a>
+                </div>
+                <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-4">
+                    <div>
+                      <div class="flex items-center mb-1">
+                        <div class="text-3xl font-semibold">
+                          {scholarShipInfo?.length}
+                        </div>
+                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2">
+                          +{percentage}%
+                        </div>
+                      </div>
+                      <div class="text-[14px] font-medium text-blue-800">
+                        Applications
+                      </div>
+                    </div>
+                    <div class="dropdown">
+                      <button
+                        type="button"
+                        class="dropdown-toggle text-gray-400 hover:text-gray-600">
+                        <i class="ri-more-fill"></i>
+                      </button>
+                    </div>
                   </div>
+                  <Link
+                    to="/dashboard/scholarship"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
+                </div>
+                <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="text-3xl font-semibold mb-1">
+                        ৳{depositAmount}
+                      </div>
+                      <div class="text-[14px] font-medium text-purple-800">
+                        My Deposit
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard/depositInfo"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
+                </div>
+                <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="text-3xl font-semibold mb-1">
+                        ৳{totalDepositAmount}
+                      </div>
+                      <div class="text-[14px] font-medium text-yellow-800">
+                        Total Deposit
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard/depositInfo"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
                 </div>
               </div>
 
-              <a
-                href="/gebruikers"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </a>
-            </div>
-            <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-4">
-                <div>
-                  <div class="flex items-center mb-1">
-                    <div class="text-3xl font-semibold">
-                      {scholarShipInfo?.length}
+              {/* ----------------- 2nd div ---------------------*/}
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
+                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="flex items-center mb-1">
+                        <div class="text-3xl font-semibold">
+                          {costData?.length}
+                        </div>
+                      </div>
+                      <div class="text-[14px] font-medium text-green-800">
+                        Approved Withdrawal Request
+                      </div>
                     </div>
-                    <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2">
-                      +{percentage}%
+                  </div>
+
+                  <a
+                    href="/gebruikers"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </a>
+                </div>
+
+                <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="text-3xl font-semibold mb-1">
+                        ৳{costAmount}
+                      </div>
+                      <div class="text-[14px] font-medium text-purple-800">
+                        My Withdrawal
+                      </div>
                     </div>
                   </div>
-                  <div class="text-[14px] font-medium text-blue-800">
-                    Applications
-                  </div>
+                  <Link
+                    to="/dashboard/withdraw"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
                 </div>
-                <div class="dropdown">
-                  <button
-                    type="button"
-                    class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                    <i class="ri-more-fill"></i>
-                  </button>
+                <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-4">
+                    <div>
+                      <div class="flex items-center mb-1">
+                        <div class="text-3xl font-semibold">
+                          ৳{totalCostAmount}
+                        </div>
+                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
+                      </div>
+                      <div class="text-[14px] font-medium text-blue-800">
+                        Withdrawal Amount
+                      </div>
+                    </div>
+                    <div class="dropdown">
+                      <button
+                        type="button"
+                        class="dropdown-toggle text-gray-400 hover:text-gray-600">
+                        <i class="ri-more-fill"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard/withdraw"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
+                </div>
+                <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="text-3xl font-semibold mb-1">
+                        ৳{Number(totalDepositAmount) - Number(totalCostAmount)}
+                      </div>
+                      <div class="text-[14px] font-medium text-yellow-800">
+                        Current Balance
+                      </div>
+                    </div>
+                  </div>
+                  <Link
+                    to="/dashboard/depositInfo"
+                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
+                    View
+                  </Link>
                 </div>
               </div>
-              <Link
-                to="/dashboard/scholarship"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
-            </div>
-            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="text-3xl font-semibold mb-1">
-                    ৳{depositAmount}
-                  </div>
-                  <div class="text-[14px] font-medium text-purple-800">
-                    My Deposit
-                  </div>
-                </div>
-              </div>
-              <Link
-                to="/dashboard/depositInfo"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
-            </div>
-            <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="text-3xl font-semibold mb-1">
-                    ৳{totalDepositAmount}
-                  </div>
-                  <div class="text-[14px] font-medium text-yellow-800">
-                    Total Deposit
-                  </div>
-                </div>
-              </div>
-              <Link
-                to="/dashboard/depositInfo"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
             </div>
           </div>
-          {/* ----------------- 2nd div ---------------------*/}
-          <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
-            <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="flex items-center mb-1">
-                    <div class="text-3xl font-semibold">{costData?.length}</div>
-                  </div>
-                  <div class="text-[14px] font-medium text-green-800">
-                    Approved Withdrawal Request
-                  </div>
-                </div>
-              </div>
 
-              <a
-                href="/gebruikers"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </a>
-            </div>
+          <div className="lg:ml-[95px] xl:ml-[95px] mx-2 lg:mx-0 xl:mx-0">
+            {/* ----------------1st div------------- */}
 
-            <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="text-3xl font-semibold mb-1">৳{costAmount}</div>
-                  <div class="text-[14px] font-medium text-purple-800">
-                    My Withdrawal
-                  </div>
+            <h2 className="py-2 text-[17px] font-semibold text-center">
+              Running DMF Projects
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 lg:gap-8 xl:gap-8">
+              {projectInfo?.map((project, index) => (
+                <div key={index}>
+                  <ProjectCard
+                    rowData={project}
+                    depositData={depositData}
+                    costData={costData}
+                  />
                 </div>
-              </div>
-              <Link
-                to="/dashboard/withdraw"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
+              ))}
             </div>
-            <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-4">
-                <div>
-                  <div class="flex items-center mb-1">
-                    <div class="text-3xl font-semibold">৳{totalCostAmount}</div>
-                    <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
-                  </div>
-                  <div class="text-[14px] font-medium text-blue-800">
-                    Withdrawal Amount
-                  </div>
-                </div>
-                <div class="dropdown">
-                  <button
-                    type="button"
-                    class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                    <i class="ri-more-fill"></i>
-                  </button>
-                </div>
-              </div>
-              <Link
-                to="/dashboard/withdraw"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
-            </div>
-            <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-              <div class="flex justify-between mb-6">
-                <div>
-                  <div class="text-3xl font-semibold mb-1">
-                    ৳{Number(totalDepositAmount) - Number(totalCostAmount)}
-                  </div>
-                  <div class="text-[14px] font-medium text-yellow-800">
-                    Current Balance
-                  </div>
-                </div>
-              </div>
-              <Link
-                to="/dashboard/depositInfo"
-                class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                View
-              </Link>
-            </div>
-          </div>
-
-          <h2 className="py-2 text-[17px] font-semibold text-center">
-            Running DMF Projects
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-            {projectInfo?.map((project, index) => (
-              <div key={index}>
-                <ProjectCard
-                  rowData={project}
-                  depositData={depositData}
-                  costData={costData}
-                />
-              </div>
-            ))}
           </div>
         </div>
       )}
