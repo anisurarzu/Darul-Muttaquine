@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
-import { Image } from "antd";
+import { Image, Modal } from "antd";
+import ProfileDetails from "./ProfileDetails";
 
 export default function ProfileCard({ rowData }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div>
       <div class="flex flex-col">
@@ -51,7 +58,11 @@ export default function ProfileCard({ rowData }) {
                   </svg>
                   <p class="">Join : {formatDate(rowData?.createdAt)}</p>
                 </div>
-                <button class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300">
+                <button
+                  class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}>
                   Details
                 </button>
               </div>
@@ -59,6 +70,20 @@ export default function ProfileCard({ rowData }) {
           </div>
         </div>
       </div>
+
+      <Modal
+        title="Profile Information"
+        open={isModalOpen}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <ProfileDetails
+          handleCancel={handleCancel}
+          rowData={rowData}
+          // depositData={depositData}
+          // costData={costData}
+        />
+      </Modal>
     </div>
   );
 }
