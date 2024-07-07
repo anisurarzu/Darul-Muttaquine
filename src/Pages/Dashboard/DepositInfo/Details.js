@@ -6,6 +6,8 @@ import { Modal } from "antd";
 export default function Details({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
+  console.log("depositData", depositData);
+
   // Filter deposits based on the current project
   const projectDeposits = depositData?.filter(
     (deposit) => deposit?.project === rowData?.projectName

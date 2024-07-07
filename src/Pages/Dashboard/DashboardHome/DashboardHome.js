@@ -2,12 +2,18 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../../utilities/axios";
-import { Alert, Progress, Steps } from "antd";
+import { Alert, Avatar, Card, Progress, Steps } from "antd";
 import { Spin } from "antd";
 
 import ProfileCard from "../Profile/ProfileCard";
 import ProjectCard from "../Project/ProjectCard";
 import { Link } from "react-router-dom";
+import {
+  EditOutlined,
+  EllipsisOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import Meta from "antd/es/card/Meta";
 
 export default function DashboardHome() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -417,7 +423,17 @@ export default function DashboardHome() {
             <h2 className="py-2 text-[17px] font-semibold text-center">
               Running DMF Projects
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 lg:gap-8 xl:gap-8">
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 lg:gap-4 xl:gap-4">
+              {/* {projectInfo?.map((project, index) => (
+                <div key={index}>
+                  <ProjectCard
+                    rowData={project}
+                    depositData={depositData}
+                    costData={costData}
+                  />
+                </div>
+              ))} */}
               {projectInfo?.map((project, index) => (
                 <div key={index}>
                   <ProjectCard

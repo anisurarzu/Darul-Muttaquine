@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { coreAxios } from "../../utilities/axios";
-import { Alert, Spin, Steps } from "antd";
+import { Alert, Image, Spin, Steps } from "antd";
 
 const History = () => {
   const [tabNumber, setTabNumber] = useState(0);
@@ -119,7 +119,7 @@ const History = () => {
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                         দারুল মুত্তাক্বীন শিহ্মাবৃত্তি
                       </h3>
-                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filteredData1?.map((data, index) => (
                           <div key={index}>
                             <div
@@ -127,11 +127,14 @@ const History = () => {
                               class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                  <img
-                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                    src={data?.image}
-                                    alt=""
-                                  />
+                                  <div className="flex justify-center">
+                                    <Image
+                                      height={180}
+                                      width={241}
+                                      src={data?.image}
+                                      className="objetc-cover"
+                                    />
+                                  </div>
 
                                   <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                     {data?.name}
@@ -167,7 +170,7 @@ const History = () => {
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                         ঈদের খুশি
                       </h3>
-                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filteredData2?.map((data, index) => (
                           <div key={index}>
                             <div
@@ -175,11 +178,14 @@ const History = () => {
                               class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                  <img
-                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                    src={data?.image}
-                                    alt=""
-                                  />
+                                  <div className="flex justify-center">
+                                    <Image
+                                      height={180}
+                                      width={241}
+                                      src={data?.image}
+                                      className="objetc-cover"
+                                    />
+                                  </div>
 
                                   <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                     {data?.name}
@@ -197,7 +203,7 @@ const History = () => {
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                         ওয়াজ মাহফিল
                       </h3>
-                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filteredData3?.map((data, index) => (
                           <div key={index}>
                             <div
@@ -205,11 +211,14 @@ const History = () => {
                               class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                  <img
-                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                    src={data?.image}
-                                    alt=""
-                                  />
+                                  <div className="flex justify-center">
+                                    <Image
+                                      height={180}
+                                      width={241}
+                                      src={data?.image}
+                                      className="objetc-cover"
+                                    />
+                                  </div>
 
                                   <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                     {data?.name}
@@ -226,7 +235,7 @@ const History = () => {
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                         আনন্দ ভ্রমণ
                       </h3>
-                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filteredData4?.map((data, index) => (
                           <div key={index}>
                             <div
@@ -234,11 +243,14 @@ const History = () => {
                               class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                  <img
-                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                    src={data?.image}
-                                    alt=""
-                                  />
+                                  <div className="flex justify-center">
+                                    <Image
+                                      height={180}
+                                      width={241}
+                                      src={data?.image}
+                                      className="objetc-cover"
+                                    />
+                                  </div>
 
                                   <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                     {data?.name}
@@ -255,7 +267,7 @@ const History = () => {
                       <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                         অসহায়কে স্বাবলম্বীকরণ
                       </h3>
-                      <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                      <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                         {filteredData5?.map((data, index) => (
                           <div key={index}>
                             <div
@@ -263,11 +275,14 @@ const History = () => {
                               class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                               <div class="relative">
                                 <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                  <img
-                                    className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                    src={data?.image}
-                                    alt=""
-                                  />
+                                  <div className="flex justify-center">
+                                    <Image
+                                      height={180}
+                                      width={241}
+                                      src={data?.image}
+                                      className="objetc-cover"
+                                    />
+                                  </div>
 
                                   <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                     {data?.name}
@@ -285,7 +300,7 @@ const History = () => {
                         <h3 className="text-2xl md:text-[22px] bangla-text p-4 text-center">
                           অসহায়কে স্বাবলম্বীকরণ
                         </h3>
-                        <div class="mt-12 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+                        <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                           {filteredData5?.map((data, index) => (
                             <div key={index}>
                               <div
@@ -293,11 +308,14 @@ const History = () => {
                                 class="relative group overflow-hidden  rounded-xl bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-900">
                                 <div class="relative">
                                   <div className="bg-white m-2 shadow-lg border-0 rounded-lg">
-                                    <img
-                                      className="h-[95px] lg:h-[165px] xl:h-[165px] w-[230px] "
-                                      src={data?.image}
-                                      alt=""
-                                    />
+                                    <div className="flex justify-center">
+                                      <Image
+                                        height={180}
+                                        width={241}
+                                        src={data?.image}
+                                        className="objetc-cover"
+                                      />
+                                    </div>
 
                                     <p className="py-1 text-center text-[8px] lg:text-[12px] xl:text-[12px]">
                                       {data?.name}

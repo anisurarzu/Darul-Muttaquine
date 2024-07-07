@@ -1,8 +1,14 @@
 import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import { Avatar, Modal, Tooltip } from "antd";
+import { Avatar, Button, Card, Modal, Tooltip } from "antd";
 import Details from "../DepositInfo/Details";
+import Meta from "antd/es/card/Meta";
+import {
+  EditOutlined,
+  EllipsisOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 
 export default function ProjectCard({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -36,7 +42,75 @@ export default function ProjectCard({ rowData, depositData, costData }) {
 
   return (
     <div>
-      <div className="flex flex-col">
+      <Card
+        /* style={{
+          width: 260,
+        }} */
+        className="w-full h-[400px]    mr-12 lg:ml-0 xl:ml-0 my-2 lg:my-2 xl:my-2"
+        cover={
+          <img
+            alt="example"
+            className="h-[170px]"
+            src={`${
+              rowData?.image
+                ? rowData?.image
+                : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyjidfyUc5wxz5Wcy_gFcDHLiiALXblri48A&s"
+            }`}
+          />
+        }>
+        <Meta
+          avatar={<Avatar src={rowData?.projectLeaderImage} />}
+          title={rowData?.projectName}
+          // description={`${rowData?.details?.slice(0, 80)}.....`}
+        />
+        <p className="py-3 text-[10px] text-justify">{`${rowData?.details?.slice(
+          0,
+          150
+        )}.....`}</p>
+        <div className="flex justify-between">
+          <p className="pb-2 text-[10px] font-semibold text-justify text-gray-700">
+            সমন্বয়কারীগণ :
+          </p>
+          <p className="pb-2 text-[10px] font-semibold text-justify text-gray-700">
+            বর্তমান হিসাব : {Number(totalAmount) - Number(totalCost) || 0} tk
+          </p>
+        </div>
+        <div className=" flex  gap-2 justify-content-center ">
+          <Avatar.Group
+            size=""
+            max={{
+              count: 2,
+              style: {
+                color: "#f56a00",
+                backgroundColor: "#fde3cf",
+                cursor: "pointer",
+              },
+              popover: { trigger: "click" },
+            }}>
+            {rowData?.projectCoordinatorImages?.map((img, index) => (
+              <Avatar src={img} />
+            ))}
+          </Avatar.Group>
+        </div>
+
+        <div className="flex mt-[15px] justify-between">
+          <Button
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
+            className="border-yellow-400 text-yellow-500"
+            type="default">
+            Details
+          </Button>
+          <Link to="/dashboard/depositInfo">
+            <Button className="border-green-500 text-green-500" type="default">
+              Donate
+            </Button>
+          </Link>
+        </div>
+      </Card>
+
+      {/* <div className="flex flex-col">
         <div className="bg-white border border-white shadow-lg rounded-2xl p-4 m-4">
           <div className="px-4 object-cover sm:mb-0 mb-3 grid grid-cols-2 gap-2">
             <img
@@ -84,15 +158,7 @@ export default function ProjectCard({ rowData, depositData, costData }) {
               <div>
                 <p className="underline pb-2">CoorDinators:</p>
 
-                {/* {Array.isArray(rowData.projectCoordinators)
-                  ? rowData.projectCoordinators.join(", ")
-                  : ""} */}
-
-                {/* <img
-                      src={`${img}`}
-                      alt={"product.name"}
-                      className="w-[30px] h-[30px] rounded-full"
-                    /> */}
+               
 
                 <div className=" flex  gap-2 justify-content-center ">
                   <Avatar.Group
@@ -124,14 +190,7 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                     </div>
                   )}
 
-                  {/*  <ul className="list-disc ml-5 mt-2">
-                    {projectDeposits?.map((deposit) => (
-                      <li key={deposit._id}>
-                        {deposit?.username || deposit?.userName} -{" "}
-                        {deposit?.amount}
-                      </li>
-                    ))}
-                  </ul> */}
+                 
                 </div>
               </div>
 
@@ -160,7 +219,7 @@ export default function ProjectCard({ rowData, depositData, costData }) {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <Modal
         title="Please Provided Valid Information"

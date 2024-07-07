@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ProfileCard from "../Dashboard/Profile/ProfileCard";
 import { coreAxios } from "../../utilities/axios";
 import { toast } from "react-toastify";
-import { Alert, Spin, Steps } from "antd";
+import { Alert, Pagination, Spin, Steps } from "antd";
 import ProjectCard from "../Dashboard/Project/ProjectCard";
 import axios from "axios";
 
@@ -11,6 +11,8 @@ export default function About() {
   const [projects, setProjects] = useState([]);
   const [tabNumber, setTabNumber] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(2);
   const reloadUntilToken = () => {
     if (!localStorage.getItem("token")) {
       // Reload the page if token is not found
@@ -163,6 +165,10 @@ export default function About() {
     getAllProject();
     getAllUserList();
   }, []);
+
+  const onChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div className="px-0 ">
@@ -353,21 +359,8 @@ export default function About() {
         </div>
 
         <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
-          {/* <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 bangla-text">
-            চলমান প্রজেক্ট সমূহ
-          </h2>
-
-          <div className="pb-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
-              {projects?.map((project, index) => (
-                <div key={index}>
-                  <ProjectCard rowData={project} />
-                </div>
-              ))}
-            </div>
-          </div> */}
           <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
-            সক্রিয় সদস্যগণ
+            সক্রিয় সদস্যগণ ({users?.length})
           </h2>
           <div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
@@ -377,6 +370,15 @@ export default function About() {
                 </div>
               ))}
             </div>
+            {/*   <div className="flex justify-center p-2">
+              <Pagination
+                showQuickJumper
+                current={currentPage}
+                total={users?.length}
+                pageSize={itemsPerPage}
+                onChange={onChange}
+              />
+            </div> */}
           </div>
         </div>
       </div>

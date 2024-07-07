@@ -231,11 +231,11 @@ export default function MiddleHome() {
       </div>
       {/* 4th part */}
       <div className=" py-8" style={{ background: "#F5F5F5" }}>
-        <div className="card mx:8 lg:mx-32 xl:mx-32">
+        <div className=" mx:8 lg:mx-32 xl:mx-32">
           <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8  text-center font-semibold bangla-text">
             চলমান প্রজেক্ট সমূহ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4 mx-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 lg:gap-8 xl:gap-8 pt-4 mx-2">
             {projects?.map((project, index) => (
               <div key={index}>
                 <ProjectCard rowData={project} />
