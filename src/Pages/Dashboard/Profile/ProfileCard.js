@@ -11,7 +11,7 @@ export default function ProfileCard({ rowData }) {
             <div class=" relative h-32 w-32   sm:mb-0 mb-3 ">
               <Image
                 width={80}
-                height={75}
+                height={80}
                 className="rounded-xl"
                 src={
                   rowData?.image ||

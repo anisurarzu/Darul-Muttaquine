@@ -46,11 +46,11 @@ export default function ProjectCard({ rowData, depositData, costData }) {
         /* style={{
           width: 260,
         }} */
-        className="w-full h-[400px]    mr-12 lg:ml-0 xl:ml-0 my-2 lg:my-2 xl:my-2"
+        className="w-full h-[430px]    mr-12 lg:ml-0 xl:ml-0 my-2 lg:my-2 xl:my-2"
         cover={
           <img
             alt="example"
-            className="h-[170px]"
+            className="h-[200px]"
             src={`${
               rowData?.image
                 ? rowData?.image
