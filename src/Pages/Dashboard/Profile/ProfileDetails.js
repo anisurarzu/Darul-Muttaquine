@@ -5,7 +5,7 @@ import { formatDate } from "../../../utilities/dateFormate";
 export default function ProfileDetails({ singleDepositData, rowData }) {
   console.log("singleDepositData", singleDepositData);
   console.log("rowData", rowData);
-  const [direction, setDirection] = useState("horizontal");
+  const [direction, setDirection] = useState("vertical");
 
   const [stepsData, setStepsData] = useState([
     { title: "Jan", status: "finish" },
@@ -28,14 +28,15 @@ export default function ProfileDetails({ singleDepositData, rowData }) {
     return date.getMonth() + 1; // getMonth() returns 0 for January, so we add 1
   };
 
-  const finishedMonths = singleDepositData?.map((item) =>
+  const finishedMonths = singleDepositData?.deposits?.map((item) =>
     getMonthCount(item?.depositDate)
   );
-  /* const updatedStepsData = stepsData?.map((step, index) => ({
+  const updatedStepsData = stepsData?.map((step, index) => ({
     ...step,
     status: finishedMonths?.includes(index + 1) ? "finish" : "wait",
     amount: finishedMonths?.amount,
-  })); */
+  }));
+  console.log("updatedStepsData", updatedStepsData);
   return (
     <div>
       <div class="flex flex-col">
@@ -84,20 +85,24 @@ export default function ProfileDetails({ singleDepositData, rowData }) {
                 </div>
               </div>
             </div>
-            <div>
-              <Steps
-                current={1}
-                percent={100}
-                direction={direction}
-                className=" p-1  h-[10px] "
-                /* items={updatedStepsData?.map((step) => ({
-                  title: step.title,
-                  subTitle: step.subTitle,
-                  status: step.status,
-                  className: `step-${step.status} text-[10px] `,
-                }))} */
-              />
-            </div>
+          </div>
+          <p className="py-4 text-center bangla-text">
+            Payment Status (monthly wise)
+          </p>
+          <div className="grid grid-cols-6 gap-2 mt-4">
+            {updatedStepsData?.map((data, idx) => (
+              <div
+                className={`w-[45px] lg:w-[50px] xl:w-[50px] h-[45px] lg:h-[50px] xl:h-[50px]  p-2  rounded-full ${
+                  data?.status === "finish"
+                    ? "bg-green-400 text-white"
+                    : "text-green-600"
+                }`}
+                key={idx}>
+                <p className="text-center text-[12px] lg:text-[15px] xl:text-[15px] pt-3">
+                  {data?.title}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
