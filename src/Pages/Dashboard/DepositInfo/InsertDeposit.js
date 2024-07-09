@@ -3,7 +3,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 
-import { Upload, Select } from "antd"; // Import Select from Ant Design
+import { Upload, Select, DatePicker } from "antd"; // Import Select from Ant Design
 import { coreAxios } from "../../../utilities/axios";
 import useUserInfo from "../../../hooks/useUserInfo";
 
@@ -64,7 +64,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
       phone: 0,
       tnxID: "",
       status: "Pending",
-      
+      depositDate: "",
     },
     onSubmit: async (values) => {
       try {
@@ -186,6 +186,16 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
               onChange={formik.handleChange}
               value={formik.values?.tnxID}
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+            />
+          </div>
+          <div className="w-full mb-4">
+            <label className="block text-black dark:text-black">
+              Advance/Due Deposit Date <span className="text-meta-1"></span>
+            </label>
+            <DatePicker
+              value={formik.values.dateOfBirth}
+              onChange={(date) => formik.setFieldValue("depositDate", date)}
+              className="w-full"
             />
           </div>
 
