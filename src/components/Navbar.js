@@ -1,21 +1,15 @@
 import React, { useState } from "react";
-import "./navbar.css";
-import {
-  FaFacebookSquare,
-  FaInstagramSquare,
-  FaYoutubeSquare,
-} from "react-icons/fa";
-import { GiHamburgerMenu } from "react-icons/gi";
+import { MenuOutlined } from "@ant-design/icons";
 import { NavLink, Link, useHistory } from "react-router-dom";
 
 import logo from "../images/dmf-logo.png";
-
-import "../Pages/scholarship/scholarshipButton.css";
-import Scholarship from "../Pages/scholarship/Scholarship";
+import useUserInfo from "../hooks/useUserInfo";
 
 const Navbar = () => {
-  const [showMediaIcons, setShowMediaIcons] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const history = useHistory();
+  const userInfo = useUserInfo();
+  console.log("userInfo", userInfo);
 
   // Check if the user is authenticated
   const isAuthenticated = !!localStorage.getItem("token");
@@ -34,69 +28,129 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="main-nav border-b sticky top-0 z-50 bg-white bangla-text">
-        {/* 1st logo part  */}
-        <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
-          <Link to="/">
-            <img src={logo} alt="" />
-          </Link>
-        </div>
+      <nav className="border-b sticky top-0 z-50 bg-white">
+        <div className="flex justify-between items-center px-4 py-2 md:px-8">
+          {/* Logo */}
+          <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
+            <Link to="/">
+              <img src={logo} alt="Logo" />
+            </Link>
+          </div>
 
-        {/* 2nd menu part  */}
-        <div
-          className={
-            showMediaIcons ? "menu-link mobile-menu-link" : "menu-link"
-          }>
-          <ul>
-            <li>
-              <NavLink to="/about">আমাদের সম্পর্কে</NavLink>
-            </li>
-            <li>
-              <NavLink to="/history">গ্যালারী</NavLink>
-            </li>
-            <li>
-              <NavLink to="/result">ফলাফল</NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/dashboard">ড্যাশবোর্ড</NavLink>
-            </li>
-
-            <li>
-              <NavLink to="/product">আমাদের পণ্য</NavLink>
-            </li>
-            <li>
-              <NavLink to="/contact">যোগাযোগ</NavLink>
-            </li>
-
+          {/* Menu Links */}
+          <div className="hidden md:flex space-x-6 text-lg text-[1.5rem] gap-2 ">
+            <NavLink to="/about" className="hover:text-green-500 pt-3">
+              আমাদের সম্পর্কে
+            </NavLink>
+            <NavLink to="/history" className="hover:text-green-500 pt-3">
+              গ্যালারী
+            </NavLink>
+            <NavLink to="/result" className="hover:text-green-500 pt-3">
+              ফলাফল
+            </NavLink>
+            <NavLink to="/dashboard" className="hover:text-green-500 pt-3">
+              ড্যাশবোর্ড
+            </NavLink>
+            <NavLink to="/product" className="hover:text-green-500 pt-3">
+              আমাদের পণ্য
+            </NavLink>
+            <NavLink to="/contact" className="hover:text-green-500  pt-3">
+              যোগাযোগ
+            </NavLink>
             {isAuthenticated && (
-              <li
+              <div
                 onClick={handleLogout}
-                className="cursor-pointer hover:border hover:border-green-500 hover:rounded-lg hover:p-3">
+                className="cursor-pointer hover:text-green-500 pt-3">
                 লগ আউট
-              </li>
+              </div>
             )}
+            <img
+              className="w-12 h-12 rounded-full"
+              src={userInfo?.image}
+              alt=""
+            />
+          </div>
 
-            {/* <li>
-              <NavLink to="/scholarship">
-                <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
-                  <span>শিহ্মাবৃত্তি</span>
-                </scholarshipButton>
-              </NavLink>
-            </li> */}
-            <li></li>
-          </ul>
-        </div>
-
-        {/* 3rd social media links */}
-        <div className="social-media">
-          {/* hamburget menu start  */}
-          <div className="hamburger-menu">
-            <a href="#" onClick={() => setShowMediaIcons(!showMediaIcons)}>
-              <GiHamburgerMenu />
-            </a>
+          {/* Hamburger Menu */}
+          <div className="md:hidden flex items-center">
+            <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
+              <MenuOutlined style={{ fontSize: "20px" }} />
+            </button>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="md:hidden bg-white">
+            <ul className="flex flex-col items-center space-y-4 py-4">
+              <li>
+                <NavLink
+                  to="/about"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  আমাদের সম্পর্কে
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/history"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  গ্যালারী
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/result"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  ফলাফল
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/dashboard"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  ড্যাশবোর্ড
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/product"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  আমাদের পণ্য
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/contact"
+                  className="hover:text-green-500"
+                  onClick={() => setShowMobileMenu(false)}>
+                  যোগাযোগ
+                </NavLink>
+              </li>
+              {isAuthenticated && (
+                <li
+                  onClick={() => {
+                    handleLogout();
+                    setShowMobileMenu(false);
+                  }}
+                  className="cursor-pointer hover:text-green-500">
+                  লগ আউট
+                </li>
+              )}
+              <li>
+                <img
+                  className="w-12 h-12 rounded-full"
+                  src={userInfo?.image}
+                  alt=""
+                />
+              </li>
+            </ul>
+          </div>
+        )}
       </nav>
     </>
   );
