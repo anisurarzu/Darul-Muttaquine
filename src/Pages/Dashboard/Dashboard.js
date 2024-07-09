@@ -100,6 +100,7 @@ export default function Dashboard() {
       : [
           { route: "dashboard", label: "Dashboard" },
           { route: "profile", label: "Profile" },
+          { route: "depositInfo", label: "Deposit" },
         ];
   return (
     <div className="grid xl:grid-cols-6 lg:grid-cols-3 grid-cols-1  pt-8 ">
