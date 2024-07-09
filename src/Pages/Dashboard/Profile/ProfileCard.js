@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
-import { Image, Modal } from "antd";
+import { Alert, Image, Modal, Spin } from "antd";
 import ProfileDetails from "./ProfileDetails";
 import { coreAxios } from "../../../utilities/axios";
 
@@ -11,6 +11,7 @@ export default function ProfileCard({ rowData }) {
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setSingleDepositData(null);
   };
 
   const getSingleDeposit = async (rowData) => {
@@ -84,13 +85,20 @@ export default function ProfileCard({ rowData }) {
                   </svg>
                   <p class="">Join : {formatDate(rowData?.createdAt)}</p>
                 </div>
-                <button
-                  class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
-                  onClick={() => {
-                    getSingleDeposit(rowData);
-                  }}>
-                  Details
-                </button>
+
+                {loading ? (
+                  <Spin tip="Loading...">
+                    <Alert type="info" />
+                  </Spin>
+                ) : (
+                  <button
+                    class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
+                    onClick={() => {
+                      getSingleDeposit(rowData);
+                    }}>
+                    Details
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -101,12 +109,14 @@ export default function ProfileCard({ rowData }) {
         title="Profile Information"
         open={isModalOpen}
         // onOk={handleOk}
+        loading={loading}
         onCancel={handleCancel}
         width={800}>
         <ProfileDetails
           handleCancel={handleCancel}
           singleDepositData={singleDepositData}
           rowData={rowData}
+          loading={loading}
         />
       </Modal>
     </div>

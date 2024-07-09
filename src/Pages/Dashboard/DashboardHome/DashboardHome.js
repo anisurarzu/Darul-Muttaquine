@@ -79,7 +79,7 @@ export default function DashboardHome() {
       const response = await coreAxios.get(uri);
       if (response?.status === 200) {
         const approvedDeposits = response?.data.filter(
-          (deposit) => deposit.status === "Approved"
+          (deposit) => deposit?.status === "Approved"
         );
         setDepositData(approvedDeposits);
 

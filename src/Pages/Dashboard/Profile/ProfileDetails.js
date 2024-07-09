@@ -1,8 +1,12 @@
-import { Image, Steps } from "antd";
+import { Alert, Image, Spin, Steps } from "antd";
 import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 
-export default function ProfileDetails({ singleDepositData, rowData }) {
+export default function ProfileDetails({
+  singleDepositData,
+  rowData,
+  loading,
+}) {
   console.log("singleDepositData", singleDepositData);
   console.log("rowData", rowData);
   const [direction, setDirection] = useState("vertical");
@@ -23,14 +27,16 @@ export default function ProfileDetails({ singleDepositData, rowData }) {
     { title: "Dec", status: "wait" },
   ]);
 
+  const data = singleDepositData?.deposits?.filter(
+    (deposit) => deposit.status === "Approved"
+  );
+
   const getMonthCount = (dateString) => {
     const date = new Date(dateString);
     return date.getMonth() + 1; // getMonth() returns 0 for January, so we add 1
   };
 
-  const finishedMonths = singleDepositData?.deposits?.map((item) =>
-    getMonthCount(item?.depositDate)
-  );
+  const finishedMonths = data?.map((item) => getMonthCount(item?.depositDate));
   const updatedStepsData = stepsData?.map((step, index) => ({
     ...step,
     status: finishedMonths?.includes(index + 1) ? "finish" : "wait",
@@ -89,6 +95,7 @@ export default function ProfileDetails({ singleDepositData, rowData }) {
           <p className="py-4 text-center bangla-text">
             Payment Status (monthly wise)
           </p>
+
           <div className="grid grid-cols-6 gap-2 mt-4">
             {updatedStepsData?.map((data, idx) => (
               <div
