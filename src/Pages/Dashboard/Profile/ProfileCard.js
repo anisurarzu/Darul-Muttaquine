@@ -2,12 +2,33 @@ import React, { useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Image, Modal } from "antd";
 import ProfileDetails from "./ProfileDetails";
+import { coreAxios } from "../../../utilities/axios";
 
 export default function ProfileCard({ rowData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [singleDepositData, setSingleDepositData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+
+  const getSingleDeposit = async (rowData) => {
+    try {
+      setLoading(true);
+
+      const response = await coreAxios.get(`deposit-info/${rowData?._id}`);
+      if (response?.status === 200) {
+        setSingleDepositData(response?.data);
+        setLoading(false);
+        setIsModalOpen(true);
+      }
+    } catch (error) {
+      setIsModalOpen(true);
+      setLoading(false);
+      console.error("Error fetching rolls:", error);
+    }
+    setIsModalOpen(true);
   };
 
   return (
@@ -66,7 +87,7 @@ export default function ProfileCard({ rowData }) {
                 <button
                   class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
                   onClick={() => {
-                    setIsModalOpen(true);
+                    getSingleDeposit(rowData);
                   }}>
                   Details
                 </button>
@@ -84,9 +105,8 @@ export default function ProfileCard({ rowData }) {
         width={800}>
         <ProfileDetails
           handleCancel={handleCancel}
+          singleDepositData={singleDepositData}
           rowData={rowData}
-          // depositData={depositData}
-          // costData={costData}
         />
       </Modal>
     </div>

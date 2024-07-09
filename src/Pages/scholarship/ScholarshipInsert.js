@@ -71,7 +71,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
         }
       } catch (err) {
         setLoading(false);
-        toast.error(err.response.data?.message);
+        toast.error(err?.response?.data?.message);
       }
     },
     enableReinitialize: true,

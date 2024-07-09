@@ -38,7 +38,7 @@ export default function About() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
   const getAllProject = async () => {
@@ -54,7 +54,7 @@ export default function About() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
 

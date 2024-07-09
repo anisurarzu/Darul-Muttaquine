@@ -52,7 +52,7 @@ const UpdateProjectStatus = ({ handleCancel, rowData }) => {
           handleCancel();
         }
       } catch (err) {
-        toast.error(err.response.data?.message);
+        toast.error(err?.response?.data?.message);
       }
     },
     enableReinitialize: true,

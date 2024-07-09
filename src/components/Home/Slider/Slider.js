@@ -15,6 +15,7 @@ import slider from "../../../images/slider-image.jpeg";
 import { Parallax, Pagination, Navigation } from "swiper/modules";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
+import "../../../Pages/scholarship/scholarshipButton.css";
 
 export default function Slider() {
   return (

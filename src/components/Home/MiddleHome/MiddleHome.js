@@ -40,7 +40,7 @@ export default function MiddleHome() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
   const getAllUserList = async () => {
@@ -56,7 +56,7 @@ export default function MiddleHome() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
 
@@ -65,56 +65,10 @@ export default function MiddleHome() {
     // getAllUserList();
   }, []);
 
-  const responsiveOptions = [
-    {
-      breakpoint: "1400px",
-      numVisible: 2,
-      numScroll: 1,
-    },
-    {
-      breakpoint: "1199px",
-      numVisible: 3,
-      numScroll: 1,
-    },
-    {
-      breakpoint: "767px",
-      numVisible: 2,
-      numScroll: 1,
-    },
-    {
-      breakpoint: "575px",
-      numVisible: 1,
-      numScroll: 1,
-    },
-  ];
-
-  const getSeverity = (product) => {
-    switch (product.inventoryStatus) {
-      case "INSTOCK":
-        return "success";
-
-      case "LOWSTOCK":
-        return "warning";
-
-      case "OUTOFSTOCK":
-        return "danger";
-
-      default:
-        return null;
-    }
-  };
-
-  const productTemplate = (product) => {
-    return (
-      <div className="">
-        <ProjectCard rowData={product} />
-      </div>
-    );
-  };
   return (
     <div>
       {/* 1st part */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 ">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-8 lg:mx-32 xl:mx-32 ">
         {/* 1 */}
         <div className="grid grid-cols-5">
           <div className="col-span-2 ">
@@ -177,7 +131,7 @@ export default function MiddleHome() {
         </div>
       </div>
       {/* 3rd part */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-4 lg:mx-32 xl:mx-32 pb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-12 lg:mx-32 xl:mx-32 pb-8">
         {/* 1 */}
         <div className="grid grid-cols-5">
           <div className="col-span-3">
@@ -235,7 +189,7 @@ export default function MiddleHome() {
           <h3 className=" text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8  text-center font-semibold bangla-text">
             চলমান প্রজেক্ট সমূহ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 lg:gap-8 xl:gap-8 pt-4 mx-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 lg:gap-8 xl:gap-8 pt-4 mx-12 lg:mx-2 xl:mx-2">
             {projects?.map((project, index) => (
               <div key={index}>
                 <ProjectCard rowData={project} />

@@ -24,7 +24,7 @@ const ResultPage = () => {
           setResultData(res?.data);
         }
       } catch (err) {
-        toast.error(err.response.data?.message);
+        toast.error(err?.response?.data?.message);
       }
     },
     enableReinitialize: true,

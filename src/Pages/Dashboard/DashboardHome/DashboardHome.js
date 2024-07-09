@@ -36,7 +36,7 @@ export default function DashboardHome() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
   const getScholarShipInfo = async () => {
@@ -49,7 +49,7 @@ export default function DashboardHome() {
       }
     } catch (err) {
       setLoading(false);
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     }
   };
   const getProjectInfo = async () => {
@@ -66,7 +66,7 @@ export default function DashboardHome() {
         setProjectInfo(approvedProjects);
       }
     } catch (err) {
-      toast.error(err.response.data?.message);
+      toast.error(err?.response?.data?.message);
     } finally {
       setLoading(false);
     }
@@ -417,7 +417,7 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          <div className="lg:ml-[95px] xl:ml-[95px] mx-2 lg:mx-0 xl:mx-0">
+          <div className="lg:ml-[95px] xl:ml-[95px] mx-12 lg:mx-0 xl:mx-0">
             {/* ----------------1st div------------- */}
 
             <h2 className="py-2 text-[17px] font-semibold text-center">

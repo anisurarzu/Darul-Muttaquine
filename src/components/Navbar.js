@@ -28,7 +28,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="border-b sticky top-0 z-50 bg-white md:pr-12 xl:pr-12">
+      <nav className="border-b sticky top-0 z-50 bg-white pr-8 lg:pr-12 xl:pr-12">
         <div className="flex justify-between items-center px-4 py-2 md:px-8">
           {/* Logo */}
           <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
@@ -38,37 +38,44 @@ const Navbar = () => {
           </div>
 
           {/* Menu Links */}
-          <div className="hidden md:flex space-x-6 text-lg text-[1.5rem] gap-2 ">
-            <NavLink to="/about" className="hover:text-green-500 pt-3">
+          <div className="hidden md:flex space-x-6  lg:text-[1.5rem] xl:text-[1.6rem] gap-2 ">
+            <NavLink to="/about" className="hover:text-green-500 pt-2">
               আমাদের সম্পর্কে
             </NavLink>
-            <NavLink to="/history" className="hover:text-green-500 pt-3">
+            <NavLink to="/history" className="hover:text-green-500 pt-2">
               গ্যালারী
             </NavLink>
-            <NavLink to="/result" className="hover:text-green-500 pt-3">
+            <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
             </NavLink>
-            <NavLink to="/dashboard" className="hover:text-green-500 pt-3">
+            <NavLink to="/dashboard" className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
-            <NavLink to="/product" className="hover:text-green-500 pt-3">
+            <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
             </NavLink>
-            <NavLink to="/contact" className="hover:text-green-500  pt-3">
+            <NavLink to="/contact" className="hover:text-green-500  pt-2">
               যোগাযোগ
             </NavLink>
             {isAuthenticated && (
               <div
                 onClick={handleLogout}
-                className="cursor-pointer hover:text-green-500 pt-3">
+                className="cursor-pointer hover:text-green-500 pt-2">
                 লগ আউট
               </div>
             )}
-            <img
-              className="w-12 h-12 rounded-full"
-              src={userInfo?.image}
-              alt=""
-            />
+            {isAuthenticated && (
+              <div>
+                <img
+                  className="w-12 h-12 rounded-full"
+                  src={
+                    userInfo?.image ||
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
+                  }
+                  alt=""
+                />
+              </div>
+            )}
           </div>
 
           {/* Hamburger Menu */}

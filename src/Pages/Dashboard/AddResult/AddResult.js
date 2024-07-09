@@ -27,7 +27,7 @@ const AddResult = () => {
           formik.resetForm();
         }
       } catch (err) {
-        toast.error(err.response.data?.message);
+        toast.error(err?.response?.data?.message);
       }
     },
     enableReinitialize: true,
