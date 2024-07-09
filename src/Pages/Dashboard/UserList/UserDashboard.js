@@ -184,6 +184,9 @@ const UserDashboard = () => {
                     Phone
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Blood Group
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Email
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -222,6 +225,9 @@ const UserDashboard = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.phone}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.bloodGroup}
                     </td>
 
                     <td className="border border-tableBorder pl-1 text-center">

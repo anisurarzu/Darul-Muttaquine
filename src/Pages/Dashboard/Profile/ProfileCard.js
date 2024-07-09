@@ -43,7 +43,12 @@ export default function ProfileCard({ rowData }) {
                 </div>
               </div>
 
-              <div>Phone : 0{rowData?.phone}</div>
+              <div className="flex justify-between">
+                <p>Phone : 0{rowData?.phone}</p>
+                <p className="bg-red-400 p-1 w-[25px] h-[25px] rounded-full text-white text-center text-[13px] ">
+                  {rowData?.bloodGroup || " N/A"}
+                </p>
+              </div>
               <div class="flex pt-2  text-sm text-gray-500">
                 <div class="flex-1 inline-flex items-center">
                   <svg

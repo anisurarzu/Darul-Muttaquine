@@ -7,12 +7,13 @@ import ProjectCard from "../Dashboard/Project/ProjectCard";
 import axios from "axios";
 
 export default function About() {
+  const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState([]);
   const [projects, setProjects] = useState([]);
   const [tabNumber, setTabNumber] = useState(0);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(2);
+  const [itemsPerPage] = useState(12);
   const reloadUntilToken = () => {
     if (!localStorage.getItem("token")) {
       // Reload the page if token is not found
@@ -28,8 +29,12 @@ export default function About() {
         const sortedData = response?.data?.sort((a, b) => {
           return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
+
+        const filteredData = sortedData?.filter(
+          (item) => item?.uniqueId !== "DMF-4232"
+        );
         setLoading(false);
-        setUsers(sortedData);
+        setUsers(filteredData);
       }
     } catch (err) {
       setLoading(false);
@@ -165,6 +170,19 @@ export default function About() {
     getAllProject();
     getAllUserList();
   }, []);
+
+  const filteredRolls = users?.filter((roll) =>
+    searchQuery
+      ? Object.values(roll)
+          .join("")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      : true
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
 
   const onChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -362,15 +380,43 @@ export default function About() {
           <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
             সক্রিয় সদস্যগণ ({users?.length})
           </h2>
+
+          <div className="relative mx-8 mr-4">
+            <input
+              type="text"
+              id="table-search-users"
+              className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+
+            <div className="absolute inset-y-0 flex items-center p-3">
+              <svg
+                className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20">
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
+            </div>
+          </div>
           <div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
-              {users?.map((user, index) => (
+              {currentItems?.map((user, index) => (
                 <div key={index}>
                   <ProfileCard rowData={user} />
                 </div>
               ))}
             </div>
-            {/*   <div className="flex justify-center p-2">
+            <div className="flex justify-center p-2 my-4">
               <Pagination
                 showQuickJumper
                 current={currentPage}
@@ -378,7 +424,7 @@ export default function About() {
                 pageSize={itemsPerPage}
                 onChange={onChange}
               />
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
