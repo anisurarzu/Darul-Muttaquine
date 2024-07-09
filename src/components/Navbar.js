@@ -61,10 +61,13 @@ const Navbar = () => {
             <li>
               <NavLink to="/dashboard">ড্যাশবোর্ড</NavLink>
             </li>
+
+            <li>
+              <NavLink to="/product">আমাদের পণ্য</NavLink>
+            </li>
             <li>
               <NavLink to="/contact">যোগাযোগ</NavLink>
             </li>
-            <li></li>
 
             {isAuthenticated && (
               <li
@@ -74,13 +77,14 @@ const Navbar = () => {
               </li>
             )}
 
-            <li>
+            {/* <li>
               <NavLink to="/scholarship">
                 <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
                   <span>শিহ্মাবৃত্তি</span>
                 </scholarshipButton>
               </NavLink>
-            </li>
+            </li> */}
+            <li></li>
           </ul>
         </div>
 

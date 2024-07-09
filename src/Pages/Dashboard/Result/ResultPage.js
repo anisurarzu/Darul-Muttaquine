@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Button, Flex, Progress, Result, Upload } from "antd";
+import { Button, Flex, Input, Progress, Result, Upload } from "antd";
 import { coreAxios } from "../../../utilities/axios";
 import { useFormik } from "formik";
 import Scholarship from "../../scholarship/Scholarship";
@@ -44,14 +44,19 @@ const ResultPage = () => {
 
   return (
     <div className="">
-      <div className="bg-white p-4 shadow rounded">
+      <div style={{ background: "#408F49" }}>
+        <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text">
+          ফলাফল
+        </h2>
+      </div>
+      <div className=" p-4 shadow rounded mx-4 lg:mx-24 xl:mx-24 mt-8">
         <div className="flex justify-center pt-2">
           <div>
             <h2 className="text-[18px] font-bold py-2 text-green-600">
-              Darul Muttaquine Scholarship
+              দারুল মুত্তাক্বীন শিহ্মাবৃত্তি ২০২৪
             </h2>
             <p className="text-[14px] font-semibold text-center pb-4 text-orange-600">
-              Check Your Result From Here!
+              এখান থেকে আপনার ফলাফল দেখুন!
             </p>
           </div>
         </div>
@@ -86,11 +91,12 @@ const ResultPage = () => {
                   width="full"
                   onChange={formik.handleChange}
                   value={formik.values?.[id]}
-                  className="w-[400px] h-[45px] rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                  className="w-full lg:w-[400px] xl:w-[400px] h-[45px] rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                 />
               </div>
             )
           )}
+          {/* <Input placeholder="Basic usage" /> */}
 
           {/* Submit Button */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
@@ -104,7 +110,7 @@ const ResultPage = () => {
         </form>
       </div>
 
-      <div className="bg-white p-4 shadow rounded mt-4">
+      <div className="bg-white p-4 shadow rounded mt-4 mx-4 lg:mx-24 xl:mx-24">
         <div>
           <Result
             status="success"

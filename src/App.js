@@ -20,6 +20,7 @@ import ResultPage from "./Pages/Dashboard/Result/ResultPage";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Fotter from "./components/Fotter";
+import Product from "./Pages/Product/Product";
 
 const App = () => {
   useEffect(() => {
@@ -34,6 +35,9 @@ const App = () => {
         </Route>
         <Route exact path="/login">
           <Login />
+        </Route>
+        <Route exact path="/product">
+          <Product />
         </Route>
         <Route exact path="/registration">
           <Registration />
