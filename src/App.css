@@ -420,6 +420,11 @@ li {
     color: green;
   }
 }
+.home-transition{
+   white-space: nowrap;
+   animation: 60s linear 0s infinite normal none running scrollText;
+   -webkit-animation: 60s linear 0s infinite normal none running scrollText;
+}
 
 .step-process {
   .ant-steps-item-icon {

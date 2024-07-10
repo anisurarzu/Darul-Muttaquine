@@ -77,7 +77,7 @@ const Product = () => {
       </div>
 
       <Modal
-        title="Please Provided Valid Information"
+        title=""
         open={isModalOpen}
         // onOk={handleOk}
         onCancel={handleCancel}

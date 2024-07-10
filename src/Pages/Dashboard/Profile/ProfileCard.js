@@ -27,7 +27,6 @@ export default function ProfileCard({ rowData }) {
     } catch (error) {
       setIsModalOpen(true);
       setLoading(false);
-      console.error("Error fetching rolls:", error);
     }
     setIsModalOpen(true);
   };

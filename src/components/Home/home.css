@@ -1,0 +1,30 @@
+/* src/index.css or a dedicated CSS file for your styles */
+@keyframes slideRightToLeft {
+    0% {
+      transform: translateX(100%);
+    }
+    50% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  @keyframes slideLeftToRight {
+    0% {
+      transform: translateX(-100%);
+    }
+    50% {
+      transform: translateX(100%);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+  
+  .animate-slide {
+    animation: slideRightToLeft 40s linear infinite;
+    -webkit-animation: slideRightToLeft 40s linear infinite;
+}
+  
