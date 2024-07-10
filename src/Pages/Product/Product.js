@@ -18,7 +18,7 @@ const Product = () => {
       description: "This is Product 1",
       price: "$10",
       pdf: dmfBook,
-      version: "২০২৪",
+      version: "২০২৩ ",
       stockStatus: "স্টকে রয়েছে ",
     },
     {
@@ -28,7 +28,7 @@ const Product = () => {
       description: "This is Product 1",
       price: "$10",
       pdf: null,
-      version: "2024",
+      version: "২০২৪",
       stockStatus: "খুব শিঘ্রই আসছে",
     },
   ];
