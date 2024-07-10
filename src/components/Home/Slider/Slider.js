@@ -9,7 +9,7 @@ import "swiper/css/navigation";
 
 import "./Slider.css";
 
-import slider from "../../../images/slider-image.jpeg";
+import slider from "../../../images/banner-hero.png";
 
 // import required modules
 import { Parallax, Pagination, Navigation } from "swiper/modules";
@@ -35,11 +35,11 @@ export default function Slider() {
         className="h-[350px] lg:h-[500px] xl:h-[500px] p-2 lg:p-8 xl:p-8">
         <div
           slot="container-start"
-          className="parallax-bg"
-          style={{
+          className="parallax-bg test"
+          /* style={{
             "background-image":
               "url(https://i.ibb.co/S6ChvJb/Nature-Happy-Earth-Day-Banner.png)",
-          }}
+          }} */
           data-swiper-parallax="-23%"></div>
         <SwiperSlide className="h-[700px]">
           <div
