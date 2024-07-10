@@ -24,7 +24,7 @@
   }
   
   .animate-slide {
-    animation: slideRightToLeft 40s linear infinite;
-    -webkit-animation: slideRightToLeft 40s linear infinite;
+    animation: slideRightToLeft 60s linear infinite;
+    -webkit-animation: slideRightToLeft 60s linear infinite;
 }
   

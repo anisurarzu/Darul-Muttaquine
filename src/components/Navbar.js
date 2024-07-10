@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { MenuOutlined } from "@ant-design/icons";
+import {
+  MenuOutlined,
+  LoginOutlined,
+  ContactsOutlined,
+  ProductOutlined,
+  FileImageOutlined,
+  DashboardOutlined,
+} from "@ant-design/icons";
 import { NavLink, Link, useHistory } from "react-router-dom";
 
 import logo from "../images/dmf-logo.png";
@@ -89,53 +96,50 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {showMobileMenu && (
           <div className="md:hidden bg-white">
-            <ul className="flex flex-col items-center space-y-2 py-2 text-[1.4rem]">
-              <li>
-                <NavLink
-                  to="/about"
-                  className="hover:text-green-500"
-                  onClick={() => setShowMobileMenu(false)}>
+            <ul className="grid grid-cols-3 gap-y-2 gap-x-4 items-center space-y-2 py-2 text-[1.4rem] ml-8 my-2">
+              <li
+                style={{ background: "#408F49" }}
+                className="mt-2 p-2 text-white rounded-lg text-center">
+                <NavLink to="/about" onClick={() => setShowMobileMenu(false)}>
                   আমাদের সম্পর্কে
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/history"
-                  className="hover:text-green-500"
-                  onClick={() => setShowMobileMenu(false)}>
-                  গ্যালারী
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/history" onClick={() => setShowMobileMenu(false)}>
+                  <FileImageOutlined /> <span className="pl-1"> গ্যালারী</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/result"
-                  className="hover:text-green-500"
-                  onClick={() => setShowMobileMenu(false)}>
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
                   ফলাফল
                 </NavLink>
               </li>
-              <li>
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
                 <NavLink
                   to="/dashboard"
-                  className="hover:text-green-500"
                   onClick={() => setShowMobileMenu(false)}>
-                  ড্যাশবোর্ড
+                  <DashboardOutlined />{" "}
+                  <span className="pl-1"> ড্যাশবোর্ড</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/product"
-                  className="hover:text-green-500"
-                  onClick={() => setShowMobileMenu(false)}>
-                  আমাদের পণ্য
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/product" onClick={() => setShowMobileMenu(false)}>
+                  <ProductOutlined /> <span className="pl-1"> আমাদের পণ্য</span>
                 </NavLink>
               </li>
-              <li>
-                <NavLink
-                  to="/contact"
-                  className="hover:text-green-500"
-                  onClick={() => setShowMobileMenu(false)}>
-                  যোগাযোগ
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/contact" onClick={() => setShowMobileMenu(false)}>
+                  <ContactsOutlined /> <span className="pl-1"> যোগাযোগ</span>
                 </NavLink>
               </li>
               {isAuthenticated && (
@@ -144,16 +148,25 @@ const Navbar = () => {
                     handleLogout();
                     setShowMobileMenu(false);
                   }}
-                  className="cursor-pointer hover:text-green-500">
-                  লগ আউট
+                  style={{ background: "#408F49" }}
+                  className="   p-2 text-white rounded-lg text-center">
+                  <LoginOutlined />
+                  <span className="pl-1"> লগ আউট</span>
                 </li>
               )}
-              <li>
-                <img
-                  className="w-12 h-12 rounded-full"
-                  src={userInfo?.image}
-                  alt=""
-                />
+              <li className="col-span-2 flex gap-2 justify-end">
+                <p
+                  style={{ color: "#408F49" }}
+                  className="text-center pt-2 bangla-text">
+                  {userInfo?.firstName} {userInfo?.lastName}
+                </p>
+                <div>
+                  <img
+                    className="w-12 h-12 rounded-full border border-green-50"
+                    src={userInfo?.image}
+                    alt=""
+                  />
+                </div>
               </li>
             </ul>
           </div>
