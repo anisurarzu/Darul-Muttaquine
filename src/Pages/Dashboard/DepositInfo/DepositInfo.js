@@ -251,32 +251,40 @@ const DepositInfo = () => {
               <tbody>
                 {currentItems.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      <TableData status={roll?.status} data={roll?.userName} />
+                    <td className="border border-tableBorder pl-2 text-left">
+                      {/* <TableData status={roll?.status} data={roll?.userName} /> */}
+                      {roll?.userName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center font-bold text-green-900">
-                      <TableData status={roll?.status} data={roll?.amount} />
+                      {/* <TableData status={roll?.status} data={roll?.amount} /> */}
+                      {roll?.amount}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      <TableData
+                      {/* <TableData
                         status={roll?.status}
                         data={formatDate(roll?.depositDate)}
-                      />
+                      /> */}
+                      {formatDate(roll?.depositDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <TableData status={roll?.status} data={roll?.project} />
+                      {/* {roll?.project} */}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      <TableData
+                      {/* <TableData
                         status={roll?.status}
                         data={roll?.paymentMethod}
-                      />
+                      /> */}
+                      {roll?.paymentMethod}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      <TableData status={roll?.status} data={roll?.phone} />
+                      {/* <TableData status={roll?.status} data={roll?.phone} /> */}
+                      {roll?.phone}
                     </td>
+
                     <td className="border border-tableBorder pl-1 text-center">
-                      <TableData status={roll?.status} data={roll?.tnxID} />
+                      {/* <TableData status={roll?.status} data={roll?.tnxID} /> */}
+                      {roll?.tnxID}
                     </td>
 
                     <td

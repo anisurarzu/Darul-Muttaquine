@@ -118,11 +118,12 @@ const ResultPage = () => {
               resultData?.resultDetails?.[0]?.totalMarks > 79
                 ? "Alhamdulillah! Congratulations! You get an Scholarship with "
                 : resultData?.resultDetails?.[0]?.totalMarks > 0
-                ? "Sorry! Your performance was Really Good! You don't get any scholarship. But Hopefully you will come back strongly Ing Sha Allah."
-                : "Please search Your result with valid Scholarship Roll Number"
+                ? "Sorry! Your performance was Really Good! You don't get any scholarship.  But Hopefully you will come back strongly Ing Sha Allah. "
+                : "Please search Your result with valid Scholarship Roll Number "
             }${
-              resultData?.resultDetails?.[0]?.totalMarks > 0 &&
-              resultData?.resultDetails?.[0]?.totalMarks
+              resultData?.resultDetails?.[0]?.totalMarks > 0
+                ? resultData?.resultDetails?.[0]?.totalMarks
+                : 0
             } % marks!`}
           />
         </div>

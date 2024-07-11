@@ -60,7 +60,7 @@ const UserDashboard = () => {
     console.log(RollID);
     try {
       setLoading(true);
-      const response = await coreAxios.delete(`/user-info/${RollID}`);
+      const response = await coreAxios.delete(`/user/${RollID}`);
       if (response.data) {
         setLoading(false);
         fetchScholarshipInfo();

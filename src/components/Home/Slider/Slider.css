@@ -8,9 +8,7 @@ body {
 
 
 
-.test{
-  background-image: url('../../../images/banner-hero.png');
-}
+
 
 .swiper-slide {
   font-size: 18px;
@@ -21,6 +19,7 @@ body {
 }
 
 .parallax-bg {
+  background-image: url('../../../images/banner-hero.png');
   position: absolute;
   left: 0;
   top: 0;

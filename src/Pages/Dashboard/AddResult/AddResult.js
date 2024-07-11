@@ -10,10 +10,10 @@ const AddResult = () => {
   const formik = useFormik({
     initialValues: {
       scholarshipRollNumber: "",
-      totalCorrectAns: 0,
-      totalWrongAns: 0,
-      totalGivenAns: 0,
-      totalMarks: 0,
+      totalCorrectAns: null,
+      totalWrongAns: null,
+      totalGivenAns: null,
+      totalMarks: null,
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       console.log("values", values); // Check if values are received correctly

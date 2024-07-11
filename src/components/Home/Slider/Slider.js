@@ -35,7 +35,7 @@ export default function Slider() {
         className="h-[350px] lg:h-[500px] xl:h-[500px] p-2 lg:p-8 xl:p-8">
         <div
           slot="container-start"
-          className="parallax-bg test"
+          className="parallax-bg "
           /* style={{
             "background-image":
               "url(https://i.ibb.co/S6ChvJb/Nature-Happy-Earth-Day-Banner.png)",

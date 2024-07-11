@@ -8,6 +8,7 @@ import HelperCompany from "../HelperCompany/HelperCompany";
 import Slider from "./Slider/Slider";
 
 import "./home.css";
+import demo from "../../images/GIF/animation-1.gif";
 
 export default function Home() {
   const [show, setShow] = useState(false);
@@ -30,6 +31,7 @@ export default function Home() {
           নিজেদের নিয়োজিত রাখা"
         </div>
       </div>
+
       <DonationBox />
       <MiddleHome />
       <HelperCompany />
