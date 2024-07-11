@@ -31,6 +31,16 @@ const Product = () => {
       version: "২০২৪",
       stockStatus: "খুব শিঘ্রই আসছে",
     },
+    /* {
+      name: "আলোকিত পথে যাত্রা",
+      id: 0,
+      image: "https://i.ibb.co/S5CDkXN/quran-modern-Science.png",
+      description: "This is Product 1",
+      price: "$10",
+      pdf: "https://drive.google.com/file/d/1xKzMN71YtvubQWYrxe_r1qh0Fo95ofmj/view?usp=sharing",
+      version: "২০২৪",
+      stockStatus: "খুব শিঘ্রই আসছে",
+    }, */
   ];
 
   const handleCancel = () => {
