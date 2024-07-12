@@ -25,6 +25,7 @@ export default function Details({ rowData, depositData, costData }) {
     (deposit) => deposit?.project === rowData?.projectName
   );
 
+  console.log("projectCost", projectCost);
   // Calculate the total amount of deposits for the current project
   const totalCost = projectCost?.reduce(
     (total, cost) => total + cost?.amount,
@@ -88,16 +89,26 @@ export default function Details({ rowData, depositData, costData }) {
                 )}
               </div>
               {userInfo?.uniqueId && (
-                <div className="grid grid-cols-2 gap-1">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-4">
                   <div>
                     <h3 className="py-1 font-semibold text-[14px] underline">
                       History Of Deposit :
                     </h3>
-                    <ul className="list-disc  mt-2">
+                    <ul className="list-disc  mt-2 border-t border-green-500 rounded-lg">
                       {projectDeposits?.map((deposit) => (
-                        <li key={deposit._id}>
-                          {deposit?.username || deposit?.userName} - ৳
-                          {deposit?.amount}
+                        <li className="" key={deposit._id}>
+                          <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-green-500 rounded-lg">
+                            <p className="border-l  border-r border-green-500 p-1 ">
+                              {deposit?.username || deposit?.userName}
+                            </p>
+                            <p className=" border-r border-green-500 p-1 text-center">
+                              {" "}
+                              ৳{deposit?.amount}
+                            </p>
+                            <p className="border-r border-green-500 p-1 text-center">
+                              {formatDate(deposit?.depositDate)}
+                            </p>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -106,10 +117,22 @@ export default function Details({ rowData, depositData, costData }) {
                     <h3 className="py-1 font-semibold text-[14px] underline">
                       History Of Withdraw :
                     </h3>
-                    <ul className="list-disc  mt-2">
+
+                    <ul className="list-disc  mt-2 border-t border-red-500 rounded-lg">
                       {projectCost?.map((cost) => (
-                        <li key={cost._id}>
-                          {cost?.username || cost?.userName} - ৳{cost?.amount}
+                        <li className="" key={cost._id}>
+                          <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-red-500 rounded-lg">
+                            <p className="border-l  border-r border-red-500 p-1 ">
+                              {cost?.username || cost?.userName}
+                            </p>
+                            <p className=" border-r border-red-500 p-1 text-center">
+                              {" "}
+                              ৳{cost?.amount}
+                            </p>
+                            <p className="border-r border-red-500 p-1 text-center">
+                              {formatDate(cost?.acceptedDate)}
+                            </p>
+                          </div>
                         </li>
                       ))}
                     </ul>

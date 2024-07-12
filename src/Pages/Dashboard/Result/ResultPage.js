@@ -5,9 +5,11 @@ import { Button, Flex, Input, Progress, Result, Upload } from "antd";
 import { coreAxios } from "../../../utilities/axios";
 import { useFormik } from "formik";
 import Scholarship from "../../scholarship/Scholarship";
+import MainLoader from "../../../components/Loader/MainLoader";
 
 const ResultPage = () => {
   const [resultData, setResultData] = useState({});
+  const [loading, setLoading] = useState(false);
   const formik = useFormik({
     initialValues: {
       scholarshipRollNumber: "",
@@ -15,15 +17,18 @@ const ResultPage = () => {
     onSubmit: async (values) => {
       console.log("values", values); // Check if values are received correctly
       try {
+        setLoading(true);
         const res = await coreAxios.get(
           `search-result/${values?.scholarshipRollNumber}`
         );
         if (res?.status === 200) {
+          setLoading(false);
           toast.success("Successfully Get!");
           formik.resetForm();
           setResultData(res?.data);
         }
       } catch (err) {
+        setLoading(false);
         toast.error(err?.response?.data?.message);
       }
     },
@@ -60,6 +65,7 @@ const ResultPage = () => {
             </p>
           </div>
         </div>
+        {loading && <MainLoader />}
         <form
           className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
           onSubmit={formik.handleSubmit}>
