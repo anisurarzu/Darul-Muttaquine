@@ -1,17 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { Modal } from "antd";
 
 export default function Details({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-
-  console.log("depositData", depositData);
+  const [groupedData, setGroupedData] = useState({});
+  const [groupedData2, setGroupedData2] = useState({});
 
   // Filter deposits based on the current project
   const projectDeposits = depositData?.filter(
     (deposit) => deposit?.project === rowData?.projectName
   );
+
+  console.log("projectDeposits", projectDeposits);
 
   // Calculate the total amount of deposits for the current project
   const totalAmount = projectDeposits?.reduce(
@@ -31,6 +33,41 @@ export default function Details({ rowData, depositData, costData }) {
     (total, cost) => total + cost?.amount,
     0
   );
+
+  // Function to group data by month
+  const groupDataByMonth = (data) => {
+    return data.reduce((acc, item) => {
+      const month = new Date(item?.depositDate).toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+      if (!acc[month]) {
+        acc[month] = { monthName: month, items: [] };
+      }
+      acc[month].items.push(item);
+      return acc;
+    }, {});
+  };
+  const groupDataByMonth2 = (data) => {
+    return data.reduce((acc, item) => {
+      const month = new Date(item?.acceptedDate).toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+      if (!acc[month]) {
+        acc[month] = { monthName: month, items: [] };
+      }
+      acc[month].items.push(item);
+      return acc;
+    }, {});
+  };
+
+  useEffect(() => {
+    const grouped = groupDataByMonth(projectDeposits);
+    setGroupedData(grouped);
+    const grouped2 = groupDataByMonth2(projectCost);
+    setGroupedData2(grouped2);
+  }, []);
 
   return (
     <div>
@@ -94,48 +131,60 @@ export default function Details({ rowData, depositData, costData }) {
                     <h3 className="py-1 font-semibold text-[14px] underline">
                       History Of Deposit :
                     </h3>
-                    <ul className="list-disc  mt-2 border-t border-green-500 rounded-lg">
-                      {projectDeposits?.map((deposit) => (
-                        <li className="" key={deposit._id}>
-                          <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-green-500 rounded-lg">
-                            <p className="border-l  border-r border-green-500 p-1 ">
-                              {deposit?.username || deposit?.userName}
-                            </p>
-                            <p className=" border-r border-green-500 p-1 text-center">
-                              {" "}
-                              ৳{deposit?.amount}
-                            </p>
-                            <p className="border-r border-green-500 p-1 text-center">
-                              {formatDate(deposit?.depositDate)}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                    {Object.keys(groupedData).map((month) => (
+                      <ul className="list-disc  mt-2 border-t border-green-500 rounded-lg">
+                        <h2
+                          style={{ background: "#408F49" }}
+                          className="text-[12px] text-center  text-white">
+                          {groupedData[month].monthName}
+                        </h2>
+                        {groupedData?.[month]?.items?.map((deposit) => (
+                          <li className="" key={deposit._id}>
+                            <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-green-500 rounded-lg">
+                              <p className="border-l  border-r border-green-500 p-1 ">
+                                {deposit?.username || deposit?.userName}
+                              </p>
+                              <p className=" border-r border-green-500 p-1 text-center">
+                                {" "}
+                                ৳{deposit?.amount}
+                              </p>
+                              <p className="border-r border-green-500 p-1 text-center">
+                                {formatDate(deposit?.depositDate)}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ))}
                   </div>
                   <div>
                     <h3 className="py-1 font-semibold text-[14px] underline">
                       History Of Withdraw :
                     </h3>
 
-                    <ul className="list-disc  mt-2 border-t border-red-500 rounded-lg">
-                      {projectCost?.map((cost) => (
-                        <li className="" key={cost._id}>
-                          <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-red-500 rounded-lg">
-                            <p className="border-l  border-r border-red-500 p-1 ">
-                              {cost?.username || cost?.userName}
-                            </p>
-                            <p className=" border-r border-red-500 p-1 text-center">
-                              {" "}
-                              ৳{cost?.amount}
-                            </p>
-                            <p className="border-r border-red-500 p-1 text-center">
-                              {formatDate(cost?.acceptedDate)}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                    {Object.keys(groupedData2).map((month) => (
+                      <ul className="list-disc  mt-2 border-t border-red-500 rounded-lg">
+                        <h2 className="text-[12px] text-center  text-white bg-red-600">
+                          {groupedData2?.[month]?.monthName}
+                        </h2>
+                        {groupedData2?.[month]?.items?.map((cost) => (
+                          <li className="" key={cost._id}>
+                            <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-red-500 rounded-lg">
+                              <p className="border-l  border-r border-red-500 p-1 ">
+                                {cost?.username || cost?.userName}
+                              </p>
+                              <p className=" border-r border-red-500 p-1 text-center">
+                                {" "}
+                                ৳{cost?.amount}
+                              </p>
+                              <p className="border-r border-red-500 p-1 text-center">
+                                {formatDate(cost?.acceptedDate)}
+                              </p>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ))}
                   </div>
                 </div>
               )}
