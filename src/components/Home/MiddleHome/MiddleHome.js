@@ -81,7 +81,7 @@ export default function MiddleHome() {
             <hr className="w-[50px] h-2" />
             <p className="text-[10px] lg:text-[14px] xl:text-[14px] bangla-text text-justify pr-4">
               "কুরআন পড়ার প্রতি উদ্বুদ্ধ হন, কারণ এটি আমাদের জীবনে সঠিক পথ
-              দেখায়, মানসিক শান্তি আনে এবং আল্লাহর নিকটবর্তী করে।"
+              দেখায়, মানসিক শান্তি আনে এবং আল্লাহর নিকটবর্তী করে।"{" "}
             </p>
           </div>
         </div>
