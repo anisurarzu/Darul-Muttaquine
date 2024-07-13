@@ -86,12 +86,11 @@ export default function ProfileCard({ rowData }) {
                 </div>
 
                 {loading ? (
-                  <Spin tip="Loading...">
-                    <Alert type="info" />
-                  </Spin>
+                  <Spin tip="Loading..."></Spin>
                 ) : (
                   <button
-                    class="flex-no-shrink bg-green-400 hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-lg font-medium tracking-wider border-2 border-green-300 hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
+                    style={{ background: "#408F49" }}
+                    class="flex-no-shrink  hover:bg-green-500 px-5 ml-4 py-2 text-[10px] shadow-sm hover:shadow-xl font-medium tracking-wider hover:border-green-500 text-white rounded-lg transition ease-in duration-300"
                     onClick={() => {
                       getSingleDeposit(rowData);
                     }}>

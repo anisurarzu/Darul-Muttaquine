@@ -222,8 +222,23 @@ export default function DashboardHome() {
         </Spin>
       ) : (
         <div className="">
-          <div className="grid grid-cols-12">
-            <div className="rounded-lg col-span-4 lg:col-span-1 xl:col-span-1">
+          <div className="grid grid-cols-6 lg:grid-cols-12 xl:grid-cols-12 gap-2 my-2 mx-[15px] lg:mx-0 xl:mx-0">
+            {updatedStepsData?.map((data, idx) => (
+              <div
+                className={` px-2  rounded-md ${
+                  data?.status === "finish"
+                    ? "bg-green-400 text-white"
+                    : "text-green-400 border border-green-400"
+                }`}
+                key={idx}>
+                <p className="text-center text-[12px] lg:text-[15px] xl:text-[15px] ">
+                  {data?.title}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-12 mx-4 lg:mx-0 xl:mx-0">
+            {/* <div className="rounded-lg col-span-4 lg:col-span-1 xl:col-span-1">
               <small className="text-center text-[10px] p-2">
                 2024 (DMF FUND)
               </small>{" "}
@@ -240,9 +255,9 @@ export default function DashboardHome() {
                   className: `step-${step.status} text-[10px] `,
                 }))}
               />
-            </div>
-            <div className="col-span-8 lg:col-span-11 xl:col-span-11">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
+            </div> */}
+            <div className="col-span-12 lg:col-span-12 xl:col-span-12 ">
+              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
                 <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
                   <div class="flex justify-between mb-6">
                     <div>
@@ -330,7 +345,7 @@ export default function DashboardHome() {
 
               {/* ----------------- 2nd div ---------------------*/}
 
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2">
+              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
                 <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
                   <div class="flex justify-between mb-6">
                     <div>
@@ -417,14 +432,14 @@ export default function DashboardHome() {
             </div>
           </div>
 
-          <div className="lg:ml-[95px] xl:ml-[95px] mx-12 lg:mx-0 xl:mx-0">
+          <div className="mx-8 lg:mx-0 xl:mx-0">
             {/* ----------------1st div------------- */}
 
             <h2 className="py-2 text-[17px] font-semibold text-center">
               Running DMF Projects
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 lg:gap-4 xl:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 lg:gap-8 xl:gap-8">
               {/* {projectInfo?.map((project, index) => (
                 <div key={index}>
                   <ProjectCard

@@ -41,7 +41,7 @@ const DepositInfo = () => {
   const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
   const [rollData, setRollData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Change the number of items per page as needed
+  const [itemsPerPage] = useState(18); // Change the number of items per page as needed
 
   const fetchDepositInfo = async () => {
     try {
@@ -140,6 +140,10 @@ const DepositInfo = () => {
     setCurrentPage(pageNumber);
   };
 
+  const totalDepositAmount = rollData?.reduce(
+    (total, deposit) => total + deposit?.amount,
+    0
+  );
   return (
     <>
       {loading ? (
@@ -335,6 +339,22 @@ const DepositInfo = () => {
                     </td>
                   </tr>
                 ))}
+                <tr>
+                  <th className="border border-tableBorder text-center p-2 text-green-700 font-semibold text-[14px] uppercase">
+                    Total Amount
+                  </th>
+                  <th className="border border-tableBorder text-center p-2 text-green-700 font-semibold text-[14px]">
+                    {totalDepositAmount}
+                  </th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+
+                  <th className="border border-tableBorder text-center p-2"></th>
+                  <th className="border border-tableBorder text-center p-2"></th>
+                </tr>
               </tbody>
             </table>
             <div className="flex justify-center p-2">
