@@ -96,16 +96,16 @@ export default function ProfileDetails({
             Payment Status (monthly wise)
           </p>
 
-          <div className="grid grid-cols-6 gap-2 mt-4">
+          <div className="grid grid-cols-6  gap-2 lg:gap-4 xl:gap-4 my-2 ">
             {updatedStepsData?.map((data, idx) => (
               <div
-                className={`w-[45px] lg:w-[50px] xl:w-[50px] h-[45px] lg:h-[50px] xl:h-[50px]  p-2  rounded-full ${
+                className={` px-2  rounded-md ${
                   data?.status === "finish"
                     ? "bg-green-400 text-white"
-                    : "text-green-600"
+                    : "text-green-400 border border-green-400"
                 }`}
                 key={idx}>
-                <p className="text-center text-[12px] lg:text-[15px] xl:text-[15px] pt-3">
+                <p className="text-center text-[12px] lg:text-[15px] xl:text-[15px] ">
                   {data?.title}
                 </p>
               </div>
