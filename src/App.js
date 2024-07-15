@@ -54,6 +54,7 @@ const App = () => {
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
+        <PrivateRoute path="/quize" component={Dashboard} />
       </Switch>
       <Fotter />
       <ToastContainer />

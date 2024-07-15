@@ -19,6 +19,8 @@ import { coreAxios } from "../../utilities/axios";
 import HistoryDashboard from "./HistoryUpload/HistoryDashboard/HistoryDashboard";
 import SuggestionBox from "./SuggestionBox/SuggestionBox";
 import Withdraw from "./Withdraw/Withdraw";
+import Quize from "../Quize/Quize";
+import CreateQuize from "../Quize/CreateQuize";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -55,6 +57,8 @@ export default function Dashboard() {
           { route: "project", label: "Projects" },
           { route: "suggestionBox", label: "SuggestionBox" },
           { route: "withdraw", label: "Withdraw" },
+          { route: "quize", label: "Quize" },
+          { route: "createQuize", label: "Create Quize" },
         ]
       : userData?.userRole === "Admin"
       ? [
@@ -177,6 +181,12 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/withdraw`}>
             <Withdraw />
+          </Route>
+          <Route path={`${path}/quize`}>
+            <Quize />
+          </Route>
+          <Route path={`${path}/createQuize`}>
+            <CreateQuize />
           </Route>
         </Switch>
       </div>
