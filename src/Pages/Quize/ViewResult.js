@@ -2,7 +2,7 @@ import { Progress, Tooltip } from "antd";
 import React from "react";
 
 export default function ViewResult({ SingleQuiz, userResults }) {
-  console.log("userResults", userResults);
+  console.log("SingleQuiz", SingleQuiz);
 
   return (
     <div>
@@ -24,7 +24,8 @@ export default function ViewResult({ SingleQuiz, userResults }) {
           </h3>
         </div>
         <div>
-          <Tooltip title="3 done / 3 in progress / 4 to do">
+          <Tooltip
+            title={`${userResults.totalCorrect} done / ${userResults.totalWrong} in progress`}>
             <Progress
               percent={userResults?.totalCorrect * 20}
               success={{

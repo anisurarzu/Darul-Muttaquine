@@ -7,6 +7,7 @@ import MainLoader from "../../components/Loader/MainLoader";
 import { formatDate } from "../../utilities/dateFormate";
 import useUserInfo from "../../hooks/useUserInfo";
 import ViewResult from "./ViewResult";
+import ViewAllResult from "./ViewAllResult";
 
 export default function Quize() {
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,8 @@ export default function Quize() {
   const [quizeID, setQuizeID] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isModalOpen3, setIsModalOpen3] = useState(false);
+  const [leaderBoard, setLeaderBoard] = useState();
   const userInfo = useUserInfo();
   const userId = userInfo?.uniqueId; // This should be dynamically fetched based on the logged-in user
 
@@ -56,6 +59,7 @@ export default function Quize() {
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
+    setIsModalOpen3(false);
     getQuizzes();
   };
 
@@ -90,6 +94,19 @@ export default function Quize() {
   };
 
   const userResults = getUserResults(quizzes, quizeID?._id, userId);
+
+  const getQuizeDetailsResult = async (quizID) => {
+    console.log("-----quizID", quizID);
+    try {
+      const response = await coreAxios.get(`/quizzes-results/${quizID}`);
+      if (response?.status === 200) {
+        setLeaderBoard(response?.data);
+        setIsModalOpen3(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="">
@@ -143,9 +160,15 @@ export default function Quize() {
                       setQuizeID(quiz);
                       showModal2(quiz);
                     }}>
-                    View Result
+                    ফলাফল দেখুন
                   </Button>
                 )}
+                <Button
+                  type="primary"
+                  className="mt-2 w-full"
+                  onClick={() => getQuizeDetailsResult(quiz?._id)}>
+                  লিডার বোর্ড
+                </Button>
               </Card>
             );
           })}
@@ -169,8 +192,20 @@ export default function Quize() {
           footer={null}
           width={800}>
           <ViewResult
-            quizzes={quizzes}
+            singleQuiz={singleQuiz}
             userResults={userResults}
+            handleCancel={handleCancel}
+          />
+        </Modal>
+        <Modal
+          title={`লিডার বোর্ড`}
+          open={isModalOpen3}
+          onCancel={handleCancel}
+          footer={null}
+          width={800}>
+          <ViewAllResult
+            // singleQuiz={singleQuiz}
+            leaderBoard={leaderBoard}
             handleCancel={handleCancel}
           />
         </Modal>
