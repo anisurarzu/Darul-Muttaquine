@@ -22,6 +22,7 @@ import Product from "./Pages/Product/Product";
 
 import "./App.css";
 import MainLoader from "./components/Loader/MainLoader";
+import Quize from "./Pages/Quize/Quize";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,7 @@ const App = () => {
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
-        <PrivateRoute path="/quize" component={Dashboard} />
+        <PrivateRoute path="/quize" component={Quize} />
       </Switch>
       <Fotter />
       <ToastContainer />

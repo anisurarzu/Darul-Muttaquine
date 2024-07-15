@@ -6,6 +6,7 @@ import {
   ProductOutlined,
   FileImageOutlined,
   DashboardOutlined,
+  QuestionCircleOutlined,
 } from "@ant-design/icons";
 import { NavLink, Link, useHistory } from "react-router-dom";
 
@@ -57,6 +58,9 @@ const Navbar = () => {
             </NavLink>
             <NavLink to="/dashboard" className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
+            </NavLink>
+            <NavLink to="/quize" className="hover:text-green-500 pt-2">
+              কুইজ
             </NavLink>
             <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
@@ -126,6 +130,13 @@ const Navbar = () => {
                   onClick={() => setShowMobileMenu(false)}>
                   <DashboardOutlined />{" "}
                   <span className="pl-1"> ড্যাশবোর্ড</span>
+                </NavLink>
+              </li>
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/quize" onClick={() => setShowMobileMenu(false)}>
+                  <QuestionCircleOutlined /> <span className="pl-1"> কুইজ</span>
                 </NavLink>
               </li>
               <li
