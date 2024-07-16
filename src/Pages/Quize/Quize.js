@@ -134,7 +134,7 @@ export default function Quize() {
 
             const canViewResult =
               userAnswer?.isSubmitted === "true" &&
-              userAnswer.userId === userId;
+              userAnswer?.userId === userId;
 
             return (
               <Card
