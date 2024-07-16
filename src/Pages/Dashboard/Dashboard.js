@@ -90,13 +90,10 @@ export default function Dashboard() {
       case "Super-Admin":
         return menuItems;
       case "Admin":
-        return menuItems.filter(
-          (item) => !["users", "createQuize", "quize"].includes(item.route)
-        );
+        return menuItems.filter((item) => !["users"].includes(item.route));
       case "Co-Admin":
         return menuItems.filter(
-          (item) =>
-            !["users", "createQuize", "quize", "project"].includes(item.route)
+          (item) => !["users", "project"].includes(item.route)
         );
       case "Senior-Member":
         return menuItems.filter((item) =>
