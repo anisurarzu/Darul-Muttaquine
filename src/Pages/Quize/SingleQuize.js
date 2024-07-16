@@ -59,14 +59,18 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
     };
     console.log("finalData", finalData);
 
-    try {
-      const response = await coreAxios.post(`/quizzes-answer`, finalData);
-      if (response?.status === 200) {
-        toast.success("successfully submitted");
-        handleCancel();
+    if (userInfo?.uniqueId) {
+      try {
+        const response = await coreAxios.post(`/quizzes-answer`, finalData);
+        if (response?.status === 200) {
+          toast.success("successfully submitted");
+          handleCancel();
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch (err) {
-      console.log(err);
+    } else {
+      toast.error("Please update your profile");
     }
   };
 
