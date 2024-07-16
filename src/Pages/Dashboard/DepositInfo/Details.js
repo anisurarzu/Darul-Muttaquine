@@ -36,28 +36,28 @@ export default function Details({ rowData, depositData, costData }) {
 
   // Function to group data by month
   const groupDataByMonth = (data) => {
-    return data.reduce((acc, item) => {
-      const month = new Date(item?.depositDate).toLocaleString("default", {
+    return data?.reduce((acc, item) => {
+      const month = new Date(item?.depositDate)?.toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
       if (!acc[month]) {
         acc[month] = { monthName: month, items: [] };
       }
-      acc[month].items.push(item);
+      acc[month]?.items.push(item);
       return acc;
     }, {});
   };
   const groupDataByMonth2 = (data) => {
-    return data.reduce((acc, item) => {
-      const month = new Date(item?.acceptedDate).toLocaleString("default", {
+    return data?.reduce((acc, item) => {
+      const month = new Date(item?.acceptedDate)?.toLocaleString("default", {
         month: "long",
         year: "numeric",
       });
       if (!acc[month]) {
         acc[month] = { monthName: month, items: [] };
       }
-      acc[month].items.push(item);
+      acc[month].items?.push(item);
       return acc;
     }, {});
   };

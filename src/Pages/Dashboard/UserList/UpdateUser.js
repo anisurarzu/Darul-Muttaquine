@@ -41,6 +41,7 @@ const UpdateUser = ({ handleCancel, rowData }) => {
     "Member",
     "Junior-Member",
     "Advisor",
+    "Visitor",
   ];
 
   return (

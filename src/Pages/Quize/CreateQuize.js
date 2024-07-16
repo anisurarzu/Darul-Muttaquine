@@ -75,7 +75,7 @@ const CreateQuiz = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-8 lg:mx-auto xl:mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Create Quiz</h1>
       <Formik initialValues={initialValues} onSubmit={() => {}}>
         {() => (
@@ -158,9 +158,6 @@ const CreateQuiz = () => {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">
-          Quiz Submitted Successfully!
-        </h2>
         {quizQuestions.map((q, index) => (
           <div key={index} className="bg-white rounded-lg shadow-md p-4 mb-4">
             <h3 className="text-xl font-semibold">{q.question}</h3>

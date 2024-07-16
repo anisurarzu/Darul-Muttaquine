@@ -5,11 +5,27 @@ import {
   Switch,
   useRouteMatch,
 } from "react-router-dom/cjs/react-router-dom";
+import { Menu, Drawer, Button } from "antd";
+import {
+  DashboardOutlined,
+  ProfileOutlined,
+  BookOutlined,
+  DollarOutlined,
+  HistoryOutlined,
+  FileAddOutlined,
+  FileOutlined,
+  UserOutlined,
+  ProjectOutlined,
+  CommentOutlined,
+  WalletOutlined,
+  QuestionCircleOutlined,
+  PlusCircleOutlined,
+  MenuOutlined,
+} from "@ant-design/icons";
+
 import Scholarship from "../scholarship/Scholarship";
 import DashboardHome from "./DashboardHome/DashboardHome";
-
 import DepositInfo from "./DepositInfo/DepositInfo";
-
 import ResultPage from "./Result/ResultPage";
 import AddResult from "./AddResult/AddResult";
 import Profile from "./Profile/Profile";
@@ -26,6 +42,8 @@ export default function Dashboard() {
   let { path, url } = useRouteMatch();
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+
   useEffect(() => {
     getUserInfo();
   }, []);
@@ -43,111 +61,135 @@ export default function Dashboard() {
     }
   };
 
-  const linkList =
-    userData?.userRole === "Super-Admin"
-      ? [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "scholarship", label: "Scholarship" },
-          { route: "depositInfo", label: "Deposit" },
-          { route: "historyDashboard", label: "History" },
-          { route: "addResult", label: "Add Result" },
-          { route: "result", label: "Result" },
-          { route: "users", label: "Users" },
-          { route: "project", label: "Projects" },
-          { route: "suggestionBox", label: "SuggestionBox" },
-          { route: "withdraw", label: "Withdraw" },
-          { route: "quize", label: "Quize" },
-          { route: "createQuize", label: "Create Quize" },
-        ]
-      : userData?.userRole === "Admin"
-      ? [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "scholarship", label: "Scholarship" },
-          { route: "depositInfo", label: "Deposit" },
-          { route: "historyDashboard", label: "History" },
-          { route: "addResult", label: "Add Result" },
-          { route: "result", label: "Result" },
-          { route: "project", label: "Projects" },
-          { route: "suggestionBox", label: "SuggestionBox" },
-          { route: "withdraw", label: "Withdraw" },
-        ]
-      : userData?.userRole === "Co-Admin"
-      ? [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "depositInfo", label: "Deposit" },
-          { route: "addResult", label: "Add Result" },
-          { route: "result", label: "Result" },
-          { route: "historyDashboard", label: "History" },
-          { route: "suggestionBox", label: "SuggestionBox" },
-          { route: "withdraw", label: "Withdraw" },
-        ]
-      : userData?.userRole === "Senior-Member"
-      ? [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "depositInfo", label: "Deposit" },
-          { route: "withdraw", label: "Withdraw" },
-          { route: "result", label: "Result" },
-        ]
-      : userData?.userRole === "Member"
-      ? [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "depositInfo", label: "Deposit" },
-          { route: "suggestionBox", label: "SuggestionBox" },
-          { route: "withdraw", label: "Withdraw" },
-          { route: "result", label: "Result" },
-        ]
-      : [
-          { route: "dashboard", label: "Dashboard" },
-          { route: "profile", label: "Profile" },
-          { route: "depositInfo", label: "Deposit" },
-        ];
-  return (
-    <div className="grid xl:grid-cols-6 lg:grid-cols-3 grid-cols-1  pt-8 ">
-      <div className="col-span-1  border lg:h-[600px] rounded xl:mx-8 lg:mx-4 pb-8 ">
-        <div className="bg-green-400">
-          <h3 className="text-center pt-2 text-xl font-bold text-white border border-green-300 rounded p-2">
-            {userData?.userRole}
-          </h3>
-        </div>
+  const menuItems = [
+    { route: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> },
+    { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
+    { route: "scholarship", label: "Scholarship", icon: <BookOutlined /> },
+    { route: "depositInfo", label: "Deposit", icon: <DollarOutlined /> },
+    { route: "historyDashboard", label: "History", icon: <HistoryOutlined /> },
+    { route: "addResult", label: "Add Result", icon: <FileAddOutlined /> },
+    { route: "result", label: "Result", icon: <FileOutlined /> },
+    { route: "users", label: "Users", icon: <UserOutlined /> },
+    { route: "project", label: "Projects", icon: <ProjectOutlined /> },
+    {
+      route: "suggestionBox",
+      label: "SuggestionBox",
+      icon: <CommentOutlined />,
+    },
+    { route: "withdraw", label: "Withdraw", icon: <WalletOutlined /> },
+    { route: "quize", label: "Quize", icon: <QuestionCircleOutlined /> },
+    {
+      route: "createQuize",
+      label: "Create Quize",
+      icon: <PlusCircleOutlined />,
+    },
+  ];
 
-        <div>
-          <div class="   py-6">
-            <div class="grid grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 gap-1 phone-menu-bar">
-              <ul class=" md:flex-col bangla-text w-full phone-menu-bar-text   menu-box">
-                <div className="grid grid-cols-2 lg:grid-cols1 xl:grid-cols-1">
-                  {linkList?.map((data, index) => (
-                    <li class="my-px pt-2" key={index}>
-                      <Link
-                        to={`${url}/${data?.route}`}
-                        class="flex flex-row items-center h-12 px-4 rounded-lg text-gray-600 hover:bg-gray-100">
-                        <span class="flex items-center justify-center text-lg text-gray-400  md:ml-0 menu1">
-                          <svg
-                            fill="none"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            class="h-8 w-8">
-                            <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>
-                          </svg>
-                        </span>
-                        <span class="ml-3  text-[17px]">{data?.label}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </div>
-              </ul>
-            </div>
-          </div>
+  const getMenuItemsByRole = (role) => {
+    switch (role) {
+      case "Super-Admin":
+        return menuItems;
+      case "Admin":
+        return menuItems.filter(
+          (item) => !["users", "createQuize", "quize"].includes(item.route)
+        );
+      case "Co-Admin":
+        return menuItems.filter(
+          (item) =>
+            !["users", "createQuize", "quize", "project"].includes(item.route)
+        );
+      case "Senior-Member":
+        return menuItems.filter((item) =>
+          [
+            "dashboard",
+            "profile",
+            "depositInfo",
+            "withdraw",
+            "result",
+          ].includes(item.route)
+        );
+      case "Member":
+        return menuItems.filter((item) =>
+          [
+            "dashboard",
+            "profile",
+            "depositInfo",
+            "suggestionBox",
+            "withdraw",
+            "result",
+          ].includes(item.route)
+        );
+      case "Junior-Member":
+        return menuItems.filter((item) =>
+          ["dashboard", "profile", "depositInfo"].includes(item.route)
+        );
+      default:
+        return menuItems.filter((item) =>
+          ["dashboard", "profile", "depositInfo"].includes(item.route)
+        );
+    }
+  };
+
+  const roleMenuItems = getMenuItemsByRole(userData?.userRole);
+
+  const handleDrawerOpen = () => setDrawerVisible(true);
+  const handleDrawerClose = () => setDrawerVisible(false);
+
+  const handleMenuClick = () => {
+    handleDrawerClose();
+  };
+
+  return (
+    <div className="flex flex-col lg:flex-row pt-8">
+      {/* Mobile menu button */}
+      <Button
+        className="lg:hidden"
+        type="primary"
+        icon={<MenuOutlined />}
+        onClick={handleDrawerOpen}>
+        Menu
+      </Button>
+
+      {/* Drawer for mobile view */}
+      <Drawer
+        title={userData?.userRole}
+        placement="left"
+        onClose={handleDrawerClose}
+        visible={drawerVisible}
+        bodyStyle={{ padding: 0 }}
+        width="75%">
+        <Menu
+          mode="inline"
+          defaultSelectedKeys={["dashboard"]}
+          style={{ height: "100%" }}
+          onClick={handleMenuClick}>
+          {roleMenuItems.map((data) => (
+            <Menu.Item key={data.route} icon={data.icon}>
+              <Link to={`${url}/${data.route}`}>{data.label}</Link>
+            </Menu.Item>
+          ))}
+        </Menu>
+      </Drawer>
+
+      {/* Sidebar for desktop view */}
+      <div className="hidden lg:block lg:w-1/6 xl:w-1/6 border-r">
+        <div className="p-4 bg-green-400 text-white font-bold text-center">
+          {userData?.userRole}
         </div>
+        <Menu
+          mode="vertical"
+          defaultSelectedKeys={["dashboard"]}
+          style={{ height: "100%" }}>
+          {roleMenuItems.map((data) => (
+            <Menu.Item key={data.route} icon={data.icon}>
+              <Link to={`${url}/${data.route}`}>{data.label}</Link>
+            </Menu.Item>
+          ))}
+        </Menu>
       </div>
-      <div className="dashboard-second col-span-5  container rounded">
+
+      {/* Main content */}
+      <div className="flex-1 container rounded p-4">
         <Switch>
           <Route path={`${path}/scholarship`}>
             <Scholarship />

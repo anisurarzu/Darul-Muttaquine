@@ -171,7 +171,9 @@ export default function About() {
     getAllUserList();
   }, []);
 
-  const filteredRolls = users?.filter((roll) =>
+  const filteredUsers = users?.filter((user) => user.userRole !== "Visitor");
+
+  const filteredRolls = filteredUsers?.filter((roll) =>
     searchQuery
       ? Object.values(roll)
           .join("")
@@ -183,6 +185,8 @@ export default function About() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
+
+  console.log("currentItems", currentItems);
 
   const onChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -378,7 +382,7 @@ export default function About() {
 
         <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
           <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
-            সক্রিয় সদস্যগণ ({users?.length})
+            সক্রিয় সদস্যগণ ({filteredUsers?.length})
           </h2>
 
           <div className="relative mx-8 mr-4">

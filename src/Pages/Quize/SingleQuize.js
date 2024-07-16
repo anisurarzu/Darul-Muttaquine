@@ -1,4 +1,4 @@
-import { Input, Radio, Space, Button, message } from "antd";
+import { Input, Radio, Space, Button, message, Tooltip, Progress } from "antd";
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field } from "formik";
 import axios from "axios";
@@ -15,28 +15,44 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
   const [quizStarted, setQuizStarted] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(300); // 5 minutes (300 seconds)
   const [timerExpired, setTimerExpired] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false); // Track form submission state
 
   const userInfo = useUserInfo();
 
   useEffect(() => {
+    let timer;
     if (quizStarted && !timerExpired && secondsLeft > 0) {
-      const timer = setTimeout(() => {
+      timer = setTimeout(() => {
         setSecondsLeft(secondsLeft - 1);
       }, 1000);
-
-      return () => clearTimeout(timer);
-    } else if (secondsLeft === 0) {
+    } else if (secondsLeft === 0 && !formSubmitting) {
+      // Check formSubmitting state to avoid multiple submissions
       setTimerExpired(true);
       handleSubmit(initialValues);
     }
+
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizStarted, secondsLeft, formSubmitting, timerExpired]);
+
+  useEffect(() => {
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+    };
   }, []);
 
   const handleStartQuiz = () => {
     setQuizStarted(true);
   };
-  console.log("question", quizze);
+
   const handleSubmit = async (values) => {
+    setFormSubmitting(true); // Set form submitting state
     const submissionData = quizze?.quizQuestions.map((question, idx) => {
       const userAnswer = values[`question${idx}`];
       const isCorrect = userAnswer === question.correctAnswer;
@@ -50,20 +66,18 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
       };
     });
 
-    console.log("submissionData", submissionData);
     const finalData = {
       quizID: quizze?._id,
       isSubmitted: "true",
       userId: userInfo?.uniqueId,
       answers: submissionData,
     };
-    console.log("finalData", finalData);
 
     if (userInfo?.uniqueId) {
       try {
         const response = await coreAxios.post(`/quizzes-answer`, finalData);
         if (response?.status === 200) {
-          toast.success("successfully submitted");
+          toast.success("Successfully submitted");
           handleCancel();
         }
       } catch (err) {
@@ -86,19 +100,34 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
   };
 
   return (
-    <div>
+    <div
+      className="select-none"
+      style={{ WebkitTouchCallout: "none", userSelect: "none" }}>
       {!quizStarted ? (
-        <Button type="primary" onClick={handleStartQuiz}>
-          Start Quiz
-        </Button>
+        <div className="flex justify-center items-center">
+          <Button type="primary" onClick={handleStartQuiz}>
+            Start Quiz
+          </Button>
+        </div>
       ) : (
         <div>
+          <div className="flex justify-end items-center my-4 sticky top-0 z-50">
+            <div
+              className="text-center text-white rounded-full p-1 w-[50px]"
+              style={{
+                marginTop: "20px",
+                fontSize: "18px",
+                background: "#408F49",
+              }}>
+              {timerDisplay()}
+            </div>
+          </div>
           <Formik initialValues={initialValues} onSubmit={handleFormSubmit}>
             {({ handleChange }) => (
               <Form>
                 {quizze?.quizQuestions?.map((data, index) => (
-                  <div key={index} className="shadow p-4 rounded-lg my-4">
-                    <h3 className="text-[15px] py-2 text-green-800 bangla-text ">
+                  <div key={index} className="shadow p-4 rounded-lg my-8">
+                    <h3 className="text-[15px] py-2 text-green-800 bangla-text">
                       প্রশ্ন {index + 1} : {data.question}
                     </h3>
                     <Field name={`question${index}`}>
@@ -116,14 +145,12 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
                     </Field>
                   </div>
                 ))}
-                <div style={{ marginTop: "20px" }}>
-                  Time left: {timerDisplay()}
-                </div>
+
                 <Button
                   type="primary"
                   htmlType="submit"
                   disabled={timerExpired}
-                  style={{ marginTop: "10px" }}>
+                  style={{ marginTop: "10px", background: "#408F49" }}>
                   Submit Answers
                 </Button>
               </Form>
