@@ -9,6 +9,7 @@ import Slider from "./Slider/Slider";
 
 import "./home.css";
 import demo from "../../images/GIF/animation-1.gif";
+import tempBanner from "../../images/web.png";
 
 export default function Home() {
   const [show, setShow] = useState(false);
@@ -30,6 +31,11 @@ export default function Home() {
           সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে
           নিজেদের নিয়োজিত রাখা"
         </div>
+      </div>
+      {/* temp banner */}
+
+      <div>
+        <img src={tempBanner} alt="" />
       </div>
 
       <DonationBox />
