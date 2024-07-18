@@ -12,8 +12,10 @@ import { NavLink, Link, useHistory } from "react-router-dom";
 
 import logo from "../images/dmf-logo.png";
 import useUserInfo from "../hooks/useUserInfo";
+import { useRouteMatch } from "react-router-dom/cjs/react-router-dom";
 
 const Navbar = () => {
+  let { path, url } = useRouteMatch();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const history = useHistory();
   const userInfo = useUserInfo();
@@ -56,7 +58,7 @@ const Navbar = () => {
             <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
             </NavLink>
-            <NavLink to="/dashboard" className="hover:text-green-500 pt-2">
+            <NavLink to={`/dashboard`} className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
             <NavLink to="/quize" className="hover:text-green-500 pt-2">
@@ -110,7 +112,7 @@ const Navbar = () => {
               </li>
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="p-2 text-white rounded-lg text-center">
                 <NavLink to="/history" onClick={() => setShowMobileMenu(false)}>
                   <FileImageOutlined /> <span className="pl-1"> গ্যালারী</span>
                 </NavLink>

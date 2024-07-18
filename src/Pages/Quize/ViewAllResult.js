@@ -14,7 +14,9 @@ const ViewAllResult = ({ leaderBoard }) => {
       {sortedResults?.map((result, index) => (
         <div
           key={index}
-          className="grid grid-cols-12 gap-2 my-3 shadow-md border border-green-400 rounded-md p-2 ">
+          className={`grid grid-cols-12 gap-2 my-3 shadow-md border  ${
+            index > 4 ? "border-yellow-400" : "border-green-500 "
+          }  rounded-md p-2 `}>
           <div className="col-span-1">
             {result?.totalMarks > 3 ? (
               <CaretUpOutlined className="text-green-400 text-[20px] pt-2 lg:pt-3 xl:pt-3" />
