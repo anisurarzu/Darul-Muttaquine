@@ -34,9 +34,9 @@ export default function Home() {
       </div>
       {/* temp banner */}
 
-      <div>
+      {/*  <div>
         <img src={tempBanner} alt="" />
-      </div>
+      </div> */}
 
       <DonationBox />
       <MiddleHome />
