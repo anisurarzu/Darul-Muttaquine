@@ -37,6 +37,7 @@ import SuggestionBox from "./SuggestionBox/SuggestionBox";
 import Withdraw from "./Withdraw/Withdraw";
 import Quize from "../Quize/Quize";
 import CreateQuize from "../Quize/CreateQuize";
+import AllQuize from "../Quize/AllQuize";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -78,11 +79,12 @@ export default function Dashboard() {
     },
     { route: "withdraw", label: "Withdraw", icon: <WalletOutlined /> },
     { route: "quize", label: "Quize", icon: <QuestionCircleOutlined /> },
-    {
+    { route: "allQuize", label: "All Quize", icon: <QuestionCircleOutlined /> },
+    /*  {
       route: "createQuize",
       label: "Create Quize",
       icon: <PlusCircleOutlined />,
-    },
+    }, */
   ];
 
   const getMenuItemsByRole = (role) => {
@@ -103,6 +105,7 @@ export default function Dashboard() {
             "depositInfo",
             "withdraw",
             "result",
+            "suggestionBox",
           ].includes(item.route)
         );
       case "Member":
@@ -118,11 +121,15 @@ export default function Dashboard() {
         );
       case "Junior-Member":
         return menuItems.filter((item) =>
-          ["dashboard", "profile", "depositInfo"].includes(item.route)
+          ["dashboard", "profile", "depositInfo", "suggestionBox"].includes(
+            item.route
+          )
         );
       default:
         return menuItems.filter((item) =>
-          ["dashboard", "profile", "depositInfo"].includes(item.route)
+          ["dashboard", "profile", "depositInfo", "suggestionBox"].includes(
+            item.route
+          )
         );
     }
   };
@@ -224,9 +231,12 @@ export default function Dashboard() {
           <Route path={`${path}/quize`}>
             <Quize />
           </Route>
-          <Route path={`${path}/createQuize`}>
-            <CreateQuize />
+          <Route path={`${path}/allQuize`}>
+            <AllQuize />
           </Route>
+          {/*   <Route path={`${path}/createQuize`}>
+            <CreateQuize />
+          </Route> */}
         </Switch>
       </div>
     </div>

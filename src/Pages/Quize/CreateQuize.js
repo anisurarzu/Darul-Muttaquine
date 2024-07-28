@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Input, Radio, Space, Button, Form, DatePicker, message } from "antd";
 import { Formik, FieldArray } from "formik";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { coreAxios } from "../../utilities/axios";
 
 const initialValues = {
@@ -12,9 +11,10 @@ const initialValues = {
   endDate: "",
 };
 
-const CreateQuiz = () => {
+const CreateQuiz = ({ handleCancel }) => {
   const [submitted, setSubmitted] = useState(false);
   const [question, setQuestion] = useState("");
+  const [duration, setDuration] = useState(0);
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctAnswer, setCorrectAnswer] = useState("");
   const [quizQuestions, setQuizQuestions] = useState([]);
@@ -30,6 +30,7 @@ const CreateQuiz = () => {
       name: quizName,
       startDate,
       endDate,
+      duration,
     };
 
     setQuizQuestions([...quizQuestions, newQuestion]);
@@ -46,18 +47,18 @@ const CreateQuiz = () => {
 
   const submitQuizToAPI = async () => {
     try {
-      // Replace with your actual API endpoint
       const quizData = {
         quizName,
         startDate,
         endDate,
+        duration,
         quizQuestions,
       };
-      console.log("---", quizData);
+
+      console.log("first", quizData);
       const response = await coreAxios.post(`/quizzes`, quizData);
       if (response?.status === 200) {
-        toast?.success("Successfully Added");
-        // Reset all fields after successful submission
+        toast.success("Successfully Added");
         setQuizQuestions([]);
         setQuizName("");
         setStartDate(null);
@@ -65,6 +66,8 @@ const CreateQuiz = () => {
         setQuestion("");
         setOptions(["", "", "", ""]);
         setCorrectAnswer("");
+        setDuration(0);
+        handleCancel();
       } else {
         throw new Error("Failed to submit quiz");
       }
@@ -75,33 +78,45 @@ const CreateQuiz = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-8 lg:mx-auto xl:mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 py-8 bg-gray-100 rounded-lg shadow-lg">
       <h1 className="text-3xl font-bold mb-6 text-center">Create Quiz</h1>
       <Formik initialValues={initialValues} onSubmit={() => {}}>
         {() => (
-          <Form>
-            <Form.Item label="Quiz Name">
-              <Input
-                name="quizName"
-                value={quizName}
-                onChange={(e) => setQuizName(e.target.value)}
-              />
-            </Form.Item>
-            <Form.Item label="Start Date">
-              <DatePicker
-                value={startDate}
-                onChange={(date) => setStartDate(date)}
-                className="w-full"
-              />
-            </Form.Item>
-            <Form.Item label="End Date">
-              <DatePicker
-                value={endDate}
-                onChange={(date) => setEndDate(date)}
-                className="w-full"
-              />
-            </Form.Item>
-            <Form.Item label="Question">
+          <Form layout="vertical">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <Form.Item label="Quiz Name" className="mb-2">
+                <Input
+                  name="quizName"
+                  value={quizName}
+                  onChange={(e) => setQuizName(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item label="Start Date" className="mb-2">
+                <DatePicker
+                  value={startDate}
+                  onChange={(date) => setStartDate(date)}
+                  className="w-full"
+                />
+              </Form.Item>
+              <Form.Item label="End Date" className="mb-2">
+                <DatePicker
+                  value={endDate}
+                  onChange={(date) => setEndDate(date)}
+                  className="w-full"
+                />
+              </Form.Item>
+
+              <Form.Item label="Duration" className="mb-2">
+                <Input
+                  name="duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="w-full"
+                />
+              </Form.Item>
+            </div>
+
+            <Form.Item label="question" className="mb-2">
               <Input
                 name="question"
                 value={question}
@@ -110,9 +125,12 @@ const CreateQuiz = () => {
             </Form.Item>
             <FieldArray name="options">
               {() => (
-                <div>
+                <div className="grid grid-cols-1  gap-2">
                   {options.map((option, index) => (
-                    <Form.Item key={index} label={`Option ${index + 1}`}>
+                    <Form.Item
+                      key={index}
+                      label={`Option ${index + 1}`}
+                      className="mb-2">
                       <Input
                         value={option}
                         onChange={(e) => {
@@ -126,7 +144,7 @@ const CreateQuiz = () => {
                 </div>
               )}
             </FieldArray>
-            <Form.Item label="Correct Answer">
+            <Form.Item label="Correct Answer" className="mb-2">
               <Radio.Group
                 onChange={(e) => setCorrectAnswer(e.target.value)}
                 value={correctAnswer}>
@@ -139,7 +157,7 @@ const CreateQuiz = () => {
                 </Space>
               </Radio.Group>
             </Form.Item>
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-4">
               <Button type="primary" onClick={addQuestion}>
                 Add Question
               </Button>
@@ -147,7 +165,7 @@ const CreateQuiz = () => {
           </Form>
         )}
       </Formik>
-      <div className="mt-8">
+      <div className="mt-4">
         <Button
           type="primary"
           onClick={submitQuizToAPI}
@@ -157,9 +175,11 @@ const CreateQuiz = () => {
         </Button>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-4">
         {quizQuestions.map((q, index) => (
-          <div key={index} className="bg-white rounded-lg shadow-md p-4 mb-4">
+          <div
+            key={index}
+            className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-300">
             <h3 className="text-xl font-semibold">{q.question}</h3>
             <ul className="list-disc ml-4 mt-2">
               {q.options.map((opt, idx) => (

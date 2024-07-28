@@ -62,6 +62,7 @@ const UserDashboard = () => {
       setLoading(true);
       const response = await coreAxios.delete(`/user/${RollID}`);
       if (response.data) {
+        toast.success("Successfully Deleted!");
         setLoading(false);
         fetchScholarshipInfo();
       } else {

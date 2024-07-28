@@ -22,18 +22,18 @@ const Navbar = () => {
   console.log("userInfo", userInfo);
 
   // Check if the user is authenticated
-  const isAuthenticated = !!localStorage.getItem("token");
+  const isAuthenticated = !!localStorage?.getItem("token");
 
   // Handle logout
   const handleLogout = () => {
-    // Clear authentication token from local storage
-    localStorage.removeItem("token");
+    // Clear all data from local storage
+    localStorage?.clear();
 
     // Redirect to the login page
-    history.push("/login");
+    history?.push("/login");
 
     // Reload the page to reflect the logout state
-    window.location.reload();
+    window?.location?.reload();
   };
 
   return (
