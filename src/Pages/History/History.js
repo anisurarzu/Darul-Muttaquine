@@ -47,8 +47,10 @@ const History = () => {
       <section>
         <div class="pb-16">
           <div>
-            <div style={{ background: "#408F49" }}>
-              <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text">
+            <div style={{ background: "#BDDE98" }}>
+              <h2
+                className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text"
+                style={{ color: "#2F5811" }}>
                 গ্যালারী
               </h2>
             </div>

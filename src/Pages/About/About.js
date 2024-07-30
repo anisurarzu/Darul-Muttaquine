@@ -196,8 +196,10 @@ export default function About() {
     <div className="px-0 ">
       <div className="w-full ">
         <div>
-          <div style={{ background: "#408F49" }}>
-            <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text">
+          <div style={{ background: "#BDDE98" }}>
+            <h2
+              className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text"
+              style={{ color: "#2F5811" }}>
               আমাদের সম্পর্কে
             </h2>
           </div>
@@ -379,55 +381,56 @@ export default function About() {
             </div>
           </div>
         </div>
+        <div style={{ background: "#ECF2E3" }}>
+          <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
+            <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
+              সক্রিয় সদস্যগণ ({filteredUsers?.length})
+            </h2>
 
-        <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
-          <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
-            সক্রিয় সদস্যগণ ({filteredUsers?.length})
-          </h2>
-
-          <div className="relative mx-8 mr-4">
-            <input
-              type="text"
-              id="table-search-users"
-              className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-
-            <div className="absolute inset-y-0 flex items-center p-3">
-              <svg
-                className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 20 20">
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                />
-              </svg>
-            </div>
-          </div>
-          <div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
-              {currentItems?.map((user, index) => (
-                <div key={index}>
-                  <ProfileCard rowData={user} />
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-center p-2 my-4">
-              <Pagination
-                showQuickJumper
-                current={currentPage}
-                total={users?.length}
-                pageSize={itemsPerPage}
-                onChange={onChange}
+            <div className="relative mx-8 mr-4">
+              <input
+                type="text"
+                id="table-search-users"
+                className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
+
+              <div className="absolute inset-y-0 flex items-center p-3">
+                <svg
+                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 20">
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-1 pt-4">
+                {currentItems?.map((user, index) => (
+                  <div key={index}>
+                    <ProfileCard rowData={user} />
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center p-2 my-4">
+                <Pagination
+                  showQuickJumper
+                  current={currentPage}
+                  total={users?.length}
+                  pageSize={itemsPerPage}
+                  onChange={onChange}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -49,8 +49,10 @@ const Product = () => {
 
   return (
     <div className="">
-      <div style={{ background: "#408F49" }}>
-        <h2 className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text">
+      <div style={{ background: "#BDDE98" }}>
+        <h2
+          className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text"
+          style={{ color: "#2F5811" }}>
           আমাদের পণ্য
         </h2>
       </div>
@@ -68,12 +70,12 @@ const Product = () => {
             </h4>
             <div className="flex justify-between ">
               <p
-                style={{ color: "#408F49" }}
+                style={{ color: "#73A63B" }}
                 className=" my-1 py-1 text-[10px] lg:text-[12px] xl:text-[12px]">
                 {product?.stockStatus}
               </p>
               <button
-                style={{ background: "#408F49" }}
+                style={{ background: "#73A63B" }}
                 className=" text-white rounded-lg py-1 px-2 text-[12px] my-1"
                 onClick={() => {
                   setProduct(product);

@@ -61,7 +61,7 @@ const Navbar = () => {
             <NavLink to={`/dashboard`} className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
-            <NavLink to="/quize" className="hover:text-green-500 pt-2">
+            <NavLink to="/quizeMain" className="hover:text-green-500 pt-2">
               কুইজ
             </NavLink>
             <NavLink to="/product" className="hover:text-green-500 pt-2">
@@ -137,7 +137,9 @@ const Navbar = () => {
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
-                <NavLink to="/quize" onClick={() => setShowMobileMenu(false)}>
+                <NavLink
+                  to="/quizeMain"
+                  onClick={() => setShowMobileMenu(false)}>
                   <QuestionCircleOutlined /> <span className="pl-1"> কুইজ</span>
                 </NavLink>
               </li>

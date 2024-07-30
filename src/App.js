@@ -23,6 +23,7 @@ import Product from "./Pages/Product/Product";
 import "./App.css";
 import MainLoader from "./components/Loader/MainLoader";
 import Quize from "./Pages/Quize/Quize";
+import QuizeMainPage from "./Pages/Quize/QuizeMainPage";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,7 @@ const App = () => {
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
-        {/* <Route exact path="/quize" component={Quize} /> */}
+        <Route exact path="/quizeMain" component={QuizeMainPage} />
         <Route exact path="/product" component={Product} />
         <Route exact path="/registration" component={Registration} />
         <Route exact path="/contact" component={Contact} />
