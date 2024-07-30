@@ -10,6 +10,7 @@ import ViewResult from "./ViewResult";
 import ViewAllResult from "./ViewAllResult";
 import { useHistory } from "react-router-dom";
 import { FaBook, FaTrophy, FaChartBar, FaArrowLeft } from "react-icons/fa"; // Import icons
+import { LockOutlined } from "@ant-design/icons";
 
 export default function Quize() {
   const [loading, setLoading] = useState(false);
@@ -33,8 +34,11 @@ export default function Quize() {
       setLoading(true);
       const response = await coreAxios.get("/quizzes");
       if (response?.status === 200) {
+        const sortedData = response?.data?.sort((a, b) => {
+          return new Date(b?.createdAt) - new Date(a?.createdAt);
+        });
         setLoading(false);
-        setQuizzes(response.data);
+        setQuizzes(sortedData);
       }
     } catch (err) {
       setLoading(false);
@@ -69,17 +73,17 @@ export default function Quize() {
 
   const getUserResults = (data, quizId, userId) => {
     const userAnswers = data
-      .filter((quiz) => quiz._id === quizId)
-      .flatMap((quiz) => quiz.userAnswers)
-      .find((user) => user.userId === userId);
+      .filter((quiz) => quiz?._id === quizId)
+      .flatMap((quiz) => quiz?.userAnswers)
+      .find((user) => user?.userId === userId);
 
     if (!userAnswers) return null;
 
-    const totalCorrect = userAnswers.answers.filter(
-      (answer) => answer.result === "correct"
+    const totalCorrect = userAnswers?.answers?.filter(
+      (answer) => answer?.result === "correct"
     ).length;
     const totalWrong = userAnswers.answers.filter(
-      (answer) => answer.result === "wrong"
+      (answer) => answer?.result === "wrong"
     ).length;
 
     const questionsWithAnswers = userAnswers.answers.map((answer, i) => ({
@@ -124,7 +128,7 @@ export default function Quize() {
       {loading ? (
         <MainLoader />
       ) : (
-        <div className="mx-8 lg:mx-24 xl:mx-24">
+        <div className="mx-12 lg:mx-24 xl:mx-24">
           <Button
             type="primary"
             className="mt-4 flex items-center"
@@ -136,7 +140,7 @@ export default function Quize() {
           <div className="py-4 lg:py-8 xl:py-8">
             <p className="text-justify lg:text-center xl:text-center py-4 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
               এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন এটিতে
-              অংশগ্রহণ করার, সময় থাকবে ৫ মিনিট, আপনাকে আমরা প্রশ্ন এবং সময় দিয়ে
+              অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং সময় দিয়ে
               এখানে পরীক্ষা করবো। বিজয়ীদের মধ্য থেকে ৫ জনকে ২০ টাকা করে মোবাইল
               রিচার্জ/বিকাশ করা হবে। অংশগ্রহণ করার জন্য আপনাকে আগ্রীম ধন্যবাদ।
             </p>
@@ -158,15 +162,24 @@ export default function Quize() {
                   title={quiz.quizName}
                   className="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                   style={{ borderColor: "#BCDE98" }}>
-                  <FaBook className="text-3xl text-green-600 mb-2" />
+                  {quiz?.status !== "running" ? (
+                    <div className="mb-2">
+                      <LockOutlined className="text-3xl text-green-600 mb-2 mr-2 bangla-text" />
+                      এই কুইজের সময় শেষ হয়ে গেছে
+                    </div>
+                  ) : (
+                    <FaBook className="text-3xl text-green-600 mb-2" />
+                  )}
                   <p>শুরুর তারিখ: {formatDate(quiz?.startDate)}</p>
                   <p>শেষ তারিখ: {formatDate(quiz?.endDate)}</p>
                   <p>মোট প্রশ্ন: {quiz?.quizQuestions?.length}</p>
 
+                  {/* {quiz?.status === "running" ? ( */}
                   <Button
                     type="primary"
                     className="mt-2 w-full flex items-center justify-center"
                     onClick={() => showModal(quiz)}
+                    disabled={quiz?.status !== "running"}
                     style={{
                       backgroundColor: "#73A63B",
                       borderColor: "#73A63B",

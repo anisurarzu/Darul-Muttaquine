@@ -18,6 +18,7 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
   const [timerExpired, setTimerExpired] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false); // Track form submission state
   const [startTime, setStartTime] = useState(null); // Track the start time
+  const [loading, setLoading] = useState(false);
 
   const userInfo = useUserInfo();
   const history = useHistory();
@@ -89,9 +90,11 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
 
     if (userInfo?.uniqueId) {
       try {
+        setLoading(true);
         const response = await coreAxios.post(`/quizzes-answer`, finalData);
         if (response?.status === 200) {
           toast.success("Successfully submitted");
+          setLoading(false);
           handleCancel();
         }
       } catch (err) {
@@ -164,6 +167,7 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
                   type="primary"
                   htmlType="submit"
                   disabled={timerExpired}
+                  loading={loading}
                   style={{ marginTop: "10px", background: "#408F49" }}>
                   Submit Answers
                 </Button>
