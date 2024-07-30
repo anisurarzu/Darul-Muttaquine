@@ -2,7 +2,7 @@ import { Progress, Tooltip } from "antd";
 import React from "react";
 
 export default function ViewResult({ SingleQuiz, userResults }) {
-  console.log("SingleQuiz", SingleQuiz);
+  console.log("SingleQuiz", userResults);
 
   return (
     <div>
@@ -21,6 +21,9 @@ export default function ViewResult({ SingleQuiz, userResults }) {
           </h3>
           <h3 className="pt-1 text-[15px] bangla-text">
             প্রাপ্ত নম্বর: {userResults.totalCorrect * 20} / 100
+          </h3>
+          <h3 className="pt-1 text-[15px] bangla-text">
+            সময়: {userResults.answerTime} সেকেন্ড
           </h3>
         </div>
         <div>

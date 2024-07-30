@@ -82,11 +82,12 @@ export default function Quize() {
       (answer) => answer.result === "wrong"
     ).length;
 
-    const questionsWithAnswers = userAnswers.answers.map((answer) => ({
+    const questionsWithAnswers = userAnswers.answers.map((answer, i) => ({
       question: answer.question,
       correctAnswer: answer.correctAnswer,
       userAnswer: answer.userAnswer,
       result: answer.result,
+      // answerTime: userAnswers.answers?.[i]?.answerTime,
     }));
 
     return {

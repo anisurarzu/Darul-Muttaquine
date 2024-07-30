@@ -2,10 +2,17 @@ import React from "react";
 import { CaretUpOutlined, CaretDownOutlined } from "@ant-design/icons";
 
 const ViewAllResult = ({ leaderBoard }) => {
-  const sortedResults = [...leaderBoard].sort(
-    (a, b) => b.totalMarks - a.totalMarks
-  );
+  // Sort results first by totalMarks (descending), then by answerTime (ascending)
+  const sortedResults = [...leaderBoard].sort((a, b) => {
+    if (b.totalMarks === a.totalMarks) {
+      // If totalMarks are the same, sort by answerTime
+      return a.answerTime - b.answerTime;
+    }
+    return b.totalMarks - a.totalMarks;
+  });
+
   console.log("sortedResults", sortedResults);
+
   return (
     <div>
       <h3 className="bangla-text py-4 text-center">
