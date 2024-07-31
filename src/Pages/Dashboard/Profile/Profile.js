@@ -6,13 +6,10 @@ import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
 
 export default function Profile() {
-  // const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-
   const [userData, setUserData] = useState([]);
-  const [fileList, setFileList] = useState([]);
 
   useEffect(() => {
     getUserInfo();
@@ -34,13 +31,9 @@ export default function Profile() {
   const showModal = () => {
     setIsModalOpen(true);
   };
+
   const showModal2 = () => {
     setIsModalOpen2(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-    setIsModalOpen2(false);
   };
 
   const handleCancel = () => {
@@ -48,307 +41,227 @@ export default function Profile() {
     setIsModalOpen2(false);
     getUserInfo();
   };
+
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100 py-10">
       {loading ? (
         <Spin tip="Loading...">
           <Alert
-            message="Alert message title"
-            description="Further details about the context of this alert."
+            message="Loading..."
+            description="Fetching user information."
             type="info"
           />
         </Spin>
       ) : (
-        <div className="text-[14px] shadow-lg border-0 rounded">
-          <div class=" my-5 p-5">
-            <div class="md:flex no-wrap md:-mx-2 ">
-              <div class="w-full md:w-3/12 md:mx-2">
-                <div class="bg-white p-3 border-t-4 border-green-400">
-                  <div class="image overflow-hidden">
-                    <img
-                      class="h-auto w-full mx-auto"
-                      src={userData?.image}
-                      alt=""
-                    />
-                  </div>
-                  <h1 class="text-gray-900 font-bold text-[14px] leading-8 my-1">
-                    {userData?.firstName} {userData?.lastName}
-                  </h1>
-                  <h3 class="text-gray-600 font-lg text-semibold leading-6">
-                    Member at Darul Muttaquine Foundation
-                  </h3>
-
-                  <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                    <li class="flex items-center py-3 text-[14px]">
-                      <span>Profile</span>
-                      <span class="ml-auto">
-                        <span
-                          class="bg-green-500 py-1 px-2 rounded text-white cursor-pointer"
-                          onClick={showModal2}>
-                          Update Profile
-                        </span>
-                      </span>
-                    </li>
-                    <li class="flex items-center py-3 text-[14px]">
-                      <span>Settings</span>
-                      <span class="ml-auto">
-                        <span
-                          class="bg-green-500 py-1 px-2 rounded text-white cursor-pointer"
-                          onClick={showModal}>
-                          Change Password
-                        </span>
-                      </span>
-                    </li>
-                    <li class="flex items-center py-3">
-                      <span>Member since</span>
-                      <span class="ml-auto">
-                        {formatDate(userData?.createdAt)}
-                      </span>
-                    </li>
-                  </ul>
+        <div className="w-full mx-auto shadow-lg rounded-lg bg-white p-6">
+          <div className="flex flex-wrap">
+            <div className="w-full md:w-3/12 p-4">
+              <div className="bg-white p-6 rounded-lg shadow">
+                <div className="overflow-hidden rounded-full w-32 h-32 mx-auto mb-4">
+                  <img
+                    className="w-full h-full object-cover"
+                    src={userData?.image}
+                    alt="Profile"
+                  />
                 </div>
-
-                <div class="my-4"></div>
-
-                <div class="bg-white p-3 hover:shadow">
-                  <div class="flex items-center space-x-3 font-semibold text-gray-900 text-xl leading-8">
-                    <span class="text-green-500">
-                      <svg
-                        class="h-5 fill-current"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                      </svg>
-                    </span>
-                    <span>Similar Profiles</span>
+                <h1 className="text-center text-xl font-semibold text-gray-700">
+                  {userData?.firstName} {userData?.lastName}
+                </h1>
+                <h3 className="text-center text-gray-500">
+                  Member at Darul Muttaquine Foundation
+                </h3>
+                <ul className="mt-6">
+                  <li className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Profile</span>
+                    <button className="text-green-500" onClick={showModal2}>
+                      Update Profile
+                    </button>
+                  </li>
+                  <li className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Settings</span>
+                    <button className="text-green-500" onClick={showModal}>
+                      Change Password
+                    </button>
+                  </li>
+                  <li className="flex justify-between items-center py-2">
+                    <span className="text-gray-600">Member since</span>
+                    <span>{formatDate(userData?.createdAt)}</span>
+                  </li>
+                </ul>
+              </div>
+              {/* <div className="bg-white p-6 rounded-lg shadow mt-6">
+                <h4 className="text-lg font-semibold text-gray-700">
+                  Similar Profiles
+                </h4>
+                <div className="flex space-x-4 mt-4">
+                  <img
+                    className="w-16 h-16 rounded-full"
+                    src="https://cdn.australianageingagenda.com.au/wp-content/uploads/2015/06/28085920/Phil-Beckett-2-e1435107243361.jpg"
+                    alt="Profile"
+                  />
+                  <img
+                    className="w-16 h-16 rounded-full"
+                    src="https://avatars2.githubusercontent.com/u/24622175?s=60&amp;v=4"
+                    alt="Profile"
+                  />
+                  <img
+                    className="w-16 h-16 rounded-full"
+                    src="https://lavinephotography.com.au/wp-content/uploads/2017/01/PROFILE-Photography-112.jpg"
+                    alt="Profile"
+                  />
+                  <img
+                    className="w-16 h-16 rounded-full"
+                    src="https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/f04b52da-12f2-449f-b90c-5e4d5e2b1469_361x361.png"
+                    alt="Profile"
+                  />
+                </div>
+              </div> */}
+            </div>
+            <div className="w-full md:w-9/12 p-4">
+              <div className="bg-white p-6 rounded-lg shadow">
+                <div className="flex items-center space-x-4">
+                  <span className="text-green-500">
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                  </span>
+                  <h2 className="text-lg font-semibold text-gray-700">
+                    About ({userData?.uniqueId})
+                  </h2>
+                </div>
+                <div className="mt-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        First Name
+                      </span>
+                      <span>{userData?.firstName}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Last Name
+                      </span>
+                      <span>{userData?.lastName}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Gender
+                      </span>
+                      <span>{userData?.gender}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Contact No.
+                      </span>
+                      <span>0{userData?.phone}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Current Address
+                      </span>
+                      <span>{userData?.currentAddress}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Permanent Address
+                      </span>
+                      <span>{userData?.permanentAddress}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">Email</span>
+                      <a
+                        className="text-blue-600"
+                        href={`mailto:${userData?.email}`}>
+                        {userData?.email}
+                      </a>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-600">
+                        Birthday
+                      </span>
+                      <span>{formatDate(userData?.birthDate)}</span>
+                    </div>
                   </div>
-                  <div class="grid grid-cols-3">
-                    <div class="text-center my-2">
-                      <img
-                        class="h-16 w-16 rounded-full mx-auto"
-                        src="https://cdn.australianageingagenda.com.au/wp-content/uploads/2015/06/28085920/Phil-Beckett-2-e1435107243361.jpg"
-                        alt=""
-                      />
-                      <a href="#" class="text-main-color">
-                        Kojstantin
-                      </a>
-                    </div>
-                    <div class="text-center my-2">
-                      <img
-                        class="h-16 w-16 rounded-full mx-auto"
-                        src="https://avatars2.githubusercontent.com/u/24622175?s=60&amp;v=4"
-                        alt=""
-                      />
-                      <a href="#" class="text-main-color">
-                        James
-                      </a>
-                    </div>
-                    <div class="text-center my-2">
-                      <img
-                        class="h-16 w-16 rounded-full mx-auto"
-                        src="https://lavinephotography.com.au/wp-content/uploads/2017/01/PROFILE-Photography-112.jpg"
-                        alt=""
-                      />
-                      <a href="#" class="text-main-color">
-                        Natie
-                      </a>
-                    </div>
-                    <div class="text-center my-2">
-                      <img
-                        class="h-16 w-16 rounded-full mx-auto"
-                        src="https://bucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com/public/images/f04b52da-12f2-449f-b90c-5e4d5e2b1469_361x361.png"
-                        alt=""
-                      />
-                      <a href="#" class="text-main-color">
-                        Casey
-                      </a>
-                    </div>
+                </div>
+                <button className="block w-full text-blue-600 text-sm font-semibold mt-6 hover:bg-gray-100 focus:outline-none focus:shadow-outline p-3 rounded-lg">
+                  Show Full Information
+                </button>
+              </div>
+              <div className="mt-6 bg-white p-6 rounded-lg shadow">
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-700">
+                      Profession
+                    </h4>
+                    <ul className="list-disc list-inside mt-2 text-gray-600">
+                      <li>{userData?.profession}</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-700">
+                      Education
+                    </h4>
+                    <ul className="list-disc list-inside mt-2 text-gray-600">
+                      <li>
+                        <span className="font-semibold">
+                          Masters Degree in Oxford
+                        </span>
+                        <br />
+                        <span className="text-xs text-gray-500">
+                          March 2020 - Now
+                        </span>
+                      </li>
+                      <li>
+                        <span className="font-semibold">
+                          Bachelors Degree in LPU
+                        </span>
+                        <br />
+                        <span className="text-xs text-gray-500">
+                          March 2017 - March 2020
+                        </span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
-
-              <div class="w-full md:w-9/12 mx-2 h-64">
-                <div class="bg-white p-3 shadow-sm rounded-sm">
-                  <div class="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
-                    <span clas="text-green-500">
-                      <svg
-                        class="h-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                        />
-                      </svg>
-                    </span>
-                    <span class="tracking-wide">
-                      About ({userData?.uniqueId})
-                    </span>
-                  </div>
-                  <div class="text-gray-700 text-[14px]">
-                    <div class="grid md:grid-cols-2 ">
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">First Name</div>
-                        <div class="px-4 py-2">{userData?.firstName}</div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">Last Name</div>
-                        <div class="px-4 py-2">{userData?.lastName}</div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">Gender</div>
-                        <div class="px-4 py-2">{userData?.gender}</div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">Contact No.</div>
-                        <div class="px-4 py-2">0{userData?.phone}</div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">
-                          Current Address
-                        </div>
-                        <div class="px-4 py-2">{userData?.currentAddress}</div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">
-                          Permanent Address
-                        </div>
-                        <div class="px-4 py-2">
-                          {userData?.permanentAddress}
-                        </div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">Email.</div>
-                        <div class="px-4 py-2">
-                          <a
-                            class="text-blue-800"
-                            href="mailto:jane@example.com">
-                            {userData?.email}
-                          </a>
-                        </div>
-                      </div>
-                      <div class="grid grid-cols-2">
-                        <div class="px-4 py-2 font-semibold">Birthday</div>
-                        <div class="px-4 py-2">
-                          {formatDate(userData?.birthDate)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <button class="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4">
-                    Show Full Information
-                  </button>
-                </div>
-
-                <div class="my-4"></div>
-
-                <div class="bg-white p-3 shadow-sm rounded-sm">
-                  <div class="grid grid-cols-2">
-                    <div>
-                      <div class="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
-                        <span clas="text-green-500">
-                          <svg
-                            class="h-5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                        </span>
-                        <span class="tracking-wide">Experience</span>
-                      </div>
-                      <ul class="list-inside space-y-2">
-                        <li>
-                          <div class="text-teal-600">
-                            {userData?.profession}
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                    <div>
-                      <div class="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
-                        <span clas="text-green-500">
-                          <svg
-                            class="h-5"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path fill="#fff" d="M12 14l9-5-9-5-9 5 9 5z" />
-                            <path
-                              fill="#fff"
-                              d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
-                            />
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
-                            />
-                          </svg>
-                        </span>
-                        <span class="tracking-wide">Education</span>
-                      </div>
-                      <ul class="list-inside space-y-2">
-                        <li>
-                          <div class="text-teal-600">
-                            Masters Degree in Oxford
-                          </div>
-                          <div class="text-gray-500 text-xs">
-                            March 2020 - Now
-                          </div>
-                        </li>
-                        <li>
-                          <div class="text-teal-600">
-                            Bachelors Degreen in LPU
-                          </div>
-                          <div class="text-gray-500 text-xs">
-                            March 2020 - Now
-                          </div>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+              <div className="mt-6 bg-white p-6 rounded-lg shadow">
+                <h4 className="text-lg font-semibold text-gray-700">
+                  Achievements
+                </h4>
+                <ul className="list-disc list-inside mt-2 text-gray-600">
+                  <li>Google Developer Expert</li>
+                  <li>Worked on 100+ projects</li>
+                  <li>Ex-Google, Ex-Microsoft</li>
+                  <li>Youngest Developer in Asia</li>
+                </ul>
               </div>
             </div>
           </div>
-
-          <Modal
-            title="Please Provided Valid Information"
-            open={isModalOpen}
-            // onOk={handleOk}
-            onCancel={handleCancel}
-            width={800}>
-            <ChangePassword handleCancel={handleCancel} />
-          </Modal>
-          <Modal
-            title="Please Provided Valid Information"
-            open={isModalOpen2}
-            // onOk={handleOk}
-            onCancel={handleCancel}
-            width={800}>
-            <UpdateProfile handleCancel={handleCancel} />
-          </Modal>
         </div>
       )}
+      <Modal
+        title="Change Password"
+        visible={isModalOpen}
+        onCancel={handleCancel}
+        footer={null}>
+        <ChangePassword onCancel={handleCancel} />
+      </Modal>
+      <Modal
+        title="Update Profile"
+        visible={isModalOpen2}
+        onCancel={handleCancel}
+        footer={null}>
+        <UpdateProfile onCancel={handleCancel} />
+      </Modal>
     </div>
   );
 }
