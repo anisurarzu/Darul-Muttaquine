@@ -135,7 +135,7 @@ export default function Profile() {
                     </svg>
                   </span>
                   <h2 className="text-lg font-semibold text-gray-700">
-                    About ({userData?.uniqueId})
+                    About ({userData?.uniqueId}) ({userData?.bloodGroup})
                   </h2>
                 </div>
                 <div className="mt-4">
