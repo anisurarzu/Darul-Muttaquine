@@ -1,44 +1,36 @@
 import React, { useState } from "react";
-import Navbar from "../../components/Navbar";
-import axios from "axios";
+import { Formik, Form, Field } from "formik";
+import { Input, Button } from "antd";
 import { ToastContainer, toast } from "react-toastify";
-import { Link, useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useHistory } from "react-router-dom";
 import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+
+import logo from "../../images/dmf-logo.png";
 
 export default function Registration() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async (values, { resetForm }) => {
     try {
       setLoading(true);
-      const response = await coreAxios.post("/register", {
-        firstName,
-        lastName,
-        username,
-        email,
-        password,
-      });
+      const response = await coreAxios.post("/register", values);
       if (response?.status === 201) {
-        toast.success("Successfully Registered! Please wait until login!");
-        /* toast.success("Verification email sent. Please check your inbox!"); */
+        toast.success(
+          "সফলভাবে নিবন্ধিত! অনুগ্রহ করে লগইনের জন্য অপেক্ষা করুন!"
+        );
 
         // After successful registration, perform automatic login
         const loginResponse = await coreAxios.post("/login", {
-          email,
-          password,
+          email: values.email,
+          password: values.password,
         });
 
         if (loginResponse?.status === 200) {
           setLoading(false);
-          toast.success("Login successful");
+          toast.success("লগইন সফল");
 
           const { token } = loginResponse.data;
 
@@ -56,7 +48,7 @@ export default function Registration() {
             // Redirect to the intended destination or dashboard
             history.replace("/dashboard");
           } catch (error) {
-            console.error("Error fetching user information:", error);
+            console.error("ব্যবহারকারীর তথ্য আনতে ত্রুটি:", error);
           }
         }
       } else {
@@ -67,109 +59,147 @@ export default function Registration() {
       toast.error(error.response.data?.message);
       console.log("err", error?.data?.message);
     }
+    resetForm();
   };
+
   return (
     <div>
-      {/* <Navbar /> */}
-      <div class="min-h-screen flex items-center justify-center bg-blue-50">
-        <div class="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
-          <h1 class="text-3xl font-semibold text-center text-gray-500 mt-8 mb-6">
-            Registraion
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <div className="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
+          <div className="flex justify-center mb-8">
+            <img src={logo} alt="Logo" className="w-30 h-20" />
+          </div>
+          <h1 className="text-3xl font-semibold text-center text-gray-500 mt-8 mb-6">
+            নিবন্ধন
           </h1>
-          <form onSubmit={handleRegister}>
-            {loading ? (
-              <Loader />
-            ) : (
-              <div>
-                <div class="mb-4">
-                  <label for="nombre" class="block mb-2 text-xl text-gray-600">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                </div>
-                <div class="mb-4">
-                  <label
-                    for="apellido"
-                    class="block mb-2 text-xl text-gray-600">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                </div>
-                <div class="mb-4">
-                  <label
-                    for="apellido"
-                    class="block mb-2 text-xl text-gray-600">
-                    User Name
-                  </label>
-                  <input
-                    type="text"
-                    id="userName"
-                    name="userName"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
-                </div>
-                <div class="mb-4">
-                  <label for="email" class="block mb-2 text-xl text-gray-600">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div class="mb-4">
-                  <label
-                    for="password"
-                    class="block mb-2 text-xl text-gray-600">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+          <Formik
+            initialValues={{
+              firstName: "",
+              lastName: "",
+              username: "",
+              email: "",
+              password: "",
+            }}
+            onSubmit={handleRegister}>
+            {({ isSubmitting }) => (
+              <Form>
+                {loading ? (
+                  <Loader />
+                ) : (
+                  <div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="firstName"
+                        className="block mb-2 text-xl text-gray-600">
+                        প্রথম নাম
+                      </label>
+                      <Field name="firstName">
+                        {({ field }) => (
+                          <Input
+                            {...field}
+                            id="firstName"
+                            className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                          />
+                        )}
+                      </Field>
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="lastName"
+                        className="block mb-2 text-xl text-gray-600">
+                        শেষ নাম
+                      </label>
+                      <Field name="lastName">
+                        {({ field }) => (
+                          <Input
+                            {...field}
+                            id="lastName"
+                            className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                          />
+                        )}
+                      </Field>
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="username"
+                        className="block mb-2 text-xl text-gray-600">
+                        ব্যবহারকারীর নাম
+                      </label>
+                      <Field name="username">
+                        {({ field }) => (
+                          <Input
+                            {...field}
+                            id="username"
+                            className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                          />
+                        )}
+                      </Field>
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="email"
+                        className="block mb-2 text-xl text-gray-600">
+                        ই-মেইল
+                      </label>
+                      <Field name="email">
+                        {({ field }) => (
+                          <Input
+                            {...field}
+                            type="email"
+                            id="email"
+                            className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                          />
+                        )}
+                      </Field>
+                    </div>
+                    <div className="mb-4">
+                      <label
+                        htmlFor="password"
+                        className="block mb-2 text-xl text-gray-600">
+                        পাসওয়ার্ড
+                      </label>
+                      <Field name="password">
+                        {({ field }) => (
+                          <Input.Password
+                            {...field}
+                            id="password"
+                            className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                            required
+                            iconRender={(visible) =>
+                              visible ? (
+                                <EyeTwoTone />
+                              ) : (
+                                <EyeInvisibleOutlined />
+                              )
+                            }
+                          />
+                        )}
+                      </Field>
+                    </div>
+                  </div>
+                )}
                 <button
                   type="submit"
-                  class="w-36 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white py-4 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 mb-2">
-                  Registration
+                  className="w-36 bg-[#73A63B] text-white py-2 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mb-4 text-[16px]">
+                  নিবন্ধন
                 </button>
-              </div>
+              </Form>
             )}
-          </form>
-          <div class="text-center">
-            <p class="text-2xl">
-              Already have an account?
-              <Link to="/login" class="text-cyan-600">
-                Log In
+          </Formik>
+          <div className="text-center">
+            <p className="text-2xl">
+              ইতিমধ্যে একটি অ্যাকাউন্ট আছে?
+              <Link to="/login" className="text-green-600 ml-1">
+                লগ ইন
               </Link>
             </p>
           </div>
-          <p class="text-xs text-gray-600 text-center mt-8">
-            &copy; 2023 WCS LAT
+          <p className="text-xs text-gray-600 text-center mt-8">
+            &copy; ২০২৪ দারুল মুততাক্বীন ফাউন্ডেশন & ইসলামিক সেন্টার
           </p>
         </div>
       </div>

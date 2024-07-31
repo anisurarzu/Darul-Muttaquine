@@ -1,36 +1,27 @@
 import React, { useState } from "react";
-import Navbar from "../../components/Navbar";
-import axios from "axios";
+import { Formik, Form, Field } from "formik";
+import { Input, Button } from "antd";
 import { ToastContainer, toast } from "react-toastify";
-import {
-  Link,
-  useHistory,
-  useLocation,
-} from "react-router-dom/cjs/react-router-dom.min";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
 import logo from "../../images/dmf-logo.png";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
   const location = useLocation();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (values, { resetForm }) => {
     try {
       setLoading(true);
-      const response = await coreAxios.post("/login", {
-        email,
-        password,
-      });
+      const response = await coreAxios.post("/login", values);
 
       if (response?.status === 200) {
         setLoading(false);
-        toast.success("Login successful");
+        toast.success("লগইন সফল হয়েছে");
 
         const { token } = response.data;
 
@@ -50,82 +41,94 @@ export default function Login() {
           // Reload the page to reflect the login state
           window.location.reload();
         } catch (error) {
-          console.error("Error fetching user information:", error);
+          console.error("ব্যবহারকারীর তথ্য আনতে ত্রুটি:", error);
         }
       }
-
-      // Handle successful login
     } catch (error) {
       setLoading(false);
       toast.error(error?.response?.data?.message);
-      // Handle login error
     }
+    resetForm();
   };
 
   return (
     <div>
-      {/* <Navbar /> */}
-
-      <div class="min-h-screen flex items-center justify-center bg-blue-50">
-        <div class="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
-          <div class="flex justify-center mb-8">
-            <img src={logo} alt="Logo" class="w-30 h-20" />
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <div className="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
+          <div className="flex justify-center mb-8">
+            <img src={logo} alt="Logo" className="w-30 h-20" />
           </div>
-          <h1 class="text-3xl font-semibold text-center text-gray-500 mt-8 mb-6">
-            Log In
+          <h1 className="text-3xl font-semibold text-center text-gray-500 mt-8 mb-6">
+            লগ ইন
           </h1>
-          <form onSubmit={handleLogin}>
-            {loading ? (
-              <Loader />
-            ) : (
-              <div>
-                <div class="mb-4">
-                  <label for="email" class="block mb-2 text-xl text-gray-600">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            onSubmit={handleLogin}>
+            {({ isSubmitting }) => (
+              <Form>
+                <div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="email"
+                      className="block mb-2 text-xl text-gray-600">
+                      ই-মেইল
+                    </label>
+                    <Field name="email">
+                      {({ field }) => (
+                        <Input
+                          {...field}
+                          type="email"
+                          id="email"
+                          className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          required
+                        />
+                      )}
+                    </Field>
+                  </div>
+                  <div className="mb-4">
+                    <label
+                      htmlFor="password"
+                      className="block mb-2 text-xl text-gray-600">
+                      পাসওয়ার্ড
+                    </label>
+                    <Field name="password">
+                      {({ field }) => (
+                        <Input.Password
+                          {...field}
+                          id="password"
+                          className="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                          required
+                          iconRender={(visible) =>
+                            visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                          }
+                        />
+                      )}
+                    </Field>
+                  </div>
                 </div>
-                <div class="mb-4">
-                  <label
-                    for="password"
-                    class="block mb-2 text-xl text-gray-600">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    class="w-full px-4 py-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                    required
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
+                {loading ? (
+                  <Loader />
+                ) : (
+                  <button
+                    loading
+                    type="submit"
+                    className="w-36 bg-[#73A63B] text-white py-2 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mb-4 text-[16px] pt-3">
+                    লগ ইন
+                  </button>
+                )}
+              </Form>
             )}
-
-            <button
-              type="submit"
-              class="w-36 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white py-4 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 mb-2 text-[16px]">
-              Log In
-            </button>
-          </form>
-          <div class="text-center">
-            <p class="text-2xl">
-              Don't have any account?
-              <Link to="/registration" class="text-cyan-600">
-                Registration
+          </Formik>
+          <div className="text-center">
+            <p className="text-2xl">
+              কোনো একাউন্ট নেই?
+              <Link to="/registration" className="text-green-600 ml-1">
+                নিবন্ধন
               </Link>
             </p>
           </div>
-          <p class="text-xs text-gray-600 text-center mt-8">
-            &copy; 2024 Darul Muttaquine Foundation & Islamic Center
+          <p className="text-xs text-gray-600 text-center mt-8">
+            &copy; ২০২৪ দারুল মুততাক্বীন ফাউন্ডেশন & ইসলামিক সেন্টার
           </p>
         </div>
       </div>
