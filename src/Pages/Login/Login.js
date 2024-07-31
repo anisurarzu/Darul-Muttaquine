@@ -7,7 +7,7 @@ import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
-import logo from "../../images/dmf-logo.png";
+import logo from "../../images/New-Main-2.png";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);

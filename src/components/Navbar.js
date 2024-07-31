@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import { NavLink, Link, useHistory } from "react-router-dom";
 
-import logo from "../images/dmf-logo.png";
+import logo from "../images/dmf-logo-2.png";
 import useUserInfo from "../hooks/useUserInfo";
 import { useRouteMatch } from "react-router-dom/cjs/react-router-dom";
 
@@ -41,9 +41,9 @@ const Navbar = () => {
       <nav className="border-b sticky top-0 z-50 bg-white pr-8 lg:pr-12 xl:pr-12">
         <div className="flex justify-between items-center px-4 py-2 md:px-8">
           {/* Logo */}
-          <div className=" cursor-pointer  w-[100px] pl-[30px] pt-[4px]">
+          <div className=" cursor-pointer  w-[150px]  pt-[4px]">
             <Link to="/">
-              <img src={logo} alt="Logo" />
+              <img className="" src={logo} alt="Logo" />
             </Link>
           </div>
 

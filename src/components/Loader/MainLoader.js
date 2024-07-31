@@ -2,7 +2,7 @@
 import React from "react";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
-import logo from "../../images/dmf-logo-removebg.png"; // Adjust the path to your logo
+import logo from "../../images/New-Main-2.png"; // Adjust the path to your logo
 // Adjust the path to your logo
 import demo from "../../images/GIF/animation-1.gif";
 const MainLoader = () => {
