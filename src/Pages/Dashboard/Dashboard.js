@@ -198,7 +198,7 @@ export default function Dashboard() {
           <Route path={`${path}/scholarship`}>
             <Scholarship />
           </Route>
-          <Route path={`${path}`}>
+          <Route path={`${path}/dashboard`}>
             <DashboardHome />
           </Route>
           <Route path={`${path}/depositInfo`}>
