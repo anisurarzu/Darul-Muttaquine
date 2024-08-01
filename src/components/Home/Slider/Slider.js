@@ -67,7 +67,7 @@ export default function Slider() {
             </p>
           </div>
           <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship">
+            <NavLink to="/scholarship-public">
               <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
                 <span className="text-white ">শিহ্মাবৃত্তি</span>
               </scholarshipButton>
@@ -99,7 +99,7 @@ export default function Slider() {
             </p>
           </div>
           <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship">
+            <NavLink to="/scholarship-public">
               <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
                 <span className="text-white ">শিহ্মাবৃত্তি</span>
               </scholarshipButton>
@@ -131,7 +131,7 @@ export default function Slider() {
             </p>
           </div>
           <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship">
+            <NavLink to="/scholarship-public">
               <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
                 <span className="text-white ">শিহ্মাবৃত্তি</span>
               </scholarshipButton>

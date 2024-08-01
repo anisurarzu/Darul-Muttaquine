@@ -24,6 +24,8 @@ import "./App.css";
 import MainLoader from "./components/Loader/MainLoader";
 import Quize from "./Pages/Quize/Quize";
 import QuizeMainPage from "./Pages/Quize/QuizeMainPage";
+import Chat from "./Pages/Chat/Chat";
+import PublicScholarship from "./Pages/scholarship/PublicScholarship";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -54,10 +56,12 @@ const App = () => {
         <Route exact path="/result" component={ResultPage} />
         <Route exact path="/history" component={History} />
         <Route exact path="/about" component={About} />
+        <Route exact path="/scholarship-public" component={PublicScholarship} />
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
         <PrivateRoute path="/scholarship" component={Scholarship} />
         <PrivateRoute path="/dashboard" component={Dashboard} />
         <PrivateRoute path="/quize" component={Quize} />
+        <PrivateRoute path="/chat" component={Chat} />
       </Switch>
       <Fotter />
       <ToastContainer />

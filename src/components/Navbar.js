@@ -52,6 +52,9 @@ const Navbar = () => {
             <NavLink to="/about" className="hover:text-green-500 pt-2">
               আমাদের সম্পর্কে
             </NavLink>
+            {/* <NavLink to="/chat" className="hover:text-green-500 pt-2">
+              Chat
+            </NavLink> */}
             <NavLink to="/history" className="hover:text-green-500 pt-2">
               গ্যালারী
             </NavLink>

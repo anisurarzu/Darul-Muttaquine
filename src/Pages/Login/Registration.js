@@ -7,7 +7,7 @@ import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
-import logo from "../../images/dmf-logo.png";
+import logo from "../../images/New-Main-2.png";
 
 export default function Registration() {
   const [loading, setLoading] = useState(false);
@@ -64,7 +64,9 @@ export default function Registration() {
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+      <div
+        className="min-h-screen flex items-center justify-center "
+        style={{ background: "#DDEFC5" }}>
         <div className="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
           <div className="flex justify-center mb-8">
             <img src={logo} alt="Logo" className="w-30 h-20" />

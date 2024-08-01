@@ -53,7 +53,9 @@ export default function Login() {
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+      <div
+        className="min-h-screen flex items-center justify-center "
+        style={{ background: "#DDEFC5" }}>
         <div className="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
           <div className="flex justify-center mb-8">
             <img src={logo} alt="Logo" className="w-30 h-20" />

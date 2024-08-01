@@ -11,7 +11,7 @@ const MainLoader = () => {
   return (
     <div>
       <div className="flex justify-center items-center h-screen flex-col bg-gray-100">
-        <img src={logo} alt="Logo" className="w-32 mb-4" />
+        <img src={logo} alt="Logo" className="w-[220px]  mb-4" />
         {/* <Spin indicator={antIcon} /> */}
         <img src={demo} alt="Logo" className="w-40 lg:w-44 xl:w-44 mb-4" />
       </div>

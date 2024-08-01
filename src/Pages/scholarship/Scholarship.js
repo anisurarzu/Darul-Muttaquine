@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
-import { Alert, Button, Modal, Popconfirm, Spin } from "antd";
+import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
 import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
 import AdmitCard from "../Dashboard/AdmitCard";
@@ -21,6 +21,8 @@ const Scholarship = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [rowData, setRowData] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(18);
 
   const history = useHistory();
 
@@ -111,14 +113,14 @@ const Scholarship = () => {
   };
 
   // Step 2: Modify rendering to filter customers based on search
-  const filteredRolls = rollData.filter((roll) =>
+  /* const filteredRolls = rollData.filter((roll) =>
     searchQuery
       ? Object.values(roll)
           .join("") // Concatenate all values of a customer object to a string
           .toLowerCase() // Convert to lowercase for case-insensitive matching
           .includes(searchQuery.toLowerCase())
       : true
-  );
+  ); */
 
   const handleBackClick = () => {
     history.goBack(); // Navigate back to the previous page
@@ -127,10 +129,25 @@ const Scholarship = () => {
     console.log(e);
     toast.success("Click on Yes");
   };
+  const onChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
   const cancel = (e) => {
     console.log(e);
     toast.error("Click on No");
   };
+  const filteredRolls = rollData.filter((roll) =>
+    searchQuery
+      ? Object.values(roll)
+          .join("")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      : true
+  );
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
     <>
@@ -173,7 +190,9 @@ const Scholarship = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">Scholarship Information</h3>
+              <h3 className="text-[17px]">
+                Scholarship Information ({rollData?.length})
+              </h3>
             </div>
 
             <div className="relative mx-8 mr-4">
@@ -304,6 +323,15 @@ const Scholarship = () => {
                 ))}
               </tbody>
             </table>
+            <div className="flex justify-center p-2">
+              <Pagination
+                showQuickJumper
+                current={currentPage}
+                total={filteredRolls.length}
+                pageSize={itemsPerPage}
+                onChange={onChange}
+              />
+            </div>
           </div>
         </div>
       )}
