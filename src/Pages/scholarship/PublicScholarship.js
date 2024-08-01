@@ -253,7 +253,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       </div>
 
       <div>
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2 mt-4">
           <Button
             onClick={() => {
               setIsApplicationShow(true);
