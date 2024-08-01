@@ -198,9 +198,7 @@ export default function Dashboard() {
           <Route path={`${path}/scholarship`}>
             <Scholarship />
           </Route>
-          <Route path={`${path}/dashboard`}>
-            <DashboardHome />
-          </Route>
+
           <Route path={`${path}/depositInfo`}>
             <DepositInfo />
           </Route>
@@ -237,6 +235,9 @@ export default function Dashboard() {
           {/*   <Route path={`${path}/createQuize`}>
             <CreateQuize />
           </Route> */}
+          <Route path={`${path}`}>
+            <DashboardHome />
+          </Route>
         </Switch>
       </div>
     </div>
