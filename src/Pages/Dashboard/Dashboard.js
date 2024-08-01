@@ -234,7 +234,7 @@ export default function Dashboard() {
           </Route>
           {/*   <Route path={`${path}/createQuize`}>
             <CreateQuize />
-          </Route> */}
+          </Route> ----*/}
           <Route path={`${path}`}>
             <DashboardHome />
           </Route>
