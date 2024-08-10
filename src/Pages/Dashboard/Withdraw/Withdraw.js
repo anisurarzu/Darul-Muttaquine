@@ -234,6 +234,9 @@ const Withdraw = () => {
                   <th className="border border-tableBorder text-center p-2">
                     Withdrawal Method
                   </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Phone
+                  </th>
 
                   <th className="border border-tableBorder text-center p-2">
                     Accepted Date
@@ -267,6 +270,9 @@ const Withdraw = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.paymentMethod}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.phone}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.acceptedDate

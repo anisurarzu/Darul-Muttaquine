@@ -38,6 +38,7 @@ import Withdraw from "./Withdraw/Withdraw";
 import Quize from "../Quize/Quize";
 import CreateQuize from "../Quize/CreateQuize";
 import AllQuize from "../Quize/AllQuize";
+import QuizMoney from "../Quize/QuizMoney";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -79,7 +80,12 @@ export default function Dashboard() {
     },
     { route: "withdraw", label: "Withdraw", icon: <WalletOutlined /> },
     { route: "quize", label: "Quize", icon: <QuestionCircleOutlined /> },
-    { route: "allQuize", label: "All Quize", icon: <QuestionCircleOutlined /> },
+    { route: "allQuize", label: "All Quiz", icon: <QuestionCircleOutlined /> },
+    {
+      route: "quizMoney",
+      label: "Quiz Money",
+      icon: <QuestionCircleOutlined />,
+    },
     /*  {
       route: "createQuize",
       label: "Create Quize",
@@ -231,6 +237,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/allQuize`}>
             <AllQuize />
+          </Route>
+          <Route path={`${path}/quizMoney`}>
+            <QuizMoney />
           </Route>
           {/*   <Route path={`${path}/createQuize`}>
             <CreateQuize />

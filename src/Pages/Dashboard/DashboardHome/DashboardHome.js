@@ -25,6 +25,7 @@ export default function DashboardHome() {
   const [singleDepositData, setSingleDepositData] = useState([]);
   const [costData, setCostData] = useState([]);
   const [singleCostData, setSingleCostData] = useState([]);
+  const [quizMoney, setQuizMoney] = useState([]);
 
   const getAllUserList = async () => {
     try {
@@ -39,6 +40,25 @@ export default function DashboardHome() {
       toast.error(err?.response?.data?.message);
     }
   };
+  const getQuizMoneyInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get(`/quiz-money/${userInfo?.uniqueId}`);
+
+      if (response?.status === 200) {
+        const filteredData = response?.data?.filter(
+          (item) => item.status !== "Paid"
+        );
+        setQuizMoney(filteredData);
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      toast.error(err?.response?.data?.message || "An error occurred");
+    }
+  };
+
   const getScholarShipInfo = async () => {
     try {
       setLoading(true);
@@ -170,6 +190,12 @@ export default function DashboardHome() {
 
   const percentage = ((Number(scholarShipInfo?.length) / 249) * 100).toFixed(2);
 
+  // Calculate the quiz amount
+  const totalQuizAmount = quizMoney?.reduce(
+    (total, deposit) => Number(total) + Number(deposit?.amount),
+    0 || 0
+  );
+
   useEffect(() => {
     fetchDepositInfo();
     getProjectInfo();
@@ -178,6 +204,7 @@ export default function DashboardHome() {
     getSingleDeposit();
     getSingleCost();
     fetchCostInfo();
+    getQuizMoneyInfo();
   }, []);
   const [stepsCount, setStepsCount] = useState(12);
   const [stepsGap, setStepsGap] = useState(12);
@@ -238,24 +265,6 @@ export default function DashboardHome() {
             ))}
           </div>
           <div className="grid grid-cols-12 mx-4 lg:mx-0 xl:mx-0">
-            {/* <div className="rounded-lg col-span-4 lg:col-span-1 xl:col-span-1">
-              <small className="text-center text-[10px] p-2">
-                2024 (DMF FUND)
-              </small>{" "}
-              <br />
-              <Steps
-                current={1}
-                percent={100}
-                direction={direction}
-                className=" p-1  h-[10px] "
-                items={updatedStepsData?.map((step) => ({
-                  title: step.title,
-                  subTitle: step.subTitle,
-                  status: step.status,
-                  className: `step-${step.status} text-[10px] `,
-                }))}
-              />
-            </div> */}
             <div className="col-span-12 lg:col-span-12 xl:col-span-12 ">
               <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
                 <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
@@ -278,19 +287,18 @@ export default function DashboardHome() {
                     View
                   </a>
                 </div>
+                {/* dmf banking start */}
                 <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
                   <div class="flex justify-between mb-4">
                     <div>
                       <div class="flex items-center mb-1">
                         <div class="text-3xl font-semibold">
-                          {scholarShipInfo?.length}
+                          ৳{totalQuizAmount}
                         </div>
-                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2">
-                          +{percentage}%
-                        </div>
+                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
                       </div>
                       <div class="text-[14px] font-medium text-blue-800">
-                        Applications
+                        Quiz Balance
                       </div>
                     </div>
                     <div class="dropdown">
@@ -307,6 +315,7 @@ export default function DashboardHome() {
                     View
                   </Link>
                 </div>
+                {/* dmf banking end */}
                 <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
                   <div class="flex justify-between mb-6">
                     <div>

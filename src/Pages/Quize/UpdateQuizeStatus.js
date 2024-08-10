@@ -17,6 +17,7 @@ const UpdateQuizeStatus = ({ handleCancel, rowData }) => {
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       // Check if values are received correctly
+
       try {
         const res = await coreAxios.patch(`/quizzes`, {
           quizId: rowData?._id,

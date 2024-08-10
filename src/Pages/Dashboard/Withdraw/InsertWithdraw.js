@@ -62,6 +62,7 @@ const InsertWithdraw = ({ onHide, fetchRolls, handleCancel }) => {
       amount: 0,
       userName: "",
       userID: "",
+      dmfID: "",
 
       invoice: "",
       paymentMethod: "",
@@ -69,6 +70,7 @@ const InsertWithdraw = ({ onHide, fetchRolls, handleCancel }) => {
       description: "",
       status: "Pending",
       reason: "",
+      phone: 0,
     },
     onSubmit: async (values) => {
       try {
@@ -76,6 +78,8 @@ const InsertWithdraw = ({ onHide, fetchRolls, handleCancel }) => {
           ...values,
           userName: userInfo?.username || "",
           userID: userInfo?._id || "",
+          dmfID: userInfo?.uniqueId || "",
+          phone: userInfo?.phone || 0,
         };
         setLoading(true);
         const res = await coreAxios.post(`/cost-info`, allData);
@@ -93,7 +97,14 @@ const InsertWithdraw = ({ onHide, fetchRolls, handleCancel }) => {
     enableReinitialize: true,
   });
 
-  const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount", "cash"]; // Define payment methods
+  const paymentMethods = [
+    "bkash",
+    "rocket",
+    "nagad",
+    "bankAccount",
+    "cash",
+    "recharge",
+  ]; // Define payment methods
 
   return (
     <div className="">

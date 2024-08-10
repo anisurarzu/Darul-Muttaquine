@@ -58,6 +58,7 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
       userRole: "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
+      console.log("first", values);
       // Check if values are received correctly
       try {
         const res = await coreAxios.post(`update-cost-status`, {
@@ -66,6 +67,12 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
           id: rowData?._id,
         });
         if (res?.status === 200) {
+          if (
+            values?.project === "ইসলামিক কুইজ" &&
+            values?.status === "Approved"
+          ) {
+            updateQuizMoneyStatus(rowData);
+          }
           toast.success("Successfully Updated!");
           formik.resetForm();
           handleCancel();
@@ -78,6 +85,25 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
   });
 
   const depositStatus = ["Pending", "Rejected", "Approved", "Hold"];
+
+  const updateQuizMoneyStatus = async (rowData) => {
+    try {
+      console.log("Updating status for userID:", rowData?.dmfID); // Debug log
+
+      const response = await coreAxios.put(
+        `/quiz-money/${rowData?.dmfID}/status`,
+        {
+          status: "Paid",
+        }
+      );
+
+      if (response?.status === 200) {
+        toast.success("Quiz Payment Successful!");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "An error occurred");
+    }
+  };
 
   return (
     <div className="">

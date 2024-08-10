@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
-import { Modal, Button, Card } from "antd";
+import { Modal, Button, Card, Alert } from "antd";
 import SingleQuiz from "./SingleQuize";
 import { toast } from "react-toastify";
 import MainLoader from "../../components/Loader/MainLoader";
@@ -137,12 +137,28 @@ export default function Quize() {
             <FaArrowLeft className="mr-2" />
             Back
           </Button>
-          <div className="py-4 lg:py-8 xl:py-8">
-            <p className="text-justify lg:text-center xl:text-center py-4 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
+          <div className="py-4 lg:py-8 xl:py-4">
+            <Alert
+              message="গুরুত্বপূর্ণ ঘোষণা"
+              description="আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়।"
+              type="info"
+              showIcon
+              className="mb-2"
+            />
+            <p className="text-justify lg:text-center xl:text-center py-1 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
               এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন এটিতে
               অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং সময় দিয়ে
-              এখানে পরীক্ষা করবো। বিজয়ীদের মধ্য থেকে ৫ জনকে ২০ টাকা করে মোবাইল
-              রিচার্জ/বিকাশ করা হবে। অংশগ্রহণ করার জন্য আপনাকে আগ্রীম ধন্যবাদ।
+              এখানে পরীক্ষা করবো।
+            </p>
+            <p className="text-justify lg:text-center xl:text-center text-[12px] lg:text-[17px] xl:text-[17px] px-2">
+              প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
+              সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
+              ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব। ৫০০ টাকা
+              থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে নেওয়া হবে।
+              আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন। তবে, বিকাশের
+              মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে। ধন্যবাদ। আপনি
+              মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই ক্ষেত্রে একই সেবা
+              চার্জ প্রযোজ্য হবে।
             </p>
           </div>
 
