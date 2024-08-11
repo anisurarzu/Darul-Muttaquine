@@ -55,7 +55,7 @@ export default function DashboardHome() {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      toast.error(err?.response?.data?.message || "An error occurred");
+      // toast.error(err?.response?.data?.message || "An error occurred");
     }
   };
 
