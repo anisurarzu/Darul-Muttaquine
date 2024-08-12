@@ -133,9 +133,13 @@ export default function Dashboard() {
         );
       default:
         return menuItems.filter((item) =>
-          ["dashboard", "profile", "depositInfo", "suggestionBox"].includes(
-            item.route
-          )
+          [
+            "dashboard",
+            "profile",
+            "depositInfo",
+            "withdraw",
+            "suggestionBox",
+          ].includes(item.route)
         );
     }
   };
