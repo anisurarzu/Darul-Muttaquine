@@ -209,11 +209,11 @@ export default function Quize() {
                     type="primary"
                     className="mt-2 w-full flex items-center justify-center"
                     onClick={() => {
-                      // setQuizeID(quiz);
-                      // showModal2(quiz);
-                      toast?.warn(
+                      setQuizeID(quiz);
+                      showModal2(quiz);
+                      /*  toast?.warn(
                         "You Can not view result before end the quiz"
-                      );
+                      ); */
                     }}
                     style={{
                       backgroundColor: "#73A63B",
