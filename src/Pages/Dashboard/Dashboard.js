@@ -127,9 +127,13 @@ export default function Dashboard() {
         );
       case "Junior-Member":
         return menuItems.filter((item) =>
-          ["dashboard", "profile", "depositInfo", "suggestionBox"].includes(
-            item.route
-          )
+          [
+            "dashboard",
+            "profile",
+            "depositInfo",
+            "suggestionBox",
+            "withdraw",
+          ].includes(item.route)
         );
       default:
         return menuItems.filter((item) =>
