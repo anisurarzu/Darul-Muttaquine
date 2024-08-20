@@ -6,6 +6,7 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { coreAxios } from "../../utilities/axios";
 import Loader from "../../components/Loader/Loader";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+
 import logo from "../../images/New-Main-2.png";
 
 export default function Login() {
@@ -50,44 +51,10 @@ export default function Login() {
     resetForm();
   };
 
-  const handleFingerprintLogin = async () => {
-    try {
-      setLoading(true);
-      const publicKey = {
-        challenge: new Uint8Array(32),
-        rp: { name: "Example Corp" },
-        user: {
-          id: new Uint8Array(16),
-          name: "user@example.com",
-          displayName: "User",
-        },
-        pubKeyCredParams: [{ type: "public-key", alg: -7 }],
-        authenticatorSelection: { authenticatorAttachment: "platform" },
-        timeout: 60000,
-        attestation: "none",
-      };
-
-      const credential = await navigator.credentials.create({ publicKey });
-
-      if (credential) {
-        setLoading(false);
-        toast.success("Fingerprint authentication successful!");
-
-        // In a real-world application, you'd verify the credential on the server
-        history.replace(location.state?.from || "/dashboard");
-        window.location.reload();
-      }
-    } catch (error) {
-      setLoading(false);
-      toast.error("Fingerprint authentication failed. Please try again.");
-      console.error("Fingerprint authentication failed:", error);
-    }
-  };
-
   return (
     <div>
       <div
-        className="min-h-screen flex items-center justify-center"
+        className="min-h-screen flex items-center justify-center "
         style={{ background: "#DDEFC5" }}>
         <div className="!w-[330px] w-full p-6 bg-white rounded-lg shadow-lg">
           <div className="flex justify-center mb-8">
@@ -144,20 +111,12 @@ export default function Login() {
                 {loading ? (
                   <Loader />
                 ) : (
-                  <>
-                    <button
-                      loading={isSubmitting}
-                      type="submit"
-                      className="w-36 bg-[#73A63B] text-white py-2 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mb-4 text-[16px] pt-3">
-                      লগ ইন
-                    </button>
-                    <Button
-                      onClick={handleFingerprintLogin}
-                      type="button"
-                      className="w-36 bg-[#73A63B] text-white py-2 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mb-4 text-[16px]">
-                      Fingerprint Login
-                    </Button>
-                  </>
+                  <button
+                    loading
+                    type="submit"
+                    className="w-36 bg-[#73A63B] text-white py-2 rounded-lg mx-auto block focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 mb-4 text-[16px] pt-3">
+                    লগ ইন
+                  </button>
                 )}
               </Form>
             )}

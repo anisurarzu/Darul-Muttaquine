@@ -16,13 +16,7 @@ export default function Registration() {
   const handleRegister = async (values, { resetForm }) => {
     try {
       setLoading(true);
-      // Assume that captureFingerprint is a function that captures the fingerprint and returns a token
-      const fingerprintToken = await captureFingerprint();
-
-      const response = await coreAxios.post("/register", {
-        ...values,
-        fingerprintToken,
-      });
+      const response = await coreAxios.post("/register", values);
       if (response?.status === 201) {
         toast.success(
           "সফলভাবে নিবন্ধিত! অনুগ্রহ করে লগইনের জন্য অপেক্ষা করুন!"
@@ -32,7 +26,6 @@ export default function Registration() {
         const loginResponse = await coreAxios.post("/login", {
           email: values.email,
           password: values.password,
-          fingerprintToken, // Send the fingerprint token during login
         });
 
         if (loginResponse?.status === 200) {
@@ -67,12 +60,6 @@ export default function Registration() {
       console.log("err", error?.data?.message);
     }
     resetForm();
-  };
-
-  // Mock function for fingerprint capture (replace with actual implementation)
-  const captureFingerprint = async () => {
-    // Simulate fingerprint capture and return a token
-    return "mockFingerprintToken";
   };
 
   return (
