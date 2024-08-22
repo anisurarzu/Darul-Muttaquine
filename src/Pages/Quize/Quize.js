@@ -189,6 +189,10 @@ export default function Quize() {
                   <p>শুরুর তারিখ: {formatDate(quiz?.startDate)}</p>
                   <p>শেষ তারিখ: {formatDate(quiz?.endDate)}</p>
                   <p>মোট প্রশ্ন: {quiz?.quizQuestions?.length}</p>
+                  <p className="px-1 border border-[#73A63B] rounded-lg text-[#73A63B]">
+                    {" "}
+                    Sponsored By: {quiz?.sponsorName}
+                  </p>
 
                   {/* {quiz?.status === "running" ? ( */}
                   <Button
@@ -205,24 +209,24 @@ export default function Quize() {
                   </Button>
 
                   {/* {canViewResult && ( */}
-                    <Button
-                      type="primary"
-                      className="mt-2 w-full flex items-center justify-center"
-                      onClick={() => {
-                        setQuizeID(quiz);
-                        showModal2(quiz);
-                         toast?.warn(
+                  <Button
+                    type="primary"
+                    className="mt-2 w-full flex items-center justify-center"
+                    onClick={() => {
+                      setQuizeID(quiz);
+                      showModal2(quiz);
+                      toast?.warn(
                         "You Can not view result before end the quiz"
                       );
-                      }}
-                      style={{
-                        backgroundColor: "#73A63B",
-                        borderColor: "#73A63B",
-                      }}>
-                      <FaTrophy className="mr-2" />
-                      ফলাফল দেখুন
-                    </Button>
-                 {/* )} */}
+                    }}
+                    style={{
+                      backgroundColor: "#73A63B",
+                      borderColor: "#73A63B",
+                    }}>
+                    <FaTrophy className="mr-2" />
+                    ফলাফল দেখুন
+                  </Button>
+                  {/* )} */}
                   <Button
                     type="primary"
                     className="mt-2 w-full flex items-center justify-center"
