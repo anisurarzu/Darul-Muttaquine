@@ -208,25 +208,29 @@ export default function Quize() {
                     কুইজ শুরু করুন
                   </Button>
 
-                  {/* {canViewResult && ( */}
-                  <Button
-                    type="primary"
-                    className="mt-2 w-full flex items-center justify-center"
-                    onClick={() => {
-                      setQuizeID(quiz);
-                      showModal2(quiz);
-                      toast?.warn(
-                        "You Can not view result before end the quiz"
-                      );
-                    }}
-                    style={{
-                      backgroundColor: "#73A63B",
-                      borderColor: "#73A63B",
-                    }}>
-                    <FaTrophy className="mr-2" />
-                    ফলাফল দেখুন
-                  </Button>
-                  {/* )} */}
+                  {canViewResult && (
+                    <Button
+                      type="primary"
+                      className="mt-2 w-full flex items-center justify-center"
+                      onClick={() => {
+                        console.log("index", quiz?.status);
+                        if (quiz?.status === "closed") {
+                          setQuizeID(quiz);
+                          showModal2(quiz);
+                        } else {
+                          toast?.warn(
+                            "You Can not view result before end the quiz"
+                          );
+                        }
+                      }}
+                      style={{
+                        backgroundColor: "#73A63B",
+                        borderColor: "#73A63B",
+                      }}>
+                      <FaTrophy className="mr-2" />
+                      ফলাফল দেখুন
+                    </Button>
+                  )}
                   <Button
                     type="primary"
                     className="mt-2 w-full flex items-center justify-center"
