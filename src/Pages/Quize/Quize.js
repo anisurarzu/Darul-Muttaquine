@@ -204,16 +204,16 @@ export default function Quize() {
                     কুইজ শুরু করুন
                   </Button>
 
-                  {canViewResult && (
+                  {/* {canViewResult && ( */}
                     <Button
                       type="primary"
                       className="mt-2 w-full flex items-center justify-center"
                       onClick={() => {
                         setQuizeID(quiz);
                         showModal2(quiz);
-                        /*  toast?.warn(
+                         toast?.warn(
                         "You Can not view result before end the quiz"
-                      ); */
+                      );
                       }}
                       style={{
                         backgroundColor: "#73A63B",
@@ -222,7 +222,7 @@ export default function Quize() {
                       <FaTrophy className="mr-2" />
                       ফলাফল দেখুন
                     </Button>
-                  )}
+                 {/* )} */}
                   <Button
                     type="primary"
                     className="mt-2 w-full flex items-center justify-center"
