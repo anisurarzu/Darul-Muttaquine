@@ -19,8 +19,13 @@ export default function Home() {
   }, []);
   return (
     <div>
-      {/* <Navbar /> */}
-      <Slider />
+      {/* temp banner */}
+      <div>
+        <div>
+          <img src={"https://i.ibb.co/tCWxvR1/borna-web-1.jpg"} alt="" />
+        </div>
+      </div>
+
       {/*   <HeroSection /> */}
       <div className="relative overflow-hidden h-12 bg-white">
         <div
@@ -32,11 +37,7 @@ export default function Home() {
           নিজেদের নিয়োজিত রাখা"
         </div>
       </div>
-      {/* temp banner */}
-
-      {/*  <div>
-        <img src={tempBanner} alt="" />
-      </div> */}
+      {/* <Slider /> */}
 
       <DonationBox />
       <MiddleHome />

@@ -143,7 +143,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
     {
       id: "phone",
       name: "phone",
-      type: "number",
+      type: "text",
       label: "Phone Number",
       errors: "",
       register: "",

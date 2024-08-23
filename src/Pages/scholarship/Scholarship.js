@@ -11,6 +11,7 @@ import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
 import AdmitCard from "../Dashboard/AdmitCard";
 import { formatDate } from "../../utilities/dateFormate";
+import ScholarshipUpdate from "./ScholarshipUpdate";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -22,7 +23,7 @@ const Scholarship = () => {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [rowData, setRowData] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(18);
+  const [itemsPerPage] = useState(10);
 
   const history = useHistory();
 
@@ -81,20 +82,20 @@ const Scholarship = () => {
 
   // handle Update or Edit
   const handleEditClick = async (RollID) => {
-    console.log("RollID", RollID); // Check if this logs the correct RollID
-    try {
-      const response = await axios.get(`scholarship-info/${RollID}`);
-      if (response.data) {
-        // Here, you can set the customer data to a state and pass it to the CustomerUpdate component.
-        // For example:
-        setSelectedRoll(response.data);
-        setShowDialog1(true);
-      } else {
-        console.error("Customer data not found");
-      }
-    } catch (error) {
-      console.error("Error fetching customer data:", error);
-    }
+    setIsModalOpen2(true); // Check if this logs the correct RollID
+    // try {
+    //   const response = await axios.get(`scholarship-info/${RollID}`);
+    //   if (response.data) {
+    //     // Here, you can set the customer data to a state and pass it to the CustomerUpdate component.
+    //     // For example:
+    //     setSelectedRoll(response.data);
+    //     setShowDialog1(true);
+    //   } else {
+    //     console.error("Customer data not found");
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching customer data:", error);
+    // }
   };
   const handleDelete = async (RollID) => {
     console.log(RollID);
@@ -256,7 +257,7 @@ const Scholarship = () => {
               </thead>
 
               <tbody>
-                {filteredRolls.map((roll) => (
+                {currentItems?.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
@@ -295,7 +296,10 @@ const Scholarship = () => {
                       <div className="flex justify-center items-center py-2 gap-1">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                          onClick={() => {}} // Ensure this is correct
+                          onClick={() => {
+                            setRowData(roll);
+                            handleEditClick(roll._id);
+                          }} // Ensure this is correct
                         >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
@@ -305,7 +309,7 @@ const Scholarship = () => {
                           title="Delete the task"
                           description="Are you sure to delete this task?"
                           onConfirm={() => {
-                            handleDelete(roll._id);
+                            handleDelete(roll?._id);
                           }}
                           onCancel={cancel}
                           okText="Yes"
@@ -347,16 +351,28 @@ const Scholarship = () => {
         // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
-        <ScholarshipInsert handleCancel={handleCancel} />
+        <ScholarshipInsert handleCancel={handleCancel} isUpdate={false} />
       </Modal>
       <Modal
+        title="Please Provided Valid Information"
+        open={isModalOpen2}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <ScholarshipUpdate
+          handleCancel={handleCancel}
+          scholarshipData={rowData}
+          isUpdate={true}
+        />
+      </Modal>
+      {/* <Modal
         title="Scholarship 2024"
         open={isModalOpen2}
         // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
         <AdmitCard handleCancel={handleCancel} />
-      </Modal>
+      </Modal> */}
     </>
   );
 };

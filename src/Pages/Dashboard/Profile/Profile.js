@@ -73,13 +73,17 @@ export default function Profile() {
                 <ul className="mt-6">
                   <li className="flex justify-between items-center py-2">
                     <span className="text-gray-600">Profile</span>
-                    <button className="text-green-500" onClick={showModal2}>
+                    <button
+                      className="text-green-500 border border-green-500 p-2 rounded-lg hover:bg-green-500 hover:text-white cursor-pointer"
+                      onClick={showModal2}>
                       Update Profile
                     </button>
                   </li>
                   <li className="flex justify-between items-center py-2">
                     <span className="text-gray-600">Settings</span>
-                    <button className="text-green-500" onClick={showModal}>
+                    <button
+                      className="text-green-500 border border-green-500 p-2 rounded-lg hover:bg-green-500 hover:text-white cursor-pointer"
+                      onClick={showModal}>
                       Change Password
                     </button>
                   </li>
@@ -206,7 +210,7 @@ export default function Profile() {
                       <li>{userData?.profession}</li>
                     </ul>
                   </div>
-                  <div>
+                  {/* <div>
                     <h4 className="text-lg font-semibold text-gray-700">
                       Education
                     </h4>
@@ -230,10 +234,10 @@ export default function Profile() {
                         </span>
                       </li>
                     </ul>
-                  </div>
+                  </div> */}
                 </div>
               </div>
-              <div className="mt-6 bg-white p-6 rounded-lg shadow">
+              {/* <div className="mt-6 bg-white p-6 rounded-lg shadow">
                 <h4 className="text-lg font-semibold text-gray-700">
                   Achievements
                 </h4>
@@ -243,21 +247,21 @@ export default function Profile() {
                   <li>Ex-Google, Ex-Microsoft</li>
                   <li>Youngest Developer in Asia</li>
                 </ul>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       )}
       <Modal
         title="Change Password"
-        visible={isModalOpen}
+        open={isModalOpen}
         onCancel={handleCancel}
         footer={null}>
         <ChangePassword onCancel={handleCancel} />
       </Modal>
       <Modal
         title="Update Profile"
-        visible={isModalOpen2}
+        open={isModalOpen2}
         onCancel={handleCancel}
         footer={null}>
         <UpdateProfile onCancel={handleCancel} />

@@ -193,7 +193,7 @@ const AdmitCard = () => {
                           PHONE NUMBER
                         </td>
                         <td
-                          className="border border-black py-2 px-3 uppercase"
+                          className="border border-black py-3 px-3 uppercase"
                           colSpan={3}>
                           {data?.scholarship?.phone}
                         </td>
