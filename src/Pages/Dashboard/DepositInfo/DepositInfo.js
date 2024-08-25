@@ -316,10 +316,7 @@ const DepositInfo = () => {
                             title="Delete the task"
                             description="Are you sure to delete this task?"
                             onConfirm={() => {
-                              if (
-                                userInfo?.userRole === "Super-Admin" ||
-                                "Admin"
-                              ) {
+                              if (userInfo?.userRole === "Super-Admin") {
                                 handleDelete(roll?._id);
                               } else {
                                 toast.error("Please contact with DMF Admin!");
