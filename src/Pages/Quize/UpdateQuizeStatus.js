@@ -35,7 +35,7 @@ const UpdateQuizeStatus = ({ handleCancel, rowData }) => {
     enableReinitialize: true,
   });
 
-  const statusList = ["running", "hold", "closed"];
+  const statusList = ["pending", "running", "hold", "closed"];
 
   return (
     <div className="">

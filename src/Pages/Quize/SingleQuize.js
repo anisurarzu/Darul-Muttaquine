@@ -51,6 +51,22 @@ const SingleQuiz = ({ quizze, handleCancel }) => {
     };
   }, []);
 
+  // Prevent page reload or close before the quiz is submitted or time runs out
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (!timerExpired && !formSubmitting) {
+        e.preventDefault();
+        e.returnValue = ""; // For most browsers
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [timerExpired, formSubmitting]);
+
   const handleStartQuiz = () => {
     if (!userInfo?.uniqueId) {
       history.push("/login");

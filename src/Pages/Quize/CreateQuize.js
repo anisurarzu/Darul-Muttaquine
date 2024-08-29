@@ -12,7 +12,7 @@ const initialValues = {
 };
 
 const CreateQuiz = ({ handleCancel }) => {
-  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState("");
   const [duration, setDuration] = useState(0);
   const [options, setOptions] = useState(["", "", "", ""]);
@@ -46,6 +46,7 @@ const CreateQuiz = ({ handleCancel }) => {
   };
 
   const submitQuizToAPI = async () => {
+    setLoading(true);
     try {
       const quizData = {
         quizName,
@@ -53,11 +54,13 @@ const CreateQuiz = ({ handleCancel }) => {
         endDate,
         duration,
         quizQuestions,
+        status: "pending",
       };
 
       console.log("first", quizData);
       const response = await coreAxios.post(`/quizzes`, quizData);
       if (response?.status === 200) {
+        setLoading(false);
         toast.success("Successfully Added");
         setQuizQuestions([]);
         setQuizName("");
@@ -167,6 +170,7 @@ const CreateQuiz = ({ handleCancel }) => {
       </Formik>
       <div className="mt-4">
         <Button
+          loading={loading}
           type="primary"
           onClick={submitQuizToAPI}
           disabled={quizQuestions.length === 0}

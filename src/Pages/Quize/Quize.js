@@ -178,13 +178,23 @@ export default function Quize() {
                   title={quiz.quizName}
                   className="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                   style={{ borderColor: "#BCDE98" }}>
-                  {quiz?.status !== "running" ? (
-                    <div className="mb-2">
-                      <LockOutlined className="text-3xl text-green-600 mb-2 mr-2 bangla-text" />
+                  {quiz?.status === "closed" ? (
+                    <div className="border border-red-500 text-red-500 rounded-lg bg-red-100 text-center mb-1">
+                      <LockOutlined className="text-3xl text-red-500 py-2 mr-2 bangla-text" />
                       এই কুইজের সময় শেষ হয়ে গেছে
                     </div>
+                  ) : quiz?.status === "pending" ? (
+                    <div className="border border-blue-500 text-blue-500 rounded-lg bg-blue-100 text-center mb-1">
+                      কুইজটি আজ বিকেল ৪.০০ মিনিটে শুরু হবে
+                    </div>
+                  ) : quiz?.status === "running" ? (
+                    <div className="border border-green-500 text-green-500 rounded-lg bg-green-100 text-center mb-1">
+                      কুইজটি চলমান রয়েছ
+                    </div>
                   ) : (
-                    <FaBook className="text-3xl text-green-600 mb-2" />
+                    <div className="border border-yellow-500 text-yellow-500 rounded-lg bg-yellow-100 text-center mb-1">
+                      কুইজটি স্থগিত করা হয়েছ
+                    </div>
                   )}
                   <p>শুরুর তারিখ: {formatDate(quiz?.startDate)}</p>
                   <p>শেষ তারিখ: {formatDate(quiz?.endDate)}</p>
