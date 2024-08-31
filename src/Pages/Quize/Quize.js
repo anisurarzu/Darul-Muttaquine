@@ -255,8 +255,7 @@ export default function Quize() {
                       কুইজটি চলমান রয়েছ
                     </div>
                   ) : quiz?.status === "continue" ? (
-                    <div className="border border-red-500 text-red-500 rounded-lg bg-red-100 text-center mb-1">
-                      <LockOutlined className="text-3xl text-red-500 py-2 mr-2 bangla-text" />
+                    <div className="border border-yellow-500 text-yellow-500 rounded-lg bg-yellow-100 text-center mb-1">
                       কুইজটির প্রতিযোগিতা শেষ হয়েছে
                     </div>
                   ) : (
@@ -271,20 +270,35 @@ export default function Quize() {
                     {" "}
                     Sponsored By: {quiz?.sponsorName}
                   </p>
-
                   {/* {quiz?.status === "running" ? ( */}
-                  <Button
-                    type="primary"
-                    className="mt-2 w-full flex items-center justify-center"
-                    onClick={() => showModal(quiz)}
-                    disabled={quiz?.status !== "running"}
-                    style={{
-                      backgroundColor: "#73A63B",
-                      borderColor: "#73A63B",
-                    }}>
-                    <FaBook className="mr-2" />
-                    কুইজ শুরু করুন
-                  </Button>
+                  {quiz?.status === "running" && (
+                    <Button
+                      type="primary"
+                      className="mt-2 w-full flex items-center justify-center"
+                      onClick={() => showModal(quiz)}
+                      // disabled={quiz?.status !== "running"}
+                      style={{
+                        backgroundColor: "#73A63B",
+                        borderColor: "#73A63B",
+                      }}>
+                      <FaBook className="mr-2" />
+                      কুইজ শুরু করুন
+                    </Button>
+                  )}
+                  {quiz?.status === "continue" && (
+                    <Button
+                      type="primary"
+                      className="mt-2 w-full flex items-center justify-center"
+                      onClick={() => showModal(quiz)}
+                      // disabled={quiz?.status !== "running"}
+                      style={{
+                        backgroundColor: "#73A63B",
+                        borderColor: "#73A63B",
+                      }}>
+                      <FaBook className="mr-2" />
+                      কুইজ শুরু করুন
+                    </Button>
+                  )}
 
                   {canViewResult && (
                     <Button
