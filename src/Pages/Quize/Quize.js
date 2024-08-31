@@ -254,6 +254,11 @@ export default function Quize() {
                     <div className="border border-green-500 text-green-500 rounded-lg bg-green-100 text-center mb-1">
                       কুইজটি চলমান রয়েছ
                     </div>
+                  ) : quiz?.status === "continue" ? (
+                    <div className="border border-red-500 text-red-500 rounded-lg bg-red-100 text-center mb-1">
+                      <LockOutlined className="text-3xl text-red-500 py-2 mr-2 bangla-text" />
+                      কুইজটির প্রতিযোগিতা শেষ হয়েছে
+                    </div>
                   ) : (
                     <div className="border border-yellow-500 text-yellow-500 rounded-lg bg-yellow-100 text-center mb-1">
                       কুইজটি স্থগিত করা হয়েছ
