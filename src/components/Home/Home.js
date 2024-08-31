@@ -20,13 +20,13 @@ export default function Home() {
   return (
     <div>
       {/* temp banner */}
-      <div>
+      {/*    <div>
         <div>
           <img src={"https://i.ibb.co/tCWxvR1/borna-web-1.jpg"} alt="" />
         </div>
-      </div>
-
-      {/*   <HeroSection /> */}
+      </div> */}
+      <Slider />
+      {/* <HeroSection /> */}
       <div className="relative overflow-hidden h-12 bg-white">
         <div
           style={{ color: "#4AA44B" }}
@@ -37,7 +37,7 @@ export default function Home() {
           নিজেদের নিয়োজিত রাখা"
         </div>
       </div>
-      {/* <Slider /> */}
+      {/*  */}
 
       <DonationBox />
       <MiddleHome />

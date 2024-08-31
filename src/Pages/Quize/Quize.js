@@ -28,7 +28,8 @@ export default function Quize() {
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState();
   const [quizMoney, setQuizMoney] = useState([]);
-  const userInfo = useUserInfo();
+
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const userId = userInfo?.uniqueId;
   const history = useHistory();
   console.log("userInfo", userInfo);
