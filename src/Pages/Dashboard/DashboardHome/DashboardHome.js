@@ -2,18 +2,29 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../../utilities/axios";
-import { Alert, Avatar, Card, Progress, Steps } from "antd";
+import {
+  Alert,
+  Avatar,
+  Card,
+  Col,
+  Progress,
+  Row,
+  Statistic,
+  Steps,
+} from "antd";
+
 import { Spin } from "antd";
 
 import ProfileCard from "../Profile/ProfileCard";
 import ProjectCard from "../Project/ProjectCard";
 import { Link } from "react-router-dom";
 import {
-  EditOutlined,
-  EllipsisOutlined,
-  SettingOutlined,
+  ShoppingCartOutlined,
+  DollarCircleOutlined,
+  UsergroupAddOutlined,
 } from "@ant-design/icons";
 import Meta from "antd/es/card/Meta";
+import Title from "antd/es/skeleton/Title";
 
 export default function DashboardHome() {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -239,6 +250,65 @@ export default function DashboardHome() {
 
   return (
     <div className="lg:mr-8 xl:mr-8">
+      <Title
+        level={2}
+        className="mb-4 lg:mb-6 text-[#8ABF55] text-center lg:text-left">
+        Dashboard Overview
+      </Title>
+
+      {/* Statistics */}
+      {/* <Row gutter={16} className="mb-6 ">
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="Total Orders"
+              value={1200}
+              prefix={<ShoppingCartOutlined style={{ color: "#8ABF55" }} />}
+              valueStyle={{ color: "#8ABF55" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="My Deposit"
+              value={depositAmount}
+              prefix={<DollarCircleOutlined style={{ color: "#8ABF55" }} />}
+              valueStyle={{ color: "#8ABF55" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="Total Deposit"
+              value={totalDepositAmount}
+              prefix={<DollarCircleOutlined style={{ color: "#8ABF55" }} />}
+              valueStyle={{ color: "#8ABF55" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="Total Users"
+              value={users?.length}
+              prefix={<UsergroupAddOutlined style={{ color: "#8ABF55" }} />}
+              valueStyle={{ color: "#8ABF55" }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Card>
+            <Statistic
+              title="Approved Withdrawal Request"
+              value={costData?.length}
+              prefix={<UsergroupAddOutlined style={{ color: "#8ABF55" }} />}
+              valueStyle={{ color: "#8ABF55" }}
+            />
+          </Card>
+        </Col>
+      </Row> */}
       {loading ? (
         <Spin tip="Loading...">
           <Alert

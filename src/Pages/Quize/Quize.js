@@ -282,8 +282,7 @@ export default function Quize() {
                   <p>শুরুর তারিখ: {formatDate(quiz?.startDate)}</p>
                   <p>শেষ তারিখ: {formatDate(quiz?.endDate)}</p>
                   <p>মোট প্রশ্ন: {quiz?.quizQuestions?.length}</p>
-                  <p className="px-1 border border-[#73A63B] rounded-lg text-[#73A63B]">
-                    {" "}
+                  <p className="px-1 border border-[#73A63B] rounded-lg text-[#73A63B] text-center">
                     Sponsored By: {quiz?.sponsorName}
                   </p>
                   {/* {quiz?.status === "running" ? ( */}
@@ -322,7 +321,10 @@ export default function Quize() {
                       className="mt-2 w-full flex items-center justify-center"
                       onClick={() => {
                         console.log("index", quiz?.status);
-                        if (quiz?.status === "closed") {
+                        if (
+                          quiz?.status === "closed" ||
+                          quiz?.status === "continue"
+                        ) {
                           setQuizeID(quiz);
                           showModal2(quiz);
                         } else {
