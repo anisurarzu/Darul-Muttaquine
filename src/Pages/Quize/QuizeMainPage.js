@@ -109,7 +109,7 @@ export default function QuizeMainPage() {
       align: "center",
     },
     {
-      title: "Marks",
+      title: "Points",
       dataIndex: "totalMarks",
       key: "totalMarks",
       align: "center",
