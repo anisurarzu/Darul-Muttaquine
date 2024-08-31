@@ -76,7 +76,7 @@ export default function QuizeMainPage() {
       render: (text, record, index) => (
         <div
           className={`text-center space-x-2 md:space-x-2 border   rounded-lg p-1 ${
-            record?.positionNumber < 5
+            record?.positionNumber < 6
               ? "bg-[#73A63B] text-white"
               : "border-gray-500"
           }`}>
@@ -91,7 +91,7 @@ export default function QuizeMainPage() {
       render: (text, record, index) => (
         <div
           className={`flex items-center space-x-2 md:space-x-2   rounded-lg p-1 ${
-            record?.positionNumber < 5 ? "border-[#73A63B] text-[#73A63B]" : ""
+            record?.positionNumber < 6 ? "border-[#73A63B] text-[#73A63B]" : ""
           }`}>
           <img
             src={
@@ -116,7 +116,7 @@ export default function QuizeMainPage() {
       render: (text, record, index) => (
         <div
           className={`text-center space-x-2 md:space-x-2 border   rounded-lg p-1 ${
-            record?.positionNumber < 5
+            record?.positionNumber < 6
               ? "bg-[#73A63B] text-white"
               : "border-gray-500 "
           }`}>
@@ -132,7 +132,7 @@ export default function QuizeMainPage() {
       render: (text, record, index) => (
         <div
           className={`text-center space-x-2 md:space-x-2   rounded-lg p-1 ${
-            record?.positionNumber < 5 ? "border-[#73A63B] text-[#73A63B]" : ""
+            record?.positionNumber < 6 ? "border-[#73A63B] text-[#73A63B]" : ""
           }`}>
           {formatAnswerTime(text)}
         </div>
@@ -146,7 +146,7 @@ export default function QuizeMainPage() {
       render: (text, record, index) => (
         <div
           className={`text-center space-x-2 md:space-x-2 border   rounded-lg p-1 ${
-            record?.positionNumber < 5
+            record?.positionNumber < 6
               ? "bg-[#73A63B] text-white"
               : "border-gray-500"
           }`}>

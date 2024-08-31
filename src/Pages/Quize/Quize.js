@@ -9,7 +9,13 @@ import useUserInfo from "../../hooks/useUserInfo";
 import ViewResult from "./ViewResult";
 import ViewAllResult from "./ViewAllResult";
 import { useHistory } from "react-router-dom";
-import { FaBook, FaTrophy, FaChartBar, FaArrowLeft } from "react-icons/fa"; // Import icons
+import {
+  FaBook,
+  FaTrophy,
+  FaChartBar,
+  FaArrowLeft,
+  FaMoneyBillAlt,
+} from "react-icons/fa"; // Import icons
 import { LockOutlined } from "@ant-design/icons";
 
 export default function Quize() {
@@ -21,13 +27,35 @@ export default function Quize() {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState();
+  const [quizMoney, setQuizMoney] = useState([]);
   const userInfo = useUserInfo();
   const userId = userInfo?.uniqueId;
   const history = useHistory();
 
   useEffect(() => {
     getQuizzes();
+    getQuizMoneyInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getQuizMoneyInfo = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get(`/quiz-money/${userInfo?.uniqueId}`);
+
+      if (response?.status === 200) {
+        const filteredData = response?.data?.filter(
+          (item) => item.status !== "Paid"
+        );
+        setQuizMoney(filteredData);
+      }
+
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      // toast.error(err?.response?.data?.message || "An error occurred");
+    }
+  };
 
   const getQuizzes = async () => {
     try {
@@ -116,6 +144,25 @@ export default function Quize() {
     }
   };
 
+  // Calculate the quiz amount
+  const totalQuizAmount = quizMoney?.reduce(
+    (total, deposit) => Number(total) + Number(deposit?.amount),
+    0 || 0
+  );
+
+  // Inside your component
+  const showConfirm = () => {
+    Modal.confirm({
+      title: "আপনি কি টাকা তুলতে চাচ্ছেন?",
+      content: `আপনি যদি আপনার কুইজের টাকা তুলতে চান নিচের "Yes" বাটনটি চাপুন, পরবর্তী পেইজে যাওয়ার পর  "New" বাটনে ক্লিক করে প্রয়োজনীয় তথ্যাদি দিয়ে আপনার আবেদন সম্পন্ন করুন, পরবর্তী ৬ ঘন্টার মধ্যে আপনার টাকাটি প্রদান করা হবে ইং শা আল্লাহ।`,
+      okText: "Yes",
+      cancelText: "No",
+      onOk() {
+        history.push("/dashboard/withdraw");
+      },
+    });
+  };
+
   return (
     <div className="">
       <div style={{ background: "#BDDE98" }}>
@@ -129,14 +176,30 @@ export default function Quize() {
         <MainLoader />
       ) : (
         <div className="mx-12 lg:mx-24 xl:mx-24">
-          <Button
-            type="primary"
-            className="mt-4 flex items-center"
-            onClick={() => history.goBack()}
-            style={{ backgroundColor: "#73A63B", borderColor: "#73A63B" }}>
-            <FaArrowLeft className="mr-2" />
-            Back
-          </Button>
+          <div className="flex justify-between">
+            <Button
+              type="primary"
+              className="mt-4 flex items-center"
+              onClick={() => history.goBack()}
+              style={{ backgroundColor: "#73A63B", borderColor: "#73A63B" }}>
+              <FaArrowLeft className="mr-2" />
+              Back
+            </Button>
+            <div className="flex justify-center items-center gap-2">
+              <div className="text-[20px] font-semibold text-green-600 mt-4 px-4 py-2 bg-green-100 rounded-lg ">
+                ৳{totalQuizAmount}
+              </div>
+              <Button
+                type="primary"
+                className="mt-4 flex items-center"
+                onClick={showConfirm}
+                style={{ backgroundColor: "#73A63B", borderColor: "#73A63B" }}>
+                <FaMoneyBillAlt className="mr-2" />
+                Withdraw
+              </Button>
+            </div>
+          </div>
+
           <div className="py-4 lg:py-8 xl:py-4">
             <Alert
               message="গুরুত্বপূর্ণ ঘোষণা"
