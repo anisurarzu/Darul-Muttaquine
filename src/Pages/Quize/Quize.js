@@ -204,12 +204,13 @@ export default function Quize() {
 
           <div className="py-4 lg:py-8 xl:py-4">
             <Alert
-              message="গুরুত্বপূর্ণ ঘোষণা"
-              description="আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়।"
+              message={`গুরুত্বপূর্ণ ঘোষণা: আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়। `}
+              description=""
               type="info"
               showIcon
               className="mb-2"
             />
+
             <p className="text-justify lg:text-center xl:text-center py-1 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
               এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন এটিতে
               অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং সময় দিয়ে
@@ -225,6 +226,19 @@ export default function Quize() {
               মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই ক্ষেত্রে একই সেবা
               চার্জ প্রযোজ্য হবে।
             </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div></div>
+              <div></div>
+              <div>
+                <Alert
+                  message={`পরবর্তী কুইজের বিষয় হল "শিরক"`}
+                  type="success"
+                  className="text-center font-bold bangla-text text-[#2F5812]"
+                />
+              </div>
+              <div></div>
+              <div></div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

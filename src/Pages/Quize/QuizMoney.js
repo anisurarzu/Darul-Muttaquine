@@ -51,7 +51,7 @@ const QuizMoney = () => {
       if (response?.status === 200) {
         setLoading(false);
         const sortedData = response?.data?.sort((a, b) => {
-          return new Date(b?.createdAt) - new Date(a?.createdAt);
+          return new Date(b?.depositDate) - new Date(a?.depositDate);
         });
         setRollData(sortedData);
       }

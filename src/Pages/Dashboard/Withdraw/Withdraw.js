@@ -53,13 +53,13 @@ const Withdraw = () => {
       if (response?.status === 200) {
         if (userInfo?.userRole === "Super-Admin") {
           const sortedData = response?.data?.sort((a, b) => {
-            return new Date(b?.depositDate) - new Date(a?.depositDate);
+            return new Date(b?.requestDate) - new Date(a?.requestDate);
           });
           setRollData(sortedData);
           setLoading(false);
         } else {
           const sortedData = response?.data?.deposits?.sort((a, b) => {
-            return new Date(b?.depositDate) - new Date(a?.depositDate);
+            return new Date(b?.requestDate) - new Date(a?.requestDate);
           });
           setRollData(sortedData);
           setLoading(false);

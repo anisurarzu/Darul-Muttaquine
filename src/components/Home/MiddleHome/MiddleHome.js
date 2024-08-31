@@ -68,8 +68,10 @@ export default function MiddleHome() {
   return (
     <div>
       {/* 1st part */}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-8 lg:mx-32 xl:mx-32 ">
         {/* 1 */}
+
         <div className="grid grid-cols-5">
           <div className="col-span-2 ">
             <img className="w-full" src={islamic1} alt="" />
@@ -119,10 +121,18 @@ export default function MiddleHome() {
         </div>
         {/* 4 */}
       </div>
+
       {/* 2nd part */}
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path
+          fill="#BDDE98"
+          fill-opacity="1"
+          d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+      </svg>
       <div
-        className=" grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16 py-4 lg:py-24 xl:py-24 "
-        style={{ background: "#F5F5F5" }}>
+        className=" grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-16 "
+        style={{ background: "#BDDE98" }}>
         <di className=" text-white lg:ml-20 xl:ml-20 ">
           <img className="rounded-lg" src={voulenteer} alt="" />
         </di>
@@ -130,6 +140,12 @@ export default function MiddleHome() {
           <img className="rounded-lg" src={eidCard} alt="" />
         </div>
       </div>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+        <path
+          fill="#BDDE98"
+          fill-opacity="1"
+          d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+      </svg>
       {/* 3rd part */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-4 pt-16 mx-12 lg:mx-32 xl:mx-32 pb-8">
         {/* 1 */}
