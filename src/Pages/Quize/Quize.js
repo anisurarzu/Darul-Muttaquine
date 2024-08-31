@@ -31,6 +31,7 @@ export default function Quize() {
   const userInfo = useUserInfo();
   const userId = userInfo?.uniqueId;
   const history = useHistory();
+  console.log("userInfo", userInfo);
 
   useEffect(() => {
     getQuizzes();
@@ -41,7 +42,7 @@ export default function Quize() {
   const getQuizMoneyInfo = async () => {
     try {
       setLoading(true);
-      const response = await coreAxios.get(`/quiz-money/${userInfo?.uniqueId}`);
+      const response = await coreAxios.get(`/quiz-money/${userId}`);
 
       if (response?.status === 200) {
         const filteredData = response?.data?.filter(
