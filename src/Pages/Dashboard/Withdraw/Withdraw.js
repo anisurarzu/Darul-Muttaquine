@@ -9,6 +9,7 @@ import InsertWithdraw from "./InsertWithdraw";
 import UpdateWithdraw from "./UpdateWithdraw";
 import { coreAxios } from "../../../utilities/axios";
 import { formatDate } from "../../../utilities/dateFormate";
+import UpdateSingleWithdraw from "./UpdateSingleWithdraw";
 
 const Withdraw = () => {
   const history = useHistory();
@@ -19,6 +20,7 @@ const Withdraw = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [rowData, setRowData] = useState({});
 
   const showModal = () => {
@@ -32,6 +34,7 @@ const Withdraw = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
+    setIsModalOpen3(false);
     fetchDepositInfo();
     setRowData(null);
   };
@@ -297,6 +300,18 @@ const Withdraw = () => {
                     <td className="border border-tableBorder pl-1">
                       {roll?.status !== "Approved" && (
                         <div className="flex justify-center items-center py-2 gap-1">
+                          <button
+                            className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                            onClick={() => {
+                              setRowData(roll);
+                              setIsModalOpen3(true);
+                            }}>
+                            <span>
+                              <i className="pi pi-file font-semibold pl-1">
+                                Update
+                              </i>
+                            </span>
+                          </button>
                           {userInfo?.userRole === "Super-Admin" && (
                             <button
                               className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
@@ -334,7 +349,6 @@ const Withdraw = () => {
                           </Popconfirm>
                         </div>
                       )}
-                      |
                     </td>
                   </tr>
                 ))}
@@ -368,6 +382,14 @@ const Withdraw = () => {
         onCancel={handleCancel}
         width={800}>
         <UpdateWithdraw handleCancel={handleCancel} rowData={rowData} />
+      </Modal>
+      <Modal
+        title="Please Provided Valid Information"
+        open={isModalOpen3}
+        // onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}>
+        <UpdateSingleWithdraw handleCancel={handleCancel} rowData={rowData} />
       </Modal>
     </>
   );

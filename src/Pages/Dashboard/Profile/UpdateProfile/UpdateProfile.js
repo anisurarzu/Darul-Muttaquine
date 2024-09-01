@@ -64,7 +64,7 @@ const UpdateProfile = ({ handleCancel }) => {
           );
 
           if (response?.status === 200) {
-            allData.image = response?.data?.data?.display_url;
+            allData.image = response?.data?.data?.display_url || "";
           }
         }
 
