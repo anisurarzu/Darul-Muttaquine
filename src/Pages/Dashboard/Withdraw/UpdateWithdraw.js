@@ -12,6 +12,7 @@ import Loader from "../../../components/Loader/Loader";
 const UpdateWithdraw = ({ handleCancel, rowData }) => {
   const [loading, setLoading] = useState(false);
   const [projectList, setProjectList] = useState([]);
+
   console.log("values", rowData);
 
   const fetchProjectDashboardInfo = async () => {
@@ -59,26 +60,23 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       console.log("first", values);
-      // Check if values are received correctly
-      try {
-        const res = await coreAxios.post(`update-cost-status`, {
-          status: values?.status || rowData?.status || "",
-          project: values?.project || rowData?.project || "",
-          id: rowData?._id,
-        });
-        if (res?.status === 200) {
-          if (
-            values?.project === "ইসলামিক কুইজ" &&
-            values?.status === "Approved"
-          ) {
-            updateQuizMoneyStatus(rowData);
+      if (values?.project === "ইসলামিক কুইজ" && values?.status === "Approved") {
+        updateQuizMoneyStatus(rowData, values);
+      } else {
+        try {
+          const res = await coreAxios.post(`update-cost-status`, {
+            status: values?.status || rowData?.status || "",
+            project: values?.project || rowData?.project || "",
+            id: rowData?._id,
+          });
+          if (res?.status === 200) {
+            toast.success("Successfully Updated!");
+            formik.resetForm();
+            handleCancel();
           }
-          toast.success("Successfully Updated!");
-          formik.resetForm();
-          handleCancel();
+        } catch (err) {
+          toast.error(err?.response?.data?.message);
         }
-      } catch (err) {
-        toast.error(err?.response?.data?.message);
       }
     },
     enableReinitialize: true,
@@ -86,7 +84,7 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
 
   const depositStatus = ["Pending", "Rejected", "Approved", "Hold"];
 
-  const updateQuizMoneyStatus = async (rowData) => {
+  const updateQuizMoneyStatus = async (rowData, values) => {
     try {
       console.log("Updating status for userID:", rowData?.dmfID); // Debug log
 
@@ -94,14 +92,44 @@ const UpdateWithdraw = ({ handleCancel, rowData }) => {
         `/quiz-money/${rowData?.dmfID}/status`,
         {
           status: "Paid",
+          amount: rowData?.amount, // Include amount in the request payload
         }
       );
 
       if (response?.status === 200) {
-        toast.success("Quiz Payment Successful!");
+        updateQuizDepoStatus(values);
+
+        // Check the response message to handle success
+        if (
+          response.data.message === "Insufficient balance for requested amount"
+        ) {
+          toast.error("Insufficient balance for the requested amount.");
+        } else {
+          toast.success("Quiz Payment Successful!");
+        }
+      } else {
+        toast.error("Unexpected response from the server.");
       }
     } catch (err) {
+      // Handle errors
       toast.error(err?.response?.data?.message || "An error occurred");
+    }
+  };
+
+  const updateQuizDepoStatus = async (values) => {
+    try {
+      const res = await coreAxios.post(`update-cost-status`, {
+        status: values?.status || rowData?.status || "",
+        project: values?.project || rowData?.project || "",
+        id: rowData?._id,
+      });
+      if (res?.status === 200) {
+        toast.success("Successfully Updated!");
+        formik.resetForm();
+        handleCancel();
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message);
     }
   };
 

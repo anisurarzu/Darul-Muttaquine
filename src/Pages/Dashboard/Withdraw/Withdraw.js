@@ -33,6 +33,7 @@ const Withdraw = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
     fetchDepositInfo();
+    setRowData(null);
   };
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -271,8 +272,8 @@ const Withdraw = () => {
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.paymentMethod}
                     </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.phone}
+                    <td className="border border-tableBorder px-1 text-center">
+                      0{roll?.phone}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.acceptedDate
