@@ -29,7 +29,7 @@ const { Option } = Select;
 const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
-  const [isApplicationShow, setIsApplicationShow] = useState(false);
+  const [isApplicationShow, setIsApplicationShow] = useState(true);
 
   const formik = useFormik({
     initialValues: {
@@ -256,21 +256,21 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
         <div className="flex justify-center gap-2 mt-4">
           <Button
             onClick={() => {
-              setIsApplicationShow(true);
-            }}
-            type="primary"
-            htmlType="submit"
-            className="bg-green-600 text-white text-lg hover:bg-green-700">
-            Application View
-          </Button>
-          <Button
-            onClick={() => {
               setIsApplicationShow(false);
             }}
             type="primary"
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application Create
+          </Button>
+          <Button
+            onClick={() => {
+              setIsApplicationShow(true);
+            }}
+            type="primary"
+            htmlType="submit"
+            className="bg-green-600 text-white text-lg hover:bg-green-700">
+            Application View
           </Button>
         </div>
       </div>
