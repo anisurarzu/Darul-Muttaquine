@@ -192,10 +192,18 @@ const AdmitCard = () => {
                         <td className="border border-black py-2 px-3 uppercase">
                           PHONE NUMBER
                         </td>
-                        <td
+                        {/* <td
                           className="border border-black py-3 px-3 uppercase"
                           colSpan={3}>
                           {data?.scholarship?.phone}
+                        </td> */}
+                        <td
+                          className="border border-black py-3 px-3 uppercase"
+                          colSpan={3}>
+                          {typeof data?.scholarship?.phone === "string" &&
+                          data?.scholarship?.phone?.startsWith("0")
+                            ? data?.scholarship?.phone
+                            : `0${data?.scholarship?.phone}`}
                         </td>
                       </tr>
                       <tr>

@@ -248,6 +248,12 @@ const Scholarship = () => {
                     Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Phone
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    SMS Send
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Admit Card
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -284,6 +290,16 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {formatDate(roll.submittedAt)}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {typeof roll?.phone === "string" &&
+                      roll?.phone?.startsWith("0")
+                        ? roll?.phone
+                        : `0${roll?.phone}`}
+                    </td>
+
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.isSmsSend ? "Send" : "Not Send"}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button
