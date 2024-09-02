@@ -258,7 +258,11 @@ const Scholarship = () => {
 
               <tbody>
                 {currentItems?.map((roll) => (
-                  <tr key={roll?.scholarshipRollNumber}>
+                  <tr
+                    key={roll?.scholarshipRollNumber}
+                    className={`${
+                      roll?.isSmsSend && "bg-green-100 text-green-600"
+                    }`}>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
                         className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
@@ -305,23 +309,24 @@ const Scholarship = () => {
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
                         </button>
-                        <Popconfirm
-                          title="Delete the task"
-                          description="Are you sure to delete this task?"
-                          onConfirm={() => {
-                            handleDelete(roll?._id);
-                          }}
-                          onCancel={cancel}
-                          okText="Yes"
-                          cancelText="No">
-                          <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                            <span>
-                              <i className="pi pi-trash font-semibold"></i>
-                            </span>
-                          </button>
-                        </Popconfirm>
+                        {!roll?.isSmsSend && (
+                          <Popconfirm
+                            title="Delete the task"
+                            description="Are you sure to delete this task?"
+                            onConfirm={() => {
+                              handleDelete(roll?._id);
+                            }}
+                            onCancel={cancel}
+                            okText="Yes"
+                            cancelText="No">
+                            <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
+                              <span>
+                                <i className="pi pi-trash font-semibold"></i>
+                              </span>
+                            </button>
+                          </Popconfirm>
+                        )}
                       </div>
-                      |
                     </td>
                   </tr>
                 ))}

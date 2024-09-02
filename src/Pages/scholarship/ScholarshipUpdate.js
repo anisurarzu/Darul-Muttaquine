@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
-import { Alert, Button, DatePicker, Radio, Spin, Upload } from "antd";
+import { Alert, Button, DatePicker, Radio, Spin, Upload, Switch } from "antd";
 import moment from "moment";
 
 const ScholarshipUpdate = ({
@@ -30,6 +30,7 @@ const ScholarshipUpdate = ({
       dateOfBirth: scholarshipData?.dateOfBirth
         ? moment(scholarshipData.dateOfBirth)
         : null,
+      isSmsSend: scholarshipData?.isSmsSend || false, // New field
     },
     onSubmit: async (values) => {
       try {
@@ -91,19 +92,6 @@ const ScholarshipUpdate = ({
     },
     enableReinitialize: true,
   });
-
-  /*  useEffect(() => {
-    if (scholarshipData?.image) {
-      setFileList([
-        {
-          uid: "-1",
-          name: "image.png",
-          status: "done",
-          url: scholarshipData.image,
-        },
-      ]);
-    }
-  }, [scholarshipData]); */
 
   const onChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -227,6 +215,7 @@ const ScholarshipUpdate = ({
                     <Radio value="other">Other</Radio>
                   </Radio.Group>
                 </div>
+
                 <div className="w-full mb-4">
                   <label className="block text-black dark:text-black">
                     Birth Date <span className="text-meta-1">*</span>
@@ -237,6 +226,19 @@ const ScholarshipUpdate = ({
                       formik.setFieldValue("dateOfBirth", date)
                     }
                     className="w-full"
+                  />
+                </div>
+
+                {/* New Switch Field */}
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-black">
+                    SMS Send <span className="text-meta-1">*</span>
+                  </label>
+                  <Switch
+                    checked={formik.values.isSmsSend}
+                    onChange={(checked) =>
+                      formik.setFieldValue("isSmsSend", checked)
+                    }
                   />
                 </div>
               </div>

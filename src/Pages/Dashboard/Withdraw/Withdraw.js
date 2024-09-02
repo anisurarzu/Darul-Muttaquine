@@ -246,6 +246,12 @@ const Withdraw = () => {
                     Accepted Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Documents Submit Date
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Documents
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Status
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -282,6 +288,23 @@ const Withdraw = () => {
                       {roll?.acceptedDate
                         ? formatDate(roll?.acceptedDate)
                         : "Not Accepted Yet"}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {formatDate(roll?.fileAttachedDate)}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.file ? (
+                        <a
+                          href={roll.file}
+                          target="_blank"
+                          rel="noopener noreferrer">
+                          <Button type="primary" size="small">
+                            View File
+                          </Button>
+                        </a>
+                      ) : (
+                        <span>No File</span>
+                      )}
                     </td>
 
                     <td

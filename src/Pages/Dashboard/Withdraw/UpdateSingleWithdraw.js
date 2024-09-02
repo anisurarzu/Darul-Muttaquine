@@ -88,12 +88,15 @@ const UpdateSingleWithdraw = ({ handleCancel, rowData }) => {
 
           if (response?.status === 200) {
             const file = response?.data?.data?.display_url || "";
-            const res = await coreAxios.post(`/add-cost-file`, file);
-            if (res?.status === 201) {
+            const res = await coreAxios.post(`/add-cost-file`, {
+              file: file,
+              id: rowData?._id,
+            });
+            if (res?.status === 200) {
+              handleCancel();
               setLoading(false);
               toast.success("Documents Attached Successfully!");
               formik.resetForm();
-              handleCancel();
             }
           }
         }
