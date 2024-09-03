@@ -213,13 +213,13 @@ const InsertDonation = ({ handleCancel, values }) => {
               <div className="w-full mb-4">
                 <label className="block text-black dark:text-black">
                   Transaction NO.
-                  <span className="text-meta-1">[বাধ্যতামূলক নয়]</span>
+                  <span className="text-meta-1">*</span>
                 </label>
                 <input
                   id={"tnxID"}
                   name={"tnxID"}
                   type={"text"}
-                  required={false}
+                  required={true}
                   width="full"
                   onChange={formik.handleChange}
                   value={formik.values?.tnxID}
@@ -317,13 +317,13 @@ const InsertDonation = ({ handleCancel, values }) => {
               <div className="w-full mb-4">
                 <label className="block text-black dark:text-black">
                   Transaction NO.
-                  <span className="text-meta-1">[বাধ্যতামূলক নয়]</span>
+                  <span className="text-meta-1">*</span>
                 </label>
                 <input
                   id={"tnxID"}
                   name={"tnxID"}
                   type={"text"}
-                  required={false}
+                  required={true}
                   width="full"
                   onChange={formik.handleChange}
                   value={formik.values?.tnxID}
