@@ -46,28 +46,69 @@ const Withdraw = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10); // Change the number of items per page as needed
 
+  // const fetchDepositInfo = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const uri =
+  //       userInfo?.userRole === "Super-Admin"
+  //         ? "cost-info"
+  //         : `cost-info/${userInfo?._id}`;
+  //     const response = await coreAxios.get(uri);
+  //     if (response?.status === 200) {
+  //       if (userInfo?.userRole === "Super-Admin") {
+  //         const sortedData = response?.data?.sort((a, b) => {
+  //           return new Date(b?.requestDate) - new Date(a?.requestDate);
+  //         });
+  //         setRollData(sortedData);
+  //         setLoading(false);
+  //       } else {
+  //         const sortedData = response?.data?.deposits?.sort((a, b) => {
+  //           return new Date(b?.requestDate) - new Date(a?.requestDate);
+  //         });
+  //         setRollData(sortedData);
+  //         setLoading(false);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     setLoading(false);
+  //     console.error("Error fetching rolls:", error);
+  //   }
+  // };
+
   const fetchDepositInfo = async () => {
     try {
       setLoading(true);
       const uri =
         userInfo?.userRole === "Super-Admin"
           ? "cost-info"
+          : userInfo?.userRole === "Accountant"
+          ? "cost-info"
+          : userInfo?.userRole === "Second-Accountant"
+          ? "cost-info"
           : `cost-info/${userInfo?._id}`;
       const response = await coreAxios.get(uri);
       if (response?.status === 200) {
-        if (userInfo?.userRole === "Super-Admin") {
+        let filteredData = [];
+
+        if (
+          userInfo?.userRole === "Super-Admin" ||
+          userInfo?.userRole === "Accountant" ||
+          userInfo?.userRole === "Second-Accountant"
+        ) {
+          // Sort the filtered data by depositDate
           const sortedData = response?.data?.sort((a, b) => {
             return new Date(b?.requestDate) - new Date(a?.requestDate);
           });
+
           setRollData(sortedData);
-          setLoading(false);
         } else {
           const sortedData = response?.data?.deposits?.sort((a, b) => {
             return new Date(b?.requestDate) - new Date(a?.requestDate);
           });
           setRollData(sortedData);
-          setLoading(false);
         }
+
+        setLoading(false);
       }
     } catch (error) {
       setLoading(false);
@@ -104,6 +145,7 @@ const Withdraw = () => {
       setLoading(true);
       const response = await coreAxios.delete(`/cost-info/${RollID}`);
       if (response.data) {
+        toast.success("Successfully Deleted");
         setLoading(false);
         fetchDepositInfo();
       } else {
