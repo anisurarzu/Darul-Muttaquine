@@ -3,14 +3,17 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 
-import { Upload, Select } from "antd"; // Import Select from Ant Design
+import { Upload, Select, Modal } from "antd"; // Import Select from Ant Design
 
 import useUserInfo from "../../hooks/useUserInfo";
 import { coreAxios } from "../../utilities/axios";
+import InsertDeposit from "../../Pages/Dashboard/DepositInfo/InsertDeposit";
+import InsertDonation from "./InsertDonation";
 
 const { Option } = Select; // Destructure Option from Select
 
-const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
+const DonationBox = ({ onHide, fetchRolls }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [projectList, setProjectList] = useState([]);
 
@@ -67,14 +70,16 @@ const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
       status: "Pending",
     },
     onSubmit: async (values) => {
-      toast.warn(
-        "উক্ত প্রক্রিয়াটি নির্মানাধীন অবস্থায় রয়েছে। অনুগ্রহ পূর্বক আপনার অনুদানের জন্য আমাদেরমে ফোন অথবা মেইল করুন। ধন্যবাদ!"
-      );
+      setIsModalOpen(true);
     },
     enableReinitialize: true,
   });
 
   const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount", "cash"]; // Define payment methods
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <div className=" py-2 lg:py-8 xl:py-8 " style={{ background: "#F5F5F5" }}>
@@ -143,6 +148,15 @@ const DonationBox = ({ onHide, fetchRolls, handleCancel }) => {
             দান করুন
           </button>
         </form>
+
+        <Modal
+          title="বৈধ তথ্য প্রদান করুন"
+          open={isModalOpen}
+          // onOk={handleOk}
+          onCancel={handleCancel}
+          width={800}>
+          <InsertDonation handleCancel={handleCancel} values={formik?.values} />
+        </Modal>
       </div>
     </div>
   );

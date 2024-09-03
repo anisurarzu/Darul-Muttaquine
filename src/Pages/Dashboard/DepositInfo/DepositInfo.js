@@ -49,22 +49,49 @@ const DepositInfo = () => {
       const uri =
         userInfo?.userRole === "Super-Admin"
           ? "deposit-info"
+          : userInfo?.userRole === "Accountant"
+          ? "deposit-info"
+          : userInfo?.userRole === "Second-Accountant"
+          ? "deposit-info"
           : `deposit-info/${userInfo?._id}`;
       const response = await coreAxios.get(uri);
       if (response?.status === 200) {
-        if (userInfo?.userRole === "Super-Admin") {
-          const sortedData = response?.data?.sort((a, b) => {
-            return new Date(b?.depositDate) - new Date(a?.depositDate);
-          });
-          setRollData(sortedData);
-          setLoading(false);
+        let filteredData = [];
+
+        if (
+          userInfo?.userRole === "Super-Admin" ||
+          userInfo?.userRole === "Accountant" ||
+          userInfo?.userRole === "Second-Accountant"
+        ) {
+          if (userInfo?.userRole === "Second-Accountant") {
+            filteredData = response?.data?.filter((item) => {
+              return (
+                item.project === "ইসলামিক কুইজ" ||
+                item.project === "Scholarship 2024"
+              );
+            });
+            // Sort the filtered data by depositDate
+            const sortedData = filteredData.sort((a, b) => {
+              return new Date(b?.depositDate) - new Date(a?.depositDate);
+            });
+
+            setRollData(sortedData);
+          } else {
+            // Sort the filtered data by depositDate
+            const sortedData = response?.data?.sort((a, b) => {
+              return new Date(b?.depositDate) - new Date(a?.depositDate);
+            });
+
+            setRollData(sortedData);
+          }
         } else {
           const sortedData = response?.data?.deposits?.sort((a, b) => {
             return new Date(b?.depositDate) - new Date(a?.depositDate);
           });
           setRollData(sortedData);
-          setLoading(false);
         }
+
+        setLoading(false);
       }
     } catch (error) {
       setLoading(false);
@@ -101,6 +128,7 @@ const DepositInfo = () => {
       setLoading(true);
       const response = await coreAxios.delete(`/deposit-info/${RollID}`);
       if (response.data) {
+        toast.success("Successfully Deleted");
         setLoading(false);
         fetchDepositInfo();
       } else {
@@ -111,7 +139,7 @@ const DepositInfo = () => {
     }
   };
 
-  const filteredRolls = rollData.filter((roll) =>
+  const filteredRolls = rollData?.filter((roll) =>
     searchQuery
       ? Object.values(roll)
           .join("")
@@ -122,7 +150,7 @@ const DepositInfo = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredRolls?.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleBackClick = () => {
     history.goBack();
@@ -253,7 +281,7 @@ const DepositInfo = () => {
               </thead>
 
               <tbody>
-                {currentItems.map((roll) => (
+                {currentItems?.map((roll) => (
                   <tr key={roll?.scholarshipRollNumber}>
                     <td className="border border-tableBorder pl-2 text-left">
                       {/* <TableData status={roll?.status} data={roll?.userName} /> */}
@@ -297,26 +325,51 @@ const DepositInfo = () => {
                     </td>
 
                     <td className="border border-tableBorder pl-1">
-                      {roll?.status !== "Approved" && (
-                        <div className="flex justify-center items-center py-2 gap-1">
-                          {userInfo?.userRole === "Super-Admin" && (
-                            <button
-                              className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                              onClick={() => {
-                                setRowData(roll);
-                                setIsModalOpen2(true);
-                              }}>
-                              <span>
-                                <i className="pi pi-pencil font-semibold"></i>
-                              </span>
-                            </button>
-                          )}
+                      <div className="flex justify-center items-center py-2 gap-1">
+                        {roll?.status !== "Approved" && (
+                          <div className="flex gap-1">
+                            {(userInfo?.userRole === "Super-Admin" ||
+                              userInfo?.userRole === "Accountant" ||
+                              userInfo?.userRole === "Second-Accountant") && (
+                              <button
+                                className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                                onClick={() => {
+                                  setRowData(roll);
+                                  setIsModalOpen2(true);
+                                }}>
+                                <span>
+                                  <i className="pi pi-pencil font-semibold"></i>
+                                </span>
+                              </button>
+                            )}
 
+                            <Popconfirm
+                              title="Delete the task"
+                              description="Are you sure to delete this task?"
+                              onConfirm={() => {
+                                handleDelete(roll?._id);
+                              }}
+                              onCancel={cancel}
+                              okText="Yes"
+                              cancelText="No">
+                              <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
+                                <span>
+                                  <i className="pi pi-trash font-semibold"></i>
+                                </span>
+                              </button>
+                            </Popconfirm>
+                          </div>
+                        )}
+                        {roll?.status === "Approved" && (
                           <Popconfirm
                             title="Delete the task"
                             description="Are you sure to delete this task?"
                             onConfirm={() => {
-                              if (userInfo?.userRole === "Super-Admin") {
+                              if (
+                                userInfo?.userRole === "Super-Admin" ||
+                                userInfo?.userRole === "Accountant" ||
+                                userInfo?.userRole === "Second-Accountant"
+                              ) {
                                 handleDelete(roll?._id);
                               } else {
                                 toast.error("Please contact with DMF Admin!");
@@ -331,8 +384,8 @@ const DepositInfo = () => {
                               </span>
                             </button>
                           </Popconfirm>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -358,7 +411,7 @@ const DepositInfo = () => {
               <Pagination
                 showQuickJumper
                 current={currentPage}
-                total={filteredRolls.length}
+                total={filteredRolls?.length}
                 pageSize={itemsPerPage}
                 onChange={onChange}
               />

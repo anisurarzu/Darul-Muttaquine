@@ -52,9 +52,6 @@ const Navbar = () => {
             <NavLink to="/about" className="hover:text-green-500 pt-2">
               আমাদের সম্পর্কে
             </NavLink>
-            {/* <NavLink to="/chat" className="hover:text-green-500 pt-2">
-              Chat
-            </NavLink> */}
             <NavLink to="/history" className="hover:text-green-500 pt-2">
               গ্যালারী
             </NavLink>
@@ -78,24 +75,28 @@ const Navbar = () => {
             <NavLink to="/contact" className="hover:text-green-500  pt-2">
               যোগাযোগ
             </NavLink>
-            {isAuthenticated && (
-              <div
-                onClick={handleLogout}
-                className="cursor-pointer hover:text-green-500 pt-2">
-                লগ আউট
-              </div>
-            )}
-            {isAuthenticated && (
-              <div>
-                <img
-                  className="w-12 h-12 rounded-full"
-                  src={
-                    userInfo?.image ||
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
-                  }
-                  alt=""
-                />
-              </div>
+            {isAuthenticated ? (
+              <>
+                <div
+                  onClick={handleLogout}
+                  className="cursor-pointer hover:text-green-500 pt-2">
+                  লগ আউট
+                </div>
+                <div>
+                  <img
+                    className="w-12 h-12 rounded-full"
+                    src={
+                      userInfo?.image ||
+                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
+                    }
+                    alt=""
+                  />
+                </div>
+              </>
+            ) : (
+              <NavLink to="/login" className="hover:text-green-500 pt-2">
+                লগ ইন
+              </NavLink>
             )}
           </div>
 
@@ -174,7 +175,7 @@ const Navbar = () => {
                   <ContactsOutlined /> <span className="pl-1"> যোগাযোগ</span>
                 </NavLink>
               </li>
-              {isAuthenticated && (
+              {isAuthenticated ? (
                 <li
                   onClick={() => {
                     handleLogout();
@@ -184,6 +185,14 @@ const Navbar = () => {
                   className="   p-2 text-white rounded-lg text-center">
                   <LoginOutlined />
                   <span className="pl-1"> লগ আউট</span>
+                </li>
+              ) : (
+                <li
+                  style={{ background: "#408F49" }}
+                  className="   p-2 text-white rounded-lg text-center">
+                  <NavLink to="/login" onClick={() => setShowMobileMenu(false)}>
+                    <LoginOutlined /> <span className="pl-1"> লগ ইন</span>
+                  </NavLink>
                 </li>
               )}
               <li className="col-span-2 flex gap-2 justify-end">

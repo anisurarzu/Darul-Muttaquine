@@ -4,12 +4,12 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 
 import { Upload, Select, DatePicker, Alert, Button } from "antd"; // Import Select from Ant Design
-import { coreAxios } from "../../../utilities/axios";
-import useUserInfo from "../../../hooks/useUserInfo";
+import { coreAxios } from "../../utilities/axios";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const { Option } = Select; // Destructure Option from Select
 
-const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
+const InsertDonation = ({ handleCancel, values }) => {
   const [loading, setLoading] = useState(false);
   const [projectList, setProjectList] = useState([]);
 
@@ -58,32 +58,38 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
 
   const formik = useFormik({
     initialValues: {
-      amount: 0,
+      amount: values?.amount,
       paymentMethod: "", // Initialize paymentMethod
       userName: "",
-      phone: 0,
+      phone: values?.phone,
       tnxID: "",
       status: "Pending",
       depositDate: "",
+      project: values?.project || "",
     },
     onSubmit: async (values) => {
-      try {
-        const allData = {
-          ...values,
-          userName: userInfo?.username || "",
-          userID: userInfo?._id || "",
-        };
-        setLoading(true);
-        const res = await coreAxios.post(`/deposit-info`, allData);
-        if (res?.status === 201) {
-          handleCancel();
+      if (values?.project) {
+        try {
+          setLoading(true);
+          const allData = {
+            ...values,
+            userName: userInfo?.username || "anonymous",
+            userID: userInfo?._id || "anonymous",
+          };
+
+          const res = await coreAxios.post(`/deposit-info`, allData);
+          if (res?.status === 201) {
+            handleCancel();
+            setLoading(false);
+            toast.success("Your Donation Complete!");
+            formik.resetForm();
+          }
+        } catch (err) {
           setLoading(false);
-          toast.success("Successfully Saved!");
-          formik.resetForm();
+          toast.error(err?.response?.data?.message);
         }
-      } catch (err) {
-        setLoading(false);
-        toast.error(err?.response?.data?.message);
+      } else {
+        toast.error(" অনুগ্রহ করে একটি প্রজেক্ট সিলেক্ট করুন");
       }
     },
     enableReinitialize: true,
@@ -94,6 +100,16 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   return (
     <div className="">
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+        <p className="p-2 text-[14px] text-center m-2">
+          আপনি যদি আপনার অনুদান ট্র্যাক করতে চান তাহলে অনুগ্রহ করে আমাদের সাইটে
+          একটি অ্যাকাউন্ট তৈরি করুন তারপর দান করুন, অ্যাকাউন্ট তৈরির জন্য{" "}
+          <a
+            href="https://ourdmf.xyz/registration"
+            className="text-blue-500 underline">
+            এটিতে ক্লিক করুন
+          </a>
+        </p>
+
         <p className="p-2 text-[14px] text-center m-2">
           সাময়িক সময়ের জন্য আমরা ম্যানুয়ালি টাকা গ্রহণ করছি , শুরুতে আপনি আমাদের
           রকেট, বিকাশ ,নগদ নম্বরে টাকা পাঠিয়ে নিচের ঘরগুলো যথাযথ ভাবে পূরণ করুন,
@@ -196,13 +212,14 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
               </div>
               <div className="w-full mb-4">
                 <label className="block text-black dark:text-black">
-                  Transaction NO. <span className="text-meta-1">*</span>
+                  Transaction NO.
+                  <span className="text-meta-1">[বাধ্যতামূলক নয়]</span>
                 </label>
                 <input
                   id={"tnxID"}
                   name={"tnxID"}
                   type={"text"}
-                  required={true}
+                  required={false}
                   width="full"
                   onChange={formik.handleChange}
                   value={formik.values?.tnxID}
@@ -272,7 +289,6 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                   onChange={(value) =>
                     formik.setFieldValue("paymentMethod", value)
                   }
-                  required={true}
                   value={formik.values.paymentMethod}
                   className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
                   {paymentMethods?.map((method) => (
@@ -300,13 +316,14 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
               </div>
               <div className="w-full mb-4">
                 <label className="block text-black dark:text-black">
-                  Transaction NO. <span className="text-meta-1">*</span>
+                  Transaction NO.
+                  <span className="text-meta-1">[বাধ্যতামূলক নয়]</span>
                 </label>
                 <input
                   id={"tnxID"}
                   name={"tnxID"}
                   type={"text"}
-                  required={true}
+                  required={false}
                   width="full"
                   onChange={formik.handleChange}
                   value={formik.values?.tnxID}
@@ -343,4 +360,4 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   );
 };
 
-export default InsertDeposit;
+export default InsertDonation;

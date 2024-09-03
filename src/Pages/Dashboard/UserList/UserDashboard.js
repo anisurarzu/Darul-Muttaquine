@@ -267,7 +267,6 @@ const UserDashboard = () => {
                           </button>
                         </Popconfirm>
                       </div>
-                      |
                     </td>
                   </tr>
                 ))}

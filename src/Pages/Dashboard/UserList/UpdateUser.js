@@ -37,6 +37,8 @@ const UpdateUser = ({ handleCancel, rowData }) => {
     "Super-Admin",
     "Admin",
     "Co-Admin",
+    "Accountant",
+    "Second-Accountant",
     "Senior-Member",
     "Member",
     "Junior-Member",

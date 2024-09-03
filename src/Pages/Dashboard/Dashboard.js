@@ -104,6 +104,18 @@ export default function Dashboard() {
         );
       case "Co-Admin":
         return menuItems.filter(
+          (item) =>
+            !["users", "project", "allQuize", "quize", "quizMoney"].includes(
+              item.route
+            )
+        );
+      case "Accountant":
+        return menuItems.filter(
+          (item) =>
+            !["users", "project", "quize", "allQuize"].includes(item.route)
+        );
+      case "Second-Accountant":
+        return menuItems.filter(
           (item) => !["users", "project"].includes(item.route)
         );
       case "Senior-Member":
