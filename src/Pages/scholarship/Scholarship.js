@@ -12,6 +12,7 @@ import jsPDF from "jspdf";
 import AdmitCard from "../Dashboard/AdmitCard";
 import { formatDate } from "../../utilities/dateFormate";
 import ScholarshipUpdate from "./ScholarshipUpdate";
+import QrReader from "react-qr-scanner";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -24,6 +25,8 @@ const Scholarship = () => {
   const [rowData, setRowData] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [showQrScanner, setShowQrScanner] = useState(false); // QR scanner visibility
+  const [qrScanResult, setQrScanResult] = useState(""); // QR scan result
 
   const history = useHistory();
 
@@ -83,19 +86,6 @@ const Scholarship = () => {
   // handle Update or Edit
   const handleEditClick = async (RollID) => {
     setIsModalOpen2(true); // Check if this logs the correct RollID
-    // try {
-    //   const response = await axios.get(`scholarship-info/${RollID}`);
-    //   if (response.data) {
-    //     // Here, you can set the customer data to a state and pass it to the CustomerUpdate component.
-    //     // For example:
-    //     setSelectedRoll(response.data);
-    //     setShowDialog1(true);
-    //   } else {
-    //     console.error("Customer data not found");
-    //   }
-    // } catch (error) {
-    //   console.error("Error fetching customer data:", error);
-    // }
   };
   const handleDelete = async (RollID) => {
     console.log(RollID);
@@ -112,16 +102,10 @@ const Scholarship = () => {
       setLoading(false);
     }
   };
-
-  // Step 2: Modify rendering to filter customers based on search
-  /* const filteredRolls = rollData.filter((roll) =>
-    searchQuery
-      ? Object.values(roll)
-          .join("") // Concatenate all values of a customer object to a string
-          .toLowerCase() // Convert to lowercase for case-insensitive matching
-          .includes(searchQuery.toLowerCase())
-      : true
-  ); */
+  const previewStyle = {
+    height: 240,
+    width: 320,
+  };
 
   const handleBackClick = () => {
     history.goBack(); // Navigate back to the previous page
@@ -149,6 +133,45 @@ const Scholarship = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handleScan = (data) => {
+    if (data) {
+      setShowQrScanner(false);
+      setQrScanResult(data.text);
+      const filteredRoll = rollData?.find(
+        (roll) => roll.scholarshipRollNumber === data.text
+      );
+      // setRollData([filteredRoll]);
+      if (filteredRoll) {
+        updateAttendanceStatus(filteredRoll);
+      } else {
+        toast.error(`User Didn't Matched`);
+      }
+
+      // Set the filtered roll data
+    }
+  };
+
+  const updateAttendanceStatus = async (data) => {
+    try {
+      const allData = {
+        ...data,
+        isAttendanceComplete: true,
+      };
+      const res = await coreAxios.put(`/scholarship-info/${data._id}`, allData);
+      if (res?.status === 200) {
+        toast.success("Attendance Completed!");
+        fetchScholarshipInfo();
+      }
+    } catch (err) {
+      console.log(err);
+      toast.error(err);
+    }
+  };
+
+  const handleError = (err) => {
+    console.error(err);
+  };
 
   return (
     <>
@@ -189,6 +212,11 @@ const Scholarship = () => {
                 </span>
                 BACK
               </button>
+              <Button
+                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
+                onClick={() => setShowQrScanner(!showQrScanner)}>
+                Scan Now
+              </Button>
             </div>
             <div>
               <h3 className="text-[17px]">
@@ -225,6 +253,20 @@ const Scholarship = () => {
             </div>
           </div>
 
+          {showQrScanner && (
+            <div className="my-4">
+              <QrReader
+                delay={100}
+                style={previewStyle}
+                onError={handleError}
+                onScan={handleScan}
+              />
+            </div>
+          )}
+          {/* <p className="mt-2 text-lg font-semibold">
+            QR Scan Result: {qrScanResult}
+          </p> */}
+
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -254,6 +296,9 @@ const Scholarship = () => {
                     SMS Send
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Attendance
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Admit Card
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -268,6 +313,10 @@ const Scholarship = () => {
                     key={roll?.scholarshipRollNumber}
                     className={`${
                       roll?.isSmsSend && "bg-green-100 text-green-600"
+                    } ${
+                      roll?.isAttendanceComplete &&
+                      roll?.isSmsSend &&
+                      "bg-purple-100 text-purple-600"
                     }`}>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
@@ -300,6 +349,9 @@ const Scholarship = () => {
 
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.isSmsSend ? "Send" : "Not Send"}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.isAttendanceComplete ? "Present" : "Not Present"}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button

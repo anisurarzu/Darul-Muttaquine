@@ -7,7 +7,7 @@ import {
 import DMFLogo from "../../images/dmf-logo-2.png";
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
-import { Button, Watermark } from "antd";
+import { Button, QRCode, Watermark } from "antd";
 import { formatDate } from "../../utilities/dateFormate";
 import html2pdf from "html2pdf.js";
 import Loader from "../../components/Loader/Loader";
@@ -107,12 +107,17 @@ const AdmitCard = () => {
             className="layout-invoice-content w-full mt-4  print:!bg-white">
             <div className="p-8">
               {/* Top */}
-              <div className="flex items-center ">
+
+              <div className="flex items-center justify-between ">
                 <img src={DMFLogo} alt="logo" className="w-[230px]  " />
-                {/* <div className="font-bold uppercase text-4xl pl-10 flex items-center">
-                <p>Darul Muttaquine Foundation</p>
-              </div> */}
+
+                <QRCode
+                  type="svg"
+                  value={data?.scholarship?.scholarshipRollNumber}
+                  size={100} // Adjust the size as needed
+                />
               </div>
+              {/* END 
               {/* END TOP */}
 
               {/* Header */}

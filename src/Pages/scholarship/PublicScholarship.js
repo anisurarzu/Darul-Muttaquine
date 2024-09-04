@@ -9,6 +9,7 @@ import {
   DatePicker,
   Input,
   InputNumber,
+  QRCode,
   Radio,
   Select,
   Spin,
@@ -330,13 +331,23 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                 className="layout-invoice-content w-full mt-4  print:!bg-white">
                 <div className="p-8">
                   {/* Top */}
-                  <div className="flex items-center ">
+                  <div className="flex items-center justify-between ">
                     <img src={DMFLogo} alt="logo" className="w-[230px]  " />
-                    {/* <div className="font-bold uppercase text-4xl pl-10 flex items-center">
-                <p>Darul Muttaquine Foundation</p>
-              </div> */}
+
+                    <QRCode
+                      type="svg"
+                      value={data?.scholarshipRollNumber}
+                      size={100}
+                    />
                   </div>
                   {/* END TOP */}
+
+                  {/* <QRCode
+                    size={256}
+                    style={{ height: "auto", maxWidth: "20%", width: "20%" }}
+                    value={"test"}
+                    viewBox={`0 0 256 256`}
+                  /> */}
 
                   {/* Header */}
                   <div className="text-center">
