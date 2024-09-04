@@ -260,6 +260,7 @@ const Scholarship = () => {
                 style={previewStyle}
                 onError={handleError}
                 onScan={handleScan}
+                facingMode={"environment"}
               />
             </div>
           )}
