@@ -28,6 +28,8 @@ const Scholarship = () => {
   const [showQrScanner, setShowQrScanner] = useState(false); // QR scanner visibility
   const [qrScanResult, setQrScanResult] = useState(""); // QR scan result
 
+  const [facingMode, setFacingMode] = useState("environment");
+
   const history = useHistory();
 
   const showModal = () => {
@@ -173,6 +175,12 @@ const Scholarship = () => {
     console.error(err);
   };
 
+  const constraints = {
+    video: {
+      facingMode: { exact: "environment" }, // Specifically request the back camera
+    },
+  };
+
   return (
     <>
       {loading ? (
@@ -260,8 +268,17 @@ const Scholarship = () => {
                 style={previewStyle}
                 onError={handleError}
                 onScan={handleScan}
-                facingMode={"environment"}
+                // facingMode={"environment"}
+                facingMode={facingMode}
               />
+              <button
+                onClick={() =>
+                  setFacingMode(
+                    facingMode === "environment" ? "user" : "environment"
+                  )
+                }>
+                Switch Camera
+              </button>
             </div>
           )}
           {/* <p className="mt-2 text-lg font-semibold">
