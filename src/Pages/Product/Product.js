@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 
 import dmfBook from "../../images/dmf-book.pdf";
+import dmfBook2 from "../../images/dmf-book-2.pdf";
 import { Image, Modal } from "antd";
 import ProductDetails from "./ProductDetails";
 import bookOne from "../../images/dmf-book-1.png";
@@ -27,7 +28,7 @@ const Product = () => {
       image: bookTwo,
       description: "This is Product 1",
       price: "$10",
-      pdf: null,
+      pdf: dmfBook2,
       version: "২০২৪",
       stockStatus: "খুব শিঘ্রই আসছে",
     },
