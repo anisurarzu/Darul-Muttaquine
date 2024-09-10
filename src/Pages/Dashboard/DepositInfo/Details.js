@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { formatDate } from "../../../utilities/dateFormate";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
-import { Modal } from "antd";
+import { Button, Modal } from "antd";
 
 export default function Details({ rowData, depositData, costData }) {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -169,16 +169,29 @@ export default function Details({ rowData, depositData, costData }) {
                         </h2>
                         {groupedData2?.[month]?.items?.map((cost) => (
                           <li className="" key={cost._id}>
-                            <div className="grid grid-cols-3 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-red-500 rounded-lg">
+                            <div className="grid grid-cols-4 text-[10px] lg:text-[12px] xl:text-12px] border-b   border-red-500 rounded-lg">
                               <p className="border-l  border-r border-red-500 p-1 ">
                                 {cost?.username || cost?.userName}
                               </p>
                               <p className=" border-r border-red-500 p-1 text-center">
-                                {" "}
                                 ৳{cost?.amount}
                               </p>
                               <p className="border-r border-red-500 p-1 text-center">
                                 {formatDate(cost?.acceptedDate)}
+                              </p>
+                              <p className="border-r border-green-500 p-1 text-center">
+                                {cost?.file ? (
+                                  <a
+                                    href={cost.file}
+                                    target="_blank"
+                                    rel="noopener noreferrer">
+                                    <Button type="primary" size="small">
+                                      File
+                                    </Button>
+                                  </a>
+                                ) : (
+                                  <span>No File</span>
+                                )}
                               </p>
                             </div>
                           </li>
