@@ -316,13 +316,15 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             <div>
               <div className="layout-invoice-page mx-28">
                 <div className="flex gap-8 w-full mt-8 mx-0">
-                  <Button
-                    type="primary"
-                    onClick={downloadPDF}
-                    className="p-mr-2"
-                    icon={<DownloadOutlined />}>
-                    Download Admit Card
-                  </Button>
+                  {data && (
+                    <Button
+                      type="primary"
+                      onClick={downloadPDF}
+                      className="p-mr-2"
+                      icon={<DownloadOutlined />}>
+                      Download Admit Card
+                    </Button>
+                  )}
                 </div>
               </div>
 
