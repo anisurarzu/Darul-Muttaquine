@@ -36,11 +36,12 @@ const ScholarshipUpdate = ({
     onSubmit: async (values) => {
       try {
         setLoading(true);
-        console.log("fileList", fileList);
+
         if (!fileList.length) {
           const allData = {
             ...values,
             image:
+              scholarshipData?.image ||
               "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU",
           };
           console.log("allData", allData);
