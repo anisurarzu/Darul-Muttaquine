@@ -429,7 +429,10 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                             <td
                               className="border border-black py-2 px-3 uppercase"
                               colSpan={3}>
-                              {data?.phone}
+                              {typeof data?.phone === "string" &&
+                              data?.phone?.startsWith("0")
+                                ? data?.phone
+                                : `0${data?.phone}`}
                             </td>
                           </tr>
                           <tr>
