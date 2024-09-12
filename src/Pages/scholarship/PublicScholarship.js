@@ -22,7 +22,7 @@ import {
   PrinterOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import DMFLogo from "../../images/dmf-logo-2.png";
+import DMFLogo from "../../images/New-Main-2.png";
 import { formatDate } from "../../utilities/dateFormate";
 
 const { Option } = Select;
@@ -474,7 +474,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                             <td
                               className="border border-black py-2 px-3 uppercase"
                               colSpan={3}>
-                              {data?.examCenter}
+                              Toktarchala Dhakil
+                              Madrasa,Toktarchala,Mirzapur,Tangail
                             </td>
                           </tr>
                         </tbody>

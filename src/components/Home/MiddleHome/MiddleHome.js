@@ -10,7 +10,7 @@ import eidCard from "../../../images/eid-card.jpg";
 import islamic1 from "../../../images/em040421n08.gif";
 import islamic2 from "../../../images/animation-1.gif";
 import islamic3 from "../../../images/animation-2.gif";
-import logo from "../../../images/dmf-logo-2.png";
+import logo from "../../../images/New-Main-2.png";
 
 import { Tag } from "primereact/tag";
 

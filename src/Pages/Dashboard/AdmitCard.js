@@ -4,7 +4,7 @@ import {
   PrinterOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import DMFLogo from "../../images/dmf-logo-2.png";
+import DMFLogo from "../../images/New-Main-2.png";
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
 import { Button, QRCode, Watermark } from "antd";
@@ -248,7 +248,8 @@ const AdmitCard = () => {
                         <td
                           className="border border-black py-2 px-3 uppercase"
                           colSpan={3}>
-                          {data?.scholarship?.examCenter}
+                          Toktarchala Dhakil
+                          Madrasa,Toktarchala,Mirzapur,Tangail
                         </td>
                       </tr>
                     </tbody>
