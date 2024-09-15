@@ -18,7 +18,7 @@ const CheckoutSchema = Yup.object().shape({
 
 const CheckoutPage = () => {
   const [cart, setCart] = useState({});
-  const [shippingCharge] = useState(50); // Example shipping charge
+  const [shippingCharge] = useState(0); // Example shipping charge
   const [loading, setLoading] = useState(false);
   const history = useHistory();
   // Load cart from localStorage on component mount
