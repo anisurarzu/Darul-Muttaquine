@@ -191,7 +191,7 @@ const CheckoutPage = () => {
                   (01791556184) নম্বরে পাঠান এবং ট্রানজ্যাকশন আইডি নিচের
                   ক্ষেত্রে লিখুন।
                 </Text>
-                {/* test */}
+
                 <div>
                   <label className="bangla-text text-lg font-medium">
                     ট্রানজ্যাকশন আইডি
