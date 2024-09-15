@@ -112,14 +112,25 @@ export default function Dashboard() {
       case "Admin":
         return menuItems.filter(
           (item) =>
-            !["users", "quize", "quizMoney", "allQuize"].includes(item.route)
+            ![
+              "users",
+              "quize",
+              "quizMoney",
+              "allQuize",
+              "orderDetails",
+            ].includes(item.route)
         );
       case "Co-Admin":
         return menuItems.filter(
           (item) =>
-            !["users", "project", "allQuize", "quize", "quizMoney"].includes(
-              item.route
-            )
+            ![
+              "users",
+              "project",
+              "allQuize",
+              "quize",
+              "quizMoney",
+              "orderDetails",
+            ].includes(item.route)
         );
       case "Accountant":
         return menuItems.filter(
@@ -128,7 +139,7 @@ export default function Dashboard() {
         );
       case "Second-Accountant":
         return menuItems.filter(
-          (item) => !["users", "project"].includes(item.route)
+          (item) => !["users", "project", "orderDetails"].includes(item.route)
         );
       case "Senior-Member":
         return menuItems.filter((item) =>
