@@ -26,6 +26,7 @@ import Quize from "./Pages/Quize/Quize";
 import QuizeMainPage from "./Pages/Quize/QuizeMainPage";
 import Chat from "./Pages/Chat/Chat";
 import PublicScholarship from "./Pages/scholarship/PublicScholarship";
+import CheckoutPage from "./Pages/Product/CheckoutPage";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -51,6 +52,7 @@ const App = () => {
         <Route exact path="/login" component={Login} />
         <Route exact path="/quizeMain" component={QuizeMainPage} />
         <Route exact path="/product" component={Product} />
+        <Route exact path="/checkout" component={CheckoutPage} />
         <Route exact path="/registration" component={Registration} />
         <Route exact path="/contact" component={Contact} />
         <Route exact path="/result" component={ResultPage} />

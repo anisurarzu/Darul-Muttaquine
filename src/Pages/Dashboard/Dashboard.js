@@ -39,6 +39,8 @@ import Quize from "../Quize/Quize";
 import CreateQuize from "../Quize/CreateQuize";
 import AllQuize from "../Quize/AllQuize";
 import QuizMoney from "../Quize/QuizMoney";
+import OrderDashboard from "./Order/OrderDashboard";
+import Order from "./Order/Order";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -65,6 +67,11 @@ export default function Dashboard() {
 
   const menuItems = [
     { route: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> },
+    {
+      route: "orderDashboard",
+      label: "Order Dashboard",
+      icon: <DashboardOutlined />,
+    },
     { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
     { route: "scholarship", label: "Scholarship", icon: <BookOutlined /> },
     { route: "depositInfo", label: "Deposit", icon: <DollarOutlined /> },
@@ -73,6 +80,11 @@ export default function Dashboard() {
     { route: "result", label: "Result", icon: <FileOutlined /> },
     { route: "users", label: "Users", icon: <UserOutlined /> },
     { route: "project", label: "Projects", icon: <ProjectOutlined /> },
+    {
+      route: "orderDetails",
+      label: "Order Details",
+      icon: <PlusCircleOutlined />,
+    },
     {
       route: "suggestionBox",
       label: "SuggestionBox",
@@ -263,6 +275,12 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/quizMoney`}>
             <QuizMoney />
+          </Route>
+          <Route path={`${path}/orderDashboard`}>
+            <Order />
+          </Route>
+          <Route path={`${path}/orderDetails`}>
+            <OrderDashboard />
           </Route>
           {/*   <Route path={`${path}/createQuize`}>
             <CreateQuize />
