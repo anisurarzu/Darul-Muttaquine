@@ -199,7 +199,7 @@ export default function DashboardHome() {
   const costAmount =
     data2?.reduce((total, cost) => total + cost?.amount, 0) || 0;
 
-  const percentage = ((Number(scholarShipInfo?.length) / 249) * 100).toFixed(2);
+  const percentage = ((Number(scholarShipInfo?.length) / 206) * 100).toFixed(2);
 
   // Calculate the quiz amount
   const totalQuizAmount = quizMoney?.reduce(
@@ -337,6 +337,24 @@ export default function DashboardHome() {
           <div className="grid grid-cols-12 mx-4 lg:mx-0 xl:mx-0">
             <div className="col-span-12 lg:col-span-12 xl:col-span-12 ">
               <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
+                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
+                  <div class="flex justify-between mb-6">
+                    <div>
+                      <div class="flex items-center mb-1">
+                        <div class="text-3xl font-semibold">
+                          {scholarShipInfo?.length}
+                        </div>
+                      </div>
+                      <div class="text-[14px] font-medium text-green-800">
+                        Total Applications Of Scholarship-2024
+                      </div>
+                    </div>
+                  </div>
+
+                  <p class="text-[#f84525] font-medium text-lg hover:text-red-800">
+                    {percentage}% of prev (206)
+                  </p>
+                </div>
                 <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
                   <div class="flex justify-between mb-6">
                     <div>
