@@ -46,7 +46,6 @@ const CheckoutPage = () => {
         totalAmount: calculateTotal(),
       };
 
-      console.log("orderData", orderData);
       try {
         setLoading(true);
         const res = await coreAxios.post(`/order-info`, orderData);
@@ -88,6 +87,7 @@ const CheckoutPage = () => {
             address: "",
             city: "",
             trxId: "",
+            size: "",
           }}
           validationSchema={CheckoutSchema}
           onSubmit={handleOrderProcess}>

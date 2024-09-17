@@ -256,6 +256,9 @@ const OrderDashboard = () => {
                     Trxld
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Size
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Status
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -296,6 +299,9 @@ const OrderDashboard = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.trxId}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.size}
                     </td>
 
                     <td className="border border-tableBorder pl-1 text-center">
