@@ -60,6 +60,7 @@ const Product = () => {
       // pdf: dmfBook,
       version: "২০২৪",
       stockStatus: "স্টকে রয়েছে",
+
       details:
         "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
     },
@@ -203,7 +204,9 @@ const Product = () => {
                   }}>
                   পড়ে দেখুন
                 </Button> */}
-                <div></div>
+                <div className="text-green-600 font-semibold text-2xl">
+                  ৳ {product?.price}
+                </div>
                 <Button
                   type="primary"
                   className="bg-green-600 text-lg py-1 px-2 font-bold"
