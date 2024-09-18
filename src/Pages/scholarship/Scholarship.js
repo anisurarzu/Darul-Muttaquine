@@ -181,6 +181,13 @@ const Scholarship = () => {
     },
   };
 
+  // // Use a Set to get unique institute names
+  // const uniqueInstitutes = new Set(rollData?.map((item) => item.institute));
+  // console.log("uniqueInstitutes", uniqueInstitutes);
+
+  // // Get the count of unique institute names
+  // const uniqueInstituteCount = uniqueInstitutes.length;
+
   return (
     <>
       {loading ? (
@@ -228,7 +235,8 @@ const Scholarship = () => {
             </div>
             <div>
               <h3 className="text-[17px]">
-                Scholarship Information ({rollData?.length})
+                Scholarship Information ({rollData?.length}){" "}
+                {/* {uniqueInstituteCount} */}
               </h3>
             </div>
 

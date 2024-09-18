@@ -113,7 +113,8 @@ const OrderTrack = ({ orderData, setOrderData }) => {
                 <br />
                 {/* <Text>মূল্য: ৳{item.price.toFixed(2)}</Text> */}
                 <br />
-                <Text>পরিমাণ: {item.quantity}</Text>
+                <Text>পরিমাণ: {item.quantity}</Text>{" "}
+                <Text>Size: {orderData.size}</Text>
               </div>
             ))}
           </div>
