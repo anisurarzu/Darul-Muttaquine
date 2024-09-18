@@ -13,6 +13,8 @@ import AdmitCard from "../Dashboard/AdmitCard";
 import { formatDate } from "../../utilities/dateFormate";
 import ScholarshipUpdate from "./ScholarshipUpdate";
 import QrReader from "react-qr-scanner";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 const Scholarship = () => {
   const navigate = useHistory(); // Get the navigate function
@@ -180,13 +182,56 @@ const Scholarship = () => {
       facingMode: { exact: "environment" }, // Specifically request the back camera
     },
   };
+  // Function to generate PDF
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const tableColumn = [
+      "Name",
+      "Roll Number",
+      "Institute",
+      "Class",
+      "Phone",
+      "Date",
+      "SMS Sent",
+      "Attendance",
+    ];
+    const tableRows = filteredRolls.map((roll) => [
+      roll.name,
+      roll.scholarshipRollNumber,
+      roll.institute,
+      roll.instituteClass,
+      roll.phone,
+      new Date(roll.submittedAt).toLocaleDateString(),
+      roll.isSmsSend ? "Yes" : "No",
+      roll.isAttendanceComplete ? "Present" : "Not Present",
+    ]);
 
-  // // Use a Set to get unique institute names
-  // const uniqueInstitutes = new Set(rollData?.map((item) => item.institute));
-  // console.log("uniqueInstitutes", uniqueInstitutes);
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+    });
 
-  // // Get the count of unique institute names
-  // const uniqueInstituteCount = uniqueInstitutes.length;
+    doc.save("ScholarshipData.pdf");
+  };
+
+  // Function to generate Excel
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      filteredRolls.map((roll) => ({
+        Name: roll.name,
+        RollNumber: roll.scholarshipRollNumber,
+        Institute: roll.institute,
+        Class: roll.instituteClass,
+        Phone: roll.phone,
+        Date: new Date(roll.submittedAt).toLocaleDateString(),
+        "SMS Sent": roll.isSmsSend ? "Yes" : "No",
+        Attendance: roll.isAttendanceComplete ? "Present" : "Not Present",
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ScholarshipData");
+    XLSX.writeFile(workbook, "ScholarshipData.xlsx");
+  };
 
   return (
     <>
@@ -233,10 +278,21 @@ const Scholarship = () => {
                 Scan Now
               </Button>
             </div>
+            <div className="flex justify-end mb-4 gap-4">
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
+                onClick={exportToPDF}>
+                Generate PDF
+              </button>
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-green-500 text-white py-2 px-4 text-xl"
+                onClick={exportToExcel}>
+                Generate Excel
+              </button>
+            </div>
             <div>
               <h3 className="text-[17px]">
-                Scholarship Information ({rollData?.length}){" "}
-                {/* {uniqueInstituteCount} */}
+                Scholarship Information ({rollData?.length})
               </h3>
             </div>
 
