@@ -360,6 +360,9 @@ const Scholarship = () => {
                     Scholarship Roll
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Seat No.
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -390,7 +393,7 @@ const Scholarship = () => {
               </thead>
 
               <tbody>
-                {currentItems?.map((roll) => (
+                {currentItems?.map((roll, index) => (
                   <tr
                     key={roll?.scholarshipRollNumber}
                     className={`${
@@ -409,6 +412,9 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.scholarshipRollNumber}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {/* DMF-2024-{index + 1} */}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.name}
