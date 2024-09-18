@@ -120,6 +120,13 @@ export default function Dashboard() {
               "orderDetails",
             ].includes(item.route)
         );
+      case "System-Admin":
+        return menuItems.filter(
+          (item) =>
+            !["quize", "quizMoney", "allQuize", "orderDetails"].includes(
+              item.route
+            )
+        );
       case "Co-Admin":
         return menuItems.filter(
           (item) =>
