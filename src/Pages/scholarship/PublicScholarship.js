@@ -474,8 +474,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                             <td
                               className="border border-black py-2 px-3 uppercase"
                               colSpan={3}>
-                              Toktarchala Dhakil
-                              Madrasa,Toktarchala,Mirzapur,Tangail
+                              Takter Chala Sabuj Bangla High School,Takter
+                              chala, Sakhipur Tangail
                             </td>
                           </tr>
                         </tbody>
