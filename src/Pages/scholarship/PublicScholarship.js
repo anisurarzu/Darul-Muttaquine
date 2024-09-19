@@ -475,7 +475,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                               className="border border-black py-2 px-3 uppercase"
                               colSpan={3}>
                               Takter Chala Sabuj Bangla High School,Takter
-                              chala, Sakhipur Tangail
+                              chala, Sakhipur, Tangail
                             </td>
                           </tr>
                         </tbody>

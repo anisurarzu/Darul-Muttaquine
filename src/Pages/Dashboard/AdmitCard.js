@@ -249,7 +249,7 @@ const AdmitCard = () => {
                           className="border border-black py-2 px-3 uppercase"
                           colSpan={3}>
                           Takter Chala Sabuj Bangla High School,Takter chala,
-                          Sakhipur Tangail
+                          Sakhipur, Tangail
                         </td>
                       </tr>
                     </tbody>
