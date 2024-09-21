@@ -57,6 +57,7 @@ const Product = () => {
       image: tShirt,
       description: "This is a DMF Polo Shirt",
       price: 400,
+      productType: "cloth",
       // pdf: dmfBook,
       version: "২০২৪",
       stockStatus: "স্টকে রয়েছে",
@@ -64,13 +65,14 @@ const Product = () => {
       details:
         "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
     },
-    /* {
+    {
       name: "আলোকিত পথে যাত্রা",
       id: 1,
       image: bookOne,
       description: "This is Product 1",
       price: 30,
       pdf: dmfBook,
+      productType: "book",
       version: "২০২৩",
       stockStatus: "Stock Out",
     },
@@ -81,9 +83,10 @@ const Product = () => {
       description: "This is Product 2",
       price: 30,
       pdf: dmfBook2,
+      productType: "book",
       version: "২০২৪",
-      stockStatus: "স্টকে রয়েছে",
-    }, */
+      stockStatus: "Stock Out",
+    },
   ];
 
   const handleAddToCart = (product) => {
@@ -195,15 +198,17 @@ const Product = () => {
                 {product?.stockStatus}
               </Text>
               <div className="flex justify-between items-center mt-2">
-                {/* <Button
-                  type="primary"
-                  className="bg-green-600 text-sm py-1 px-2"
-                  onClick={() => {
-                    setProduct(product);
-                    setIsModalOpen(true);
-                  }}>
-                  পড়ে দেখুন
-                </Button> */}
+                {product?.productType === "book" && (
+                  <Button
+                    type="primary"
+                    className="bg-green-600 text-sm py-1 px-2"
+                    onClick={() => {
+                      setProduct(product);
+                      setIsModalOpen(true);
+                    }}>
+                    পড়ে দেখুন
+                  </Button>
+                )}
                 <div className="text-green-600 font-semibold text-2xl">
                   ৳ {product?.price}
                 </div>
