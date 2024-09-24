@@ -204,12 +204,19 @@ export default function Quize() {
 
           <div className="py-4 lg:py-8 xl:py-4">
             <Alert
-              message={`গুরুত্বপূর্ণ ঘোষণা: আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়। `}
+              message={`গুরুত্বপূর্ণ ঘোষণা: আসন্ন শিহ্মাবৃত্তি ২০২৪ কেন্দ্র করে আমাদের সকল সদস্যগণ অতিমাত্রায় ব্যাস্ত থাকায় আমাদের ইসলামিক কুইজ-১০ আগামী ০৫-১০-২০২৪ এ অনুষ্ঠিত হবে। `}
               description=""
               type="info"
               showIcon
               className="mb-2"
             />
+            {/*  <Alert
+              message={`গুরুত্বপূর্ণ ঘোষণা: আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়। `}
+              description=""
+              type="info"
+              showIcon
+              className="mb-2"
+            /> */}
 
             <p className="text-justify lg:text-center xl:text-center py-1 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
               এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন এটিতে
@@ -231,7 +238,7 @@ export default function Quize() {
               <div></div>
               <div>
                 <Alert
-                  message={`পরবর্তী কুইজের বিষয় হল "শিরক"`}
+                  message={`পরবর্তী কুইজের বিষয় হল "বি'দাত"`}
                   type="success"
                   className="text-center font-bold bangla-text text-[#2F5812]"
                 />
