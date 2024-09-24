@@ -194,7 +194,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const instructions = [
     "পরীক্ষার সময় ৮০ মিনিট।",
     "পরীক্ষা সকাল ১০:০০ টায় শুরু হবে।",
-    "অনুগ্রহ করে পরীক্ষার কেন্দ্রে ৩০ মিনিট আগে উপস্থিত হতে হবে।",
+    "পরীক্ষার কেন্দ্রে ৩০ মিনিট আগে উপস্থিত হতে হবে।",
     "প্রশ্নপত্রের প্রতিটি প্রশ্ন পড়ুন এবং উত্তর দেওয়ার আগে ভালোভাবে বুঝে নিন।",
     "অনতিবিলম্বে আপনার উত্তরপত্র জমা দিন পরীক্ষার শেষে।",
     "পরীক্ষার সময় মোবাইল ফোন এবং অন্যান্য বৈদ্যুতিন ডিভাইস ব্যবহার করা নিষেধ।",
@@ -253,8 +253,15 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       </div>
 
       <div>
+        <Alert
+          message={`গুরুত্বপূর্ণ ঘোষণা: শিহ্মাবৃত্তি ২০২৪ এর সকল আবেদন নেয়ার সময় শেষ হয়ে গিয়েছে,আপনি কোন কারণে আবেদন করতে না পেরে থাকলে দ্রুত আমাদের সাথে যোগাযোগ করুন `}
+          description=""
+          type="info"
+          showIcon
+          className="mb-2 mx-8"
+        />
         <div className="flex justify-center gap-2 mt-4">
-          <Button
+          {/* <Button
             onClick={() => {
               setIsApplicationShow(false);
             }}
@@ -262,8 +269,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application Create
-          </Button>
-          <Button
+          </Button> */}
+          {/* <Button
             onClick={() => {
               setIsApplicationShow(true);
             }}
@@ -271,7 +278,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application View
-          </Button>
+          </Button> */}
         </div>
       </div>
 
@@ -280,7 +287,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
           <div className="p-4  bg-white shadow-md rounded-lg">
             <div className="mx-4 sm:mx-8 md:mx-12 lg:mx-24">
               <h2 className="text-xl md:text-2xl font-semibold mb-4 text-center">
-                স্কলারশিপ তথ্য সংগ্রহ করুন
+                এডমিট কার্ড ডাউনলোড করতে চাইলে নিচে আপনার স্কলারশিপ রোল নম্বরটি
+                প্রদান করুন
               </h2>
               <div className="mb-4 max-w-md mx-auto">
                 <label className="block text-lg font-medium text-gray-700 mb-2">
