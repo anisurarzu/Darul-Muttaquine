@@ -31,6 +31,7 @@ const ScholarshipUpdate = ({
         ? moment(scholarshipData.dateOfBirth)
         : null,
       isSmsSend: scholarshipData?.isSmsSend || false, // New field
+      isSeatPlaned: scholarshipData?.isSeatPlaned || false, // New field
       isAttendanceComplete: scholarshipData?.isAttendanceComplete || false, // New field
     },
     onSubmit: async (values) => {
@@ -240,6 +241,17 @@ const ScholarshipUpdate = ({
                     checked={formik.values.isSmsSend}
                     onChange={(checked) =>
                       formik.setFieldValue("isSmsSend", checked)
+                    }
+                  />
+                </div>
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-black">
+                    Seat Planed? <span className="text-meta-1">*</span>
+                  </label>
+                  <Switch
+                    checked={formik.values.isSeatPlaned}
+                    onChange={(checked) =>
+                      formik.setFieldValue("isSeatPlaned", checked)
                     }
                   />
                 </div>
