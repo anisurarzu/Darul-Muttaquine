@@ -203,6 +203,7 @@ const Scholarship = () => {
       roll.phone,
       new Date(roll.submittedAt).toLocaleDateString(),
       roll.isSmsSend ? "Yes" : "No",
+
       roll.isAttendanceComplete ? "Present" : "Not Present",
     ]);
 
@@ -360,7 +361,7 @@ const Scholarship = () => {
                     Scholarship Roll
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Seat No.
+                    Seat Planed
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     Name
@@ -397,12 +398,12 @@ const Scholarship = () => {
                   <tr
                     key={roll?.scholarshipRollNumber}
                     className={`${
-                      roll?.isSmsSend && "bg-green-100 text-green-600"
+                      roll?.isSeatPlaned && "bg-green-100 text-green-600"
                     } ${
                       roll?.isAttendanceComplete &&
-                      roll?.isSmsSend &&
+                      roll?.isSeatPlaned &&
                       "bg-purple-100 text-purple-600"
-                    }`}>
+                    } `}>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
                         className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
@@ -414,7 +415,7 @@ const Scholarship = () => {
                       {roll?.scholarshipRollNumber}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {/* DMF-2024-{index + 1} */}
+                      {roll?.isSeatPlaned ? "Send" : "Not Send"}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.name}
