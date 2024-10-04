@@ -68,61 +68,61 @@ const ResultPage = () => {
           </div>
         </div>
         {loading && <MainLoader />}
-        <form
-          className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
-          onSubmit={formik.handleSubmit}>
-          {inputData?.map(
-            ({
-              id,
-              name,
-              type,
-              label,
-              labelFor,
-              errors,
-              register,
-              required,
-              optionLabel = "",
-              selectedAutoValue,
-              setSelectedAutoValue,
-              autoCompleteMethod,
-              autoFilteredValue,
-            }) => (
-              <div className="w-full mb-4">
-                <label className="block text-black dark:text-black text-[12px] py-1">
-                  {label} <span className="text-meta-1">*</span>
-                </label>
-                <input
-                  id={id}
-                  name={name}
-                  type={type}
-                  required={required}
-                  width="full"
-                  onChange={formik.handleChange}
-                  value={formik.values?.[id]}
-                  className="w-full lg:w-[400px] xl:w-[400px] h-[45px] rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                />
-              </div>
-            )
-          )}
-          {/* <Input placeholder="Basic usage" /> */}
+        {/* <div>
+          <form
+            className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
+            onSubmit={formik.handleSubmit}>
+            {inputData?.map(
+              ({
+                id,
+                name,
+                type,
+                label,
+                labelFor,
+                errors,
+                register,
+                required,
+                optionLabel = "",
+                selectedAutoValue,
+                setSelectedAutoValue,
+                autoCompleteMethod,
+                autoFilteredValue,
+              }) => (
+                <div className="w-full mb-4">
+                  <label className="block text-black dark:text-black text-[12px] py-1">
+                    {label} <span className="text-meta-1">*</span>
+                  </label>
+                  <input
+                    id={id}
+                    name={name}
+                    type={type}
+                    required={required}
+                    width="full"
+                    onChange={formik.handleChange}
+                    value={formik.values?.[id]}
+                    className="w-full lg:w-[400px] xl:w-[400px] h-[45px] rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                  />
+                </div>
+              )
+            )}
 
-          {/* Submit Button */}
-          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
-            <div></div>
-            <button
-              type="submit"
-              className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
-             
-            </button>
-          </div> */}
-          <Alert
-            message={`Result Not Publish Yet,, Expected Result Date: 11-10-2024 `}
-            description=""
-            type="info"
-            showIcon
-            className="mb-2"
-          />
-        </form>
+
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
+              <div></div>
+              <button
+                type="submit"
+                className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md"></button>
+            </div>
+          </form>
+        </div> */}
+        <Alert
+          message={`Result Not Publish Yet,, Expected Result Date: 11-10-2024 `}
+          description=""
+          type="info"
+          showIcon
+          className="mb-2"
+        />
       </div>
 
       <div className="bg-white p-4 shadow rounded mt-4 mx-4 lg:mx-24 xl:mx-24">
