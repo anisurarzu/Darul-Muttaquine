@@ -234,6 +234,10 @@ const Scholarship = () => {
     XLSX.writeFile(workbook, "ScholarshipData.xlsx");
   };
 
+  const countAttendanceComplete = rollData?.filter(
+    (item) => item?.isAttendanceComplete === true
+  )?.length;
+
   return (
     <>
       {loading ? (
@@ -293,7 +297,8 @@ const Scholarship = () => {
             </div>
             <div>
               <h3 className="text-[17px]">
-                Scholarship Information ({rollData?.length})
+                Scholarship Information ({rollData?.length}) Total Present(
+                {countAttendanceComplete})
               </h3>
             </div>
 
@@ -397,11 +402,8 @@ const Scholarship = () => {
                 {currentItems?.map((roll, index) => (
                   <tr
                     key={roll?.scholarshipRollNumber}
-                    className={`${
-                      roll?.isSeatPlaned && "bg-green-100 text-green-600"
-                    } ${
+                    className={` ${
                       roll?.isAttendanceComplete &&
-                      roll?.isSeatPlaned &&
                       "bg-purple-100 text-purple-600"
                     } `}>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">

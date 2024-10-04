@@ -1,30 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  Image,
-  Modal,
-  Button,
-  Typography,
-  Badge,
-  Input,
-  Divider,
-  Steps,
-  message,
-  Alert,
-} from "antd";
+import { Image, Modal, Button, Typography, Badge, Alert } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import ProductDetails from "./ProductDetails";
-import bookOne from "../../images/dmf-book-1.png";
-import tShirt from "../../images/polo-shirt.jpeg";
-import bookTwo from "../../images/dmf-book-2.png";
-import dmfBook from "../../images/dmf-book.pdf";
-import dmfBook2 from "../../images/dmf-book-2.pdf";
 import { useHistory } from "react-router-dom";
-import axios from "axios"; // Add this for API requests
-import { coreAxios } from "../../utilities/axios";
 import OrderTrack from "./OrderTrack";
 
 const { Text, Title } = Typography;
-const { Step } = Steps;
 
 const Product = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,7 +15,6 @@ const Product = () => {
   const [cart, setCart] = useState({});
   const [orderNo, setOrderNo] = useState("");
   const [orderData, setOrderData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const history = useHistory();
 
   // Load cart from localStorage on component mount
@@ -54,38 +34,26 @@ const Product = () => {
     {
       name: "DMF Polo Shirt",
       id: 1,
-      image: tShirt,
+      image: "https://i.ibb.co.com/WKJZn9H/shoe-woman-01.png",
       description: "This is a DMF Polo Shirt",
       price: 400,
       productType: "cloth",
-      // pdf: dmfBook,
       version: "২০২৪",
       stockStatus: "স্টকে রয়েছে",
-
       details:
         "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
     },
     {
-      name: "আলোকিত পথে যাত্রা",
-      id: 1,
-      image: bookOne,
-      description: "This is Product 1",
-      price: 30,
-      pdf: dmfBook,
-      productType: "book",
-      version: "২০২৩",
-      stockStatus: "Stock Out",
-    },
-    {
-      name: "আলোকিত পথে যাত্রা",
+      name: "DMF Polo Shirt",
       id: 2,
-      image: bookTwo,
-      description: "This is Product 2",
-      price: 30,
-      pdf: dmfBook2,
-      productType: "book",
+      image: "https://i.ibb.co.com/XVypqRH/shoe-woman-02.png",
+      description: "This is a DMF Polo Shirt",
+      price: 400,
+      productType: "cloth",
       version: "২০২৪",
-      stockStatus: "Stock Out",
+      stockStatus: "স্টকে রয়েছে",
+      details:
+        "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
     },
   ];
 
@@ -159,7 +127,6 @@ const Product = () => {
 
       {/* Products Grid */}
       <div className="lg:mx-20">
-        {/* Search Field for Order Tracking */}
         <div className="flex justify-center">
           <Button
             className="mt-2 lg:mt-0 xl:mt-0 "
@@ -171,45 +138,34 @@ const Product = () => {
           </Button>
         </div>
 
-        {/* Order Tracking Information */}
-
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 lg:gap-6 xl:gap-6 p-4">
           {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-md shadow-lg p-4">
+            <div
+              key={product.id}
+              className="bg-white rounded-md shadow-lg p-4 flex flex-col justify-between h-full">
               <div className="relative w-full max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl">
                 <Image
-                  className="object-cover rounded-md w-full h-auto"
+                  className="object-cover rounded-md w-full h-48" // Ensure fixed height
                   src={product?.image}
                   alt={product?.name}
                   preview={true}
                 />
               </div>
-              <h3
-                level={5}
-                className="bangla-text text-[12px] lg:text-[18px] text-center mt-2">
+              <h3 className="bangla-text text-[12px] lg:text-[18px] text-center mt-2">
                 {product?.name} ({product?.version})
               </h3>
-              <h3
-                level={5}
-                className="text-justify text-[10px] lg:text-[15px] text-center mt-8 mb-2">
+              <Text
+                className="text-justify text-[10px] lg:text-[14px] text-center mt-2 mb-2 line-clamp-3"
+                style={{ minHeight: "60px" }}>
+                {" "}
+                {/* Fixed text height */}
                 {product?.details}
-              </h3>
+              </Text>
               <Text className="block text-[12px] text-green-600">
                 {product?.stockStatus}
               </Text>
               <div className="flex justify-between items-center mt-2">
-                {product?.productType === "book" && (
-                  <Button
-                    type="primary"
-                    className="bg-green-600 text-sm py-1 px-2"
-                    onClick={() => {
-                      setProduct(product);
-                      setIsModalOpen(true);
-                    }}>
-                    পড়ে দেখুন
-                  </Button>
-                )}
-                <div className="text-green-600 font-semibold text-2xl">
+                <div className="text-green-600 font-semibold text-lg">
                   ৳ {product?.price}
                 </div>
                 <Button
@@ -259,88 +215,53 @@ const Product = () => {
             key="checkout"
             type="primary"
             className="bg-blue-600 text-white bangla-text rounded-md px-4 py-2 lg:px-6 lg:py-3 text-sm lg:text-base"
-            onClick={() => history.push("/checkout")} // Add your checkout logic here
-          >
+            onClick={() => history.push("/checkout")}>
             চেকআউট করুন
           </Button>,
           <Button
             key="close"
             onClick={toggleCartModal}
-            type="primary"
-            className="bg-green-600 text-white bangla-text rounded-md px-4 py-2 lg:px-6 lg:py-3 text-sm lg:text-base">
+            className="bangla-text text-sm lg:text-base">
             বন্ধ করুন
           </Button>,
-        ]}
-        bodyStyle={{
-          padding: "10px",
-          backgroundColor: "#F0F4F8",
-          maxHeight: "80vh",
-          overflowY: "auto",
-        }}
-        width="80vw"
-        centered>
-        {Object.values(cart).length > 0 ? (
-          <div className="bangla-text">
-            {Object.values(cart).map((item) => (
-              <div
-                key={item.id}
-                className="flex justify-between items-center mb-4 bg-white p-4 rounded-lg shadow-md lg:p-6">
-                <div className="flex flex-col items-start w-2/3">
-                  <Text className="font-semibold text-sm lg:text-base">
-                    {item.name} ({item.version})
-                  </Text>
-                  <Text className="text-xs lg:text-sm text-gray-600">
-                    মূল্য: ৳{item.price.toFixed(2)} / একক
-                  </Text>
+        ]}>
+        {Object.keys(cart).length > 0 ? (
+          Object.values(cart).map((product) => (
+            <div
+              key={product.id}
+              className="flex justify-between items-center mb-4">
+              <div className="flex items-center">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={50}
+                  height={50}
+                  preview={false}
+                />
+                <div className="ml-4 bangla-text">
+                  <Title level={5}>{product.name}</Title>
+                  <Text>৳ {product.price}</Text>
                 </div>
-
-                <div className="flex items-center">
-                  <Button
-                    size="small"
-                    type="danger"
-                    className="text-white bg-red-600 text-xs lg:text-sm"
-                    onClick={() => handleRemoveFromCart(item.id)}>
-                    -
-                  </Button>
-                  <Text className="mx-2 font-semibold text-sm lg:text-base">
-                    {item.quantity}
-                  </Text>
-                  <Button
-                    size="small"
-                    type="primary"
-                    className="text-white bg-green-600 text-xs lg:text-sm"
-                    onClick={() => handleAddToCart(item)}>
-                    +
-                  </Button>
-                </div>
-
-                <Text className="font-bold text-sm lg:text-base pl-1">
-                  মোট: ৳{(item.price * item.quantity).toFixed(2)}
-                </Text>
               </div>
-            ))}
-            <div className="text-right font-bold text-lg lg:text-xl mt-6">
-              মোট মূল্য: ৳{calculateTotal().toFixed(2)}
+              <div>
+                <Button onClick={() => handleRemoveFromCart(product.id)}>
+                  -
+                </Button>
+                <Text className="mx-2">{product.quantity}</Text>
+                <Button onClick={() => handleAddToCart(product)}>+</Button>
+              </div>
             </div>
-          </div>
+          ))
         ) : (
-          <div className="text-center py-10">
-            <Text className="text-sm lg:text-base bangla-text text-gray-600">
-              আপনার কার্টে কোন পণ্য নেই
-            </Text>
+          <div className="flex justify-center items-center">
+            <Text className="bangla-text">আপনার কার্ট খালি</Text>
           </div>
         )}
       </Modal>
 
-      <Modal title="" open={isModalOpen} onCancel={handleCancel} width={800}>
-        <ProductDetails handleCancel={handleCancel} product={product} />
-      </Modal>
-      <Modal title="" open={isModalOpen2} onCancel={handleCancel} width={800}>
-        <OrderTrack
-          handleCancel={handleCancel}
-          orderData={orderData}
-          setOrderData={setOrderData}
-        />
+      {/* Order Tracking Modal */}
+      <Modal open={isModalOpen2} footer={null} onCancel={handleCancel}>
+        <OrderTrack />
       </Modal>
     </div>
   );
