@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Button, Flex, Input, Progress, Result, Upload } from "antd";
+import { Alert, Button, Flex, Input, Progress, Result, Upload } from "antd";
 import { coreAxios } from "../../../utilities/axios";
 import { useFormik } from "formik";
 import Scholarship from "../../scholarship/Scholarship";
@@ -107,14 +107,21 @@ const ResultPage = () => {
           {/* <Input placeholder="Basic usage" /> */}
 
           {/* Submit Button */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
             <div></div>
             <button
               type="submit"
               className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
-              Search
+             
             </button>
-          </div>
+          </div> */}
+          <Alert
+            message={`Result Not Publish Yet,, Expected Result Date: 11-10-2024 `}
+            description=""
+            type="info"
+            showIcon
+            className="mb-2"
+          />
         </form>
       </div>
 
