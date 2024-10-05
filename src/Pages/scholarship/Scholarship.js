@@ -238,6 +238,32 @@ const Scholarship = () => {
     (item) => item?.isAttendanceComplete === true
   )?.length;
 
+  // Function to count total resultDetails, isScholarshiped, TalentpoolGrade, and GeneralGrade
+  let totalResultDetailsCount = 0;
+  let isScholarshipedCount = 0;
+  let talentpoolGradeCount = 0;
+  let generalGradeCount = 0;
+
+  rollData?.forEach((item) => {
+    if (Array.isArray(item.resultDetails)) {
+      totalResultDetailsCount += item.resultDetails.length;
+
+      // Loop through resultDetails for each result
+      item.resultDetails.forEach((result) => {
+        if (result.totalMarks >= 80) {
+          isScholarshipedCount++; // Marks >= 80 is considered for scholarship
+
+          // Check for TalentpoolGrade and GeneralGrade
+          if (result.totalMarks >= 90) {
+            talentpoolGradeCount++; // Marks >= 90
+          } else if (result.totalMarks >= 80 && result.totalMarks < 90) {
+            generalGradeCount++; // Marks between 80 and 89
+          }
+        }
+      });
+    }
+  });
+
   return (
     <>
       {loading ? (
@@ -251,7 +277,7 @@ const Scholarship = () => {
       ) : (
         <div className="text-sm mx-8 my-6">
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
-            <div className="ml-1">
+            {/* <div className="ml-1">
               <button
                 className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
                 onClick={() => showModal()}
@@ -282,7 +308,7 @@ const Scholarship = () => {
                 onClick={() => setShowQrScanner(!showQrScanner)}>
                 Scan Now
               </Button>
-            </div>
+            </div> */}
             <div className="flex justify-end mb-4 gap-4">
               <button
                 className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
@@ -297,8 +323,10 @@ const Scholarship = () => {
             </div>
             <div>
               <h3 className="text-[17px]">
-                Scholarship Information ({rollData?.length}) Total Present(
-                {countAttendanceComplete})
+                Applications ({rollData?.length}) Present (
+                {countAttendanceComplete}) Results ({totalResultDetailsCount})
+                ScholarShipped ({isScholarshipedCount}) T-Grade (
+                {talentpoolGradeCount}) G-Grade ({generalGradeCount})
               </h3>
             </div>
 
@@ -390,8 +418,12 @@ const Scholarship = () => {
                     Attendance
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Results
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Admit Card
                   </th>
+
                   <th className="border border-tableBorder text-center p-2">
                     Actions
                   </th>
@@ -443,6 +475,9 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.isAttendanceComplete ? "Present" : "Not Present"}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.resultDetails?.[0]?.totalMarks}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button
