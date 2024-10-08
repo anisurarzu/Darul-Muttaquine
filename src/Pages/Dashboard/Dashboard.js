@@ -41,6 +41,7 @@ import AllQuize from "../Quize/AllQuize";
 import QuizMoney from "../Quize/QuizMoney";
 import OrderDashboard from "./Order/OrderDashboard";
 import Order from "./Order/Order";
+import ResultDetails from "./ResultDetails/ResultDetails";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -74,10 +75,12 @@ export default function Dashboard() {
     },
     { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
     { route: "scholarship", label: "Scholarship", icon: <BookOutlined /> },
+    { route: "resultDetails", label: "Result Details", icon: <FileOutlined /> },
     { route: "depositInfo", label: "Deposit", icon: <DollarOutlined /> },
     { route: "historyDashboard", label: "History", icon: <HistoryOutlined /> },
     { route: "addResult", label: "Add Result", icon: <FileAddOutlined /> },
     { route: "result", label: "Result", icon: <FileOutlined /> },
+
     { route: "users", label: "Users", icon: <UserOutlined /> },
     { route: "project", label: "Projects", icon: <ProjectOutlined /> },
     {
@@ -118,14 +121,19 @@ export default function Dashboard() {
               "quizMoney",
               "allQuize",
               "orderDetails",
+              "resultDetails",
             ].includes(item.route)
         );
       case "System-Admin":
         return menuItems.filter(
           (item) =>
-            !["quize", "quizMoney", "allQuize", "orderDetails"].includes(
-              item.route
-            )
+            ![
+              "quize",
+              "quizMoney",
+              "allQuize",
+              "orderDetails",
+              "resultDetails",
+            ].includes(item.route)
         );
       case "Co-Admin":
         return menuItems.filter(
@@ -137,16 +145,26 @@ export default function Dashboard() {
               "quize",
               "quizMoney",
               "orderDetails",
+              "resultDetails",
             ].includes(item.route)
         );
       case "Accountant":
         return menuItems.filter(
           (item) =>
-            !["users", "project", "quize", "allQuize"].includes(item.route)
+            ![
+              "users",
+              "project",
+              "quize",
+              "allQuize",
+              "resultDetails",
+            ].includes(item.route)
         );
       case "Second-Accountant":
         return menuItems.filter(
-          (item) => !["users", "project", "orderDetails"].includes(item.route)
+          (item) =>
+            !["users", "project", "orderDetails", "resultDetails"].includes(
+              item.route
+            )
         );
       case "Senior-Member":
         return menuItems.filter((item) =>
@@ -257,6 +275,9 @@ export default function Dashboard() {
           <Route path={`${path}/scholarship`}>
             <Scholarship />
           </Route>
+          <Route path={`${path}/resultDetails`}>
+            <ResultDetails />
+          </Route>
 
           <Route path={`${path}/depositInfo`}>
             <DepositInfo />
@@ -300,6 +321,7 @@ export default function Dashboard() {
           <Route path={`${path}/orderDetails`}>
             <OrderDashboard />
           </Route>
+
           {/*   <Route path={`${path}/createQuize`}>
             <CreateQuize />
           </Route> ----*/}
