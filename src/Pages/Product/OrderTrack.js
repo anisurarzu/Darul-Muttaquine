@@ -15,11 +15,17 @@ const OrderTrack = ({ orderData, setOrderData }) => {
   const fetchOrderData = async () => {
     setLoading(true);
     try {
+      // Fetch the order data from API
       const response = await coreAxios.get(`/order-info/${orderNo}`);
-      setOrderData(response.data);
+
+      console.log("hit", response?.data);
+
+      // Set order data from response
+      setOrderData(response.data); // Assuming the actual data is in response.data
       setError(null);
       setOrderNo("");
     } catch (err) {
+      // Handle error
       setError(
         "অর্ডার তথ্য পাওয়া যায়নি। দয়া করে নিশ্চিত করুন যে আপনার অর্ডার নম্বর সঠিক।"
       );
@@ -111,10 +117,8 @@ const OrderTrack = ({ orderData, setOrderData }) => {
                   {item.name} ({item.version})
                 </Text>
                 <br />
-                {/* <Text>মূল্য: ৳{item.price.toFixed(2)}</Text> */}
-                <br />
                 <Text>পরিমাণ: {item.quantity}</Text>{" "}
-                <Text>Size: {orderData.size}</Text>
+                <Text>Size: {item.size}</Text>
               </div>
             ))}
           </div>

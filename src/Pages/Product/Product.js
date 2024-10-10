@@ -32,28 +32,83 @@ const Product = () => {
 
   const products = [
     {
-      name: "DMF Polo Shirt",
+      name: "Ladies' Fashionable Shoes (White)",
       id: 1,
       image: "https://i.ibb.co.com/WKJZn9H/shoe-woman-01.png",
       description: "This is a DMF Polo Shirt",
-      price: 400,
-      productType: "cloth",
+      price: 1290,
+      productType: "shoes",
       version: "২০২৪",
       stockStatus: "স্টকে রয়েছে",
-      details:
-        "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
+      details: "",
     },
     {
-      name: "DMF Polo Shirt",
+      name: "Ladies' Fashionable Shoes (Brown)",
       id: 2,
       image: "https://i.ibb.co.com/XVypqRH/shoe-woman-02.png",
       description: "This is a DMF Polo Shirt",
-      price: 400,
-      productType: "cloth",
+      price: 1290,
+      productType: "shoes",
       version: "২০২৪",
       stockStatus: "স্টকে রয়েছে",
-      details:
-        "এই পণ্যটি একটি DMF পলো শার্ট। এটি উচ্চমানের মেশ ফ্যাব্রিক দিয়ে তৈরি, যা আরামদায়ক এবং দীর্ঘস্থায়ী। শার্টটি জার্সি টাইপের এবং সাইজের বৈচিত্র্যের সাথে উপলব্ধ।",
+      details: "",
+    },
+    {
+      name: "Sneakers -01",
+      id: 3,
+      image:
+        "https://i.ibb.co.com/9g6Mjdn/462546053-912001237502182-7548883070234090839-n-removebg-preview.png",
+      description: "This is a DMF Polo Shirt",
+      price: 1450,
+      productType: "shoes",
+      version: "২০২৪",
+      stockStatus: "স্টকে রয়েছে",
+      details: "",
+    },
+    {
+      name: "Sneakers -02",
+      id: 4,
+      image: "https://i.ibb.co.com/BBZfJ2s/keds-4.png",
+      description: "This is a DMF Polo Shirt",
+      price: 1450,
+      productType: "shoes",
+      version: "২০২৪",
+      stockStatus: "স্টকে রয়েছে",
+      details: "",
+    },
+    {
+      name: "Sneakers -03",
+      id: 5,
+      image: "https://i.ibb.co.com/r5B8MX7/keds-3.png",
+      description: "This is a DMF Polo Shirt",
+      price: 1450,
+      productType: "shoes",
+      version: "২০২৪",
+      stockStatus: "স্টকে রয়েছে",
+      details: "",
+    },
+    {
+      name: "Sneakers -04",
+      id: 6,
+      image: "https://i.ibb.co.com/xD09x2g/keds-2.png",
+      description: "This is a DMF Polo Shirt",
+      price: 1450,
+      productType: "shoes",
+      version: "২০২৪",
+      stockStatus: "স্টকে রয়েছে",
+      details: "",
+    },
+    {
+      name: "Mens' Sandals (100% leather)",
+      id: 7,
+      image:
+        "https://i.ibb.co.com/gSVCff6/461477645-534887729163365-7552023182099717256-n-removebg-preview.png",
+      description: "This is a DMF Polo Shirt",
+      price: 750,
+      productType: "shoes",
+      version: "২০২৪",
+      stockStatus: "স্টকে রয়েছে",
+      details: "",
     },
   ];
 
@@ -143,26 +198,22 @@ const Product = () => {
             <div
               key={product.id}
               className="bg-white rounded-md shadow-lg p-4 flex flex-col justify-between h-full">
-              <div className="relative w-full max-w-xs md:max-w-md lg:max-w-lg xl:max-w-xl">
+              <div className="flex justify-center">
                 <Image
-                  className="object-cover rounded-md w-full h-48" // Ensure fixed height
+                  className="object-cover rounded-md"
                   src={product?.image}
                   alt={product?.name}
                   preview={true}
+                  width={144}
+                  height={144}
                 />
               </div>
-              <h3 className="bangla-text text-[12px] lg:text-[18px] text-center mt-2">
-                {product?.name} ({product?.version})
+              <h3 className="bangla-text text-[12px] lg:text-[18px] text-center mt-3">
+                {product?.name}
               </h3>
-              <Text
-                className="text-justify text-[10px] lg:text-[14px] text-center mt-2 mb-2 line-clamp-3"
-                style={{ minHeight: "60px" }}>
-                {" "}
-                {/* Fixed text height */}
-                {product?.details}
-              </Text>
+
               <Text className="block text-[12px] text-green-600">
-                {product?.stockStatus}
+                {product?.stockStatus} (সকল সাইজের জুতা পাওয়া যাচ্ছে)
               </Text>
               <div className="flex justify-between items-center mt-2">
                 <div className="text-green-600 font-semibold text-lg">
@@ -260,8 +311,12 @@ const Product = () => {
       </Modal>
 
       {/* Order Tracking Modal */}
-      <Modal open={isModalOpen2} footer={null} onCancel={handleCancel}>
-        <OrderTrack />
+      <Modal
+        open={isModalOpen2}
+        footer={null}
+        onCancel={handleCancel}
+        width={800}>
+        <OrderTrack orderData={orderData} setOrderData={setOrderData} />
       </Modal>
     </div>
   );

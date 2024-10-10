@@ -77,7 +77,7 @@ function processRollData(rollData) {
               institute, // Added Institute
               totalMarks,
             });
-          } else if (totalMarks >= 60 && totalMarks < 90) {
+          } else if (totalMarks >= 65 && totalMarks < 90) {
             generalGradeCount++;
             scholarshipListByClass[`class${className}`].generalGrade.push({
               rollNumber,

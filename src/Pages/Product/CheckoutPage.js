@@ -169,16 +169,25 @@ const CheckoutPage = () => {
                   {({ field }) => (
                     <Radio.Group {...field} className="flex flex-wrap">
                       <Radio value="M" className="text-lg">
-                        M
+                        32
                       </Radio>
                       <Radio value="L" className="text-lg">
-                        L
+                        34
                       </Radio>
                       <Radio value="XL" className="text-lg">
-                        XL
+                        36
                       </Radio>
                       <Radio value="XXL" className="text-lg">
-                        XXL
+                        38
+                      </Radio>
+                      <Radio value="XXL" className="text-lg">
+                        40
+                      </Radio>
+                      <Radio value="XXL" className="text-lg">
+                        42
+                      </Radio>
+                      <Radio value="XXL" className="text-lg">
+                        Confirm sie by call
                       </Radio>
                     </Radio.Group>
                   )}
@@ -189,7 +198,7 @@ const CheckoutPage = () => {
                 <Text className="text-gray-700 text-lg">
                   অনুগ্রহ করে এই কার্টের পরিমাণ টাকা রকেট, বিকাশ ,নগদ
                   (01791556184) নম্বরে পাঠান এবং ট্রানজ্যাকশন আইডি নিচের
-                  ক্ষেত্রে লিখুন।
+                  ক্ষেত্রে লিখুন। ক্যাশ অন ডেলিভারির জন্য COD লিখুন
                 </Text>
 
                 <div>

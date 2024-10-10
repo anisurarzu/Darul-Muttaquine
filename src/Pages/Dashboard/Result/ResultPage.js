@@ -7,6 +7,12 @@ import { useFormik } from "formik";
 import Scholarship from "../../scholarship/Scholarship";
 import MainLoader from "../../../components/Loader/MainLoader";
 
+// Function to convert numbers to Bengali numerals
+const convertToBengali = (number) => {
+  const bengaliNumerals = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+  return String(number).replace(/\d/g, (digit) => bengaliNumerals[digit]);
+};
+
 const ResultPage = () => {
   const [resultData, setResultData] = useState({});
   const [loading, setLoading] = useState(false);
@@ -14,9 +20,9 @@ const ResultPage = () => {
   const formik = useFormik({
     initialValues: {
       scholarshipRollNumber: "",
-    }, // Ensure you have proper initial values
+    },
     onSubmit: async (values) => {
-      console.log("values", values); // Check if values are received correctly
+      console.log("values", values);
       try {
         setLoading(true);
         const res = await coreAxios.get(
@@ -48,6 +54,29 @@ const ResultPage = () => {
     },
   ];
 
+  // Scholarship condition and message
+  const getScholarshipMessage = () => {
+    const marks = resultData?.resultDetails?.[0]?.totalMarks;
+    const classLevel = resultData?.instituteClass;
+    const convertedMarks = convertToBengali(marks);
+
+    if (classLevel >= 5 && classLevel <= 6) {
+      return marks >= 65
+        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি স্কলারশিপ অর্জন করতে সক্ষম হয়েছ ${convertedMarks} নম্বর পেয়ে! তোমার পরিশ্রমের এই স্বীকৃতি সত্যিই প্রশংসনীয়।`
+        : `দুঃখিত! স্কলারশিপের জন্য তোমার কমপক্ষে ৬৫ নম্বর প্রয়োজন। তুমি ${convertedMarks}% নম্বর পেয়েছ। পরবর্তীতে আরও ভালো করার আশা করছি।`;
+    } else if (classLevel >= 7 && classLevel <= 8) {
+      return marks >= 70
+        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি স্কলারশিপ অর্জন করতে সক্ষম হয়েছ ${convertedMarks} নম্বর পেয়ে! তুমি সত্যিই দুর্দান্ত করেছে।`
+        : `দুঃখিত! স্কলারশিপের জন্য তোমার ৭০ নম্বর প্রয়োজন ছিল। তুমি ${convertedMarks} নম্বর পেয়েছ। আশা করি ভবিষ্যতে আরও ভালো করবে।`;
+    } else if (classLevel >= 9 && classLevel <= 10) {
+      return marks >= 80
+        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি ${convertedMarks} নম্বর পেয়ে স্কলারশিপ অর্জন করেছ। তোমার এই সাফল্য ভবিষ্যতের জন্য অনুপ্রেরণা।`
+        : `দুঃখিত! স্কলারশিপের জন্য তোমার ৮০ নম্বর প্রয়োজন ছিল, কিন্তু তুমি ${convertedMarks} নম্বর পেয়েছ। চেষ্টা চালিয়ে যাও, আরও ভালো কিছু অপেক্ষা করছে।`;
+    } else {
+      return "দয়া করে সঠিক শ্রেণী এবং নম্বর সহ ফলাফল যাচাই করুন।";
+    }
+  };
+
   return (
     <div className="">
       <div style={{ background: "#BDDE98" }}>
@@ -57,7 +86,7 @@ const ResultPage = () => {
           ফলাফল
         </h2>
       </div>
-      <div className=" p-4 shadow rounded mx-4 lg:mx-24 xl:mx-24 mt-8">
+      <div className="p-4 shadow rounded mx-4 lg:mx-24 xl:mx-24 mt-8">
         <div className="flex justify-center pt-2">
           <div>
             <h2 className="text-[18px] font-bold py-2 text-green-600">
@@ -90,7 +119,7 @@ const ResultPage = () => {
                   autoCompleteMethod,
                   autoFilteredValue,
                 }) => (
-                  <div className="w-full mb-4">
+                  <div className="w-full mb-4" key={id}>
                     <label className="block text-black dark:text-black text-[12px] py-1">
                       {label} <span className="text-meta-1">*</span>
                     </label>
@@ -130,21 +159,8 @@ const ResultPage = () => {
       </div>
 
       <div className="bg-white p-4 shadow rounded mt-4 mx-4 lg:mx-24 xl:mx-24">
-        <div>
-          <Result
-            status="success"
-            title={`${
-              resultData?.resultDetails?.[0]?.totalMarks > 79
-                ? "Alhamdulillah! Congratulations! You get an Scholarship with "
-                : resultData?.resultDetails?.[0]?.totalMarks > 0
-                ? "Sorry! Your performance was Really Good! You don't get any scholarship.  But Hopefully you will come back strongly Ing Sha Allah. "
-                : "Please search Your result with valid Scholarship Roll Number "
-            }${
-              resultData?.resultDetails?.[0]?.totalMarks > 0
-                ? resultData?.resultDetails?.[0]?.totalMarks
-                : 0
-            } % marks!`}
-          />
+        <div className="text-justify bangla-text">
+          <Result status="success" title={getScholarshipMessage()} />
         </div>
         <div className="flex justify-center">
           <h1 className="text-center text-[17px]">
@@ -179,44 +195,40 @@ const ResultPage = () => {
                 {resultData?.instituteClass}
               </div>
               <div className="border-b border-green-400 p-1 bg-green-50">
-                {resultData?.scholarshipRollNumber}
+                {resultData?.resultDetails?.[0]?.scholarshipRollNumber}
               </div>
               <div className="border-b border-green-400 p-1">
                 {resultData?.instituteRollNumber}
               </div>
             </div>
           </div>
+
           {/* 2nd div */}
-          <div>
-            <Progress percent={resultData?.resultDetails?.[0]?.totalMarks} />
-            <div className="grid grid-cols-2  w-full pt-2">
-              <div className="border border-orange-500 p-4 ">
-                <div className="border-b border-orange-400 p-1 ">
-                  Total Answered:
-                </div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Correct Answer
-                </div>
-                <div className="border-b border-orange-400 p-1">
-                  Wrong Answer
-                </div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  Total Marks
-                </div>
+          <div className="grid grid-cols-2  w-full pt-2">
+            <div className="border border-orange-500 p-4 ">
+              <div className="border-b border-orange-400 p-1 bg-orange-50 bangla-text">
+                সঠিক উত্তর
               </div>
-              <div className="border-t border-b border-r border-orange-500 p-4">
-                <div className="border-b border-orange-400 p-1">
-                  {resultData?.resultDetails?.[0]?.totalGivenAns}
-                </div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  {resultData?.resultDetails?.[0]?.totalCorrectAns}
-                </div>
-                <div className="border-b border-orange-400 p-1">
-                  {resultData?.resultDetails?.[0]?.totalWrongAns}
-                </div>
-                <div className="border-b border-orange-400 p-1 bg-orange-50">
-                  {resultData?.resultDetails?.[0]?.totalMarks}
-                </div>
+              <div className="border-b border-orange-400 p-1 bangla-text">
+                ভুল উত্তর
+              </div>
+              <div className="border-b border-orange-400 p-1 bg-orange-50 bangla-text">
+                প্রাপ্ত নম্বর
+              </div>
+            </div>
+            <div className="border-t border-b border-r border-orange-500 p-4">
+              <div className="border-b border-orange-400 p-1 bg-orange-50">
+                {convertToBengali(
+                  resultData?.resultDetails?.[0]?.totalCorrectAns
+                )}
+              </div>
+              <div className="border-b border-orange-400 p-1">
+                {convertToBengali(
+                  resultData?.resultDetails?.[0]?.totalWrongAns
+                )}
+              </div>
+              <div className="border-b border-orange-400 p-1 bg-orange-50">
+                {convertToBengali(resultData?.resultDetails?.[0]?.totalMarks)}
               </div>
             </div>
           </div>
