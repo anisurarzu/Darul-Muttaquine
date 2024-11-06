@@ -393,7 +393,7 @@ const Withdraw = () => {
                               </button>
                             )}
 
-                            <Popconfirm
+                           /*  <Popconfirm
                               title="Delete the task"
                               description="Are you sure to delete this task?"
                               onConfirm={() => {
@@ -407,10 +407,10 @@ const Withdraw = () => {
                                   <i className="pi pi-trash font-semibold"></i>
                                 </span>
                               </button>
-                            </Popconfirm>
+                            </Popconfirm> */
                           </div>
                         )}
-                        {roll?.status === "Approved" && (
+                        /* {roll?.status === "Approved" && (
                           <Popconfirm
                             title="Delete the task"
                             description="Are you sure to delete this task?"
@@ -435,7 +435,7 @@ const Withdraw = () => {
                               </span>
                             </button>
                           </Popconfirm>
-                        )}
+                        )} */
                       </div>
                     </td>
                   </tr>
