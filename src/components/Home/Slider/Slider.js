@@ -1,144 +1,96 @@
-import React, { useRef, useState } from "react";
-// Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
-
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./Slider.css";
+import sliderImage from "../../../images/banner-hero.png";
 
-import slider from "../../../images/banner-hero.png";
-
-// import required modules
-import { Parallax, Pagination, Navigation } from "swiper/modules";
-import { GiHamburgerMenu } from "react-icons/gi";
-import { NavLink } from "react-router-dom/cjs/react-router-dom.min";
-import "../../../Pages/scholarship/scholarshipButton.css";
+// Bangla Text Data
+const slides = [
+  {
+    title: "ফান্ডামেন্টালস অফ ম্যাথ এবং ফিজিক্স",
+    subtitle: "বেসিক থেকে উন্নত পর্যায়",
+    description: `
+      📚 কোর্স সময়কাল: ২ মাস
+       🎓 ইনস্ট্রাক্টর: মনির হোসেন, অধয়নরত শিক্ষার্থী, গণিত বিভাগ, সরকারি সা'দত কলেজ
+    `,
+  },
+  {
+    title: "স্পোকেন ইংলিশ এসেনশিয়ালস",
+    subtitle: "যোগাযোগ দক্ষতার উন্নয়ন",
+    description: `
+      📚 কোর্স সময়কাল: ২ মাস
+      🎓 ইনস্ট্রাক্টর: আশিকুর রহমান, সহকারী শিক্ষক (ইংরেজি), বালিয়াজান উচ্চ বিদ্যালয়
+    `,
+  },
+  {
+    title: "আইসিটি এবং কৃত্রিম বুদ্ধিমত্তার ভিত্তি",
+    subtitle: "ভবিষ্যতের প্রযুক্তি শিখুন",
+    description: `
+      📚 কোর্স সময়কাল: ২ মাস
+    
+      🎓 ইনস্ট্রাক্টর: আনিসুর রহমান, সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার, বিবিএল
+    `,
+  },
+  {
+    title: "আদব ও আখলাক এসেনশিয়ালস",
+    subtitle: "নৈতিক মূল্যবোধ ও আচার-আচরণ শিক্ষা",
+    description: `
+      📚 কোর্স সময়কাল: ২ মাস
+        🎓 ইনস্ট্রাক্টর: সাইফুল্লাহ সাদী, শিক্ষা বিষয়ক সম্পাদক, দারুল মুত্তাক্বীন ফাউন্ডেশন
+     
+    `,
+  },
+];
 
 export default function Slider() {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Automatically change slides every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000); // Change slide every 5 seconds
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, []);
+
   return (
-    <>
-      <Swiper
-        style={{
-          "--swiper-navigation-color": "#fff",
-          "--swiper-pagination-color": "#fff",
-        }}
-        speed={400}
-        parallax={true}
-        pagination={{
-          clickable: true,
-        }}
-        // navigation={true}
-        modules={[Parallax, Pagination, Navigation]}
-        className="h-[350px] lg:h-[500px] xl:h-[500px] p-2 lg:p-8 xl:p-8">
-        <div
-          slot="container-start"
-          className="parallax-bg "
-          /* style={{
-            "background-image":
-              "url(https://i.ibb.co/S6ChvJb/Nature-Happy-Earth-Day-Banner.png)",
-          }} */
-          data-swiper-parallax="-23%"></div>
-        <SwiperSlide className="h-[700px]">
-          <div
-            className=" bangla-text text-[25px] lg:text-[37px] xl:text-[37px] p-2 lg:p-8 xl:p-8 text-center  font-semibold py-2 drop-shadow-xl"
-            data-swiper-parallax="-300">
-            দারুল মুত্তাক্বীন শিহ্মাবৃত্তি ২০২৪
-          </div>
-          <div
-            className=" p-2 lg:p-8 xl:p-8 text-[15px] lg:text-[24px] xl:text-[24px] text-center bangla-text drop-shadow-md"
-            data-swiper-parallax="-200">
-            "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও
-            কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা"
-          </div>
-          <div
-            className="text text-justify  mx-2 my-2 lg:mx-56 xl:mx-56 rounded-lg text-center "
-            data-swiper-parallax="-100">
-            <p className="px-2 lg:px-[15px] xl:px-[15px] text-[12px] lg:text-[20px] xl:[20px] p-2 lg:p-8 xl:p-8 bangla-text bangla-text lg:leading:10 xl:leading-10">
-              এই কর্মসূচির উদ্দেশ্য হল মেধাবী ও দরিদ্র শিক্ষার্থীদের উচ্চতর
-              শিক্ষার সুযোগ প্রদান করা যাতে তারা তাদের শিক্ষাজীবনে অগ্রগতি লাভ
-              করতে পারে এবং সমাজে উন্নতি করতে পারে। DMF স্কলারশিপের মূল
-              অনুপ্রেরণা হল সাধারণ শিক্ষা ও ইসলামিক শিক্ষার উপর গুরুত্বারোপ করা।
-              এই দুটি শিক্ষার সংমিশ্রণ একজন সৎ ও সুশৃঙ্খল মানুষের জন্য অত্যন্ত
-              প্রয়োজনীয়।.........{" "}
-              <span className="cursor-pointer">বিস্তারিত পড়ুন</span>
-            </p>
-          </div>
-          <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship-public">
-              <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
-                <span className="text-white ">শিহ্মাবৃত্তি</span>
-              </scholarshipButton>
-            </NavLink>
-          </div>
-        </SwiperSlide>
-        <SwiperSlide className="h-[700px]">
-          <div
-            className=" bangla-text text-[25px] lg:text-[37px] xl:text-[37px] p-2 lg:p-8 xl:p-8 text-center  font-semibold py-2 drop-shadow-xl"
-            data-swiper-parallax="-300">
-            দারুল মুত্তাক্বীন ফাউন্ডেশন
-          </div>
-          <div
-            className=" p-2 lg:p-8 xl:p-8 text-[15px] lg:text-[24px] xl:text-[24px] text-center bangla-text drop-shadow-md"
-            data-swiper-parallax="-200">
-            "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও
-            কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা"
-          </div>
-          <div
-            className="text text-justify  mx-2 my-2 lg:mx-56 xl:mx-56 rounded-lg text-center "
-            data-swiper-parallax="-100">
-            <p className="px-2 lg:px-[15px] xl:px-[15px] text-[12px] lg:text-[20px] xl:[20px] p-2 lg:p-8 xl:p-8 bangla-text bangla-text lg:leading:10 xl:leading-10">
-              দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ
-              ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। পরের মঙ্গল কামনা
-              (অন্যের জন্য আল্লাহর নিকট প্রার্থনা); পরের জন্য কিছু করার
-              মানসিকতাই একদিন ব্যক্তি আমিকে ভালো মানুষ হতে সহায়তা করে। আমরা
-              সবাইকে ভালো মানুষ হতে উপদেশ দিই কিন্তু ভালো মানুষ হয়ে উঠার
-              পথ-পরিক্রমা অনেক ক্ষেত্রেই বাতলে দিই না।
-            </p>
-          </div>
-          <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship-public">
-              <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
-                <span className="text-white ">শিহ্মাবৃত্তি</span>
-              </scholarshipButton>
-            </NavLink>
-          </div>
-        </SwiperSlide>
-        <SwiperSlide className="h-[700px]">
-          <div
-            className=" bangla-text text-[25px] lg:text-[37px] xl:text-[37px] p-2 lg:p-8 xl:p-8 text-center  font-semibold py-2 drop-shadow-xl"
-            data-swiper-parallax="-300">
-            দারুল মুত্তাক্বীন ফাউন্ডেশন
-          </div>
-          <div
-            className=" p-2 lg:p-8 xl:p-8 text-[15px] lg:text-[24px] xl:text-[24px] text-center bangla-text drop-shadow-md"
-            data-swiper-parallax="-200">
-            "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও
-            কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা"
-          </div>
-          <div
-            className="text text-justify  mx-2 my-2 lg:mx-56 xl:mx-56 rounded-lg text-center "
-            data-swiper-parallax="-100">
-            <p className="px-2 lg:px-[15px] xl:px-[15px] text-[12px] lg:text-[20px] xl:[20px] p-2 lg:p-8 xl:p-8 bangla-text bangla-text lg:leading:10 xl:leading-10">
-              দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ
-              ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। পরের মঙ্গল কামনা
-              (অন্যের জন্য আল্লাহর নিকট প্রার্থনা); পরের জন্য কিছু করার
-              মানসিকতাই একদিন ব্যক্তি আমিকে ভালো মানুষ হতে সহায়তা করে। আমরা
-              সবাইকে ভালো মানুষ হতে উপদেশ দিই কিন্তু ভালো মানুষ হয়ে উঠার
-              পথ-পরিক্রমা অনেক ক্ষেত্রেই বাতলে দিই না।
-            </p>
-          </div>
-          <div className="flex items-center justify-center mt-8 lg:mt-16 xl:mt-16">
-            <NavLink to="/scholarship-public">
-              <scholarshipButton className="flex justify-center items-center font-semibold border border-[#62AB00] hover:no-underline">
-                <span className="text-white ">শিহ্মাবৃত্তি</span>
-              </scholarshipButton>
-            </NavLink>
-          </div>
-        </SwiperSlide>
-      </Swiper>
-    </>
+    <div className="relative overflow-hidden h-[350px] lg:h-[500px] xl:h-[500px]">
+      <AnimatePresence>
+        <motion.div
+          key={currentSlide}
+          className="absolute inset-0 flex flex-col justify-center items-center bg-cover bg-center text-white"
+          style={{
+            backgroundImage: `url(${sliderImage})`,
+          }}
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 50 }}
+          transition={{ duration: 0.8 }}>
+          <motion.h1
+            className="text-[25px] lg:text-[37px] xl:text-[37px] text-center font-bold drop-shadow-lg bangla-text"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.8, delay: 0.2 }}>
+            {slides[currentSlide].title}
+          </motion.h1>
+          <motion.h2
+            className="text-[18px] lg:text-[24px] xl:text-[24px] text-center font-semibold mt-2 bangla-text"
+            initial={{ opacity: 0, y: -30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.8, delay: 0.4 }}>
+            {slides[currentSlide].subtitle}
+          </motion.h2>
+          <motion.p
+            className="text-[14px] lg:text-[20px] xl:text-[20px] text-center mt-4 bangla-text px-4 lg:px-20"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.8, delay: 0.6 }}>
+            {slides[currentSlide].description}
+          </motion.p>
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }

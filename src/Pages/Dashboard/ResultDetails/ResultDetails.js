@@ -3,6 +3,7 @@ import { Table, Button, Card, Spin } from "antd";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { coreAxios } from "../../../utilities/axios";
+import * as XLSX from "xlsx";
 
 // ScholarshipTable Component
 const ScholarshipTable = ({ title, dataSource }) => (
@@ -117,6 +118,34 @@ const ResultDetails = () => {
     doc.save("Scholarship_Results.pdf");
   };
 
+  const generateExcel = () => {
+    const excelData = [];
+    Object.keys(results.scholarshipListByClass).forEach((classKey) => {
+      const gradeCategories = results.scholarshipListByClass[classKey];
+      Object.keys(gradeCategories).forEach((gradeKey) => {
+        const dataSource = gradeCategories[gradeKey];
+        if (dataSource.length > 0) {
+          dataSource.forEach((data, index) => {
+            excelData.push({
+              Sequence: index + 1,
+              Class: classKey,
+              RollNumber: data.rollNumber,
+              Name: data.name,
+              Institute: data.institute,
+              TotalMarks: data.totalMarks,
+              Grade: data.grade,
+            });
+          });
+        }
+      });
+    });
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Scholarship Results");
+    XLSX.writeFile(wb, "Scholarship_Results.xlsx");
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -136,9 +165,12 @@ const ResultDetails = () => {
       <h1 className="text-3xl font-bold text-center mb-10">
         Scholarship Results
       </h1>
-      <div className="text-right mb-5">
+      <div className="text-right mb-5 ">
         <Button onClick={generatePDF} type="primary">
           Download PDF
+        </Button>
+        <Button onClick={generateExcel} type="primary">
+          Download Excel
         </Button>
       </div>
       {Object.keys(scholarshipListByClass).map((classKey) =>
