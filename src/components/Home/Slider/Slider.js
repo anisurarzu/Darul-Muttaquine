@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./Slider.css";
-import sliderImage from "../../../images/banner-hero.png";
+import sliderImage from "../../../images/home-banner.jpeg";
 
-// Bangla Text Data
 const slides = [
   {
     title: "ফান্ডামেন্টালস অফ ম্যাথ এবং ফিজিক্স",
@@ -44,53 +43,63 @@ const slides = [
 export default function Slider() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Automatically change slides every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Change slide every 5 seconds
-    return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative overflow-hidden h-[350px] lg:h-[500px] xl:h-[500px]">
-      <AnimatePresence>
-        <motion.div
-          key={currentSlide}
-          className="absolute inset-0 flex flex-col justify-center items-center bg-cover bg-center text-white"
-          style={{
-            backgroundImage: `url(${sliderImage})`,
-          }}
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: 50 }}
-          transition={{ duration: 0.8 }}>
+    <div className="relative overflow-hidden h-[350px] lg:h-[500px] xl:h-[500px] slider-container">
+      {/* Semi-transparent colored overlay */}
+      <div className="absolute inset-0 bg-green-overlay"></div>
+
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${sliderImage})`,
+        }}></div>
+
+      {/* Text Content */}
+      <div className="absolute inset-0 flex flex-col justify-center items-center text-white z-10">
+        <AnimatePresence mode="wait">
           <motion.h1
+            key={`title-${currentSlide}`}
             className="text-[25px] lg:text-[37px] xl:text-[37px] text-center font-bold drop-shadow-lg bangla-text"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.2 }}>
+            transition={{ duration: 0.8 }}>
             {slides[currentSlide].title}
           </motion.h1>
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
           <motion.h2
+            key={`subtitle-${currentSlide}`}
             className="text-[18px] lg:text-[24px] xl:text-[24px] text-center font-semibold mt-2 bangla-text"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.4 }}>
+            transition={{ duration: 0.8, delay: 0.2 }}>
             {slides[currentSlide].subtitle}
           </motion.h2>
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
           <motion.p
+            key={`description-${currentSlide}`}
             className="text-[14px] lg:text-[20px] xl:text-[20px] text-center mt-4 bangla-text px-4 lg:px-20"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.8, delay: 0.6 }}>
+            transition={{ duration: 0.8, delay: 0.4 }}>
             {slides[currentSlide].description}
           </motion.p>
-        </motion.div>
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

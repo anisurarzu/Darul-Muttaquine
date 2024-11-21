@@ -43,6 +43,8 @@ import OrderDashboard from "./Order/OrderDashboard";
 import Order from "./Order/Order";
 import ResultDetails from "./ResultDetails/ResultDetails";
 
+import EducationCentre from "../EducationCentre/EducationCentre";
+
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
   const [userData, setUserData] = useState({});
@@ -75,6 +77,11 @@ export default function Dashboard() {
     },
     { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
     { route: "scholarship", label: "Scholarship", icon: <BookOutlined /> },
+    {
+      route: "admission",
+      label: "Admission",
+      icon: <BookOutlined />,
+    },
     { route: "resultDetails", label: "Result Details", icon: <FileOutlined /> },
     { route: "depositInfo", label: "Deposit", icon: <DollarOutlined /> },
     { route: "historyDashboard", label: "History", icon: <HistoryOutlined /> },
@@ -260,6 +267,9 @@ export default function Dashboard() {
         <Switch>
           <Route path={`${path}/scholarship`}>
             <Scholarship />
+          </Route>
+          <Route path={`${path}/admission`}>
+            <EducationCentre />
           </Route>
           <Route path={`${path}/resultDetails`}>
             <ResultDetails />

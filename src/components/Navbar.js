@@ -64,11 +64,11 @@ const Navbar = () => {
             <NavLink to="/quizeMain" className="hover:text-green-500 pt-2">
               কুইজ
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/scholarship-public"
               className="hover:text-green-500 pt-2">
               শিহ্মাবৃত্তি
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
             </NavLink>
@@ -152,7 +152,7 @@ const Navbar = () => {
                   <QuestionCircleOutlined /> <span className="pl-1"> কুইজ</span>
                 </NavLink>
               </li>
-              <li
+              {/* <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
                 <NavLink
@@ -160,7 +160,7 @@ const Navbar = () => {
                   className="hover:text-green-500 pt-2">
                   শিহ্মাবৃত্তি
                 </NavLink>
-              </li>
+              </li> */}
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
