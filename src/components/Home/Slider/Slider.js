@@ -59,6 +59,7 @@ export default function Slider() {
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
+          filter: "blur(2px)",
           backgroundImage: `url(${sliderImage})`,
         }}></div>
 

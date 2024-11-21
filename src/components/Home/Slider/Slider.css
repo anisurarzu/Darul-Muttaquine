@@ -52,4 +52,5 @@ body {
   background-color: #1c2d0df0; /* Set the green color */
   opacity: 0.4; /* Set the transparency */
   z-index: 5; /* Ensure it's above the image but below the text */
+  
 }
