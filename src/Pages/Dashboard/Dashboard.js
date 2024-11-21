@@ -130,6 +130,18 @@ export default function Dashboard() {
               "orderDetails",
             ].includes(item.route)
         );
+      case "Student":
+        return menuItems.filter(
+          (item) =>
+            ![
+              "users",
+              "quize",
+              "quizMoney",
+              "allQuize",
+              "orderDetails",
+              "admission",
+            ].includes(item.route)
+        );
       case "System-Admin":
         return menuItems.filter(
           (item) =>

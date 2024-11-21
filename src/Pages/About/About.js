@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import { Alert, Pagination, Spin, Steps } from "antd";
 import ProjectCard from "../Dashboard/Project/ProjectCard";
 import axios from "axios";
+import { motion } from "framer-motion";
+import MembersProgress from "../../components/MembersProgress";
 
 export default function About() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -381,6 +383,7 @@ export default function About() {
             </div>
           </div>
         </div>
+        <MembersProgress />
         <div style={{ background: "#ECF2E3" }}>
           <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
             <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
