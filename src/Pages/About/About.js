@@ -173,7 +173,11 @@ export default function About() {
     getAllUserList();
   }, []);
 
+  // Filter out users with a userRole that is not "Visitor"
   const filteredUsers = users?.filter((user) => user.userRole !== "Visitor");
+
+  // Filter out users that have the cmRole
+  const cmRoleUsers = users?.filter((user) => user.cmRole);
 
   const filteredRolls = filteredUsers?.filter((roll) =>
     searchQuery
@@ -383,7 +387,7 @@ export default function About() {
             </div>
           </div>
         </div>
-        <MembersProgress />
+        <MembersProgress data={cmRoleUsers} />
         <div style={{ background: "#ECF2E3" }}>
           <div className="mx-4 md:mx-12 lg:mx-20 xl:mx-20">
             <h2 className="  md:text-4xl sm:text-3xl text-2xl font-bold text-center py-8 ">
