@@ -27,6 +27,8 @@ import QuizeMainPage from "./Pages/Quize/QuizeMainPage";
 import Chat from "./Pages/Chat/Chat";
 import PublicScholarship from "./Pages/scholarship/PublicScholarship";
 import CheckoutPage from "./Pages/Product/CheckoutPage";
+import CoursePage from "./Pages/Course/CoursePage";
+import CourseDetailsPage from "./Pages/Course/CourseDetailsPage";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -57,6 +59,8 @@ const App = () => {
         <Route exact path="/contact" component={Contact} />
         <Route exact path="/result" component={ResultPage} />
         <Route exact path="/history" component={History} />
+        <Route exact path="/course" component={CoursePage} />
+        <Route exact path="/course/:id" component={CourseDetailsPage} />
         <Route exact path="/about" component={About} />
         <Route exact path="/scholarship-public" component={PublicScholarship} />
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />

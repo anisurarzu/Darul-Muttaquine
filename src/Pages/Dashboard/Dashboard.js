@@ -44,6 +44,8 @@ import Order from "./Order/Order";
 import ResultDetails from "./ResultDetails/ResultDetails";
 
 import EducationCentre from "../EducationCentre/EducationCentre";
+import CreateCourse from "../Course/CreateCourse";
+import CourseDashboard from "../Course/CourseDashboard";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -108,11 +110,11 @@ export default function Dashboard() {
       label: "Quiz Money",
       icon: <QuestionCircleOutlined />,
     },
-    /*  {
-      route: "createQuize",
-      label: "Create Quize",
+    {
+      route: "courseDashboard",
+      label: "Course Dashboard",
       icon: <PlusCircleOutlined />,
-    }, */
+    },
   ];
 
   const getMenuItemsByRole = (role) => {
@@ -328,6 +330,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/orderDetails`}>
             <OrderDashboard />
+          </Route>
+          <Route path={`${path}/courseDashboard`}>
+            <CourseDashboard />
           </Route>
 
           {/*   <Route path={`${path}/createQuize`}>

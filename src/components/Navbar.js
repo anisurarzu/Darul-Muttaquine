@@ -58,6 +58,9 @@ const Navbar = () => {
             <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
             </NavLink>
+            <NavLink to="/course" className="hover:text-green-500 pt-2">
+              কোর্সসমূহ
+            </NavLink>
             <NavLink to={`/dashboard`} className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
@@ -133,6 +136,9 @@ const Navbar = () => {
                   ফলাফল
                 </NavLink>
               </li>
+              <NavLink to="/course" className="hover:text-green-500 pt-2">
+                কোর্সসমূহ
+              </NavLink>
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">

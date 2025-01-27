@@ -458,3 +458,22 @@ li {
     color: red;
   }
 }
+
+/* Enroll Button */
+.enroll-button {
+  background-color: #80CC37;
+  border-color: #80CC37;
+  color: white;
+
+}
+
+/* Details Button */
+.details-button {
+  border-color: #2D6A3F;
+  color: #2D6A3F;
+  background-color: transparent;
+
+}
+
+
+
