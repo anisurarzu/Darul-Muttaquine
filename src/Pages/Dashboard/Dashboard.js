@@ -44,6 +44,7 @@ import Order from "./Order/Order";
 import ResultDetails from "./ResultDetails/ResultDetails";
 
 import EducationCentre from "../EducationCentre/EducationCentre";
+import Notice from "../Notice/Notice";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -108,6 +109,11 @@ export default function Dashboard() {
       label: "Quiz Money",
       icon: <QuestionCircleOutlined />,
     },
+    {
+      route: "notice",
+      label: "Notice",
+      icon: <QuestionCircleOutlined />,
+    },
     /*  {
       route: "createQuize",
       label: "Create Quize",
@@ -145,9 +151,13 @@ export default function Dashboard() {
       case "System-Admin":
         return menuItems.filter(
           (item) =>
-            !["quize", "quizMoney", "allQuize", "orderDetails"].includes(
-              item.route
-            )
+            ![
+              "quize",
+              "quizMoney",
+              "allQuize",
+              "notice",
+              "orderDetails",
+            ].includes(item.route)
         );
       case "Co-Admin":
         return menuItems.filter(
@@ -158,6 +168,7 @@ export default function Dashboard() {
               "allQuize",
               "quize",
               "quizMoney",
+              "notice",
               "orderDetails",
               "resultDetails",
             ].includes(item.route)
@@ -165,11 +176,14 @@ export default function Dashboard() {
       case "Accountant":
         return menuItems.filter(
           (item) =>
-            !["users", "project", "quize", "allQuize"].includes(item.route)
+            !["users", "project", "quize", "notice", "allQuize"].includes(
+              item.route
+            )
         );
       case "Second-Accountant":
         return menuItems.filter(
-          (item) => !["users", "project", "orderDetails"].includes(item.route)
+          (item) =>
+            !["users", "project", "notice", "orderDetails"].includes(item.route)
         );
       case "Senior-Member":
         return menuItems.filter((item) =>
@@ -232,7 +246,8 @@ export default function Dashboard() {
         className="lg:hidden"
         type="primary"
         icon={<MenuOutlined />}
-        onClick={handleDrawerOpen}>
+        onClick={handleDrawerOpen}
+      >
         Menu
       </Button>
 
@@ -243,12 +258,14 @@ export default function Dashboard() {
         onClose={handleDrawerClose}
         visible={drawerVisible}
         bodyStyle={{ padding: 0 }}
-        width="75%">
+        width="75%"
+      >
         <Menu
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
           style={{ height: "100%" }}
-          onClick={handleMenuClick}>
+          onClick={handleMenuClick}
+        >
           {roleMenuItems.map((data) => (
             <Menu.Item key={data.route} icon={data.icon}>
               <Link to={`${url}/${data.route}`}>{data.label}</Link>
@@ -265,7 +282,8 @@ export default function Dashboard() {
         <Menu
           mode="vertical"
           defaultSelectedKeys={["dashboard"]}
-          style={{ height: "100%" }}>
+          style={{ height: "100%" }}
+        >
           {roleMenuItems.map((data) => (
             <Menu.Item key={data.route} icon={data.icon}>
               <Link to={`${url}/${data.route}`}>{data.label}</Link>
@@ -322,6 +340,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/quizMoney`}>
             <QuizMoney />
+          </Route>
+          <Route path={`${path}/notice`}>
+            <Notice />
           </Route>
           <Route path={`${path}/orderDashboard`}>
             <Order />
