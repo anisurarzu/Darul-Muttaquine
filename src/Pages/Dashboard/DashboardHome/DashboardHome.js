@@ -199,7 +199,7 @@ export default function DashboardHome() {
   const costAmount =
     data2?.reduce((total, cost) => total + cost?.amount, 0) || 0;
 
-  const percentage = ((Number(scholarShipInfo?.length) / 206) * 100).toFixed(2);
+  const percentage = ((Number(scholarShipInfo?.length) / 306) * 100).toFixed(2);
 
   // Calculate the quiz amount
   const totalQuizAmount = quizMoney?.reduce(
@@ -346,13 +346,13 @@ export default function DashboardHome() {
                         </div>
                       </div>
                       <div class="text-[14px] font-medium text-green-800">
-                        Total Applications Of Scholarship-2024
+                        Total Applications Of Scholarship-2025
                       </div>
                     </div>
                   </div>
 
                   <p class="text-[#f84525] font-medium text-lg hover:text-red-800">
-                    {percentage}% of prev (206)
+                    {percentage}% of prev (306)
                   </p>
                 </div>
                 <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
