@@ -277,7 +277,7 @@ const Scholarship = () => {
       ) : (
         <div className="text-sm mx-8 my-6">
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
-            {/* <div className="ml-1">
+            <div className="ml-1">
               <button
                 className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
                 onClick={() => showModal()}
@@ -308,7 +308,7 @@ const Scholarship = () => {
                 onClick={() => setShowQrScanner(!showQrScanner)}>
                 Scan Now
               </Button>
-            </div> */}
+            </div>
             <div className="flex justify-end mb-4 gap-4">
               <button
                 className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
@@ -541,7 +541,7 @@ const Scholarship = () => {
 
       {/* start insert dialog */}
 
-      {/*  <Button type="primary" onClick={showModal}>
+      {/* <Button type="primary" onClick={showModal}>
         Open Modal
       </Button> */}
       <Modal
