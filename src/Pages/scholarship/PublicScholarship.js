@@ -43,7 +43,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       phone: 0,
       bloodGroup: "",
       presentAddress: "",
-      dateOfBirth: "",
+      dateOfBirth: "2025-04-18",
     },
     onSubmit: async (values) => {
       try {
@@ -79,6 +79,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             const allData = {
               ...values,
               image: response?.data?.data?.display_url,
+              dateOfBirth: "2025-04-18",
             };
             console.log("allData", allData);
 
@@ -261,7 +262,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
           className="mb-2 mx-8"
         />
         <div className="flex justify-center gap-2 mt-4">
-          {/* <Button
+          <Button
             onClick={() => {
               setIsApplicationShow(false);
             }}
@@ -269,8 +270,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application Create
-          </Button> */}
-          {/* <Button
+          </Button>
+          <Button
             onClick={() => {
               setIsApplicationShow(true);
             }}
@@ -278,7 +279,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application View
-          </Button> */}
+          </Button>
         </div>
       </div>
 

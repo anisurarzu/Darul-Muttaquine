@@ -20,7 +20,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       phone: 0,
       bloodGroup: "",
       presentAddress: "",
-      dateOfBirth: "",
+      dateOfBirth: "2025-04-18",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       try {
@@ -56,8 +56,8 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
             const allData = {
               ...values,
               image: response?.data?.data?.display_url,
+              dateOfBirth: "2025-04-18",
             };
-            console.log("allData", allData);
 
             const res = await coreAxios.post(`/scholarship-info`, allData);
             if (res?.status === 201) {
