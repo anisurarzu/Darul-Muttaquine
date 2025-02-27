@@ -215,7 +215,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
                     <Radio value="other">Other</Radio>
                   </Radio.Group>
                 </div>
-                <div className="w-full mb-4">
+                {/* <div className="w-full mb-4">
                   <label className="block text-black dark:text-black">
                     Birth Date <span className="text-meta-1">*</span>
                   </label>
@@ -226,7 +226,7 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
                     }
                     className="w-full"
                   />
-                </div>
+                </div> */}
               </div>
             )}
           </div>
