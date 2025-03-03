@@ -4,10 +4,12 @@ import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
 import { Alert, Button, DatePicker, Radio, Spin, Upload } from "antd";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const userInfo = useUserInfo();
 
   const formik = useFormik({
     initialValues: {
@@ -21,6 +23,8 @@ const ScholarshipInsert = ({ onHide, fetchRolls, handleCancel }) => {
       bloodGroup: "",
       presentAddress: "",
       dateOfBirth: "2025-04-18",
+      createdBy: userInfo?.uniqueId || "",
+      createdByName: userInfo?.firstName || "",
     }, // Ensure you have proper initial values
     onSubmit: async (values) => {
       try {

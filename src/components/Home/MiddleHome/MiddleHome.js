@@ -137,7 +137,7 @@ export default function MiddleHome() {
         </svg>
       </motion.div>
 
-      {/* 3rd Section: Donation, Scholarship, and Food Donation */}
+      {/* 3rd Section: Donation, Scholarship, Food Donation */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-8 pt-16 mx-8 lg:mx-32 xl:mx-32 pb-8">
         {[
           {
@@ -157,6 +157,12 @@ export default function MiddleHome() {
             title: "খাদ্য দান",
             description:
               "খাদ্য দান শুধুমাত্র দেহকে পুষ্ট করে না, আত্মাকেও খাওয়ায় দয়ার উষ্ণতা। এটি মানুষের মধ্যে সহানুভূতি এবং মানবিকতা বৃদ্ধি করে।",
+          },
+          {
+            icon: icon2,
+            title: "চিকিৎসা সহায়তা",
+            description:
+              "রাসুলুল্লাহ (সাঃ) বলেছেন, 'যে ব্যক্তি তার ভাইয়ের চিকিৎসা সহায়তা করে, আল্লাহ তাকে পৃথিবীর সকল রোগ থেকে মুক্তি দিবেন।' চিকিৎসার জন্য সাহায্য করুন, মানুষের জীবন বাঁচান।",
           },
         ].map((item, index) => (
           <motion.div
@@ -220,6 +226,47 @@ export default function MiddleHome() {
               কার্যক্রম <br />
               শিক্ষা, গবেষণা, মানবসেবা
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 6th Section: FAQ */}
+      <div className="py-8 bg-gray-100">
+        <div className="mx-8 lg:mx-32 xl:mx-32">
+          <h3 className="text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8 text-center font-semibold bangla-text">
+            প্রায়শই জিজ্ঞাসিত প্রশ্নাবলী (FAQ)
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-semibold text-[16px] lg:text-[18px] xl:text-[20px]">
+                প্রশ্ন: কিভাবে আমি দান করতে পারি?
+              </h4>
+              <p className="text-[14px] lg:text-[16px] xl:text-[16px]">
+                উত্তর: আমাদের ওয়েবসাইটে দানের জন্য একটি সহজ প্রক্রিয়া রয়েছে।
+                আপনি আপনার পছন্দের দানটি নির্বাচন করে অনলাইনে নিরাপদে পেমেন্ট
+                করতে পারেন।
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-[16px] lg:text-[18px] xl:text-[20px]">
+                প্রশ্ন: ফাউন্ডেশনটির প্রধান উদ্দেশ্য কি?
+              </h4>
+              <p className="text-[14px] lg:text-[16px] xl:text-[16px]">
+                উত্তর: দারুল মুত্তাক্বীন ফাউন্ডেশন মূলত মানুষের কল্যাণে কাজ
+                করছে। আমাদের মূল লক্ষ্য হলো শিক্ষা, গবেষণা, এবং মানবসেবায় অবদান
+                রাখা।
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-[16px] lg:text-[18px] xl:text-[20px]">
+                প্রশ্ন: কি ধরণের প্রজেক্টের জন্য সাহায্য দেওয়া হয়?
+              </h4>
+              <p className="text-[14px] lg:text-[16px] xl:text-[16px]">
+                উত্তর: আমরা বিভিন্ন সামাজিক প্রকল্প যেমন শিক্ষা সহায়তা, খাদ্য
+                দান, স্বাস্থ্যসেবা, চিকিৎসা সহায়তা, এবং ধর্মীয় উদ্যোগ সমর্থন
+                করি।
+              </p>
+            </div>
           </div>
         </div>
       </div>

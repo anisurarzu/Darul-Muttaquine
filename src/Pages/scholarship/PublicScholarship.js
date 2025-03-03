@@ -24,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import DMFLogo from "../../images/New-Main-2.png";
 import { formatDate } from "../../utilities/dateFormate";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const { Option } = Select;
 
@@ -31,6 +32,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
   const [isApplicationShow, setIsApplicationShow] = useState(true);
+  const userInfo = useUserInfo();
 
   const formik = useFormik({
     initialValues: {
@@ -44,6 +46,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       bloodGroup: "",
       presentAddress: "",
       dateOfBirth: "2025-04-18",
+      createdBy: userInfo?.uniqueId || "",
+      createdByName: userInfo?.firstName || "",
     },
     onSubmit: async (values) => {
       try {

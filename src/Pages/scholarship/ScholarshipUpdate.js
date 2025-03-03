@@ -5,6 +5,7 @@ import { useFormik } from "formik";
 import { coreAxios } from "../../utilities/axios";
 import { Alert, Button, DatePicker, Radio, Spin, Upload, Switch } from "antd";
 import moment from "moment";
+import useUserInfo from "../../hooks/useUserInfo";
 
 const ScholarshipUpdate = ({
   onHide,
@@ -15,6 +16,7 @@ const ScholarshipUpdate = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const userInfo = useUserInfo();
 
   const formik = useFormik({
     initialValues: {
@@ -33,6 +35,9 @@ const ScholarshipUpdate = ({
       isSmsSend: scholarshipData?.isSmsSend || false, // New field
       isSeatPlaned: scholarshipData?.isSeatPlaned || false, // New field
       isAttendanceComplete: scholarshipData?.isAttendanceComplete || false, // New field
+      createdBy: scholarshipData?.createdBy || userInfo?.uniqueId || "",
+      createdByName:
+        scholarshipData?.createdByName || userInfo?.firstName || "",
     },
     onSubmit: async (values) => {
       try {
@@ -41,6 +46,8 @@ const ScholarshipUpdate = ({
         if (!fileList.length) {
           const allData = {
             ...values,
+            updatedBy: userInfo?.uniqueId || "",
+            updatedByName: userInfo?.firstName || "",
             image:
               scholarshipData?.image ||
               "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU",

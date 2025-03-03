@@ -421,6 +421,9 @@ const Scholarship = () => {
                     Results
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Created By
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Admit Card
                   </th>
 
@@ -478,6 +481,9 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll?.resultDetails?.[0]?.totalMarks}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll?.resultDetails?.[0]?.createdByName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button
