@@ -122,10 +122,10 @@ const AdmitCard = () => {
               {/* Header */}
               <div className="text-center">
                 <p className="text-3xl font-bold uppercase underline">
-                  DMF Scholarship 2024
+                  DMF Scholarship 2025
                 </p>
                 <p className="text-xl font-bold pt-4">
-                  ( 04 October 2024 Examination )
+                  ( 18 April 2025 Examination )
                 </p>
               </div>
               {/* END Header */}

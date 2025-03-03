@@ -5,7 +5,16 @@ body {
   height: 100%;
 }
 
+/* Slider.css */
+.slider-container {
+  background-color: rgba(0, 0, 0, 0.7); /* Fallback for older browsers */
+}
 
+.bangla-text {
+  font-family: "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+  line-height: 1.6;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add text shadow for better readability */
+}
 
 
 

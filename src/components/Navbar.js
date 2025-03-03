@@ -58,9 +58,9 @@ const Navbar = () => {
             <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
             </NavLink>
-            <NavLink to="/course" className="hover:text-green-500 pt-2">
+            {/* <NavLink to="/course" className="hover:text-green-500 pt-2">
               কোর্সসমূহ
-            </NavLink>
+            </NavLink> */}
             <NavLink to={`/dashboard`} className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
@@ -72,9 +72,9 @@ const Navbar = () => {
               className="hover:text-green-500 pt-2">
               শিহ্মাবৃত্তি
             </NavLink>
-            <NavLink to="/product" className="hover:text-green-500 pt-2">
+            {/* <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/contact" className="hover:text-green-500  pt-2">
               যোগাযোগ
             </NavLink>
@@ -136,9 +136,14 @@ const Navbar = () => {
                   ফলাফল
                 </NavLink>
               </li>
-              <NavLink to="/course" className="hover:text-green-500 pt-2">
-                কোর্সসমূহ
-              </NavLink>
+              {/* <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center">
+                <NavLink to="/course" className="hover:text-green-500 pt-2">
+                  কোর্সসমূহ
+                </NavLink>
+              </li> */}
+
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
@@ -158,7 +163,7 @@ const Navbar = () => {
                   <QuestionCircleOutlined /> <span className="pl-1"> কুইজ</span>
                 </NavLink>
               </li>
-              {/* <li
+              <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
                 <NavLink
@@ -166,14 +171,14 @@ const Navbar = () => {
                   className="hover:text-green-500 pt-2">
                   শিহ্মাবৃত্তি
                 </NavLink>
-              </li> */}
-              <li
+              </li>
+              {/* <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
                 <NavLink to="/product" onClick={() => setShowMobileMenu(false)}>
                   <ProductOutlined /> <span className="pl-1"> আমাদের পণ্য</span>
                 </NavLink>
-              </li>
+              </li> */}
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">

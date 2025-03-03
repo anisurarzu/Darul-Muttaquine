@@ -1,47 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useHistory } from "react-router-dom"; // Use useHistory instead of useNavigate
 import "./Slider.css";
-import sliderImage from "../../../images/home-banner.jpeg";
+
+// Image from the provided link
+const scholarshipBg = "https://i.ibb.co.com/kgh5YjLz/IMG-7332.jpg";
 
 const slides = [
   {
-    title: "ফান্ডামেন্টালস অফ ম্যাথ এবং ফিজিক্স",
-    subtitle: "বেসিক থেকে উন্নত পর্যায়",
+    title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৫",
+    subtitle: "ভবিষ্যতের পথে আপনার সহযোগী",
     description: `
-      📚 কোর্স সময়কাল: ২ মাস
-       🎓 ইনস্ট্রাক্টর: মনির হোসেন, অধয়নরত শিক্ষার্থী, গণিত বিভাগ, সরকারি সা'দত কলেজ
+      🎓 শিক্ষাবৃত্তির জন্য আবেদন চলছে!
+      ✅ আবেদনের শেষ তারিখ: ১৫ এপ্রিল, ২০২৫
     `,
   },
   {
-    title: "স্পোকেন ইংলিশ এসেনশিয়ালস",
-    subtitle: "যোগাযোগ দক্ষতার উন্নয়ন",
+    title: "শিক্ষাবৃত্তি সুবিধা",
+    subtitle: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তির মাধ্যমে",
     description: `
-      📚 কোর্স সময়কাল: ২ মাস
-      🎓 ইনস্ট্রাক্টর: আশিকুর রহমান, সহকারী শিক্ষক (ইংরেজি), বালিয়াজান উচ্চ বিদ্যালয়
+      💵 নগদ অর্থ পুরস্কার
+      🎁 গিফট হ্যাম্পার
+      📜 সনদপত্র
+      🖥️ আধুনিক শিক্ষার প্রয়োজনীয় কোর্স
     `,
   },
   {
-    title: "আইসিটি এবং কৃত্রিম বুদ্ধিমত্তার ভিত্তি",
-    subtitle: "ভবিষ্যতের প্রযুক্তি শিখুন",
+    title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৫",
+    subtitle: "আবেদন করুন এখনই!",
     description: `
-      📚 কোর্স সময়কাল: ২ মাস
-    
-      🎓 ইনস্ট্রাক্টর: আনিসুর রহমান, সিনিয়র সফটওয়্যার ইঞ্জিনিয়ার, বিবিএল
-    `,
-  },
-  {
-    title: "আদব ও আখলাক এসেনশিয়ালস",
-    subtitle: "নৈতিক মূল্যবোধ ও আচার-আচরণ শিক্ষা",
-    description: `
-      📚 কোর্স সময়কাল: ২ মাস
-        🎓 ইনস্ট্রাক্টর: সাইফুল্লাহ সাদী, শিক্ষা বিষয়ক সম্পাদক, দারুল মুত্তাক্বীন ফাউন্ডেশন
-     
+      🌟 দেরি না করে আজই আবেদন করুন
+      📞 যোগাযোগ: ০১৭৯১৫৫৬১৮৪
     `,
   },
 ];
 
 export default function Slider() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const history = useHistory(); // Use useHistory for navigation
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,17 +46,22 @@ export default function Slider() {
     return () => clearInterval(interval);
   }, []);
 
+  // Function to handle button click
+  const handleApplyNow = () => {
+    history.push("/scholarship-public"); // Use history.push for navigation
+  };
+
   return (
     <div className="relative overflow-hidden h-[350px] lg:h-[500px] xl:h-[500px] slider-container">
-      {/* Semi-transparent colored overlay */}
-      <div className="absolute inset-0 bg-green-overlay"></div>
+      {/* Vintage-style dark overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-70"></div>
 
-      {/* Background Image */}
+      {/* Background Image with vintage effect */}
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          filter: "blur(2px)",
-          backgroundImage: `url(${sliderImage})`,
+          filter: "blur(3px) grayscale(30%) brightness(70%)",
+          backgroundImage: `url(${scholarshipBg})`,
         }}></div>
 
       {/* Text Content */}
@@ -68,7 +69,7 @@ export default function Slider() {
         <AnimatePresence mode="wait">
           <motion.h1
             key={`title-${currentSlide}`}
-            className="text-[25px] lg:text-[37px] xl:text-[37px] text-center font-bold drop-shadow-lg bangla-text"
+            className="text-[30px] lg:text-[45px] xl:text-[45px] text-center font-bold drop-shadow-lg bangla-text"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
@@ -80,7 +81,7 @@ export default function Slider() {
         <AnimatePresence mode="wait">
           <motion.h2
             key={`subtitle-${currentSlide}`}
-            className="text-[18px] lg:text-[24px] xl:text-[24px] text-center font-semibold mt-2 bangla-text"
+            className="text-[22px] lg:text-[30px] xl:text-[30px] text-center font-semibold mt-2 bangla-text"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 30 }}
@@ -92,7 +93,7 @@ export default function Slider() {
         <AnimatePresence mode="wait">
           <motion.p
             key={`description-${currentSlide}`}
-            className="text-[14px] lg:text-[20px] xl:text-[20px] text-center mt-4 bangla-text px-4 lg:px-20"
+            className="text-[18px] lg:text-[24px] xl:text-[24px] text-center mt-4 bangla-text px-4 lg:px-40 whitespace-pre-line"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
@@ -100,6 +101,16 @@ export default function Slider() {
             {slides[currentSlide].description}
           </motion.p>
         </AnimatePresence>
+
+        {/* Apply Now Button */}
+        <motion.button
+          onClick={handleApplyNow}
+          className="mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-10 rounded-lg shadow-lg transition-all duration-300 text-[20px]"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}>
+          আবেদন করুন
+        </motion.button>
       </div>
     </div>
   );
