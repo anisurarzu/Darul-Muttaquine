@@ -483,7 +483,7 @@ const Scholarship = () => {
                       {roll?.resultDetails?.[0]?.totalMarks}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.resultDetails?.[0]?.createdByName}
+                      {roll?.createdByName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       <button
