@@ -47,6 +47,7 @@ import EducationCentre from "../EducationCentre/EducationCentre";
 import CreateCourse from "../Course/CreateCourse";
 import CourseDashboard from "../Course/CourseDashboard";
 import Notice from "../Notice/Notice";
+import OldScholarshipData from "../scholarship/OldScholarshipData";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -79,7 +80,12 @@ export default function Dashboard() {
       icon: <DashboardOutlined />,
     },
     { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
-    { route: "scholarship", label: "Scholarship", icon: <BookOutlined /> },
+    { route: "scholarship", label: "Scholarship 2025", icon: <BookOutlined /> },
+    {
+      route: "oldScholarshipData",
+      label: "Scholarship 2024",
+      icon: <BookOutlined />,
+    },
     {
       route: "admission",
       label: "Admission",
@@ -150,6 +156,7 @@ export default function Dashboard() {
               "allQuize",
               "orderDetails",
               "admission",
+              "oldScholarshipData",
             ].includes(item.route)
         );
       case "System-Admin":
@@ -297,6 +304,9 @@ export default function Dashboard() {
         <Switch>
           <Route path={`${path}/scholarship`}>
             <Scholarship />
+          </Route>
+          <Route path={`${path}/oldScholarshipData`}>
+            <OldScholarshipData />
           </Route>
           <Route path={`${path}/admission`}>
             <EducationCentre />

@@ -16,7 +16,7 @@ import QrReader from "react-qr-scanner";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
 
-const Scholarship = () => {
+const OldScholarshipData = () => {
   const navigate = useHistory(); // Get the navigate function
   const [showDialog, setShowDialog] = useState(false); //insert customer
   const [showDialog1, setShowDialog1] = useState(false); //update customer
@@ -63,7 +63,7 @@ const Scholarship = () => {
   const fetchScholarshipInfo = async () => {
     try {
       setLoading(true);
-      const response = await coreAxios.get(`/scholarship-info`);
+      const response = await coreAxios.get(`/scholarship-info-old`);
       if (response?.status === 200) {
         // Sort the data by the submittedAt field in descending order
         const sortedData = response?.data?.sort((a, b) => {
@@ -276,7 +276,7 @@ const Scholarship = () => {
         </Spin>
       ) : (
         <div className="text-sm mx-8 my-6">
-          <h3 className="text-lg font-bold">DMF Scholarship 2025</h3>
+          <h3 className="text-lg font-bold">DMF Scholarship 2024</h3>
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
             <div className="ml-1">
               <button
@@ -490,7 +490,8 @@ const Scholarship = () => {
                       <button
                         className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                         onClick={() => {
-                          history.push(`/admitCard/${roll?._id}`);
+                          toast.warn("Please Contact Your Administrator!");
+                          //   history.push(`/admitCard/${roll?._id}`);
                         }} // Ensure this is correct
                       >
                         <span>Download</span>
@@ -502,15 +503,16 @@ const Scholarship = () => {
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                           onClick={() => {
-                            setRowData(roll);
-                            handleEditClick(roll._id);
+                            toast.warn("Please Contact Your Administrator!");
+                            // setRowData(roll);
+                            // handleEditClick(roll._id);
                           }} // Ensure this is correct
                         >
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
                         </button>
-                        {!roll?.isSmsSend && (
+                        {/* {!roll?.isSmsSend && (
                           <Popconfirm
                             title="Delete the task"
                             description="Are you sure to delete this task?"
@@ -526,7 +528,7 @@ const Scholarship = () => {
                               </span>
                             </button>
                           </Popconfirm>
-                        )}
+                        )} */}
                       </div>
                     </td>
                   </tr>
@@ -583,4 +585,4 @@ const Scholarship = () => {
   );
 };
 
-export default Scholarship;
+export default OldScholarshipData;
