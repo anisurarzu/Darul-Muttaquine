@@ -38,10 +38,6 @@ const Scholarship = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
@@ -50,10 +46,6 @@ const Scholarship = () => {
 
   //state for search query
   const [searchQuery, setSearchQuery] = useState("");
-
-  // delete
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
 
   const [rollData, setRollData] = useState([]);
 
@@ -77,6 +69,33 @@ const Scholarship = () => {
       console.error("Error fetching rolls:", error);
     }
   };
+
+  // Step 1: Extract unique institutes
+  const uniqueInstitutes = [
+    ...new Set(rollData.map((item) => item.institute.trim())),
+  ];
+
+  // Step 2: Count the number of unique institutes
+  const instituteCount = uniqueInstitutes.length;
+
+  // // Output the results
+  // console.log("Unique Institutes:", uniqueInstitutes);
+  // console.log("Number of Unique Institutes:", instituteCount);
+  // Step 1: Filter applications for class 6 to 10
+  const class6to10 = rollData.filter((item) => {
+    const classNumber = parseInt(item.instituteClass); // Convert class to number
+    return classNumber >= 6 && classNumber <= 10; // Check if class is between 6 and 10
+  });
+
+  // Step 2: Filter applications for other classes
+  const otherClasses = rollData.filter((item) => {
+    const classNumber = parseInt(item.instituteClass); // Convert class to number
+    return classNumber < 6 || classNumber > 10; // Check if class is outside 6 to 10
+  });
+
+  // Step 3: Count the number of applications
+  const countClass6to10 = class6to10.length;
+  const countOtherClasses = otherClasses.length;
 
   useEffect(() => {
     fetchScholarshipInfo();
@@ -276,7 +295,10 @@ const Scholarship = () => {
         </Spin>
       ) : (
         <div className="text-sm mx-8 my-6">
-          <h3 className="text-lg font-bold">DMF Scholarship 2025</h3>
+          <h3 className="text-lg font-bold">
+            DMF Scholarship 2025, Senior Category: {countClass6to10}, Junior
+            Category: {countOtherClasses}
+          </h3>
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
             <div className="ml-1">
               <button

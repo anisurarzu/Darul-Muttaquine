@@ -48,6 +48,7 @@ import CreateCourse from "../Course/CreateCourse";
 import CourseDashboard from "../Course/CourseDashboard";
 import Notice from "../Notice/Notice";
 import OldScholarshipData from "../scholarship/OldScholarshipData";
+import SeatPlan from "../scholarship/SeatPlan";
 
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
@@ -89,6 +90,11 @@ export default function Dashboard() {
     {
       route: "admission",
       label: "Admission",
+      icon: <BookOutlined />,
+    },
+    {
+      route: "seatPlan",
+      label: "Seat Plan",
       icon: <BookOutlined />,
     },
     { route: "resultDetails", label: "Result Details", icon: <FileOutlined /> },
@@ -157,6 +163,7 @@ export default function Dashboard() {
               "orderDetails",
               "admission",
               "oldScholarshipData",
+              "seatPlan",
             ].includes(item.route)
         );
       case "System-Admin":
@@ -310,6 +317,9 @@ export default function Dashboard() {
           </Route>
           <Route path={`${path}/admission`}>
             <EducationCentre />
+          </Route>
+          <Route path={`${path}/seatPlan`}>
+            <SeatPlan />
           </Route>
           <Route path={`${path}/resultDetails`}>
             <ResultDetails />
