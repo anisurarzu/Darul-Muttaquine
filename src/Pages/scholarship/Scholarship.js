@@ -206,6 +206,7 @@ const Scholarship = () => {
     const doc = new jsPDF();
     const tableColumn = [
       "Name",
+      "Gender",
       "Roll Number",
       "Institute",
       "Class",
@@ -216,6 +217,7 @@ const Scholarship = () => {
     ];
     const tableRows = filteredRolls.map((roll) => [
       roll.name,
+      roll.gender,
       roll.scholarshipRollNumber,
       roll.institute,
       roll.instituteClass,
@@ -423,6 +425,9 @@ const Scholarship = () => {
                     Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    Gender
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Institute
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -479,6 +484,9 @@ const Scholarship = () => {
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.name}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.gender}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.institute}
