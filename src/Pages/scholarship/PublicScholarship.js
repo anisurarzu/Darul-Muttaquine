@@ -197,8 +197,6 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
     },
   ];
   const instructions = [
-    "পরীক্ষার সময় ৮০ মিনিট।",
-    "পরীক্ষা সকাল ১০:০০ টায় শুরু হবে।",
     "পরীক্ষার কেন্দ্রে ৩০ মিনিট আগে উপস্থিত হতে হবে।",
     "প্রশ্নপত্রের প্রতিটি প্রশ্ন পড়ুন এবং উত্তর দেওয়ার আগে ভালোভাবে বুঝে নিন।",
     "অনতিবিলম্বে আপনার উত্তরপত্র জমা দিন পরীক্ষার শেষে।",
@@ -369,7 +367,16 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                       DMF Scholarship 2025
                     </p>
                     <p className="text-xl font-bold pt-4">
-                      ( 18 April 2025 Examination )
+                      Exam Date: 25 April 2025 (Friday)
+                    </p>
+
+                    <p>
+                      ক্লাস (৩য়-৫ম) ✅ পরীক্ষার সময়: ৪০ মিনিট ✅ পরীক্ষা সকাল
+                      ৯:০০ টায় শুরু হবে (ইন শা আল্লহ)
+                    </p>
+                    <p>
+                      ক্লাস (৬ষ্ঠ-১০ম) ✅ পরীক্ষার সময়: ৭০ মিনিট ✅ পরীক্ষা সকাল
+                      ১০:২০ মিনিটে শুরু হবে (ইন শা আল্লহ)
                     </p>
                   </div>
                   {/* END Header */}
@@ -409,11 +416,9 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                             </td>
                           </tr>
                           <tr>
+                            <td className="border border-black py-2 px-3 uppercase"></td>
                             <td className="border border-black py-2 px-3 uppercase">
-                              DOB
-                            </td>
-                            <td className="border border-black py-2 px-3 uppercase">
-                              {formatDate(data?.dateOfBirth)}
+                              {/* {formatDate(data?.dateOfBirth)} */}
                             </td>
                             <td className="border border-black py-2 px-3">
                               GENDER

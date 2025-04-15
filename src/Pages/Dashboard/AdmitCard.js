@@ -123,7 +123,7 @@ const AdmitCard = () => {
                   DMF Scholarship 2025
                 </p>
                 <p className="text-xl font-bold pt-4">
-                  ( 25 April 2025 Examination )
+                  Exam Date: 25 April 2025(Friday)
                 </p>
 
                 <p>
@@ -173,10 +173,10 @@ const AdmitCard = () => {
                       </tr>
                       <tr>
                         <td className="border border-black py-2 px-3 uppercase">
-                          DOB
+                          {/* DOB */}
                         </td>
                         <td className="border border-black py-2 px-3 uppercase">
-                          {formatDate(data?.scholarship?.dateOfBirth)}
+                          {/* {formatDate(data?.scholarship?.dateOfBirth)} */}
                         </td>
                         <td className="border border-black py-2 px-3">
                           GENDER
