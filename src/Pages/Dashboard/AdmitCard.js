@@ -123,7 +123,7 @@ const AdmitCard = () => {
                   DMF Scholarship 2025
                 </p>
                 <p className="text-xl font-bold pt-4">
-                  Exam Date: 25 April 2025(Friday)
+                  Exam Date: 25 April 2025 (Friday)
                 </p>
 
                 <p>
