@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-// import RollInsert from "./RollInsert";
-// import RollEdit from "./RollEdit";
-
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 import ScholarshipInsert from "./ScholarshipInsert";
-import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
+import {
+  Alert,
+  Button,
+  Modal,
+  Pagination,
+  Popconfirm,
+  Spin,
+  Collapse,
+} from "antd";
 import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
 import AdmitCard from "../Dashboard/AdmitCard";
@@ -16,23 +21,25 @@ import QrReader from "react-qr-scanner";
 import "jspdf-autotable";
 import * as XLSX from "xlsx";
 
+const { Panel } = Collapse;
+
 const Scholarship = () => {
-  const navigate = useHistory(); // Get the navigate function
-  const [showDialog, setShowDialog] = useState(false); //insert customer
-  const [showDialog1, setShowDialog1] = useState(false); //update customer
-  const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
+  const navigate = useHistory();
+  const [showDialog, setShowDialog] = useState(false);
+  const [showDialog1, setShowDialog1] = useState(false);
+  const [selectedRoll, setSelectedRoll] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [rowData, setRowData] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [showQrScanner, setShowQrScanner] = useState(false); // QR scanner visibility
-  const [qrScanResult, setQrScanResult] = useState(""); // QR scan result
-
+  const [showQrScanner, setShowQrScanner] = useState(false);
+  const [qrScanResult, setQrScanResult] = useState("");
   const [facingMode, setFacingMode] = useState("environment");
-
   const history = useHistory();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [rollData, setRollData] = useState([]);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -44,20 +51,11 @@ const Scholarship = () => {
     fetchScholarshipInfo();
   };
 
-  //state for search query
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const [rollData, setRollData] = useState([]);
-
-  // Fetch customers from the API
-  // Construct the API endpoint URL using the environment variable
-
   const fetchScholarshipInfo = async () => {
     try {
       setLoading(true);
       const response = await coreAxios.get(`/scholarship-info`);
       if (response?.status === 200) {
-        // Sort the data by the submittedAt field in descending order
         const sortedData = response?.data?.sort((a, b) => {
           return new Date(b?.submittedAt) - new Date(a?.submittedAt);
         });
@@ -70,30 +68,22 @@ const Scholarship = () => {
     }
   };
 
-  // Step 1: Extract unique institutes
   const uniqueInstitutes = [
     ...new Set(rollData.map((item) => item.institute.trim())),
   ];
 
-  // Step 2: Count the number of unique institutes
   const instituteCount = uniqueInstitutes.length;
 
-  // // Output the results
-  // console.log("Unique Institutes:", uniqueInstitutes);
-  // console.log("Number of Unique Institutes:", instituteCount);
-  // Step 1: Filter applications for class 6 to 10
   const class6to10 = rollData.filter((item) => {
-    const classNumber = parseInt(item.instituteClass); // Convert class to number
-    return classNumber >= 6 && classNumber <= 10; // Check if class is between 6 and 10
+    const classNumber = parseInt(item.instituteClass);
+    return classNumber >= 6 && classNumber <= 10;
   });
 
-  // Step 2: Filter applications for other classes
   const otherClasses = rollData.filter((item) => {
-    const classNumber = parseInt(item.instituteClass); // Convert class to number
-    return classNumber < 6 || classNumber > 10; // Check if class is outside 6 to 10
+    const classNumber = parseInt(item.instituteClass);
+    return classNumber < 6 || classNumber > 10;
   });
 
-  // Step 3: Count the number of applications
   const countClass6to10 = class6to10.length;
   const countOtherClasses = otherClasses.length;
 
@@ -106,10 +96,10 @@ const Scholarship = () => {
     setShowDialog1(false);
   };
 
-  // handle Update or Edit
   const handleEditClick = async (RollID) => {
-    setIsModalOpen2(true); // Check if this logs the correct RollID
+    setIsModalOpen2(true);
   };
+
   const handleDelete = async (RollID) => {
     console.log(RollID);
     try {
@@ -125,25 +115,30 @@ const Scholarship = () => {
       setLoading(false);
     }
   };
+
   const previewStyle = {
     height: 240,
     width: 320,
   };
 
   const handleBackClick = () => {
-    history.goBack(); // Navigate back to the previous page
+    history.goBack();
   };
+
   const confirm = (e) => {
     console.log(e);
     toast.success("Click on Yes");
   };
+
   const onChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
   const cancel = (e) => {
     console.log(e);
     toast.error("Click on No");
   };
+
   const filteredRolls = rollData.filter((roll) =>
     searchQuery
       ? Object.values(roll)
@@ -164,14 +159,11 @@ const Scholarship = () => {
       const filteredRoll = rollData?.find(
         (roll) => roll.scholarshipRollNumber === data.text
       );
-      // setRollData([filteredRoll]);
       if (filteredRoll) {
         updateAttendanceStatus(filteredRoll);
       } else {
         toast.error(`User Didn't Matched`);
       }
-
-      // Set the filtered roll data
     }
   };
 
@@ -198,10 +190,10 @@ const Scholarship = () => {
 
   const constraints = {
     video: {
-      facingMode: { exact: "environment" }, // Specifically request the back camera
+      facingMode: { exact: "environment" },
     },
   };
-  // Function to generate PDF
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     const tableColumn = [
@@ -224,7 +216,6 @@ const Scholarship = () => {
       roll.phone,
       new Date(roll.submittedAt).toLocaleDateString(),
       roll.isSmsSend ? "Yes" : "No",
-
       roll.isAttendanceComplete ? "Present" : "Not Present",
     ]);
 
@@ -236,7 +227,6 @@ const Scholarship = () => {
     doc.save("ScholarshipData.pdf");
   };
 
-  // Function to generate Excel
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       filteredRolls.map((roll) => ({
@@ -255,11 +245,114 @@ const Scholarship = () => {
     XLSX.writeFile(workbook, "ScholarshipData.xlsx");
   };
 
+  const exportClassWisePDF = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+    });
+
+    // Design Constants
+    const PRIMARY_COLOR = [46, 125, 50]; // Dark green
+    const TEXT_COLOR = [0, 0, 0]; // Black
+    const HEADER_FONT_SIZE = 14; // Increased header size
+    const BODY_FONT_SIZE = 10; // Optimal readable size
+    const LINE_HEIGHT = 7; // Comfortable line spacing
+    const CELL_PADDING = 2.5; // Better spacing
+
+    // Group students by class
+    const classGroups = rollData.reduce((groups, student) => {
+      const className = student.instituteClass;
+      if (!groups[className]) groups[className] = [];
+      groups[className].push(student);
+      return groups;
+    }, {});
+
+    // Sort classes numerically
+    const sortedClasses = Object.keys(classGroups).sort(
+      (a, b) => parseInt(a) - parseInt(b)
+    );
+
+    // Column Widths (total width = 280mm in landscape)
+    const COLUMN_WIDTHS = {
+      serial: 12, // Serial No
+      roll: 28, // Roll Number
+      name: 75, // Name
+      institute: 115, // Institute (max width)
+      gender: 22, // Gender
+      phone: 28, // Phone
+    };
+
+    // Add page for each class
+    sortedClasses.forEach((className) => {
+      doc.addPage("landscape");
+
+      // Header with larger text
+      doc.setFillColor(...PRIMARY_COLOR);
+      doc.rect(0, 0, 280, 12, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(HEADER_FONT_SIZE);
+      doc.text(`DMF-Scholarship-2025 - Class ${className}`, 140, 8, {
+        align: "center",
+        baseline: "middle",
+      });
+
+      // Prepare table data
+      const tableData = classGroups[className].map((student, index) => [
+        index + 1,
+        student.scholarshipRollNumber,
+        student.name,
+        student.institute,
+        student.gender,
+        student.phone?.toString().replace(/^(\d)/, "0$1"), // Format phone
+      ]);
+
+      // Create perfectly balanced table
+      doc.autoTable({
+        head: [["#", "Roll No", "Name", "Institute", "Gender", "Phone"]],
+        body: tableData,
+        startY: 16, // Below header
+        margin: { horizontal: 5 }, // Minimal side margins
+        styles: {
+          fontSize: BODY_FONT_SIZE,
+          cellPadding: CELL_PADDING,
+          lineHeight: LINE_HEIGHT,
+          textColor: TEXT_COLOR,
+          lineWidth: 0.25,
+          lineColor: [220, 220, 220], // Light gray lines
+        },
+        columnStyles: {
+          0: { cellWidth: COLUMN_WIDTHS.serial, halign: "center" },
+          1: { cellWidth: COLUMN_WIDTHS.roll },
+          2: { cellWidth: COLUMN_WIDTHS.name },
+          3: { cellWidth: COLUMN_WIDTHS.institute },
+          4: { cellWidth: COLUMN_WIDTHS.gender, halign: "center" },
+          5: { cellWidth: COLUMN_WIDTHS.phone },
+        },
+        headStyles: {
+          fillColor: PRIMARY_COLOR,
+          textColor: 255,
+          fontSize: BODY_FONT_SIZE + 1, // Slightly larger header
+          cellPadding: CELL_PADDING + 0.5,
+        },
+        bodyStyles: {
+          valign: "middle", // Better vertical alignment
+        },
+        theme: "grid", // Clean grid style
+      });
+    });
+
+    // Remove initial blank page
+    if (doc.getNumberOfPages() > 1) {
+      doc.deletePage(1);
+    }
+
+    // Save with timestamp
+    const timestamp = new Date().toISOString().slice(0, 10);
+    doc.save(`DMF-Scholarship-Class-Wise-${timestamp}.pdf`);
+  };
   const countAttendanceComplete = rollData?.filter(
     (item) => item?.isAttendanceComplete === true
   )?.length;
 
-  // Function to count total resultDetails, isScholarshiped, TalentpoolGrade, and GeneralGrade
   let totalResultDetailsCount = 0;
   let isScholarshipedCount = 0;
   let talentpoolGradeCount = 0;
@@ -269,21 +362,36 @@ const Scholarship = () => {
     if (Array.isArray(item.resultDetails)) {
       totalResultDetailsCount += item.resultDetails.length;
 
-      // Loop through resultDetails for each result
       item.resultDetails.forEach((result) => {
         if (result.totalMarks >= 80) {
-          isScholarshipedCount++; // Marks >= 80 is considered for scholarship
+          isScholarshipedCount++;
 
-          // Check for TalentpoolGrade and GeneralGrade
           if (result.totalMarks >= 90) {
-            talentpoolGradeCount++; // Marks >= 90
+            talentpoolGradeCount++;
           } else if (result.totalMarks >= 80 && result.totalMarks < 90) {
-            generalGradeCount++; // Marks between 80 and 89
+            generalGradeCount++;
           }
         }
       });
     }
   });
+
+  // Group students by class
+  const groupStudentsByClass = () => {
+    const classGroups = {};
+
+    rollData.forEach((student) => {
+      const className = student.instituteClass;
+      if (!classGroups[className]) {
+        classGroups[className] = [];
+      }
+      classGroups[className].push(student);
+    });
+
+    return classGroups;
+  };
+
+  const classGroups = groupStudentsByClass();
 
   return (
     <>
@@ -318,7 +426,7 @@ const Scholarship = () => {
 
               <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-                onClick={handleBackClick} // Use the handleBackClick function here
+                onClick={handleBackClick}
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
@@ -344,6 +452,12 @@ const Scholarship = () => {
                 className="font-semibold gap-2.5 rounded-lg bg-green-500 text-white py-2 px-4 text-xl"
                 onClick={exportToExcel}>
                 Generate Excel
+              </button>
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-green-600 text-white py-2 px-4 text-xl"
+                onClick={exportClassWisePDF}>
+                <i className="pi pi-file-pdf mr-2"></i>
+                Class-wise PDF
               </button>
             </div>
             <div>
@@ -391,7 +505,6 @@ const Scholarship = () => {
                 style={previewStyle}
                 onError={handleError}
                 onScan={handleScan}
-                // facingMode={"environment"}
                 facingMode={facingMode}
               />
               <button
@@ -404,9 +517,6 @@ const Scholarship = () => {
               </button>
             </div>
           )}
-          {/* <p className="mt-2 text-lg font-semibold">
-            QR Scan Result: {qrScanResult}
-          </p> */}
 
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -521,8 +631,7 @@ const Scholarship = () => {
                         className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                         onClick={() => {
                           history.push(`/admitCard/${roll?._id}`);
-                        }} // Ensure this is correct
-                      >
+                        }}>
                         <span>Download</span>
                       </button>
                     </td>
@@ -534,8 +643,7 @@ const Scholarship = () => {
                           onClick={() => {
                             setRowData(roll);
                             handleEditClick(roll._id);
-                          }} // Ensure this is correct
-                        >
+                          }}>
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
@@ -573,18 +681,78 @@ const Scholarship = () => {
               />
             </div>
           </div>
+
+          {/* Class-wise Student List Section */}
+          <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
+            <h3 className="text-lg font-bold mb-4">Class-wise Student List</h3>
+            <Collapse accordion>
+              {Object.keys(classGroups)
+                .sort((a, b) => parseInt(a) - parseInt(b))
+                .map((className) => (
+                  <Panel
+                    header={`Class ${className} (${classGroups[className].length} students)`}
+                    key={className}>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm text-left text-gray-500">
+                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2">#</th>
+                            <th className="px-4 py-2">Roll No.</th>
+                            <th className="px-4 py-2">Name</th>
+                            <th className="px-4 py-2">Institute</th>
+                            <th className="px-4 py-2">Gender</th>
+                            <th className="px-4 py-2">Phone</th>
+                            <th className="px-4 py-2">Attendance</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {classGroups[className].map((student, index) => (
+                            <tr
+                              key={student._id}
+                              className={`border-b ${
+                                student.isAttendanceComplete
+                                  ? "bg-green-50"
+                                  : ""
+                              }`}>
+                              <td className="px-4 py-2">{index + 1}</td>
+                              <td className="px-4 py-2">
+                                {student.scholarshipRollNumber}
+                              </td>
+                              <td className="px-4 py-2">{student.name}</td>
+                              <td className="px-4 py-2">{student.institute}</td>
+                              <td className="px-4 py-2">{student.gender}</td>
+                              <td className="px-4 py-2">
+                                {typeof student?.phone === "string" &&
+                                student?.phone?.startsWith("0")
+                                  ? student?.phone
+                                  : `0${student?.phone}`}
+                              </td>
+                              <td className="px-4 py-2">
+                                {student.isAttendanceComplete ? (
+                                  <span className="text-green-600 font-semibold">
+                                    Present
+                                  </span>
+                                ) : (
+                                  <span className="text-red-600 font-semibold">
+                                    Absent
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Panel>
+                ))}
+            </Collapse>
+          </div>
         </div>
       )}
 
-      {/* start insert dialog */}
-
-      {/* <Button type="primary" onClick={showModal}>
-        Open Modal
-      </Button> */}
       <Modal
         title="Please Provided Valid Information"
         open={isModalOpen}
-        // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
         <ScholarshipInsert handleCancel={handleCancel} isUpdate={false} />
@@ -592,7 +760,6 @@ const Scholarship = () => {
       <Modal
         title="Please Provided Valid Information"
         open={isModalOpen2}
-        // onOk={handleOk}
         onCancel={handleCancel}
         width={800}>
         <ScholarshipUpdate
@@ -601,14 +768,6 @@ const Scholarship = () => {
           isUpdate={true}
         />
       </Modal>
-      {/* <Modal
-        title="Scholarship 2024"
-        open={isModalOpen2}
-        // onOk={handleOk}
-        onCancel={handleCancel}
-        width={800}>
-        <AdmitCard handleCancel={handleCancel} />
-      </Modal> */}
     </>
   );
 };
