@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useHistory } from "react-router-dom"; // Use useHistory instead of useNavigate
+import { useHistory } from "react-router-dom";
 import "./Slider.css";
 
-// Image from the provided link
 const scholarshipBg = "https://i.ibb.co.com/kgh5YjLz/IMG-7332.jpg";
 
 const slides = [
   {
     title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৫",
-    subtitle: "ভবিষ্যতের পথে আপনার সহযোগী",
+    subtitle: "আবেদনের সময় শেষ হয়েছে",
     description: `
-      🎓 শিক্ষাবৃত্তির জন্য আবেদন চলছে!
-      ✅ আবেদনের শেষ তারিখ: ১৫ এপ্রিল, ২০২৫
+      🎓 শিক্ষাবৃত্তির জন্য আবেদন গ্রহণ বন্ধ
+      ✅ পরীক্ষার তারিখ: ২৫ এপ্রিল, ২০২৫
+      
+      ক্লাস (৩য়-৫ম) ✅ পরীক্ষার সময়: ৪০ মিনিট ✅ পরীক্ষা সকাল ৯:০০ টায় শুরু হবে (ইন শা আল্লহ)
+      
+      ক্লাস (৬ষ্ঠ-১০ম) ✅ পরীক্ষার সময়: ৭০ মিনিট ✅ পরীক্ষা সকাল ১০:২০ মিনিটে শুরু হবে (ইন শা আল্লহ)
+      
+      পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা হাই স্কুল, তক্তারচালা,সখিপুর, টাঙ্গাইল
     `,
   },
   {
@@ -23,13 +28,21 @@ const slides = [
       🎁 গিফট হ্যাম্পার
       📜 সনদপত্র
       🖥️ আধুনিক শিক্ষার প্রয়োজনীয় কোর্স
+      
+      পরীক্ষার তারিখ: ২৫ এপ্রিল, ২০২৫
+      পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা হাই স্কুল, তক্তারচালা,সখিপুর, টাঙ্গাইল
     `,
   },
   {
     title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৫",
-    subtitle: "আবেদন করুন এখনই!",
+    subtitle: "পরীক্ষার প্রস্তুতি নিন",
     description: `
-      🌟 দেরি না করে আজই আবেদন করুন
+      📅 পরীক্ষার তারিখ: ২৫ এপ্রিল, ২০২৫
+      🏫 পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা হাই স্কুল, তক্তারচালা,সখিপুর, টাঙ্গাইল
+      
+      ক্লাস (৩য়-৫ম) ✅ পরীক্ষার সময়: ৪০ মিনিট ✅ সকাল ৯:০০ টায়
+      ক্লাস (৬ষ্ঠ-১০ম) ✅ পরীক্ষার সময়: ৭০ মিনিট ✅ সকাল ১০:২০ মিনিটে
+      
       📞 যোগাযোগ: ০১৭৯১৫৫৬১৮৪
     `,
   },
@@ -37,7 +50,8 @@ const slides = [
 
 export default function Slider() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const history = useHistory(); // Use useHistory for navigation
+  const history = useHistory();
+  const applicationClosed = true; // Set to true as application time is over
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -46,13 +60,12 @@ export default function Slider() {
     return () => clearInterval(interval);
   }, []);
 
-  // Function to handle button click
-  const handleApplyNow = () => {
-    history.push("/scholarship-public"); // Use history.push for navigation
+  const handleInfoClick = () => {
+    history.push("/scholarship-info"); // Redirect to information page
   };
 
   return (
-    <div className="relative overflow-hidden h-[350px] lg:h-[500px] xl:h-[500px] slider-container">
+    <div className="relative overflow-hidden h-[400px] lg:h-[550px] xl:h-[550px] slider-container">
       {/* Vintage-style dark overlay */}
       <div className="absolute inset-0 bg-black bg-opacity-70"></div>
 
@@ -65,7 +78,7 @@ export default function Slider() {
         }}></div>
 
       {/* Text Content */}
-      <div className="absolute inset-0 flex flex-col justify-center items-center text-white z-10">
+      <div className="absolute inset-0 flex flex-col justify-center items-center text-white z-10 px-4">
         <AnimatePresence mode="wait">
           <motion.h1
             key={`title-${currentSlide}`}
@@ -91,25 +104,25 @@ export default function Slider() {
         </AnimatePresence>
 
         <AnimatePresence mode="wait">
-          <motion.p
+          <motion.div
             key={`description-${currentSlide}`}
-            className="text-[18px] lg:text-[24px] xl:text-[24px] text-center mt-4 bangla-text px-4 lg:px-40 whitespace-pre-line"
+            className="text-[16px] lg:text-[20px] xl:text-[20px] text-center mt-4 bangla-text px-2 lg:px-20 whitespace-pre-line"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -30 }}
             transition={{ duration: 0.8, delay: 0.4 }}>
             {slides[currentSlide].description}
-          </motion.p>
+          </motion.div>
         </AnimatePresence>
 
-        {/* Apply Now Button */}
+        {/* Changed button to show information instead of apply now */}
         <motion.button
-          onClick={handleApplyNow}
-          className="mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-10 rounded-lg shadow-lg transition-all duration-300 text-[20px]"
+          onClick={handleInfoClick}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg shadow-lg transition-all duration-300 text-[18px]"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}>
-          আবেদন করুন
+          বিস্তারিত তথ্য
         </motion.button>
       </div>
     </div>

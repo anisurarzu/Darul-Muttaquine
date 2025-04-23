@@ -257,14 +257,14 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
 
       <div>
         <Alert
-          message={`গুরুত্বপূর্ণ ঘোষণা: শিহ্মাবৃত্তি ২০২৪ এর সকল আবেদন নেয়ার সময় শেষ হয়ে গিয়েছে,আপনি কোন কারণে আবেদন করতে না পেরে থাকলে দ্রুত আমাদের সাথে যোগাযোগ করুন `}
+          message={`গুরুত্বপূর্ণ ঘোষণা: শিহ্মাবৃত্তি ২০২৫ এর সকল আবেদন নেয়ার সময় শেষ হয়ে গিয়েছে,আপনি কোন কারণে আবেদন করতে না পেরে থাকলে দ্রুত আমাদের সাথে যোগাযোগ করুন `}
           description=""
           type="info"
           showIcon
           className="mb-2 mx-8"
         />
         <div className="flex justify-center gap-2 mt-4">
-          <Button
+          {/* <Button
             onClick={() => {
               setIsApplicationShow(false);
             }}
@@ -272,7 +272,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             htmlType="submit"
             className="bg-green-600 text-white text-lg hover:bg-green-700">
             Application Create
-          </Button>
+          </Button> */}
           <Button
             onClick={() => {
               setIsApplicationShow(true);

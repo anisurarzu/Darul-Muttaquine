@@ -411,7 +411,9 @@ const Scholarship = () => {
           </h3>
           <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
             <div className="ml-1">
-              <button
+              {
+                {
+                  /* <button
                 className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
                 onClick={() => showModal()}
                 style={{
@@ -422,7 +424,9 @@ const Scholarship = () => {
                   <i className="pi pi-plus font-semibold"></i>
                 </span>
                 NEW
-              </button>
+              </button> */
+                }
+              }
 
               <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
