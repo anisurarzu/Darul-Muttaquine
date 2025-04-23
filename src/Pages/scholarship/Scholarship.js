@@ -414,10 +414,10 @@ const Scholarship = () => {
               <button
                 className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
                 onClick={() => {
-                  // showModal()
-                  toast.warn(
-                    "Application Process Completed!. Please Contact with your administration"
-                  );
+                  showModal();
+                  // toast.warn(
+                  //   "Application Process Completed!. Please Contact with your administration"
+                  // );
                 }}
                 style={{
                   outline: "none",
