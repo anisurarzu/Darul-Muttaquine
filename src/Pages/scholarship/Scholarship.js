@@ -11,6 +11,7 @@ import {
   Popconfirm,
   Spin,
   Collapse,
+  Table,
 } from "antd";
 import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
@@ -40,6 +41,7 @@ const Scholarship = () => {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
   const [rollData, setRollData] = useState([]);
+  const [showInstituteReport, setShowInstituteReport] = useState(false);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -349,6 +351,7 @@ const Scholarship = () => {
     const timestamp = new Date().toISOString().slice(0, 10);
     doc.save(`DMF-Scholarship-Class-Wise-${timestamp}.pdf`);
   };
+
   const countAttendanceComplete = rollData?.filter(
     (item) => item?.isAttendanceComplete === true
   )?.length;
@@ -376,6 +379,140 @@ const Scholarship = () => {
     }
   });
 
+  // Generate Institute-wise Report Data
+  const generateInstituteReport = () => {
+    const instituteReport = {};
+
+    rollData.forEach((student) => {
+      const instituteName = student.institute.trim();
+      const className = student.instituteClass;
+      const gender = student.gender;
+
+      if (!instituteReport[instituteName]) {
+        instituteReport[instituteName] = {};
+      }
+
+      if (!instituteReport[instituteName][className]) {
+        instituteReport[instituteName][className] = {
+          male: 0,
+          female: 0,
+          total: 0,
+        };
+      }
+
+      if (gender.toLowerCase() === "male") {
+        instituteReport[instituteName][className].male += 1;
+      } else if (gender.toLowerCase() === "female") {
+        instituteReport[instituteName][className].female += 1;
+      }
+
+      instituteReport[instituteName][className].total += 1;
+    });
+
+    return instituteReport;
+  };
+
+  const instituteReport = generateInstituteReport();
+
+  // Function to export Institute Report to PDF
+  const exportInstituteReportToPDF = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+    });
+
+    // Design Constants
+    const PRIMARY_COLOR = [46, 125, 50]; // Dark green
+    const TEXT_COLOR = [0, 0, 0]; // Black
+    const HEADER_FONT_SIZE = 14;
+    const BODY_FONT_SIZE = 10;
+    const LINE_HEIGHT = 7;
+    const CELL_PADDING = 2.5;
+
+    // Sort institutes alphabetically
+    const sortedInstitutes = Object.keys(instituteReport).sort();
+
+    sortedInstitutes.forEach((institute, instituteIndex) => {
+      if (instituteIndex > 0) {
+        doc.addPage("landscape");
+      }
+
+      // Header
+      doc.setFillColor(...PRIMARY_COLOR);
+      doc.rect(0, 0, 280, 12, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(HEADER_FONT_SIZE);
+      doc.text(`DMF-Scholarship-2025 - ${institute}`, 140, 8, {
+        align: "center",
+        baseline: "middle",
+      });
+
+      // Prepare table data
+      const tableData = [];
+      const classes = Object.keys(instituteReport[institute]).sort(
+        (a, b) => parseInt(a) - parseInt(b)
+      );
+
+      classes.forEach((className) => {
+        const classData = instituteReport[institute][className];
+        tableData.push([
+          className,
+          classData.male,
+          classData.female,
+          classData.total,
+        ]);
+      });
+
+      // Add summary row
+      const totalMale = classes.reduce(
+        (sum, className) => sum + instituteReport[institute][className].male,
+        0
+      );
+      const totalFemale = classes.reduce(
+        (sum, className) => sum + instituteReport[institute][className].female,
+        0
+      );
+      const grandTotal = totalMale + totalFemale;
+
+      tableData.push(["Total", totalMale, totalFemale, grandTotal]);
+
+      // Create table
+      doc.autoTable({
+        head: [["Class", "Male Students", "Female Students", "Total Students"]],
+        body: tableData,
+        startY: 16,
+        margin: { horizontal: 5 },
+        styles: {
+          fontSize: BODY_FONT_SIZE,
+          cellPadding: CELL_PADDING,
+          lineHeight: LINE_HEIGHT,
+          textColor: TEXT_COLOR,
+          lineWidth: 0.25,
+          lineColor: [220, 220, 220],
+        },
+        columnStyles: {
+          0: { cellWidth: 40, halign: "center" },
+          1: { cellWidth: 40, halign: "center" },
+          2: { cellWidth: 40, halign: "center" },
+          3: { cellWidth: 40, halign: "center" },
+        },
+        headStyles: {
+          fillColor: PRIMARY_COLOR,
+          textColor: 255,
+          fontSize: BODY_FONT_SIZE + 1,
+          cellPadding: CELL_PADDING + 0.5,
+        },
+        bodyStyles: {
+          valign: "middle",
+        },
+        theme: "grid",
+      });
+    });
+
+    // Save with timestamp
+    const timestamp = new Date().toISOString().slice(0, 10);
+    doc.save(`DMF-Scholarship-Institute-Report-${timestamp}.pdf`);
+  };
+
   // Group students by class
   const groupStudentsByClass = () => {
     const classGroups = {};
@@ -393,6 +530,192 @@ const Scholarship = () => {
 
   const classGroups = groupStudentsByClass();
 
+  const generateDetailedInstituteReport = () => {
+    const detailedReport = {};
+
+    rollData.forEach((student) => {
+      const instituteName = student.institute.trim();
+      const className = student.instituteClass;
+      const gender = student.gender.toLowerCase();
+
+      if (!detailedReport[instituteName]) {
+        detailedReport[instituteName] = {};
+      }
+
+      if (!detailedReport[instituteName][className]) {
+        detailedReport[instituteName][className] = {
+          maleStudents: [],
+          femaleStudents: [],
+          total: 0,
+        };
+      }
+
+      const studentInfo = {
+        name: student.name,
+        roll: student.scholarshipRollNumber,
+        phone: student.phone,
+        attendance: student.isAttendanceComplete ? "Present" : "Absent",
+      };
+
+      if (gender === "male") {
+        detailedReport[instituteName][className].maleStudents.push(studentInfo);
+      } else if (gender === "female") {
+        detailedReport[instituteName][className].femaleStudents.push(
+          studentInfo
+        );
+      }
+
+      detailedReport[instituteName][className].total += 1;
+    });
+
+    return detailedReport;
+  };
+
+  const detailedInstituteReport = generateDetailedInstituteReport();
+
+  // Add this export function for detailed report
+  const exportDetailedInstituteReportToPDF = () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+    });
+
+    // Design Constants
+    const PRIMARY_COLOR = [46, 125, 50];
+    const TEXT_COLOR = [0, 0, 0];
+    const HEADER_FONT_SIZE = 12;
+    const BODY_FONT_SIZE = 10;
+
+    Object.keys(detailedInstituteReport)
+      .sort()
+      .forEach((institute, instituteIndex) => {
+        if (instituteIndex > 0) {
+          doc.addPage();
+        }
+
+        // Institute Header
+        doc.setFontSize(HEADER_FONT_SIZE);
+        doc.setTextColor(...PRIMARY_COLOR);
+        doc.text(`Institute: ${institute}`, 14, 20);
+
+        const classes = Object.keys(detailedInstituteReport[institute]).sort(
+          (a, b) => parseInt(a) - parseInt(b)
+        );
+
+        let yPosition = 30;
+
+        classes.forEach((className) => {
+          const classData = detailedInstituteReport[institute][className];
+
+          // Class Header
+          doc.setFontSize(HEADER_FONT_SIZE - 1);
+          doc.setTextColor(0, 0, 0);
+          doc.text(
+            `Class ${className} (Total: ${classData.total})`,
+            14,
+            yPosition
+          );
+          yPosition += 7;
+
+          // Male Students Table
+          if (classData.maleStudents.length > 0) {
+            doc.setFontSize(BODY_FONT_SIZE);
+            doc.setTextColor(0, 0, 0);
+            doc.text(
+              `Male Students (${classData.maleStudents.length}):`,
+              14,
+              yPosition
+            );
+            yPosition += 7;
+
+            const maleTableData = classData.maleStudents.map(
+              (student, index) => [
+                index + 1,
+                student.roll,
+                student.name,
+                student.phone,
+                student.attendance,
+              ]
+            );
+
+            doc.autoTable({
+              startY: yPosition,
+              head: [["#", "Roll No", "Name", "Phone", "Attendance"]],
+              body: maleTableData,
+              margin: { left: 14 },
+              styles: {
+                fontSize: BODY_FONT_SIZE - 1,
+                cellPadding: 2,
+                textColor: TEXT_COLOR,
+              },
+              columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 60 },
+                3: { cellWidth: 30 },
+                4: { cellWidth: 25 },
+              },
+              headStyles: {
+                fillColor: PRIMARY_COLOR,
+                textColor: 255,
+              },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 5;
+          }
+
+          // Female Students Table
+          if (classData.femaleStudents.length > 0) {
+            doc.setFontSize(BODY_FONT_SIZE);
+            doc.setTextColor(0, 0, 0);
+            doc.text(
+              `Female Students (${classData.femaleStudents.length}):`,
+              14,
+              yPosition
+            );
+            yPosition += 7;
+
+            const femaleTableData = classData.femaleStudents.map(
+              (student, index) => [
+                index + 1,
+                student.roll,
+                student.name,
+                student.phone,
+                student.attendance,
+              ]
+            );
+
+            doc.autoTable({
+              startY: yPosition,
+              head: [["#", "Roll No", "Name", "Phone", "Attendance"]],
+              body: femaleTableData,
+              margin: { left: 14 },
+              styles: {
+                fontSize: BODY_FONT_SIZE - 1,
+                cellPadding: 2,
+                textColor: TEXT_COLOR,
+              },
+              columnStyles: {
+                0: { cellWidth: 10 },
+                1: { cellWidth: 25 },
+                2: { cellWidth: 60 },
+                3: { cellWidth: 30 },
+                4: { cellWidth: 25 },
+              },
+              headStyles: {
+                fillColor: [128, 0, 128], // Purple for female
+                textColor: 255,
+              },
+            });
+
+            yPosition = doc.lastAutoTable.finalY + 10;
+          }
+        });
+      });
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+    doc.save(`DMF-Scholarship-Detailed-Institute-Report-${timestamp}.pdf`);
+  };
+
   return (
     <>
       {loading ? (
@@ -409,61 +732,57 @@ const Scholarship = () => {
             DMF Scholarship 2025, Senior Category: {countClass6to10}, Junior
             Category: {countOtherClasses}
           </h3>
-          <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
-            <div className="ml-1">
-              <button
-                className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
-                onClick={() => {
-                  showModal();
-                  // toast.warn(
-                  //   "Application Process Completed!. Please Contact with your administration"
-                  // );
-                }}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}>
-                <span>
-                  <i className="pi pi-plus font-semibold"></i>
-                </span>
-                NEW
-              </button>
+          <div className="ml-1">
+            <button
+              className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
+              onClick={() => {
+                showModal();
+              }}
+              style={{
+                outline: "none",
+                borderColor: "transparent !important",
+              }}>
+              <span>
+                <i className="pi pi-plus font-semibold"></i>
+              </span>
+              NEW
+            </button>
 
-              <button
-                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-                onClick={handleBackClick}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}>
-                <span>
-                  <i className="pi pi-arrow-left font-semibold"></i>
-                </span>
-                BACK
-              </button>
-              <Button
-                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
-                onClick={() => setShowQrScanner(!showQrScanner)}>
-                Scan Now
-              </Button>
-            </div>
-            <div className="flex justify-end mb-4 gap-4">
-              <button
-                className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
-                onClick={exportToPDF}>
-                Generate PDF
-              </button>
-              <button
-                className="font-semibold gap-2.5 rounded-lg bg-green-500 text-white py-2 px-4 text-xl"
-                onClick={exportToExcel}>
-                Generate Excel
-              </button>
-              <button
-                className="font-semibold gap-2.5 rounded-lg bg-green-600 text-white py-2 px-4 text-xl"
-                onClick={exportClassWisePDF}>
-                <i className="pi pi-file-pdf mr-2"></i>
-                Class-wise PDF
-              </button>
+            <button
+              className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
+              onClick={handleBackClick}
+              style={{
+                outline: "none",
+                borderColor: "transparent !important",
+              }}>
+              <span>
+                <i className="pi pi-arrow-left font-semibold"></i>
+              </span>
+              BACK
+            </button>
+            <Button
+              className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
+              onClick={() => setShowQrScanner(!showQrScanner)}>
+              Scan Now
+            </Button>
+          </div>
+          <div className="">
+            <div className="">
+              {showInstituteReport && (
+                <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">
+                      Detailed Institute Report
+                    </h3>
+                    <button
+                      className="font-semibold gap-2.5 rounded-lg bg-purple-700 text-white py-2 px-4 text-sm"
+                      onClick={exportDetailedInstituteReportToPDF}>
+                      <i className="pi pi-download mr-2"></i>
+                      Export Detailed Institute Report
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <h3 className="text-[17px]">
@@ -522,6 +841,8 @@ const Scholarship = () => {
               </button>
             </div>
           )}
+
+          {/* Institute Report Section */}
 
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
