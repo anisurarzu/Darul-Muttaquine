@@ -768,21 +768,21 @@ const Scholarship = () => {
           </div>
           <div className="">
             <div className="">
-              {showInstituteReport && (
-                <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold">
-                      Detailed Institute Report
-                    </h3>
-                    <button
-                      className="font-semibold gap-2.5 rounded-lg bg-purple-700 text-white py-2 px-4 text-sm"
-                      onClick={exportDetailedInstituteReportToPDF}>
-                      <i className="pi pi-download mr-2"></i>
-                      Export Detailed Institute Report
-                    </button>
-                  </div>
+              {/* {showInstituteReport && ( */}
+              <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold">
+                    Detailed Institute Report
+                  </h3>
+                  <button
+                    className="font-semibold gap-2.5 rounded-lg bg-purple-700 text-white py-2 px-4 text-sm"
+                    onClick={exportDetailedInstituteReportToPDF}>
+                    <i className="pi pi-download mr-2"></i>
+                    Export Detailed Institute Report
+                  </button>
                 </div>
-              )}
+              </div>
+              {/* )} */}
             </div>
             <div>
               <h3 className="text-[17px]">
