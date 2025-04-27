@@ -11,7 +11,6 @@ import {
   Popconfirm,
   Spin,
   Collapse,
-  Table,
 } from "antd";
 import { coreAxios } from "../../utilities/axios";
 import jsPDF from "jspdf";
@@ -41,7 +40,6 @@ const Scholarship = () => {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
   const [rollData, setRollData] = useState([]);
-  const [showInstituteReport, setShowInstituteReport] = useState(false);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -196,6 +194,79 @@ const Scholarship = () => {
     },
   };
 
+  // Function to determine scholarship grade based on class and marks
+  const getScholarshipGrade = (student) => {
+    if (!student.resultDetails || student.resultDetails.length === 0)
+      return null;
+
+    const classNumber = parseInt(student.instituteClass);
+    const totalMarks = student.resultDetails[0].totalMarks;
+
+    // For classes 3 to 5
+    if (classNumber >= 3 && classNumber <= 5) {
+      if (totalMarks >= 45 && totalMarks <= 47) {
+        return "General Grade";
+      } else if (totalMarks >= 48 && totalMarks <= 50) {
+        return "Talentpool Grade";
+      }
+    }
+    // For classes 6, 7, and 8
+    else if (classNumber >= 6 && classNumber <= 8) {
+      if (totalMarks >= 70 && totalMarks < 80) {
+        return "General Grade";
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
+        return "Talentpool Grade";
+      }
+    }
+    // For classes 9 and 10
+    else if (classNumber >= 9 && classNumber <= 10) {
+      if (totalMarks >= 80 && totalMarks < 90) {
+        return "General Grade";
+      } else if (totalMarks >= 90 && totalMarks <= 100) {
+        return "Talentpool Grade";
+      }
+    }
+
+    return null;
+  };
+
+  // Count scholarship grades
+  const countScholarshipGrades = () => {
+    let generalGradeCount = 0;
+    let talentpoolGradeCount = 0;
+    let totalResultDetailsCount = 0;
+    let isScholarshipedCount = 0;
+
+    rollData.forEach((student) => {
+      if (student.resultDetails && student.resultDetails.length > 0) {
+        totalResultDetailsCount += student.resultDetails.length;
+        const grade = getScholarshipGrade(student);
+
+        if (grade === "General Grade") {
+          generalGradeCount++;
+          isScholarshipedCount++;
+        } else if (grade === "Talentpool Grade") {
+          talentpoolGradeCount++;
+          isScholarshipedCount++;
+        }
+      }
+    });
+
+    return {
+      generalGradeCount,
+      talentpoolGradeCount,
+      totalResultDetailsCount,
+      isScholarshipedCount,
+    };
+  };
+
+  const {
+    generalGradeCount,
+    talentpoolGradeCount,
+    totalResultDetailsCount,
+    isScholarshipedCount,
+  } = countScholarshipGrades();
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     const tableColumn = [
@@ -208,7 +279,10 @@ const Scholarship = () => {
       "Date",
       "SMS Sent",
       "Attendance",
+      "Total Marks",
+      "Scholarship Grade",
     ];
+
     const tableRows = filteredRolls.map((roll) => [
       roll.name,
       roll.gender,
@@ -219,6 +293,8 @@ const Scholarship = () => {
       new Date(roll.submittedAt).toLocaleDateString(),
       roll.isSmsSend ? "Yes" : "No",
       roll.isAttendanceComplete ? "Present" : "Not Present",
+      roll.resultDetails?.[0]?.totalMarks || "N/A",
+      getScholarshipGrade(roll) || "Not Qualified",
     ]);
 
     doc.autoTable({
@@ -240,6 +316,8 @@ const Scholarship = () => {
         Date: new Date(roll.submittedAt).toLocaleDateString(),
         "SMS Sent": roll.isSmsSend ? "Yes" : "No",
         Attendance: roll.isAttendanceComplete ? "Present" : "Not Present",
+        "Total Marks": roll.resultDetails?.[0]?.totalMarks || "N/A",
+        "Scholarship Grade": getScholarshipGrade(roll) || "Not Qualified",
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -281,6 +359,8 @@ const Scholarship = () => {
       institute: 115, // Institute (max width)
       gender: 22, // Gender
       phone: 28, // Phone
+      marks: 20, // Total Marks
+      grade: 30, // Scholarship Grade
     };
 
     // Add page for each class
@@ -305,11 +385,24 @@ const Scholarship = () => {
         student.institute,
         student.gender,
         student.phone?.toString().replace(/^(\d)/, "0$1"), // Format phone
+        student.resultDetails?.[0]?.totalMarks || "N/A",
+        getScholarshipGrade(student) || "N/A",
       ]);
 
       // Create perfectly balanced table
       doc.autoTable({
-        head: [["#", "Roll No", "Name", "Institute", "Gender", "Phone"]],
+        head: [
+          [
+            "#",
+            "Roll No",
+            "Name",
+            "Institute",
+            "Gender",
+            "Phone",
+            "Marks",
+            "Grade",
+          ],
+        ],
         body: tableData,
         startY: 16, // Below header
         margin: { horizontal: 5 }, // Minimal side margins
@@ -328,6 +421,8 @@ const Scholarship = () => {
           3: { cellWidth: COLUMN_WIDTHS.institute },
           4: { cellWidth: COLUMN_WIDTHS.gender, halign: "center" },
           5: { cellWidth: COLUMN_WIDTHS.phone },
+          6: { cellWidth: COLUMN_WIDTHS.marks, halign: "center" },
+          7: { cellWidth: COLUMN_WIDTHS.grade, halign: "center" },
         },
         headStyles: {
           fillColor: PRIMARY_COLOR,
@@ -356,163 +451,6 @@ const Scholarship = () => {
     (item) => item?.isAttendanceComplete === true
   )?.length;
 
-  let totalResultDetailsCount = 0;
-  let isScholarshipedCount = 0;
-  let talentpoolGradeCount = 0;
-  let generalGradeCount = 0;
-
-  rollData?.forEach((item) => {
-    if (Array.isArray(item.resultDetails)) {
-      totalResultDetailsCount += item.resultDetails.length;
-
-      item.resultDetails.forEach((result) => {
-        if (result.totalMarks >= 80) {
-          isScholarshipedCount++;
-
-          if (result.totalMarks >= 90) {
-            talentpoolGradeCount++;
-          } else if (result.totalMarks >= 80 && result.totalMarks < 90) {
-            generalGradeCount++;
-          }
-        }
-      });
-    }
-  });
-
-  // Generate Institute-wise Report Data
-  const generateInstituteReport = () => {
-    const instituteReport = {};
-
-    rollData.forEach((student) => {
-      const instituteName = student.institute.trim();
-      const className = student.instituteClass;
-      const gender = student.gender;
-
-      if (!instituteReport[instituteName]) {
-        instituteReport[instituteName] = {};
-      }
-
-      if (!instituteReport[instituteName][className]) {
-        instituteReport[instituteName][className] = {
-          male: 0,
-          female: 0,
-          total: 0,
-        };
-      }
-
-      if (gender.toLowerCase() === "male") {
-        instituteReport[instituteName][className].male += 1;
-      } else if (gender.toLowerCase() === "female") {
-        instituteReport[instituteName][className].female += 1;
-      }
-
-      instituteReport[instituteName][className].total += 1;
-    });
-
-    return instituteReport;
-  };
-
-  const instituteReport = generateInstituteReport();
-
-  // Function to export Institute Report to PDF
-  const exportInstituteReportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: "landscape",
-    });
-
-    // Design Constants
-    const PRIMARY_COLOR = [46, 125, 50]; // Dark green
-    const TEXT_COLOR = [0, 0, 0]; // Black
-    const HEADER_FONT_SIZE = 14;
-    const BODY_FONT_SIZE = 10;
-    const LINE_HEIGHT = 7;
-    const CELL_PADDING = 2.5;
-
-    // Sort institutes alphabetically
-    const sortedInstitutes = Object.keys(instituteReport).sort();
-
-    sortedInstitutes.forEach((institute, instituteIndex) => {
-      if (instituteIndex > 0) {
-        doc.addPage("landscape");
-      }
-
-      // Header
-      doc.setFillColor(...PRIMARY_COLOR);
-      doc.rect(0, 0, 280, 12, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(HEADER_FONT_SIZE);
-      doc.text(`DMF-Scholarship-2025 - ${institute}`, 140, 8, {
-        align: "center",
-        baseline: "middle",
-      });
-
-      // Prepare table data
-      const tableData = [];
-      const classes = Object.keys(instituteReport[institute]).sort(
-        (a, b) => parseInt(a) - parseInt(b)
-      );
-
-      classes.forEach((className) => {
-        const classData = instituteReport[institute][className];
-        tableData.push([
-          className,
-          classData.male,
-          classData.female,
-          classData.total,
-        ]);
-      });
-
-      // Add summary row
-      const totalMale = classes.reduce(
-        (sum, className) => sum + instituteReport[institute][className].male,
-        0
-      );
-      const totalFemale = classes.reduce(
-        (sum, className) => sum + instituteReport[institute][className].female,
-        0
-      );
-      const grandTotal = totalMale + totalFemale;
-
-      tableData.push(["Total", totalMale, totalFemale, grandTotal]);
-
-      // Create table
-      doc.autoTable({
-        head: [["Class", "Male Students", "Female Students", "Total Students"]],
-        body: tableData,
-        startY: 16,
-        margin: { horizontal: 5 },
-        styles: {
-          fontSize: BODY_FONT_SIZE,
-          cellPadding: CELL_PADDING,
-          lineHeight: LINE_HEIGHT,
-          textColor: TEXT_COLOR,
-          lineWidth: 0.25,
-          lineColor: [220, 220, 220],
-        },
-        columnStyles: {
-          0: { cellWidth: 40, halign: "center" },
-          1: { cellWidth: 40, halign: "center" },
-          2: { cellWidth: 40, halign: "center" },
-          3: { cellWidth: 40, halign: "center" },
-        },
-        headStyles: {
-          fillColor: PRIMARY_COLOR,
-          textColor: 255,
-          fontSize: BODY_FONT_SIZE + 1,
-          cellPadding: CELL_PADDING + 0.5,
-        },
-        bodyStyles: {
-          valign: "middle",
-        },
-        theme: "grid",
-      });
-    });
-
-    // Save with timestamp
-    const timestamp = new Date().toISOString().slice(0, 10);
-    doc.save(`DMF-Scholarship-Institute-Report-${timestamp}.pdf`);
-  };
-
   // Group students by class
   const groupStudentsByClass = () => {
     const classGroups = {};
@@ -530,192 +468,6 @@ const Scholarship = () => {
 
   const classGroups = groupStudentsByClass();
 
-  const generateDetailedInstituteReport = () => {
-    const detailedReport = {};
-
-    rollData.forEach((student) => {
-      const instituteName = student.institute.trim();
-      const className = student.instituteClass;
-      const gender = student.gender.toLowerCase();
-
-      if (!detailedReport[instituteName]) {
-        detailedReport[instituteName] = {};
-      }
-
-      if (!detailedReport[instituteName][className]) {
-        detailedReport[instituteName][className] = {
-          maleStudents: [],
-          femaleStudents: [],
-          total: 0,
-        };
-      }
-
-      const studentInfo = {
-        name: student.name,
-        roll: student.scholarshipRollNumber,
-        phone: student.phone,
-        attendance: student.isAttendanceComplete ? "Present" : "Absent",
-      };
-
-      if (gender === "male") {
-        detailedReport[instituteName][className].maleStudents.push(studentInfo);
-      } else if (gender === "female") {
-        detailedReport[instituteName][className].femaleStudents.push(
-          studentInfo
-        );
-      }
-
-      detailedReport[instituteName][className].total += 1;
-    });
-
-    return detailedReport;
-  };
-
-  const detailedInstituteReport = generateDetailedInstituteReport();
-
-  // Add this export function for detailed report
-  const exportDetailedInstituteReportToPDF = () => {
-    const doc = new jsPDF({
-      orientation: "portrait",
-    });
-
-    // Design Constants
-    const PRIMARY_COLOR = [46, 125, 50];
-    const TEXT_COLOR = [0, 0, 0];
-    const HEADER_FONT_SIZE = 12;
-    const BODY_FONT_SIZE = 10;
-
-    Object.keys(detailedInstituteReport)
-      .sort()
-      .forEach((institute, instituteIndex) => {
-        if (instituteIndex > 0) {
-          doc.addPage();
-        }
-
-        // Institute Header
-        doc.setFontSize(HEADER_FONT_SIZE);
-        doc.setTextColor(...PRIMARY_COLOR);
-        doc.text(`Institute: ${institute}`, 14, 20);
-
-        const classes = Object.keys(detailedInstituteReport[institute]).sort(
-          (a, b) => parseInt(a) - parseInt(b)
-        );
-
-        let yPosition = 30;
-
-        classes.forEach((className) => {
-          const classData = detailedInstituteReport[institute][className];
-
-          // Class Header
-          doc.setFontSize(HEADER_FONT_SIZE - 1);
-          doc.setTextColor(0, 0, 0);
-          doc.text(
-            `Class ${className} (Total: ${classData.total})`,
-            14,
-            yPosition
-          );
-          yPosition += 7;
-
-          // Male Students Table
-          if (classData.maleStudents.length > 0) {
-            doc.setFontSize(BODY_FONT_SIZE);
-            doc.setTextColor(0, 0, 0);
-            doc.text(
-              `Male Students (${classData.maleStudents.length}):`,
-              14,
-              yPosition
-            );
-            yPosition += 7;
-
-            const maleTableData = classData.maleStudents.map(
-              (student, index) => [
-                index + 1,
-                student.roll,
-                student.name,
-                student.phone,
-                student.attendance,
-              ]
-            );
-
-            doc.autoTable({
-              startY: yPosition,
-              head: [["#", "Roll No", "Name", "Phone", "Attendance"]],
-              body: maleTableData,
-              margin: { left: 14 },
-              styles: {
-                fontSize: BODY_FONT_SIZE - 1,
-                cellPadding: 2,
-                textColor: TEXT_COLOR,
-              },
-              columnStyles: {
-                0: { cellWidth: 10 },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 60 },
-                3: { cellWidth: 30 },
-                4: { cellWidth: 25 },
-              },
-              headStyles: {
-                fillColor: PRIMARY_COLOR,
-                textColor: 255,
-              },
-            });
-
-            yPosition = doc.lastAutoTable.finalY + 5;
-          }
-
-          // Female Students Table
-          if (classData.femaleStudents.length > 0) {
-            doc.setFontSize(BODY_FONT_SIZE);
-            doc.setTextColor(0, 0, 0);
-            doc.text(
-              `Female Students (${classData.femaleStudents.length}):`,
-              14,
-              yPosition
-            );
-            yPosition += 7;
-
-            const femaleTableData = classData.femaleStudents.map(
-              (student, index) => [
-                index + 1,
-                student.roll,
-                student.name,
-                student.phone,
-                student.attendance,
-              ]
-            );
-
-            doc.autoTable({
-              startY: yPosition,
-              head: [["#", "Roll No", "Name", "Phone", "Attendance"]],
-              body: femaleTableData,
-              margin: { left: 14 },
-              styles: {
-                fontSize: BODY_FONT_SIZE - 1,
-                cellPadding: 2,
-                textColor: TEXT_COLOR,
-              },
-              columnStyles: {
-                0: { cellWidth: 10 },
-                1: { cellWidth: 25 },
-                2: { cellWidth: 60 },
-                3: { cellWidth: 30 },
-                4: { cellWidth: 25 },
-              },
-              headStyles: {
-                fillColor: [128, 0, 128], // Purple for female
-                textColor: 255,
-              },
-            });
-
-            yPosition = doc.lastAutoTable.finalY + 10;
-          }
-        });
-      });
-
-    const timestamp = new Date().toISOString().slice(0, 10);
-    doc.save(`DMF-Scholarship-Detailed-Institute-Report-${timestamp}.pdf`);
-  };
-
   return (
     <>
       {loading ? (
@@ -732,57 +484,56 @@ const Scholarship = () => {
             DMF Scholarship 2025, Senior Category: {countClass6to10}, Junior
             Category: {countOtherClasses}
           </h3>
-          <div className="ml-1">
-            <button
-              className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
-              onClick={() => {
-                showModal();
-              }}
-              style={{
-                outline: "none",
-                borderColor: "transparent !important",
-              }}>
-              <span>
-                <i className="pi pi-plus font-semibold"></i>
-              </span>
-              NEW
-            </button>
+          <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
+            <div className="ml-1">
+              <button
+                className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
+                onClick={() => showModal()}
+                style={{
+                  outline: "none",
+                  borderColor: "transparent !important",
+                }}>
+                <span>
+                  <i className="pi pi-plus font-semibold"></i>
+                </span>
+                NEW
+              </button>
 
-            <button
-              className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-              onClick={handleBackClick}
-              style={{
-                outline: "none",
-                borderColor: "transparent !important",
-              }}>
-              <span>
-                <i className="pi pi-arrow-left font-semibold"></i>
-              </span>
-              BACK
-            </button>
-            <Button
-              className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
-              onClick={() => setShowQrScanner(!showQrScanner)}>
-              Scan Now
-            </Button>
-          </div>
-          <div className="">
-            <div className="">
-              {/* {showInstituteReport && ( */}
-              <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">
-                    Detailed Institute Report
-                  </h3>
-                  <button
-                    className="font-semibold gap-2.5 rounded-lg bg-purple-700 text-white py-2 px-4 text-sm"
-                    onClick={exportDetailedInstituteReportToPDF}>
-                    <i className="pi pi-download mr-2"></i>
-                    Export Detailed Institute Report
-                  </button>
-                </div>
-              </div>
-              {/* )} */}
+              <button
+                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
+                onClick={handleBackClick}
+                style={{
+                  outline: "none",
+                  borderColor: "transparent !important",
+                }}>
+                <span>
+                  <i className="pi pi-arrow-left font-semibold"></i>
+                </span>
+                BACK
+              </button>
+              <Button
+                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
+                onClick={() => setShowQrScanner(!showQrScanner)}>
+                Scan Now
+              </Button>
+            </div>
+            <div className="flex justify-end mb-4 gap-4">
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
+                onClick={exportToPDF}>
+                Generate PDF
+              </button>
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-green-500 text-white py-2 px-4 text-xl"
+                onClick={exportToExcel}>
+                Generate Excel
+              </button>
+              <button
+                className="font-semibold gap-2.5 rounded-lg bg-green-600 text-white py-2 px-4 text-xl"
+                onClick={exportClassWisePDF}>
+                <i className="pi pi-file-pdf mr-2"></i>
+                Class-wise PDF
+              </button>
             </div>
             <div>
               <h3 className="text-[17px]">
@@ -842,8 +593,6 @@ const Scholarship = () => {
             </div>
           )}
 
-          {/* Institute Report Section */}
-
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
@@ -882,7 +631,10 @@ const Scholarship = () => {
                     Attendance
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Results
+                    Marks
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Grade
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     Created By
@@ -898,103 +650,115 @@ const Scholarship = () => {
               </thead>
 
               <tbody>
-                {currentItems?.map((roll, index) => (
-                  <tr
-                    key={roll?.scholarshipRollNumber}
-                    className={` ${
-                      roll?.isAttendanceComplete &&
-                      "bg-purple-100 text-purple-600"
-                    } `}>
-                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
-                      <img
-                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
-                        src={roll?.image}
-                        alt=""
-                      />
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.scholarshipRollNumber}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.isSeatPlaned ? "Send" : "Not Send"}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll.name}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll.gender}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll.institute}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll.instituteClass}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll.submittedAt)}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {typeof roll?.phone === "string" &&
-                      roll?.phone?.startsWith("0")
-                        ? roll?.phone
-                        : `0${roll?.phone}`}
-                    </td>
+                {currentItems?.map((roll, index) => {
+                  const scholarshipGrade = getScholarshipGrade(roll);
+                  return (
+                    <tr
+                      key={roll?.scholarshipRollNumber}
+                      className={` ${
+                        roll?.isAttendanceComplete &&
+                        "bg-purple-100 text-purple-600"
+                      } ${
+                        scholarshipGrade === "Talentpool Grade"
+                          ? "bg-green-50"
+                          : scholarshipGrade === "General Grade"
+                          ? "bg-blue-50"
+                          : ""
+                      }`}>
+                      <td className="border border-tableBorder pl-1 text-center flex justify-center ">
+                        <img
+                          className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
+                          src={roll?.image}
+                          alt=""
+                        />
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.scholarshipRollNumber}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.isSeatPlaned ? "Send" : "Not Send"}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll.name}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll.gender}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll.institute}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll.instituteClass}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {formatDate(roll.submittedAt)}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {typeof roll?.phone === "string" &&
+                        roll?.phone?.startsWith("0")
+                          ? roll?.phone
+                          : `0${roll?.phone}`}
+                      </td>
 
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.isSmsSend ? "Send" : "Not Send"}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.isAttendanceComplete ? "Present" : "Not Present"}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.resultDetails?.[0]?.totalMarks}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.createdByName}
-                    </td>
-                    <td className="border border-tableBorder pl-1 text-center">
-                      <button
-                        className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                        onClick={() => {
-                          history.push(`/admitCard/${roll?._id}`);
-                        }}>
-                        <span>Download</span>
-                      </button>
-                    </td>
-
-                    <td className="border border-tableBorder pl-1">
-                      <div className="flex justify-center items-center py-2 gap-1">
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.isSmsSend ? "Send" : "Not Send"}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.isAttendanceComplete ? "Present" : "Not Present"}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.resultDetails?.[0]?.totalMarks || "N/A"}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center font-semibold">
+                        {scholarshipGrade || "N/A"}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
+                        {roll?.createdByName}
+                      </td>
+                      <td className="border border-tableBorder pl-1 text-center">
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                           onClick={() => {
-                            setRowData(roll);
-                            handleEditClick(roll._id);
+                            history.push(`/admitCard/${roll?._id}`);
                           }}>
-                          <span>
-                            <i className="pi pi-pencil font-semibold"></i>
-                          </span>
+                          <span>Download</span>
                         </button>
-                        {!roll?.isSmsSend && (
-                          <Popconfirm
-                            title="Delete the task"
-                            description="Are you sure to delete this task?"
-                            onConfirm={() => {
-                              handleDelete(roll?._id);
-                            }}
-                            onCancel={cancel}
-                            okText="Yes"
-                            cancelText="No">
-                            <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                              <span>
-                                <i className="pi pi-trash font-semibold"></i>
-                              </span>
-                            </button>
-                          </Popconfirm>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+
+                      <td className="border border-tableBorder pl-1">
+                        <div className="flex justify-center items-center py-2 gap-1">
+                          <button
+                            className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                            onClick={() => {
+                              setRowData(roll);
+                              handleEditClick(roll._id);
+                            }}>
+                            <span>
+                              <i className="pi pi-pencil font-semibold"></i>
+                            </span>
+                          </button>
+                          {!roll?.isSmsSend && (
+                            <Popconfirm
+                              title="Delete the task"
+                              description="Are you sure to delete this task?"
+                              onConfirm={() => {
+                                handleDelete(roll?._id);
+                              }}
+                              onCancel={cancel}
+                              okText="Yes"
+                              cancelText="No">
+                              <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
+                                <span>
+                                  <i className="pi pi-trash font-semibold"></i>
+                                </span>
+                              </button>
+                            </Popconfirm>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
             <div className="flex justify-center p-2">
@@ -1028,44 +792,65 @@ const Scholarship = () => {
                             <th className="px-4 py-2">Institute</th>
                             <th className="px-4 py-2">Gender</th>
                             <th className="px-4 py-2">Phone</th>
+                            <th className="px-4 py-2">Marks</th>
+                            <th className="px-4 py-2">Grade</th>
                             <th className="px-4 py-2">Attendance</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {classGroups[className].map((student, index) => (
-                            <tr
-                              key={student._id}
-                              className={`border-b ${
-                                student.isAttendanceComplete
-                                  ? "bg-green-50"
-                                  : ""
-                              }`}>
-                              <td className="px-4 py-2">{index + 1}</td>
-                              <td className="px-4 py-2">
-                                {student.scholarshipRollNumber}
-                              </td>
-                              <td className="px-4 py-2">{student.name}</td>
-                              <td className="px-4 py-2">{student.institute}</td>
-                              <td className="px-4 py-2">{student.gender}</td>
-                              <td className="px-4 py-2">
-                                {typeof student?.phone === "string" &&
-                                student?.phone?.startsWith("0")
-                                  ? student?.phone
-                                  : `0${student?.phone}`}
-                              </td>
-                              <td className="px-4 py-2">
-                                {student.isAttendanceComplete ? (
-                                  <span className="text-green-600 font-semibold">
-                                    Present
-                                  </span>
-                                ) : (
-                                  <span className="text-red-600 font-semibold">
-                                    Absent
-                                  </span>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                          {classGroups[className].map((student, index) => {
+                            const scholarshipGrade =
+                              getScholarshipGrade(student);
+                            return (
+                              <tr
+                                key={student._id}
+                                className={`border-b ${
+                                  student.isAttendanceComplete
+                                    ? "bg-green-50"
+                                    : ""
+                                } ${
+                                  scholarshipGrade === "Talentpool Grade"
+                                    ? "bg-green-100"
+                                    : scholarshipGrade === "General Grade"
+                                    ? "bg-blue-100"
+                                    : ""
+                                }`}>
+                                <td className="px-4 py-2">{index + 1}</td>
+                                <td className="px-4 py-2">
+                                  {student.scholarshipRollNumber}
+                                </td>
+                                <td className="px-4 py-2">{student.name}</td>
+                                <td className="px-4 py-2">
+                                  {student.institute}
+                                </td>
+                                <td className="px-4 py-2">{student.gender}</td>
+                                <td className="px-4 py-2">
+                                  {typeof student?.phone === "string" &&
+                                  student?.phone?.startsWith("0")
+                                    ? student?.phone
+                                    : `0${student?.phone}`}
+                                </td>
+                                <td className="px-4 py-2">
+                                  {student.resultDetails?.[0]?.totalMarks ||
+                                    "N/A"}
+                                </td>
+                                <td className="px-4 py-2 font-semibold">
+                                  {scholarshipGrade || "N/A"}
+                                </td>
+                                <td className="px-4 py-2">
+                                  {student.isAttendanceComplete ? (
+                                    <span className="text-green-600 font-semibold">
+                                      Present
+                                    </span>
+                                  ) : (
+                                    <span className="text-red-600 font-semibold">
+                                      Absent
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>

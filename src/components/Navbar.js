@@ -55,9 +55,9 @@ const Navbar = () => {
             <NavLink to="/history" className="hover:text-green-500 pt-2">
               গ্যালারী
             </NavLink>
-            <NavLink to="/result" className="hover:text-green-500 pt-2">
+            {/* <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
-            </NavLink>
+            </NavLink> */}
             {/* <NavLink to="/course" className="hover:text-green-500 pt-2">
               কোর্সসমূহ
             </NavLink> */}
@@ -132,9 +132,9 @@ const Navbar = () => {
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
-                <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
+                {/* <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
                   ফলাফল
-                </NavLink>
+                </NavLink> */}
               </li>
               {/* <li
                 style={{ background: "#408F49" }}
