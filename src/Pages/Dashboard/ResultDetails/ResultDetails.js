@@ -91,9 +91,9 @@ const ResultDetails = () => {
     }
     // For classes 6, 7, and 8
     else if (classNumber >= 6 && classNumber <= 8) {
-      if (totalMarks >= 70 && totalMarks < 80) {
+      if (totalMarks >= 75 && totalMarks < 90) {
         return "General Grade";
-      } else if (totalMarks >= 80 && totalMarks <= 100) {
+      } else if (totalMarks >= 90 && totalMarks <= 100) {
         return "Talentpool Grade";
       }
     }
