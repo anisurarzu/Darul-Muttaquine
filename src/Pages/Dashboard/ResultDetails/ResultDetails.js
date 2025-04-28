@@ -12,7 +12,7 @@ const ScholarshipTable = ({ title, dataSource }) => (
   <Table
     dataSource={dataSource}
     columns={[
-      { title: "#", dataIndex: "sequence", key: "sequence" },
+      { title: "#", dataIndex: "serial", key: "serial" },
       { title: "Roll", dataIndex: "rollNumber", key: "rollNumber" },
       { title: "Name", dataIndex: "name", key: "name" },
       { title: "Institute", dataIndex: "institute", key: "institute" },
@@ -28,6 +28,8 @@ const ScholarshipTable = ({ title, dataSource }) => (
                 ? "text-green-600"
                 : grade === "General Grade"
                 ? "text-blue-600"
+                : grade === "Special Category"
+                ? "text-purple-600"
                 : "text-gray-600"
             }`}>
             {grade}
@@ -35,14 +37,40 @@ const ScholarshipTable = ({ title, dataSource }) => (
         ),
       },
       { title: "Phone", dataIndex: "phone", key: "phone" },
+      {
+        title: "Position",
+        dataIndex: "position",
+        key: "position",
+        render: (position) => <span className="font-bold">{position}</span>,
+      },
     ]}
-    rowKey="sequence"
+    rowKey="serial"
     pagination={false}
     bordered
     size="small"
     className="mb-4"
   />
 );
+
+// Helper function to calculate positions within a class
+const calculateClassPositions = (students) => {
+  if (!students || students.length === 0) return [];
+
+  // Sort by marks descending
+  const sorted = [...students].sort((a, b) => b.totalMarks - a.totalMarks);
+
+  // Assign positions (same for same marks)
+  let currentPosition = 1;
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && sorted[i].totalMarks !== sorted[i - 1].totalMarks) {
+      currentPosition = i + 1;
+    }
+    sorted[i].position = currentPosition;
+    sorted[i].serial = i + 1;
+  }
+
+  return sorted;
+};
 
 // ResultDetails Component
 const ResultDetails = () => {
@@ -83,18 +111,32 @@ const ResultDetails = () => {
 
     // For classes 3 to 5
     if (classNumber >= 3 && classNumber <= 5) {
-      if (totalMarks >= 45 && totalMarks <= 47) {
+      if (totalMarks >= 45 && totalMarks <= 48) {
         return "General Grade";
-      } else if (totalMarks >= 48 && totalMarks <= 50) {
+      } else if (totalMarks >= 49 && totalMarks <= 50) {
         return "Talentpool Grade";
+      } else if (totalMarks >= 40 && totalMarks <= 44) {
+        return "Special Category";
       }
     }
-    // For classes 6, 7, and 8
-    else if (classNumber >= 6 && classNumber <= 8) {
+    // For classes 6 and 7
+    else if (classNumber >= 6 && classNumber <= 7) {
       if (totalMarks >= 75 && totalMarks < 90) {
         return "General Grade";
       } else if (totalMarks >= 90 && totalMarks <= 100) {
         return "Talentpool Grade";
+      } else if (totalMarks >= 65 && totalMarks < 75) {
+        return "Special Category";
+      }
+    }
+    // For class 8
+    else if (classNumber === 8) {
+      if (totalMarks >= 75 && totalMarks < 90) {
+        return "General Grade";
+      } else if (totalMarks >= 90 && totalMarks <= 100) {
+        return "Talentpool Grade";
+      } else if (totalMarks >= 65 && totalMarks < 75) {
+        return "Special Category";
       }
     }
     // For classes 9 and 10
@@ -103,6 +145,8 @@ const ResultDetails = () => {
         return "General Grade";
       } else if (totalMarks >= 90 && totalMarks <= 100) {
         return "Talentpool Grade";
+      } else if (totalMarks >= 70 && totalMarks < 80) {
+        return "Special Category";
       }
     }
 
@@ -142,20 +186,41 @@ const ResultDetails = () => {
     );
 
     sortedClasses.forEach((className) => {
-      classGroups[className].forEach((student) => {
-        const grade = getScholarshipGrade(student);
-        if (grade) {
-          allData.push({
-            sequence: sequenceNumber++,
-            class: className,
-            rollNumber: student.scholarshipRollNumber,
-            name: student.name,
-            institute: student.institute,
-            totalMarks: student.resultDetails[0].totalMarks,
-            grade: grade,
-            phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
-          });
-        }
+      const classStudents = classGroups[className]
+        .map((student) => {
+          const grade = getScholarshipGrade(student);
+          if (grade) {
+            return {
+              class: className,
+              rollNumber: student.scholarshipRollNumber,
+              name: student.name,
+              institute: student.institute,
+              totalMarks: student.resultDetails[0].totalMarks,
+              grade: grade,
+              phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
+            };
+          }
+          return null;
+        })
+        .filter((student) => student !== null);
+
+      // Calculate positions for this class (marks-based only)
+      const studentsWithPositions = calculateClassPositions(classStudents).sort(
+        (a, b) => b.totalMarks - a.totalMarks
+      );
+
+      studentsWithPositions.forEach((student) => {
+        allData.push({
+          serial: sequenceNumber++,
+          class: student.class,
+          rollNumber: student.rollNumber,
+          name: student.name,
+          institute: student.institute,
+          totalMarks: student.totalMarks,
+          grade: student.grade,
+          phone: student.phone,
+          position: student.position,
+        });
       });
     });
 
@@ -164,7 +229,7 @@ const ResultDetails = () => {
       startY: 50,
       theme: "grid",
       headStyles: {
-        fillColor: [46, 125, 50], // Dark green
+        fillColor: [46, 125, 50],
         textColor: 255,
         fontSize: 10,
       },
@@ -175,10 +240,20 @@ const ResultDetails = () => {
         lineWidth: 0.1,
       },
       head: [
-        ["#", "Class", "Roll", "Name", "Institute", "Marks", "Grade", "Phone"],
+        [
+          "#",
+          "Class",
+          "Roll",
+          "Name",
+          "Institute",
+          "Marks",
+          "Grade",
+          "Phone",
+          "Position",
+        ],
       ],
       body: allData.map((data) => [
-        data.sequence,
+        data.serial,
         data.class,
         data.rollNumber,
         data.name,
@@ -186,6 +261,7 @@ const ResultDetails = () => {
         data.totalMarks,
         data.grade,
         data.phone,
+        data.position,
       ]),
     });
 
@@ -197,15 +273,18 @@ const ResultDetails = () => {
     // Count scholarship grades
     let generalCount = 0;
     let talentpoolCount = 0;
+    let specialCount = 0;
 
     allData.forEach((item) => {
       if (item.grade === "General Grade") generalCount++;
       if (item.grade === "Talentpool Grade") talentpoolCount++;
+      if (item.grade === "Special Category") specialCount++;
     });
 
     doc.text(`Total Students: ${allData.length}`, 40, summaryY);
-    doc.text(`General Grade: ${generalCount}`, 40, summaryY + 20);
-    doc.text(`Talentpool Grade: ${talentpoolCount}`, 40, summaryY + 40);
+    doc.text(`Talentpool Grade: ${talentpoolCount}`, 40, summaryY + 20);
+    doc.text(`General Grade: ${generalCount}`, 40, summaryY + 40);
+    doc.text(`Special Category: ${specialCount}`, 40, summaryY + 60);
 
     doc.save("DMF_Scholarship_Results_2025.pdf");
   };
@@ -218,21 +297,44 @@ const ResultDetails = () => {
       (a, b) => parseInt(a) - parseInt(b)
     );
 
+    let sequenceNumber = 1;
+
     sortedClasses.forEach((className) => {
-      classGroups[className].forEach((student, index) => {
-        const grade = getScholarshipGrade(student);
-        if (grade) {
-          excelData.push({
-            "SL No": index + 1,
-            Class: className,
-            "Roll No": student.scholarshipRollNumber,
-            Name: student.name,
-            Institute: student.institute,
-            Marks: student.resultDetails[0].totalMarks,
-            Grade: grade,
-            Phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
-          });
-        }
+      const classStudents = classGroups[className]
+        .map((student) => {
+          const grade = getScholarshipGrade(student);
+          if (grade) {
+            return {
+              class: className,
+              rollNumber: student.scholarshipRollNumber,
+              name: student.name,
+              institute: student.institute,
+              totalMarks: student.resultDetails[0].totalMarks,
+              grade: grade,
+              phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
+            };
+          }
+          return null;
+        })
+        .filter((student) => student !== null);
+
+      // Calculate positions for this class (marks-based only)
+      const studentsWithPositions = calculateClassPositions(classStudents).sort(
+        (a, b) => b.totalMarks - a.totalMarks
+      );
+
+      studentsWithPositions.forEach((student) => {
+        excelData.push({
+          "SL No": sequenceNumber++,
+          Class: student.class,
+          "Roll No": student.rollNumber,
+          Name: student.name,
+          Institute: student.institute,
+          Marks: student.totalMarks,
+          Grade: student.grade,
+          Phone: student.phone,
+          Position: student.position,
+        });
       });
     });
 
@@ -267,23 +369,28 @@ const ResultDetails = () => {
       });
 
       // Prepare table data
-      const tableData = classGroups[className]
-        .map((student, index) => {
+      const classStudents = classGroups[className]
+        .map((student) => {
           const grade = getScholarshipGrade(student);
-          return grade
-            ? {
-                sequence: index + 1,
-                rollNumber: student.scholarshipRollNumber,
-                name: student.name,
-                institute: student.institute,
-                gender: student.gender,
-                phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
-                totalMarks: student.resultDetails[0].totalMarks,
-                grade: grade,
-              }
-            : null;
+          if (grade) {
+            return {
+              rollNumber: student.scholarshipRollNumber,
+              name: student.name,
+              institute: student.institute,
+              gender: student.gender,
+              phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
+              totalMarks: student.resultDetails[0].totalMarks,
+              grade: grade,
+            };
+          }
+          return null;
         })
-        .filter((item) => item !== null);
+        .filter((student) => student !== null);
+
+      // Calculate positions
+      const tableData = calculateClassPositions(classStudents).sort(
+        (a, b) => b.totalMarks - a.totalMarks
+      );
 
       // Create table
       doc.autoTable({
@@ -297,10 +404,11 @@ const ResultDetails = () => {
             "Phone",
             "Marks",
             "Grade",
+            "Position",
           ],
         ],
-        body: tableData.map((data) => [
-          data.sequence,
+        body: tableData.map((data, index) => [
+          index + 1,
           data.rollNumber,
           data.name,
           data.institute,
@@ -308,6 +416,7 @@ const ResultDetails = () => {
           data.phone,
           data.totalMarks,
           data.grade,
+          data.position,
         ]),
         startY: 16, // Below header
         margin: { horizontal: 5 }, // Minimal side margins
@@ -320,14 +429,15 @@ const ResultDetails = () => {
           lineColor: [220, 220, 220],
         },
         columnStyles: {
-          0: { cellWidth: 12, halign: "center" },
+          0: { cellWidth: 10, halign: "center" },
           1: { cellWidth: 28 },
-          2: { cellWidth: 75 },
-          3: { cellWidth: 115 },
-          4: { cellWidth: 22, halign: "center" },
+          2: { cellWidth: 70 },
+          3: { cellWidth: 110 },
+          4: { cellWidth: 20, halign: "center" },
           5: { cellWidth: 28 },
           6: { cellWidth: 20, halign: "center" },
           7: { cellWidth: 30, halign: "center" },
+          8: { cellWidth: 20, halign: "center" },
         },
         headStyles: {
           fillColor: [46, 125, 50],
@@ -337,6 +447,18 @@ const ResultDetails = () => {
         },
         bodyStyles: {
           valign: "middle",
+        },
+        didParseCell: (data) => {
+          // Color cells based on grade
+          if (data.column.dataKey === "grade") {
+            if (data.cell.raw === "Talentpool Grade") {
+              data.cell.styles.textColor = [0, 128, 0]; // Dark green
+            } else if (data.cell.raw === "General Grade") {
+              data.cell.styles.textColor = [0, 0, 128]; // Dark blue
+            } else if (data.cell.raw === "Special Category") {
+              data.cell.styles.textColor = [128, 0, 128]; // Purple
+            }
+          }
         },
         theme: "grid",
       });
@@ -383,10 +505,9 @@ const ResultDetails = () => {
 
       // Prepare table data for all students
       const tableData = classGroups[className]
-        .map((student, index) => {
+        .map((student) => {
           const grade = getScholarshipGrade(student);
           return {
-            sequence: index + 1,
             rollNumber: student.scholarshipRollNumber,
             name: student.name,
             institute: student.institute,
@@ -398,6 +519,16 @@ const ResultDetails = () => {
           };
         })
         .sort((a, b) => b.totalMarks - a.totalMarks); // Sort by marks descending
+
+      // Calculate positions
+      let currentPosition = 1;
+      for (let i = 0; i < tableData.length; i++) {
+        if (i > 0 && tableData[i].totalMarks !== tableData[i - 1].totalMarks) {
+          currentPosition = i + 1;
+        }
+        tableData[i].position = currentPosition;
+        tableData[i].serial = i + 1;
+      }
 
       // Create table
       doc.autoTable({
@@ -412,10 +543,11 @@ const ResultDetails = () => {
             "Marks",
             "Grade",
             "Status",
+            "Position",
           ],
         ],
         body: tableData.map((data) => [
-          data.sequence,
+          data.serial,
           data.rollNumber,
           data.name,
           data.institute,
@@ -424,6 +556,7 @@ const ResultDetails = () => {
           data.totalMarks,
           data.grade,
           data.status,
+          data.position,
         ]),
         startY: 16, // Below header
         margin: { horizontal: 5 }, // Minimal side margins
@@ -436,22 +569,16 @@ const ResultDetails = () => {
           lineColor: [220, 220, 220],
         },
         columnStyles: {
-          0: { cellWidth: 10, halign: "center" },
-          1: { cellWidth: 25 },
-          2: { cellWidth: 60 },
-          3: { cellWidth: 90 },
-          4: { cellWidth: 20, halign: "center" },
-          5: { cellWidth: 25 },
-          6: { cellWidth: 18, halign: "center" },
-          7: { cellWidth: 25, halign: "center" },
-          8: {
-            cellWidth: 25,
-            halign: "center",
-            fontStyle: (data) =>
-              data.grade !== "Not Qualified" ? "bold" : "normal",
-            textColor: (data) =>
-              data.grade === "Not Qualified" ? [100, 100, 100] : [0, 0, 0],
-          },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 22 },
+          2: { cellWidth: 55 },
+          3: { cellWidth: 85 },
+          4: { cellWidth: 18, halign: "center" },
+          5: { cellWidth: 22 },
+          6: { cellWidth: 16, halign: "center" },
+          7: { cellWidth: 22, halign: "center" },
+          8: { cellWidth: 22, halign: "center" },
+          9: { cellWidth: 16, halign: "center" },
         },
         headStyles: {
           fillColor: [46, 125, 50],
@@ -468,10 +595,13 @@ const ResultDetails = () => {
             data.column.dataKey === "grade" &&
             data.cell.raw !== "Not Qualified"
           ) {
-            data.cell.styles.fillColor =
-              data.cell.raw === "Talentpool Grade"
-                ? [200, 230, 200] // Light green for Talentpool
-                : [200, 200, 230]; // Light blue for General
+            if (data.cell.raw === "Talentpool Grade") {
+              data.cell.styles.fillColor = [200, 230, 200]; // Light green
+            } else if (data.cell.raw === "General Grade") {
+              data.cell.styles.fillColor = [200, 200, 230]; // Light blue
+            } else if (data.cell.raw === "Special Category") {
+              data.cell.styles.fillColor = [230, 200, 230]; // Light purple
+            }
           }
           if (
             data.column.dataKey === "status" &&
@@ -494,6 +624,7 @@ const ResultDetails = () => {
     const timestamp = new Date().toISOString().slice(0, 10);
     doc.save(`DMF-Scholarship-All-Students-Results-${timestamp}.pdf`);
   };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -510,6 +641,7 @@ const ResultDetails = () => {
   const countGrades = () => {
     let generalGradeCount = 0;
     let talentpoolGradeCount = 0;
+    let specialCategoryCount = 0;
     let totalStudents = 0;
 
     Object.values(classGroups).forEach((students) => {
@@ -517,15 +649,25 @@ const ResultDetails = () => {
         const grade = getScholarshipGrade(student);
         if (grade === "General Grade") generalGradeCount++;
         if (grade === "Talentpool Grade") talentpoolGradeCount++;
+        if (grade === "Special Category") specialCategoryCount++;
         if (grade) totalStudents++;
       });
     });
 
-    return { generalGradeCount, talentpoolGradeCount, totalStudents };
+    return {
+      generalGradeCount,
+      talentpoolGradeCount,
+      specialCategoryCount,
+      totalStudents,
+    };
   };
 
-  const { generalGradeCount, talentpoolGradeCount, totalStudents } =
-    countGrades();
+  const {
+    generalGradeCount,
+    talentpoolGradeCount,
+    specialCategoryCount,
+    totalStudents,
+  } = countGrades();
 
   return (
     <div className="container mx-auto p-5">
@@ -539,6 +681,10 @@ const ResultDetails = () => {
           <div className="bg-white p-3 rounded shadow">
             <p className="text-gray-600">Total Students</p>
             <p className="text-2xl font-bold">{totalStudents}</p>
+          </div>
+          <div className="bg-purple-50 p-3 rounded shadow">
+            <p className="text-purple-600">Special Category</p>
+            <p className="text-2xl font-bold">{specialCategoryCount}</p>
           </div>
           <div className="bg-blue-50 p-3 rounded shadow">
             <p className="text-blue-600">General Grade</p>
@@ -583,11 +729,26 @@ const ResultDetails = () => {
         {Object.keys(classGroups)
           .sort((a, b) => parseInt(a) - parseInt(b))
           .map((className) => {
-            const qualifiedStudents = classGroups[className].filter(
-              (student) => getScholarshipGrade(student) !== null
-            );
+            const qualifiedStudents = classGroups[className]
+              .filter((student) => getScholarshipGrade(student) !== null)
+              .map((student) => {
+                const grade = getScholarshipGrade(student);
+                return {
+                  rollNumber: student.scholarshipRollNumber,
+                  name: student.name,
+                  institute: student.institute,
+                  totalMarks: student.resultDetails[0].totalMarks,
+                  grade: grade,
+                  phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
+                };
+              });
 
             if (qualifiedStudents.length === 0) return null;
+
+            // Calculate positions for this class (marks-based only)
+            const studentsWithPositions = calculateClassPositions(
+              qualifiedStudents
+            ).sort((a, b) => b.totalMarks - a.totalMarks);
 
             return (
               <Panel
@@ -595,32 +756,7 @@ const ResultDetails = () => {
                 key={className}>
                 <ScholarshipTable
                   title={`Class ${className}`}
-                  dataSource={qualifiedStudents
-                    .map((student, index) => {
-                      const grade = getScholarshipGrade(student);
-                      return {
-                        sequence: index + 1,
-                        rollNumber: student.scholarshipRollNumber,
-                        name: student.name,
-                        institute: student.institute,
-                        totalMarks: student.resultDetails[0].totalMarks,
-                        grade: grade,
-                        phone: student.phone
-                          ?.toString()
-                          .replace(/^(\d)/, "0$1"),
-                      };
-                    })
-                    .sort((a, b) => {
-                      // Sort by grade (Talentpool first) then by marks (descending)
-                      const gradeOrder = {
-                        "Talentpool Grade": 1,
-                        "General Grade": 2,
-                      };
-                      return (
-                        gradeOrder[a.grade] - gradeOrder[b.grade] ||
-                        b.totalMarks - a.totalMarks
-                      );
-                    })}
+                  dataSource={studentsWithPositions}
                 />
               </Panel>
             );
@@ -641,6 +777,7 @@ function processRollData(rollData) {
         scholarshipListByClass[className] = {
           talentpoolGrade: [],
           generalGrade: [],
+          specialCategory: [],
         };
       }
 
@@ -656,22 +793,41 @@ function processRollData(rollData) {
 
         // Class 3-5
         if (item.instituteClass >= 3 && item.instituteClass <= 5) {
-          if (result.totalMarks >= 48 && result.totalMarks <= 50) {
+          if (result.totalMarks >= 49 && result.totalMarks <= 50) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 45 && result.totalMarks <= 47) {
+          } else if (result.totalMarks >= 45 && result.totalMarks <= 48) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
+          } else if (result.totalMarks >= 40 && result.totalMarks <= 44) {
+            data.grade = "Special Category";
+            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
-        // Class 6-8
-        else if (item.instituteClass >= 6 && item.instituteClass <= 8) {
-          if (result.totalMarks >= 80 && result.totalMarks <= 100) {
+        // Class 6-7
+        else if (item.instituteClass >= 6 && item.instituteClass <= 7) {
+          if (result.totalMarks >= 90 && result.totalMarks <= 100) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 70 && result.totalMarks < 80) {
+          } else if (result.totalMarks >= 75 && result.totalMarks < 90) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
+          } else if (result.totalMarks >= 65 && result.totalMarks < 75) {
+            data.grade = "Special Category";
+            scholarshipListByClass[className].specialCategory.push(data);
+          }
+        }
+        // Class 8
+        else if (item.instituteClass === 8) {
+          if (result.totalMarks >= 90 && result.totalMarks <= 100) {
+            data.grade = "Talentpool Grade";
+            scholarshipListByClass[className].talentpoolGrade.push(data);
+          } else if (result.totalMarks >= 75 && result.totalMarks < 90) {
+            data.grade = "General Grade";
+            scholarshipListByClass[className].generalGrade.push(data);
+          } else if (result.totalMarks >= 65 && result.totalMarks < 75) {
+            data.grade = "Special Category";
+            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
         // Class 9-10
@@ -682,6 +838,9 @@ function processRollData(rollData) {
           } else if (result.totalMarks >= 80 && result.totalMarks < 90) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
+          } else if (result.totalMarks >= 70 && result.totalMarks < 80) {
+            data.grade = "Special Category";
+            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
       });

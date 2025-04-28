@@ -204,9 +204,9 @@ const Scholarship = () => {
 
     // For classes 3 to 5
     if (classNumber >= 3 && classNumber <= 5) {
-      if (totalMarks >= 45 && totalMarks <= 47) {
+      if (totalMarks >= 45 && totalMarks <= 48) {
         return "General Grade";
-      } else if (totalMarks >= 48 && totalMarks <= 50) {
+      } else if (totalMarks >= 49 && totalMarks <= 50) {
         return "Talentpool Grade";
       }
     }
