@@ -52,6 +52,52 @@ const ScholarshipTable = ({ title, dataSource }) => (
   />
 );
 
+// InstituteSummaryTable Component
+const InstituteSummaryTable = ({ dataSource }) => (
+  <Table
+    dataSource={dataSource}
+    columns={[
+      { title: "#", dataIndex: "serial", key: "serial" },
+      { title: "Institute Name", dataIndex: "name", key: "name" },
+      {
+        title: "Talentpool",
+        dataIndex: "talentpool",
+        key: "talentpool",
+        render: (count) => (
+          <span className="text-green-600 font-semibold">{count}</span>
+        ),
+      },
+      {
+        title: "General Grade",
+        dataIndex: "general",
+        key: "general",
+        render: (count) => (
+          <span className="text-blue-600 font-semibold">{count}</span>
+        ),
+      },
+      {
+        title: "Special Category",
+        dataIndex: "special",
+        key: "special",
+        render: (count) => (
+          <span className="text-purple-600 font-semibold">{count}</span>
+        ),
+      },
+      {
+        title: "Total Students",
+        dataIndex: "total",
+        key: "total",
+        render: (count) => <span className="font-bold">{count}</span>,
+      },
+    ]}
+    rowKey="serial"
+    pagination={false}
+    bordered
+    size="small"
+    className="mb-4"
+  />
+);
+
 // Helper function to calculate positions within a class
 const calculateClassPositions = (students) => {
   if (!students || students.length === 0) return [];
@@ -77,6 +123,7 @@ const ResultDetails = () => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [classGroups, setClassGroups] = useState({});
+  const [instituteSummary, setInstituteSummary] = useState([]);
 
   useEffect(() => {
     fetchScholarshipInfo();
@@ -93,6 +140,7 @@ const ResultDetails = () => {
         const processedData = processRollData(sortedData);
         setResults(processedData);
         groupStudentsByClass(sortedData);
+        prepareInstituteSummary(sortedData);
       }
       setLoading(false);
     } catch (error) {
@@ -109,7 +157,7 @@ const ResultDetails = () => {
     const classNumber = parseInt(student.instituteClass);
     const totalMarks = student.resultDetails[0].totalMarks;
 
-    // For classes 3 to 5
+    // For classes 3 to 5 (keeping existing criteria)
     if (classNumber >= 3 && classNumber <= 5) {
       if (totalMarks >= 45 && totalMarks <= 48) {
         return "General Grade";
@@ -119,33 +167,23 @@ const ResultDetails = () => {
         return "Special Category";
       }
     }
-    // For classes 6 and 7
-    else if (classNumber >= 6 && classNumber <= 7) {
-      if (totalMarks >= 75 && totalMarks < 90) {
+    // For classes 6 to 8 (modified criteria)
+    else if (classNumber >= 6 && classNumber <= 8) {
+      if (totalMarks >= 75 && totalMarks < 85) {
         return "General Grade";
-      } else if (totalMarks >= 90 && totalMarks <= 100) {
+      } else if (totalMarks >= 85 && totalMarks <= 100) {
         return "Talentpool Grade";
       } else if (totalMarks >= 65 && totalMarks < 75) {
         return "Special Category";
       }
     }
-    // For class 8
-    else if (classNumber === 8) {
-      if (totalMarks >= 75 && totalMarks < 90) {
-        return "General Grade";
-      } else if (totalMarks >= 90 && totalMarks <= 100) {
-        return "Talentpool Grade";
-      } else if (totalMarks >= 65 && totalMarks < 75) {
-        return "Special Category";
-      }
-    }
-    // For classes 9 and 10
+    // For classes 9 to 10 (modified criteria)
     else if (classNumber >= 9 && classNumber <= 10) {
-      if (totalMarks >= 80 && totalMarks < 90) {
+      if (totalMarks >= 75 && totalMarks < 85) {
         return "General Grade";
-      } else if (totalMarks >= 90 && totalMarks <= 100) {
+      } else if (totalMarks >= 85 && totalMarks <= 100) {
         return "Talentpool Grade";
-      } else if (totalMarks >= 70 && totalMarks < 80) {
+      } else if (totalMarks >= 70 && totalMarks < 75) {
         return "Special Category";
       }
     }
@@ -168,6 +206,48 @@ const ResultDetails = () => {
     });
 
     setClassGroups(groups);
+  };
+
+  // Prepare institute summary data
+  const prepareInstituteSummary = (data) => {
+    const instituteMap = {};
+
+    data.forEach((student) => {
+      if (student.resultDetails && student.resultDetails.length > 0) {
+        const grade = getScholarshipGrade(student);
+        if (!grade) return;
+
+        if (!instituteMap[student.institute]) {
+          instituteMap[student.institute] = {
+            name: student.institute,
+            talentpool: 0,
+            general: 0,
+            special: 0,
+            total: 0,
+          };
+        }
+
+        if (grade === "Talentpool Grade") {
+          instituteMap[student.institute].talentpool++;
+        } else if (grade === "General Grade") {
+          instituteMap[student.institute].general++;
+        } else if (grade === "Special Category") {
+          instituteMap[student.institute].special++;
+        }
+
+        instituteMap[student.institute].total++;
+      }
+    });
+
+    const summaryArray = Object.values(instituteMap).map((item, index) => ({
+      ...item,
+      serial: index + 1,
+    }));
+
+    // Sort by total students descending
+    summaryArray.sort((a, b) => b.total - a.total);
+
+    setInstituteSummary(summaryArray);
   };
 
   const generatePDF = () => {
@@ -625,6 +705,118 @@ const ResultDetails = () => {
     doc.save(`DMF-Scholarship-All-Students-Results-${timestamp}.pdf`);
   };
 
+  const generateInstituteWisePDF = () => {
+    const doc = new jsPDF({
+      orientation: "portrait",
+    });
+
+    // Header
+    doc.setFillColor(46, 125, 50);
+    doc.rect(0, 0, doc.internal.pageSize.width, 14, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.text("DMF Scholarship 2025 - Institute Wise Summary", 105, 10, {
+      align: "center",
+      baseline: "middle",
+    });
+
+    // Prepare table data
+    const tableData = instituteSummary.map((institute) => ({
+      name: institute.name,
+      talentpool: institute.talentpool,
+      general: institute.general,
+      special: institute.special,
+      total: institute.total,
+    }));
+
+    // Create table
+    doc.autoTable({
+      startY: 20,
+      head: [
+        [
+          "#",
+          "Institute Name",
+          "Talentpool",
+          "General Grade",
+          "Special Category",
+          "Total Students",
+        ],
+      ],
+      body: instituteSummary.map((institute, index) => [
+        index + 1,
+        institute.name,
+        institute.talentpool,
+        institute.general,
+        institute.special,
+        institute.total,
+      ]),
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+        lineWidth: 0.1,
+      },
+      columnStyles: {
+        0: { cellWidth: 15, halign: "center" },
+        1: { cellWidth: 90 },
+        2: { cellWidth: 30, halign: "center" },
+        3: { cellWidth: 30, halign: "center" },
+        4: { cellWidth: 30, halign: "center" },
+        5: { cellWidth: 30, halign: "center" },
+      },
+      headStyles: {
+        fillColor: [46, 125, 50],
+        textColor: 255,
+        fontSize: 10,
+      },
+      didParseCell: (data) => {
+        // Color grade columns
+        if (data.column.dataKey === "talentpool" && data.cell.raw > 0) {
+          data.cell.styles.textColor = [0, 128, 0]; // Green
+        } else if (data.column.dataKey === "general" && data.cell.raw > 0) {
+          data.cell.styles.textColor = [0, 0, 128]; // Blue
+        } else if (data.column.dataKey === "special" && data.cell.raw > 0) {
+          data.cell.styles.textColor = [128, 0, 128]; // Purple
+        }
+        if (data.column.dataKey === "total") {
+          data.cell.styles.fontStyle = "bold";
+        }
+      },
+      theme: "grid",
+    });
+
+    // Add summary statistics
+    const summaryY = doc.lastAutoTable.finalY + 15;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+
+    const totalTalentpool = instituteSummary.reduce(
+      (sum, inst) => sum + inst.talentpool,
+      0
+    );
+    const totalGeneral = instituteSummary.reduce(
+      (sum, inst) => sum + inst.general,
+      0
+    );
+    const totalSpecial = instituteSummary.reduce(
+      (sum, inst) => sum + inst.special,
+      0
+    );
+    const grandTotal = instituteSummary.reduce(
+      (sum, inst) => sum + inst.total,
+      0
+    );
+
+    doc.text(`Total Institutes: ${instituteSummary.length}`, 14, summaryY);
+    doc.text(`Total Talentpool: ${totalTalentpool}`, 14, summaryY + 15);
+    doc.text(`Total General Grade: ${totalGeneral}`, 14, summaryY + 30);
+    doc.text(`Total Special Category: ${totalSpecial}`, 14, summaryY + 45);
+    doc.text(`Grand Total Students: ${grandTotal}`, 14, summaryY + 60);
+
+    // Save with timestamp
+    const timestamp = new Date().toISOString().slice(0, 10);
+    doc.save(`DMF-Scholarship-Institute-Summary-${timestamp}.pdf`);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -723,8 +915,32 @@ const ResultDetails = () => {
           style={{ marginLeft: "8px" }}>
           All Students PDF
         </Button>
+        <Button
+          onClick={generateInstituteWisePDF}
+          type="primary"
+          className="bg-orange-600 hover:bg-orange-700"
+          style={{ marginLeft: "8px" }}>
+          Institute Summary PDF
+        </Button>
       </div>
 
+      {/* Institute Summary Section */}
+      <Card
+        title="Institute Wise Summary"
+        className="mb-6"
+        extra={
+          <Button
+            onClick={generateInstituteWisePDF}
+            type="primary"
+            size="small"
+            className="bg-orange-600 hover:bg-orange-700">
+            Download PDF
+          </Button>
+        }>
+        <InstituteSummaryTable dataSource={instituteSummary} />
+      </Card>
+
+      {/* Class-wise Results Section */}
       <Collapse accordion className="mb-6">
         {Object.keys(classGroups)
           .sort((a, b) => parseInt(a) - parseInt(b))
@@ -804,12 +1020,12 @@ function processRollData(rollData) {
             scholarshipListByClass[className].specialCategory.push(data);
           }
         }
-        // Class 6-7
-        else if (item.instituteClass >= 6 && item.instituteClass <= 7) {
-          if (result.totalMarks >= 90 && result.totalMarks <= 100) {
+        // Class 6-8 (modified)
+        else if (item.instituteClass >= 6 && item.instituteClass <= 8) {
+          if (result.totalMarks >= 85 && result.totalMarks <= 100) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 75 && result.totalMarks < 90) {
+          } else if (result.totalMarks >= 75 && result.totalMarks < 85) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
           } else if (result.totalMarks >= 65 && result.totalMarks < 75) {
@@ -817,28 +1033,15 @@ function processRollData(rollData) {
             scholarshipListByClass[className].specialCategory.push(data);
           }
         }
-        // Class 8
-        else if (item.instituteClass === 8) {
-          if (result.totalMarks >= 90 && result.totalMarks <= 100) {
-            data.grade = "Talentpool Grade";
-            scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 75 && result.totalMarks < 90) {
-            data.grade = "General Grade";
-            scholarshipListByClass[className].generalGrade.push(data);
-          } else if (result.totalMarks >= 65 && result.totalMarks < 75) {
-            data.grade = "Special Category";
-            scholarshipListByClass[className].specialCategory.push(data);
-          }
-        }
-        // Class 9-10
+        // Class 9-10 (modified)
         else if (item.instituteClass >= 9 && item.instituteClass <= 10) {
-          if (result.totalMarks >= 90 && result.totalMarks <= 100) {
+          if (result.totalMarks >= 85 && result.totalMarks <= 100) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 80 && result.totalMarks < 90) {
+          } else if (result.totalMarks >= 75 && result.totalMarks < 85) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
-          } else if (result.totalMarks >= 70 && result.totalMarks < 80) {
+          } else if (result.totalMarks >= 70 && result.totalMarks < 75) {
             data.grade = "Special Category";
             scholarshipListByClass[className].specialCategory.push(data);
           }

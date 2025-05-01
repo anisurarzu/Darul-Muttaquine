@@ -1,11 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { Alert, Button, Flex, Input, Progress, Result, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Divider,
+  Table,
+  Typography,
+  Input,
+  Form,
+  Row,
+  Col,
+} from "antd";
+import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
-import { useFormik } from "formik";
-import Scholarship from "../../scholarship/Scholarship";
-import MainLoader from "../../../components/Loader/MainLoader";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
+
+const { Text, Title } = Typography;
 
 // Function to convert numbers to Bengali numerals
 const convertToBengali = (number) => {
@@ -16,240 +28,425 @@ const convertToBengali = (number) => {
 const ResultPage = () => {
   const [resultData, setResultData] = useState({});
   const [loading, setLoading] = useState(false);
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-  const formik = useFormik({
-    initialValues: {
-      scholarshipRollNumber: "",
-    },
-    onSubmit: async (values) => {
-      console.log("values", values);
-      try {
-        setLoading(true);
-        const res = await coreAxios.get(
-          `search-result/${values?.scholarshipRollNumber}`
-        );
-        if (res?.status === 200) {
-          setLoading(false);
-          toast.success("Successfully Get!");
-          formik.resetForm();
-          setResultData(res?.data);
-        }
-      } catch (err) {
+  const resultCardRef = useRef(null);
+  const [form] = Form.useForm();
+
+  const onFinish = async (values) => {
+    try {
+      setLoading(true);
+      const res = await coreAxios.get(
+        `search-result/${values?.scholarshipRollNumber}`
+      );
+      if (res?.status === 200) {
         setLoading(false);
-        toast.error(err?.response?.data?.message);
+        toast.success("Result fetched successfully");
+        form.resetFields();
+        setResultData(res?.data);
       }
-    },
-    enableReinitialize: true,
-  });
-
-  const inputData = [
-    {
-      id: "scholarshipRollNumber",
-      name: "scholarshipRollNumber",
-      type: "text",
-      label: "Scholarship Roll Number",
-      errors: "",
-      register: "",
-      required: true,
-    },
-  ];
-
-  // Scholarship condition and message
-  const getScholarshipMessage = () => {
-    const marks = resultData?.resultDetails?.[0]?.totalMarks;
-    const classLevel = resultData?.instituteClass;
-    const convertedMarks = convertToBengali(marks);
-
-    if (classLevel >= 5 && classLevel <= 6) {
-      return marks >= 65
-        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি স্কলারশিপ অর্জন করতে সক্ষম হয়েছ ${convertedMarks} নম্বর পেয়ে!তোমার কঠোর পরিশ্রম এবং অধ্যবসায়ের ফল আজ তুমি পেয়েছ। এ অর্জন সত্যিই গর্বের এবং তোমার প্রতিভার প্রমাণ। আশা করি, তুমি ভবিষ্যতেও এভাবে সাফল্যের ধারা বজায় রাখবে। তোমার সামনে আরও বড় বড় সুযোগ অপেক্ষা করছে। ইনশাআল্লাহ, তুমি জীবনের প্রতিটি ক্ষেত্রে সফলতা লাভ করবে। আমাদের শুভেচ্ছা এবং প্রার্থনা সবসময় তোমার সাথে থাকবে।`
-        : `দুঃখিত! স্কলারশিপের জন্য তোমার কমপক্ষে ৬৫ নম্বর প্রয়োজন। তুমি ${convertedMarks} নম্বর পেয়েছ। তোমার পারফরম্যান্স সত্যিই প্রশংসনীয় ছিল, তবে দুঃখের বিষয়, তুমি এইবার স্কলারশিপ পাওনি। আশা করি, তোমার প্রচেষ্টা অব্যাহত থাকবে এবং ভবিষ্যতে তুমি আরও ভালো ফলাফল করবে। জীবনের এই ছোট্ট ব্যর্থতা যেন তোমার আত্মবিশ্বাসকে কমাতে না পারে। সামনে আরও অনেক সুযোগ আসবে, ইনশাআল্লাহ। নিজের উপর বিশ্বাস রাখো এবং কঠোর পরিশ্রম করতে থাকো। আমরা তোমার ভবিষ্যতের সফলতার জন্য প্রার্থনা করছি।`;
-    } else if (classLevel >= 7 && classLevel <= 8) {
-      return marks >= 70
-        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি স্কলারশিপ অর্জন করতে সক্ষম হয়েছ ${convertedMarks} নম্বর পেয়ে! তোমার কঠোর পরিশ্রম এবং অধ্যবসায়ের ফল আজ তুমি পেয়েছ। এ অর্জন সত্যিই গর্বের এবং তোমার প্রতিভার প্রমাণ। আশা করি, তুমি ভবিষ্যতেও এভাবে সাফল্যের ধারা বজায় রাখবে। তোমার সামনে আরও বড় বড় সুযোগ অপেক্ষা করছে। ইনশাআল্লাহ, তুমি জীবনের প্রতিটি ক্ষেত্রে সফলতা লাভ করবে। আমাদের শুভেচ্ছা এবং প্রার্থনা সবসময় তোমার সাথে থাকবে।`
-        : `দুঃখিত! স্কলারশিপের জন্য তোমার ৭০ নম্বর প্রয়োজন ছিল। তুমি ${convertedMarks} নম্বর পেয়েছ। আশা করি ভবিষ্যতে আরও ভালো করবে। তোমার পারফরম্যান্স সত্যিই প্রশংসনীয় ছিল, তবে দুঃখের বিষয়, তুমি এইবার স্কলারশিপ পাওনি। আশা করি, তোমার প্রচেষ্টা অব্যাহত থাকবে এবং ভবিষ্যতে তুমি আরও ভালো ফলাফল করবে। জীবনের এই ছোট্ট ব্যর্থতা যেন তোমার আত্মবিশ্বাসকে কমাতে না পারে। সামনে আরও অনেক সুযোগ আসবে, ইনশাআল্লাহ। নিজের উপর বিশ্বাস রাখো এবং কঠোর পরিশ্রম করতে থাকো। আমরা তোমার ভবিষ্যতের সফলতার জন্য প্রার্থনা করছি।`;
-    } else if (classLevel >= 9 && classLevel <= 10) {
-      return marks >= 80
-        ? `আলহামদুলিল্লাহ! অভিনন্দন! তুমি ${convertedMarks} নম্বর পেয়ে স্কলারশিপ অর্জন করেছ। তোমার কঠোর পরিশ্রম এবং অধ্যবসায়ের ফল আজ তুমি পেয়েছ। এ অর্জন সত্যিই গর্বের এবং তোমার প্রতিভার প্রমাণ। আশা করি, তুমি ভবিষ্যতেও এভাবে সাফল্যের ধারা বজায় রাখবে। তোমার সামনে আরও বড় বড় সুযোগ অপেক্ষা করছে। ইনশাআল্লাহ, তুমি জীবনের প্রতিটি ক্ষেত্রে সফলতা লাভ করবে। আমাদের শুভেচ্ছা এবং প্রার্থনা সবসময় তোমার সাথে থাকবে।`
-        : `দুঃখিত! স্কলারশিপের জন্য তোমার ৮০ নম্বর প্রয়োজন ছিল, কিন্তু তুমি ${convertedMarks} নম্বর পেয়েছ। তোমার পারফরম্যান্স সত্যিই প্রশংসনীয় ছিল, তবে দুঃখের বিষয়, তুমি এইবার স্কলারশিপ পাওনি। আশা করি, তোমার প্রচেষ্টা অব্যাহত থাকবে এবং ভবিষ্যতে তুমি আরও ভালো ফলাফল করবে। জীবনের এই ছোট্ট ব্যর্থতা যেন তোমার আত্মবিশ্বাসকে কমাতে না পারে। সামনে আরও অনেক সুযোগ আসবে, ইনশাআল্লাহ। নিজের উপর বিশ্বাস রাখো এবং কঠোর পরিশ্রম করতে থাকো। আমরা তোমার ভবিষ্যতের সফলতার জন্য প্রার্থনা করছি।`;
-    } else {
-      return "দয়া করে সঠিক শ্রেণী এবং নম্বর সহ ফলাফল যাচাই করুন।";
+    } catch (err) {
+      setLoading(false);
+      toast.error(err?.response?.data?.message || "Error fetching result");
     }
   };
 
+  // Scholarship condition and message
+  const getScholarshipStatus = () => {
+    const totalMarks = resultData?.resultDetails?.[0]?.totalMarks || 0;
+    const classNumber = parseInt(resultData?.instituteClass) || 0;
+
+    // For classes 3 to 5
+    if (classNumber >= 3 && classNumber <= 5) {
+      if (totalMarks >= 45 && totalMarks <= 48) {
+        return { status: "General Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 49 && totalMarks <= 50) {
+        return { status: "Talentpool Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 40 && totalMarks <= 44) {
+        return { status: "Special Category", prize: true, scholarship: false };
+      }
+    }
+    // For classes 6 to 8
+    else if (classNumber >= 6 && classNumber <= 8) {
+      if (totalMarks >= 75 && totalMarks < 85) {
+        return { status: "General Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 85 && totalMarks <= 100) {
+        return { status: "Talentpool Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 65 && totalMarks < 75) {
+        return { status: "Special Category", prize: true, scholarship: false };
+      }
+    }
+    // For classes 9 to 10
+    else if (classNumber >= 9 && classNumber <= 10) {
+      if (totalMarks >= 75 && totalMarks < 85) {
+        return { status: "General Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 85 && totalMarks <= 100) {
+        return { status: "Talentpool Grade", prize: false, scholarship: true };
+      } else if (totalMarks >= 70 && totalMarks < 75) {
+        return { status: "Special Category", prize: true, scholarship: false };
+      }
+    }
+    return { status: "Not Qualified", prize: false, scholarship: false };
+  };
+
+  // Download result as PDF
+  const downloadResultAsPDF = () => {
+    const input = resultCardRef.current;
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`dmf-result-${resultData?.scholarshipRollNumber}.pdf`);
+    });
+  };
+
+  // Table data
+  const resultTableData = [
+    { key: "1", label: "নাম", value: resultData?.name || "-" },
+    {
+      key: "2",
+      label: "শিক্ষা প্রতিষ্ঠান",
+      value: resultData?.institute || "-",
+    },
+    {
+      key: "3",
+      label: "শ্রেণী",
+      value: convertToBengali(resultData?.instituteClass) || "-",
+    },
+    {
+      key: "4",
+      label: "রোল নম্বর",
+      value:
+        convertToBengali(
+          resultData?.resultDetails?.[0]?.scholarshipRollNumber
+        ) || "-",
+    },
+    {
+      key: "5",
+      label: "সঠিক উত্তর",
+      value:
+        convertToBengali(resultData?.resultDetails?.[0]?.totalCorrectAns) ||
+        "-",
+    },
+    {
+      key: "6",
+      label: "ভুল উত্তর",
+      value:
+        convertToBengali(resultData?.resultDetails?.[0]?.totalWrongAns) || "-",
+    },
+    {
+      key: "7",
+      label: "প্রাপ্ত নম্বর",
+      value:
+        convertToBengali(resultData?.resultDetails?.[0]?.totalMarks) || "-",
+    },
+    {
+      key: "8",
+      label: "স্ট্যাটাস",
+      value: getScholarshipStatus().prize
+        ? "বিশেষ ক্যাটাগরি (Special Category)"
+        : getScholarshipStatus().status,
+    },
+  ];
+
+  const columns = [
+    {
+      title: "বিবরণ",
+      dataIndex: "label",
+      key: "label",
+      width: "40%",
+      render: (text) => (
+        <Text className="tt" style={{ fontSize: "16px" }}>
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: "ফলাফল",
+      dataIndex: "value",
+      key: "value",
+      width: "60%",
+      render: (text) => (
+        <Text className="tt" style={{ fontSize: "16px" }}>
+          {text}
+        </Text>
+      ),
+    },
+  ];
+
+  // Scholarship criteria information
+  const scholarshipCriteria = [
+    {
+      class: "৩য়-৫ম শ্রেণী",
+      general: "৪৫-৪৮ নম্বর",
+      talentpool: "৪৯-৫০ নম্বর",
+      special: "৪০-৪৪ নম্বর (বিশেষ ক্যাটাগরি)",
+    },
+    {
+      class: "৬ষ্ঠ-৮ম শ্রেণী",
+      general: "৭৫-৮৪ নম্বর",
+      talentpool: "৮৫-১০০ নম্বর",
+      special: "৬৫-৭৪ নম্বর (বিশেষ ক্যাটাগরি)",
+    },
+    {
+      class: "৯ম-১০ম শ্রেণী",
+      general: "৭৫-৮৪ নম্বর",
+      talentpool: "৮৫-১০০ নম্বর",
+      special: "৭০-৭৪ নম্বর (বিশেষ ক্যাটাগরি)",
+    },
+  ];
+
   return (
-    <div className="">
-      <div style={{ background: "#BDDE98" }}>
-        <h2
-          className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text"
-          style={{ color: "#2F5811" }}>
-          ফলাফল
-        </h2>
+    <div className="bg-gray-50 min-h-screen p-4 mx-24">
+      {/* Header with white title */}
+      <div className=" p-4 mb-6 rounded">
+        <Title
+          level={3}
+          className="text-center text-white tt mb-0"
+          style={{ fontSize: "24px" }}>
+          দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ফলাফল ২০২৫
+        </Title>
       </div>
-      <div className="p-4 shadow rounded mx-4 lg:mx-24 xl:mx-24 mt-8">
-        <div className="flex justify-center pt-2">
-          <div>
-            <h2 className="text-[18px] font-bold py-2 text-green-600">
-              দারুল মুত্তাক্বীন শিহ্মাবৃত্তি ২০২৪
-            </h2>
-            <p className="text-[14px] font-semibold text-center pb-4 text-orange-600">
-              এখান থেকে আপনার ফলাফল দেখুন!
-            </p>
-          </div>
-        </div>
-        <h3 class="text-2xl font-bold text-green-800 text-center leading-relaxed">
-          "যদি আপনি আপনার ফলাফল পুনরায় যাচাই করতে চান, তাহলে অনুগ্রহ করে
-          <a
-            href="https://ourdmf.xyz/contact"
-            target="_blank"
-            className="text-orange-500 underline px-2">
-            এই লিঙ্কে
-          </a>
-          আপনার স্কলারশিপ রোল নম্বর সহ আমাদের একটি বার্তা পাঠান। পুনরায়
-          যাচাইয়ের জন্য ১০০ টাকা চার্জ প্রযোজ্য। অনুগ্রহ করে বিকাশ/রকেট
-          নাম্বারে পেমেন্ট করুন:{" "}
-          <span class="text-red-500 font-semibold">01838243941</span>
-          এবং পেমেন্টের ট্রানজ্যাকশন নাম্বার বার্তায় পাঠান।"
-        </h3>
-        <h3 class="text-2xl font-bold text-green-800 text-center leading-relaxed">
-          "DMF শপে আমাদের পণ্যসমূহ এখনই উপলভ্য! দারুণ সব পণ্য কিনতে
-          <a
-            href="https://ourdmf.xyz/product"
-            target="_blank"
-            className="text-orange-500 underline px-2">
-            এই লিঙ্কে ক্লিক করুন
-          </a>
-          এবং আপনার পছন্দের পণ্য বেছে নিন।"
-        </h3>
 
-        {loading && <MainLoader />}
+      {/* Scholarship Criteria Card */}
 
-        <div>
-          <form
-            className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
-            onSubmit={formik.handleSubmit}>
-            {inputData?.map(
-              ({
-                id,
-                name,
-                type,
-                label,
-                labelFor,
-                errors,
-                register,
-                required,
-                optionLabel = "",
-                selectedAutoValue,
-                setSelectedAutoValue,
-                autoCompleteMethod,
-                autoFilteredValue,
-              }) => (
-                <div className="w-full mb-4" key={id}>
-                  <label className="block text-black dark:text-black text-[12px] py-1">
-                    {label} <span className="text-meta-1">*</span>
-                  </label>
-                  <input
-                    id={id}
-                    name={name}
-                    type={type}
-                    required={required}
-                    width="full"
-                    onChange={formik.handleChange}
-                    value={formik.values?.[id]}
-                    className="w-full lg:w-[400px] xl:w-[400px] h-[45px] rounded-lg border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                  />
-                </div>
-              )
+      <Card className="mb-6">
+        <Form form={form} onFinish={onFinish} layout="vertical">
+          <Form.Item
+            name="scholarshipRollNumber"
+            label={
+              <span className="tt" style={{ fontSize: "16px" }}>
+                শিক্ষাবৃত্তি রোল নম্বর
+              </span>
+            }
+            rules={[{ required: true, message: "রোল নম্বর দিন" }]}>
+            <Input
+              placeholder="রোল নম্বর লিখুন"
+              className="tt"
+              size="large"
+              style={{ fontSize: "16px" }}
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              icon={<SearchOutlined />}
+              loading={loading}
+              block
+              style={{ height: "45px", fontSize: "16px" }}>
+              ফলাফল দেখুন
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+
+      {Object.keys(resultData).length > 0 && (
+        <Card>
+          <div
+            ref={resultCardRef}
+            className="p-4 border border-gray-300 bg-white">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <Title level={4} className="tt mb-1" style={{ fontSize: "20px" }}>
+                দারুল মুত্তাক্বীন ফাউন্ডেশন
+              </Title>
+              <Text className="tt" style={{ fontSize: "16px" }}>
+                শিক্ষাবৃত্তি পরীক্ষা ২০২৫ - ফলাফল
+              </Text>
+              <Divider className="my-3 bg-gray-300" />
+            </div>
+
+            {/* Result Table */}
+            <Table
+              columns={columns}
+              dataSource={resultTableData}
+              pagination={false}
+              bordered
+              size="small"
+              className="mb-6"
+            />
+
+            {/* Islamic Messages based on scholarship status */}
+            {getScholarshipStatus().scholarship ? (
+              <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-600">
+                <Title
+                  level={5}
+                  className="tt text-green-800"
+                  style={{ fontSize: "18px" }}>
+                  <span className="text-xl">🎉</span> মাবরুক! আপনি শিক্ষাবৃত্তি
+                  পেয়েছেন
+                </Title>
+                <Text className="tt block" style={{ fontSize: "16px" }}>
+                  <strong>কুরআনুল কারীম:</strong> "যে ব্যক্তি আল্লাহকে ভয় করে,
+                  আল্লাহ তার জন্য উত্তরণের পথ বের করে দেন এবং তাকে তার ধারণাতীত
+                  জায়গা থেকে রিজিক দান করেন।" (সূরা তালাক: ২-৩)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  <strong>হাদীস:</strong> "যখন আল্লাহ তাআলা কোন বান্দার কল্যাণ
+                  চান, তখন তিনি তাকে দ্বীনের বুঝ দান করেন।" (বুখারী, হাদীস: ৭১)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  আপনার এই সাফল্য আল্লাহর বিশেষ রহমত। এটাকে কেবলই দুনিয়াবী
+                  সাফল্য মনে না করে আখিরাতের সাফল্য অর্জনের মাধ্যম হিসেবে গ্রহণ
+                  করুন। জ্ঞানার্জনকে ইবাদত হিসেবে গণ্য করে আরও বেশি করে আল্লাহর
+                  সন্তুষ্টি অর্জনের চেষ্টা করুন।
+                </Text>
+              </div>
+            ) : getScholarshipStatus().prize ? (
+              <div className="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
+                <Title
+                  level={5}
+                  className="tt text-yellow-800"
+                  style={{ fontSize: "18px" }}>
+                  <span className="text-xl">🌟</span> বিশেষ ক্যাটাগরিতে
+                  নির্বাচিত
+                </Title>
+                <Text className="tt block" style={{ fontSize: "16px" }}>
+                  <strong>হাদীস:</strong> "কোন মুসলিম যখন কোনো কল্যাণকর কাজের
+                  সংকল্প করে, তখন তা সম্পাদন না করলেও তার জন্য একটি নেকী লেখা
+                  হয়। আর যদি তা সম্পাদন করে তবে দশ থেকে সাতশত গুণ পর্যন্ত নেকী
+                  লেখা হয়।" (সহীহ মুসলিম, হাদীস: ১২৫)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  <strong>হাদীস:</strong> "নিশ্চয় আল্লাহ তাআলা তোমাদের
+                  রূপ-সৌন্দর্য ও সম্পদ দেখেন না; বরং তিনি তোমাদের অন্তর ও আমল
+                  দেখেন।" (সহীহ মুসলিম, হাদীস: ২৫৬৪)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  আপনি স্কলারশিপ না পেলেও বিশেষ ক্যাটাগরিতে নির্বাচিত হয়েছেন।
+                  এটি আল্লাহর পক্ষ থেকে একটি স্বীকৃতি। হতাশ না হয়ে আরও বেশি
+                  পরিশ্রম করুন। আল্লাহ পরিশ্রমকারীদের সফলতা দান করেন।
+                </Text>
+              </div>
+            ) : (
+              <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400">
+                <Title
+                  level={5}
+                  className="tt text-blue-800"
+                  style={{ fontSize: "18px" }}>
+                  <span className="text-xl">🤲</span> আল্লাহর উপর ভরসা রাখুন
+                </Title>
+                <Text className="tt block" style={{ fontSize: "16px" }}>
+                  <strong>হাদীস:</strong> "মুমিনের বিষয়টি আশ্চর্যজনক! তার সকল
+                  কাজই ভালো। এটি শুধুমাত্র মুমিনের জন্যই প্রযোজ্য। যদি সে সুখ
+                  পায়, সে শুকরিয়া আদায় করে, আর তা তার জন্য কল্যাণকর হয়। আর
+                  যদি সে কষ্ট পায়, সে ধৈর্য ধারণ করে, আর সেটাও তার জন্য
+                  কল্যাণকর হয়।" (সহীহ মুসলিম, হাদীস: ২৯৯৯)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  <strong>কুরআনুল কারীম:</strong> "নিশ্চয়ই কষ্টের সাথে স্বস্তি
+                  আছে। নিশ্চয়ই কষ্টের সাথে স্বস্তি আছে।" (সূরা আল-ইনশিরাহ: ৫-৬)
+                </Text>
+                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
+                  এইবার আপনি শিক্ষাবৃত্তি পেতে পারেননি, কিন্তু ইনশাআল্লাহ
+                  ভবিষ্যতে আরও ভালো করার সুযোগ আছে। আল্লাহর উপর ভরসা রাখুন এবং
+                  নিয়তকে শুদ্ধ রাখুন। জ্ঞানার্জন কোনো প্রতিযোগিতা নয়, বরং এটি
+                  আল্লাহর সন্তুষ্টি অর্জনের মাধ্যম।
+                </Text>
+              </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
-              <div></div>
-              <button
-                type="submit"
-                className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
-                Search
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div className="bg-white p-4 shadow rounded mt-4 mx-4 lg:mx-24 xl:mx-24">
-        <div className="text-justify bangla-text">
-          <Result status="success" title={getScholarshipMessage()} />
-        </div>
-        <div className="flex justify-center">
-          <h1 className="text-center text-[17px]">
-            Welcome to DMF Scholarship Result Dashboard
-          </h1>
-        </div>
-
-        <div className=" text-[14px]  px-8 pt-4 grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-2">
-          {/* 1st div */}
-          <div className="grid grid-cols-2  w-full">
-            <div className="border border-green-500 p-4 ">
-              <div className="border-b border-green-400 p-1 ">Name:</div>
-              <div className="border-b border-green-400 p-1 bg-green-50">
-                Institute Name
-              </div>
-              <div className="border-b border-green-400 p-1">Class</div>
-              <div className="border-b border-green-400 p-1 bg-green-50">
-                Scholarship Roll
-              </div>
-              <div className="border-b border-green-400 p-1">
-                Institute Roll
-              </div>
-            </div>
-            <div className="border-t border-b border-r border-green-500 p-4">
-              <div className="border-b border-green-400 p-1">
-                {resultData?.name}
-              </div>
-              <div className="border-b border-green-400 p-1 bg-green-50">
-                {resultData?.institute}
-              </div>
-              <div className="border-b border-green-400 p-1">
-                {resultData?.instituteClass}
-              </div>
-              <div className="border-b border-green-400 p-1 bg-green-50">
-                {resultData?.resultDetails?.[0]?.scholarshipRollNumber}
-              </div>
-              <div className="border-b border-green-400 p-1">
-                {resultData?.instituteRollNumber}
-              </div>
+            {/* Footer */}
+            <Divider className="my-3 bg-gray-300" />
+            <div className="text-center">
+              <Text className="block text-xs mt-1">
+                © 2025 Darul Muttakin Foundation
+              </Text>
             </div>
           </div>
 
-          {/* 2nd div */}
-          <div className="grid grid-cols-2  w-full pt-2">
-            <div className="border border-orange-500 p-4 ">
-              <div className="border-b border-orange-400 p-1 bg-orange-50 bangla-text">
-                সঠিক উত্তর
-              </div>
-              <div className="border-b border-orange-400 p-1 bangla-text">
-                ভুল উত্তর
-              </div>
-              <div className="border-b border-orange-400 p-1 bg-orange-50 bangla-text">
-                প্রাপ্ত নম্বর
-              </div>
-            </div>
-            <div className="border-t border-b border-r border-orange-500 p-4">
-              <div className="border-b border-orange-400 p-1 bg-orange-50">
-                {convertToBengali(
-                  resultData?.resultDetails?.[0]?.totalCorrectAns
-                )}
-              </div>
-              <div className="border-b border-orange-400 p-1">
-                {convertToBengali(
-                  resultData?.resultDetails?.[0]?.totalWrongAns
-                )}
-              </div>
-              <div className="border-b border-orange-400 p-1 bg-orange-50">
-                {convertToBengali(resultData?.resultDetails?.[0]?.totalMarks)}
-              </div>
-            </div>
+          <div className="flex justify-center mt-4">
+            <Button
+              type="default"
+              icon={<DownloadOutlined />}
+              onClick={downloadResultAsPDF}
+              className="border border-gray-400"
+              style={{ height: "45px", fontSize: "16px" }}>
+              ফলাফল ডাউনলোড করুন
+            </Button>
           </div>
-        </div>
-      </div>
+        </Card>
+      )}
+      <Card
+        title={
+          <span className="tt" style={{ fontSize: "20px" }}>
+            শিক্ষাবৃত্তি প্রাপ্তির মানদণ্ড
+          </span>
+        }
+        className="mb-6">
+        <Table
+          columns={[
+            {
+              title: (
+                <span className="tt" style={{ fontSize: "16px" }}>
+                  শ্রেণী
+                </span>
+              ),
+              dataIndex: "class",
+              key: "class",
+              render: (text) => (
+                <Text className="tt" style={{ fontSize: "16px" }}>
+                  {text}
+                </Text>
+              ),
+            },
+            {
+              title: (
+                <span className="tt" style={{ fontSize: "16px" }}>
+                  সাধারণ গ্রেড
+                </span>
+              ),
+              dataIndex: "general",
+              key: "general",
+              render: (text) => (
+                <Text className="tt" style={{ fontSize: "16px" }}>
+                  {text}
+                </Text>
+              ),
+            },
+            {
+              title: (
+                <span className="tt" style={{ fontSize: "16px" }}>
+                  ট্যালেন্টপুল গ্রেড
+                </span>
+              ),
+              dataIndex: "talentpool",
+              key: "talentpool",
+              render: (text) => (
+                <Text className="tt" style={{ fontSize: "16px" }}>
+                  {text}
+                </Text>
+              ),
+            },
+            {
+              title: (
+                <span className="tt" style={{ fontSize: "16px" }}>
+                  বিশেষ ক্যাটাগরি
+                </span>
+              ),
+              dataIndex: "special",
+              key: "special",
+              render: (text) => (
+                <Text className="tt" style={{ fontSize: "16px" }}>
+                  {text}
+                </Text>
+              ),
+            },
+          ]}
+          dataSource={scholarshipCriteria}
+          pagination={false}
+          size="small"
+          bordered
+        />
+        <Text className="tt block mt-4" style={{ fontSize: "16px" }}>
+          <strong>নোট:</strong> উপরোক্ত নম্বর প্রাপ্ত শিক্ষার্থীরা শিক্ষাবৃত্তি
+          পাবেন। বিশেষ ক্যাটাগরি প্রাপ্তরা স্কলারশিপ পাবেন না কিন্তু তাদের বিশেষ
+          স্বীকৃতি দেওয়া হবে।
+        </Text>
+      </Card>
     </div>
   );
 };
