@@ -11,6 +11,7 @@ import {
   Form,
   Row,
   Col,
+  Alert,
 } from "antd";
 import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
@@ -209,8 +210,27 @@ const ResultPage = () => {
         </Title>
       </div>
 
-      {/* Scholarship Criteria Card */}
+      {/* Challenge Notice */}
+      <Alert
+        message={
+          <span className="tt" style={{ fontSize: "16px" }}>
+            আপনার ফলাফল নিয়ে আপত্তি থাকলে এই{" "}
+            <a
+              href="https://ourdmf.xyz/contact"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: "#1890ff", fontWeight: "bold" }}>
+              লিংক
+            </a>{" "}
+            এ ক্লিক করে আপনার রোল নম্বর সহ মেসেজ পাঠান।
+          </span>
+        }
+        type="info"
+        showIcon
+        className="mb-6"
+      />
 
+      {/* Scholarship Criteria Card */}
       <Card className="mb-6">
         <Form form={form} onFinish={onFinish} layout="vertical">
           <Form.Item
