@@ -198,7 +198,7 @@ const ResultPage = () => {
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 mx-24">
+    <div className="bg-gray-50 min-h-screen p-4 mx-0 xl:mx-24 ">
       {/* Header with white title */}
       <div className=" p-4 mb-6 rounded">
         <Title
