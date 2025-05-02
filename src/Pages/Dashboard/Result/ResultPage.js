@@ -58,34 +58,28 @@ const ResultPage = () => {
     // For classes 3 to 5
     if (classNumber >= 3 && classNumber <= 5) {
       if (totalMarks >= 45 && totalMarks <= 48) {
-        return { status: "General Grade", prize: false, scholarship: true };
+        return { status: "General Grade", scholarship: true };
       } else if (totalMarks >= 49 && totalMarks <= 50) {
-        return { status: "Talentpool Grade", prize: false, scholarship: true };
-      } else if (totalMarks >= 40 && totalMarks <= 44) {
-        return { status: "Special Category", prize: true, scholarship: false };
+        return { status: "Talentpool Grade", scholarship: true };
       }
     }
     // For classes 6 to 8
     else if (classNumber >= 6 && classNumber <= 8) {
-      if (totalMarks >= 75 && totalMarks < 85) {
-        return { status: "General Grade", prize: false, scholarship: true };
-      } else if (totalMarks >= 85 && totalMarks <= 100) {
-        return { status: "Talentpool Grade", prize: false, scholarship: true };
-      } else if (totalMarks >= 65 && totalMarks < 75) {
-        return { status: "Special Category", prize: true, scholarship: false };
+      if (totalMarks >= 75 && totalMarks < 80) {
+        return { status: "General Grade", scholarship: true };
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
+        return { status: "Talentpool Grade", scholarship: true };
       }
     }
     // For classes 9 to 10
     else if (classNumber >= 9 && classNumber <= 10) {
-      if (totalMarks >= 75 && totalMarks < 85) {
-        return { status: "General Grade", prize: false, scholarship: true };
-      } else if (totalMarks >= 85 && totalMarks <= 100) {
-        return { status: "Talentpool Grade", prize: false, scholarship: true };
-      } else if (totalMarks >= 70 && totalMarks < 75) {
-        return { status: "Special Category", prize: true, scholarship: false };
+      if (totalMarks >= 75 && totalMarks < 80) {
+        return { status: "General Grade", scholarship: true };
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
+        return { status: "Talentpool Grade", scholarship: true };
       }
     }
-    return { status: "Not Qualified", prize: false, scholarship: false };
+    return { status: "Not Qualified", scholarship: false };
   };
 
   // Download result as PDF
@@ -145,9 +139,7 @@ const ResultPage = () => {
     {
       key: "8",
       label: "স্ট্যাটাস",
-      value: getScholarshipStatus().prize
-        ? "বিশেষ ক্যাটাগরি (Special Category)"
-        : getScholarshipStatus().status,
+      value: getScholarshipStatus().status,
     },
   ];
 
@@ -182,19 +174,16 @@ const ResultPage = () => {
       class: "৩য়-৫ম শ্রেণী",
       general: "৪৫-৪৮ নম্বর",
       talentpool: "৪৯-৫০ নম্বর",
-      special: "৪০-৪৪ নম্বর (বিশেষ ক্যাটাগরি)",
     },
     {
       class: "৬ষ্ঠ-৮ম শ্রেণী",
-      general: "৭৫-৮৪ নম্বর",
-      talentpool: "৮৫-১০০ নম্বর",
-      special: "৬৫-৭৪ নম্বর (বিশেষ ক্যাটাগরি)",
+      general: "৭৫-৭৯ নম্বর",
+      talentpool: "৮০-১০০ নম্বর",
     },
     {
       class: "৯ম-১০ম শ্রেণী",
-      general: "৭৫-৮৪ নম্বর",
-      talentpool: "৮৫-১০০ নম্বর",
-      special: "৭০-৭৪ নম্বর (বিশেষ ক্যাটাগরি)",
+      general: "৭৫-৭৯ নম্বর",
+      talentpool: "৮০-১০০ নম্বর",
     },
   ];
 
@@ -315,32 +304,6 @@ const ResultPage = () => {
                   সন্তুষ্টি অর্জনের চেষ্টা করুন।
                 </Text>
               </div>
-            ) : getScholarshipStatus().prize ? (
-              <div className="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400">
-                <Title
-                  level={5}
-                  className="tt text-yellow-800"
-                  style={{ fontSize: "18px" }}>
-                  <span className="text-xl">🌟</span> বিশেষ ক্যাটাগরিতে
-                  নির্বাচিত
-                </Title>
-                <Text className="tt block" style={{ fontSize: "16px" }}>
-                  <strong>হাদীস:</strong> "কোন মুসলিম যখন কোনো কল্যাণকর কাজের
-                  সংকল্প করে, তখন তা সম্পাদন না করলেও তার জন্য একটি নেকী লেখা
-                  হয়। আর যদি তা সম্পাদন করে তবে দশ থেকে সাতশত গুণ পর্যন্ত নেকী
-                  লেখা হয়।" (সহীহ মুসলিম, হাদীস: ১২৫)
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  <strong>হাদীস:</strong> "নিশ্চয় আল্লাহ তাআলা তোমাদের
-                  রূপ-সৌন্দর্য ও সম্পদ দেখেন না; বরং তিনি তোমাদের অন্তর ও আমল
-                  দেখেন।" (সহীহ মুসলিম, হাদীস: ২৫৬৪)
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  আপনি স্কলারশিপ না পেলেও বিশেষ ক্যাটাগরিতে নির্বাচিত হয়েছেন।
-                  এটি আল্লাহর পক্ষ থেকে একটি স্বীকৃতি। হতাশ না হয়ে আরও বেশি
-                  পরিশ্রম করুন। আল্লাহ পরিশ্রমকারীদের সফলতা দান করেন।
-                </Text>
-              </div>
             ) : (
               <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400">
                 <Title
@@ -441,20 +404,6 @@ const ResultPage = () => {
                 </Text>
               ),
             },
-            {
-              title: (
-                <span className="tt" style={{ fontSize: "16px" }}>
-                  বিশেষ ক্যাটাগরি
-                </span>
-              ),
-              dataIndex: "special",
-              key: "special",
-              render: (text) => (
-                <Text className="tt" style={{ fontSize: "16px" }}>
-                  {text}
-                </Text>
-              ),
-            },
           ]}
           dataSource={scholarshipCriteria}
           pagination={false}
@@ -463,8 +412,7 @@ const ResultPage = () => {
         />
         <Text className="tt block mt-4" style={{ fontSize: "16px" }}>
           <strong>নোট:</strong> উপরোক্ত নম্বর প্রাপ্ত শিক্ষার্থীরা শিক্ষাবৃত্তি
-          পাবেন। বিশেষ ক্যাটাগরি প্রাপ্তরা স্কলারশিপ পাবেন না কিন্তু তাদের বিশেষ
-          স্বীকৃতি দেওয়া হবে।
+          পাবেন।
         </Text>
       </Card>
     </div>

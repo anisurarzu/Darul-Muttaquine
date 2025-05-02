@@ -28,8 +28,6 @@ const ScholarshipTable = ({ title, dataSource }) => (
                 ? "text-green-600"
                 : grade === "General Grade"
                 ? "text-blue-600"
-                : grade === "Special Category"
-                ? "text-purple-600"
                 : "text-gray-600"
             }`}>
             {grade}
@@ -76,14 +74,6 @@ const InstituteSummaryTable = ({ dataSource }) => (
         ),
       },
       {
-        title: "Special Category",
-        dataIndex: "special",
-        key: "special",
-        render: (count) => (
-          <span className="text-purple-600 font-semibold">{count}</span>
-        ),
-      },
-      {
         title: "Total Students",
         dataIndex: "total",
         key: "total",
@@ -124,10 +114,23 @@ const ResultDetails = () => {
   const [loading, setLoading] = useState(false);
   const [classGroups, setClassGroups] = useState({});
   const [instituteSummary, setInstituteSummary] = useState([]);
+  const [totalSearches, setTotalSearches] = useState(0);
 
   useEffect(() => {
     fetchScholarshipInfo();
+    fetchTotalSearches();
   }, []);
+
+  const fetchTotalSearches = async () => {
+    try {
+      const response = await coreAxios.get(`/total-searches`);
+      if (response?.status === 200) {
+        setTotalSearches(response.data.totalSearches);
+      }
+    } catch (error) {
+      console.error("Error fetching total searches:", error);
+    }
+  };
 
   const fetchScholarshipInfo = async () => {
     try {
@@ -157,37 +160,30 @@ const ResultDetails = () => {
     const classNumber = parseInt(student.instituteClass);
     const totalMarks = student.resultDetails[0].totalMarks;
 
-    // For classes 3 to 5 (keeping existing criteria)
+    // For classes 3 to 5
     if (classNumber >= 3 && classNumber <= 5) {
       if (totalMarks >= 45 && totalMarks <= 48) {
         return "General Grade";
       } else if (totalMarks >= 49 && totalMarks <= 50) {
         return "Talentpool Grade";
-      } else if (totalMarks >= 40 && totalMarks <= 44) {
-        return "Special Category";
       }
     }
-    // For classes 6 to 8 (modified criteria)
+    // For classes 6 to 8
     else if (classNumber >= 6 && classNumber <= 8) {
-      if (totalMarks >= 75 && totalMarks < 85) {
+      if (totalMarks >= 75 && totalMarks < 80) {
         return "General Grade";
-      } else if (totalMarks >= 85 && totalMarks <= 100) {
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
         return "Talentpool Grade";
-      } else if (totalMarks >= 65 && totalMarks < 75) {
-        return "Special Category";
       }
     }
-    // For classes 9 to 10 (modified criteria)
+    // For classes 9 to 10
     else if (classNumber >= 9 && classNumber <= 10) {
-      if (totalMarks >= 75 && totalMarks < 85) {
+      if (totalMarks >= 75 && totalMarks < 80) {
         return "General Grade";
-      } else if (totalMarks >= 85 && totalMarks <= 100) {
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
         return "Talentpool Grade";
-      } else if (totalMarks >= 70 && totalMarks < 75) {
-        return "Special Category";
       }
     }
-
     return null;
   };
 
@@ -222,7 +218,6 @@ const ResultDetails = () => {
             name: student.institute,
             talentpool: 0,
             general: 0,
-            special: 0,
             total: 0,
           };
         }
@@ -231,8 +226,6 @@ const ResultDetails = () => {
           instituteMap[student.institute].talentpool++;
         } else if (grade === "General Grade") {
           instituteMap[student.institute].general++;
-        } else if (grade === "Special Category") {
-          instituteMap[student.institute].special++;
         }
 
         instituteMap[student.institute].total++;
@@ -353,18 +346,15 @@ const ResultDetails = () => {
     // Count scholarship grades
     let generalCount = 0;
     let talentpoolCount = 0;
-    let specialCount = 0;
 
     allData.forEach((item) => {
       if (item.grade === "General Grade") generalCount++;
       if (item.grade === "Talentpool Grade") talentpoolCount++;
-      if (item.grade === "Special Category") specialCount++;
     });
 
     doc.text(`Total Students: ${allData.length}`, 40, summaryY);
     doc.text(`Talentpool Grade: ${talentpoolCount}`, 40, summaryY + 20);
     doc.text(`General Grade: ${generalCount}`, 40, summaryY + 40);
-    doc.text(`Special Category: ${specialCount}`, 40, summaryY + 60);
 
     doc.save("DMF_Scholarship_Results_2025.pdf");
   };
@@ -535,8 +525,6 @@ const ResultDetails = () => {
               data.cell.styles.textColor = [0, 128, 0]; // Dark green
             } else if (data.cell.raw === "General Grade") {
               data.cell.styles.textColor = [0, 0, 128]; // Dark blue
-            } else if (data.cell.raw === "Special Category") {
-              data.cell.styles.textColor = [128, 0, 128]; // Purple
             }
           }
         },
@@ -679,8 +667,6 @@ const ResultDetails = () => {
               data.cell.styles.fillColor = [200, 230, 200]; // Light green
             } else if (data.cell.raw === "General Grade") {
               data.cell.styles.fillColor = [200, 200, 230]; // Light blue
-            } else if (data.cell.raw === "Special Category") {
-              data.cell.styles.fillColor = [230, 200, 230]; // Light purple
             }
           }
           if (
@@ -725,7 +711,6 @@ const ResultDetails = () => {
       name: institute.name,
       talentpool: institute.talentpool,
       general: institute.general,
-      special: institute.special,
       total: institute.total,
     }));
 
@@ -738,7 +723,6 @@ const ResultDetails = () => {
           "Institute Name",
           "Talentpool",
           "General Grade",
-          "Special Category",
           "Total Students",
         ],
       ],
@@ -747,7 +731,6 @@ const ResultDetails = () => {
         institute.name,
         institute.talentpool,
         institute.general,
-        institute.special,
         institute.total,
       ]),
       styles: {
@@ -761,7 +744,6 @@ const ResultDetails = () => {
         2: { cellWidth: 30, halign: "center" },
         3: { cellWidth: 30, halign: "center" },
         4: { cellWidth: 30, halign: "center" },
-        5: { cellWidth: 30, halign: "center" },
       },
       headStyles: {
         fillColor: [46, 125, 50],
@@ -774,8 +756,6 @@ const ResultDetails = () => {
           data.cell.styles.textColor = [0, 128, 0]; // Green
         } else if (data.column.dataKey === "general" && data.cell.raw > 0) {
           data.cell.styles.textColor = [0, 0, 128]; // Blue
-        } else if (data.column.dataKey === "special" && data.cell.raw > 0) {
-          data.cell.styles.textColor = [128, 0, 128]; // Purple
         }
         if (data.column.dataKey === "total") {
           data.cell.styles.fontStyle = "bold";
@@ -797,10 +777,6 @@ const ResultDetails = () => {
       (sum, inst) => sum + inst.general,
       0
     );
-    const totalSpecial = instituteSummary.reduce(
-      (sum, inst) => sum + inst.special,
-      0
-    );
     const grandTotal = instituteSummary.reduce(
       (sum, inst) => sum + inst.total,
       0
@@ -809,8 +785,7 @@ const ResultDetails = () => {
     doc.text(`Total Institutes: ${instituteSummary.length}`, 14, summaryY);
     doc.text(`Total Talentpool: ${totalTalentpool}`, 14, summaryY + 15);
     doc.text(`Total General Grade: ${totalGeneral}`, 14, summaryY + 30);
-    doc.text(`Total Special Category: ${totalSpecial}`, 14, summaryY + 45);
-    doc.text(`Grand Total Students: ${grandTotal}`, 14, summaryY + 60);
+    doc.text(`Grand Total Students: ${grandTotal}`, 14, summaryY + 45);
 
     // Save with timestamp
     const timestamp = new Date().toISOString().slice(0, 10);
@@ -833,7 +808,6 @@ const ResultDetails = () => {
   const countGrades = () => {
     let generalGradeCount = 0;
     let talentpoolGradeCount = 0;
-    let specialCategoryCount = 0;
     let totalStudents = 0;
 
     Object.values(classGroups).forEach((students) => {
@@ -841,7 +815,6 @@ const ResultDetails = () => {
         const grade = getScholarshipGrade(student);
         if (grade === "General Grade") generalGradeCount++;
         if (grade === "Talentpool Grade") talentpoolGradeCount++;
-        if (grade === "Special Category") specialCategoryCount++;
         if (grade) totalStudents++;
       });
     });
@@ -849,17 +822,12 @@ const ResultDetails = () => {
     return {
       generalGradeCount,
       talentpoolGradeCount,
-      specialCategoryCount,
       totalStudents,
     };
   };
 
-  const {
-    generalGradeCount,
-    talentpoolGradeCount,
-    specialCategoryCount,
-    totalStudents,
-  } = countGrades();
+  const { generalGradeCount, talentpoolGradeCount, totalStudents } =
+    countGrades();
 
   return (
     <div className="container mx-auto p-5">
@@ -874,10 +842,6 @@ const ResultDetails = () => {
             <p className="text-gray-600">Total Students</p>
             <p className="text-2xl font-bold">{totalStudents}</p>
           </div>
-          <div className="bg-purple-50 p-3 rounded shadow">
-            <p className="text-purple-600">Special Category</p>
-            <p className="text-2xl font-bold">{specialCategoryCount}</p>
-          </div>
           <div className="bg-blue-50 p-3 rounded shadow">
             <p className="text-blue-600">General Grade</p>
             <p className="text-2xl font-bold">{generalGradeCount}</p>
@@ -885,6 +849,10 @@ const ResultDetails = () => {
           <div className="bg-green-50 p-3 rounded shadow">
             <p className="text-green-600">Talentpool Grade</p>
             <p className="text-2xl font-bold">{talentpoolGradeCount}</p>
+          </div>
+          <div className="bg-purple-50 p-3 rounded shadow">
+            <p className="text-purple-600">Total Searches</p>
+            <p className="text-2xl font-bold">{totalSearches}</p>
           </div>
         </div>
       </div>
@@ -993,7 +961,6 @@ function processRollData(rollData) {
         scholarshipListByClass[className] = {
           talentpoolGrade: [],
           generalGrade: [],
-          specialCategory: [],
         };
       }
 
@@ -1015,35 +982,26 @@ function processRollData(rollData) {
           } else if (result.totalMarks >= 45 && result.totalMarks <= 48) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
-          } else if (result.totalMarks >= 40 && result.totalMarks <= 44) {
-            data.grade = "Special Category";
-            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
-        // Class 6-8 (modified)
+        // Class 6-8
         else if (item.instituteClass >= 6 && item.instituteClass <= 8) {
-          if (result.totalMarks >= 85 && result.totalMarks <= 100) {
+          if (result.totalMarks >= 80 && result.totalMarks <= 100) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 75 && result.totalMarks < 85) {
+          } else if (result.totalMarks >= 75 && result.totalMarks < 80) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
-          } else if (result.totalMarks >= 65 && result.totalMarks < 75) {
-            data.grade = "Special Category";
-            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
-        // Class 9-10 (modified)
+        // Class 9-10
         else if (item.instituteClass >= 9 && item.instituteClass <= 10) {
-          if (result.totalMarks >= 85 && result.totalMarks <= 100) {
+          if (result.totalMarks >= 80 && result.totalMarks <= 100) {
             data.grade = "Talentpool Grade";
             scholarshipListByClass[className].talentpoolGrade.push(data);
-          } else if (result.totalMarks >= 75 && result.totalMarks < 85) {
+          } else if (result.totalMarks >= 75 && result.totalMarks < 80) {
             data.grade = "General Grade";
             scholarshipListByClass[className].generalGrade.push(data);
-          } else if (result.totalMarks >= 70 && result.totalMarks < 75) {
-            data.grade = "Special Category";
-            scholarshipListByClass[className].specialCategory.push(data);
           }
         }
       });
