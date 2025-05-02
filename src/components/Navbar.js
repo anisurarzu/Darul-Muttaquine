@@ -132,17 +132,17 @@ const Navbar = () => {
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
-                {/* <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
+                <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
                   ফলাফল
-                </NavLink> */}
+                </NavLink>
               </li>
-              {/* <li
+              <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
                 <NavLink to="/course" className="hover:text-green-500 pt-2">
                   কোর্সসমূহ
                 </NavLink>
-              </li> */}
+              </li>
 
               <li
                 style={{ background: "#408F49" }}
