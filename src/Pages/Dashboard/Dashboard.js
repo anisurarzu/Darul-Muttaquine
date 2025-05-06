@@ -142,11 +142,6 @@ export default function Dashboard() {
       label: "Create Quiz",
       icon: <PlusCircleOutlined />,
     },
-    {
-      route: "users",
-      label: "Users",
-      icon: <PlusCircleOutlined />,
-    },
   ];
 
   const getMenuItemsByRole = (role) => {
@@ -274,6 +269,19 @@ export default function Dashboard() {
     );
   }
 
+  const renderMenuItems = () => (
+    <>
+      {roleMenuItems.map((item) => (
+        <Menu.Item key={item.route} icon={item.icon}>
+          <Link to={`${url}/${item.route}`}>{item.label}</Link>
+        </Menu.Item>
+      ))}
+      <Menu.Item key="logout" icon={<LogoutOutlined />}>
+        Logout
+      </Menu.Item>
+    </>
+  );
+
   return (
     <Layout className="min-h-screen">
       {/* Mobile Drawer */}
@@ -299,14 +307,7 @@ export default function Dashboard() {
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
           onClick={handleDrawerClose}>
-          {roleMenuItems.map((item) => (
-            <Menu.Item key={item.route} icon={item.icon}>
-              <Link to={`${url}/${item.route}`}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-          <Menu.Item key="logout" icon={<LogoutOutlined />}>
-            Logout
-          </Menu.Item>
+          {renderMenuItems()}
         </Menu>
       </Drawer>
 
@@ -326,14 +327,11 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center p-4 border-b">
           <Badge dot status="success">
-            <Avatar src={userData?.photoURL} icon={<UserOutlined />} />
+            <Avatar src={userData?.image} icon={<UserOutlined />} />
           </Badge>
           {!collapsed && (
             <div className="ml-3">
-              <Text strong className="block">
-                {userData?.displayName}
-              </Text>
-              <Text type="secondary" className="text-xs">
+              <Text type="block" className="text-lg">
                 {userData?.userRole}
               </Text>
             </div>
@@ -344,19 +342,12 @@ export default function Dashboard() {
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
           className="mt-2">
-          {roleMenuItems.map((item) => (
-            <Menu.Item key={item.route} icon={item.icon}>
-              <Link to={`${url}/${item.route}`}>{item.label}</Link>
-            </Menu.Item>
-          ))}
-          <Menu.Item key="logout" icon={<LogoutOutlined />}>
-            Logout
-          </Menu.Item>
+          {renderMenuItems()}
         </Menu>
       </Sider>
 
       <Layout>
-        {/* <Header
+        <Header
           style={{ background: colorBgContainer }}
           className="p-0 shadow-sm flex items-center">
           <Button
@@ -367,13 +358,13 @@ export default function Dashboard() {
           />
           <div className="flex-1 flex justify-between items-center px-4">
             <Text strong className="text-lg">
-              Dashboard
+              {userData?.firstName} {userData?.lastName}
             </Text>
             <div className="flex items-center">
               <Button type="text" icon={<UserOutlined />} />
             </div>
           </div>
-        </Header> */}
+        </Header>
 
         <Content
           style={{
@@ -449,9 +440,6 @@ export default function Dashboard() {
             </Route>
             <Route path={`${path}/createQuize`}>
               <CreateQuize />
-            </Route>
-            <Route path={`${path}/users`}>
-              <UserDashboard />
             </Route>
             <Route path={`${path}`}>
               <DashboardHome />
