@@ -357,7 +357,7 @@ export default function Dashboard() {
             className="lg:hidden h-16 w-16"
           />
           <div className="flex-1 flex justify-between items-center px-4">
-            <Text strong className="text-lg">
+            <Text strong className="text-2xl">
               {userData?.firstName} {userData?.lastName}
             </Text>
             <div className="flex items-center">
