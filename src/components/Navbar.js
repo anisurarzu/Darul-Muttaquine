@@ -64,11 +64,11 @@ const Navbar = () => {
             <NavLink to={`/dashboard`} className="hover:text-green-500 pt-2">
               ড্যাশবোর্ড
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to={`/applicationForm`}
               className="hover:text-green-500 pt-2">
               Application
-            </NavLink>
+            </NavLink> */}
             <NavLink to="/quizeMain" className="hover:text-green-500 pt-2">
               কুইজ
             </NavLink>
