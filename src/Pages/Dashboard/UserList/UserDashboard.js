@@ -1,39 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useHistory } from "react-router-dom/cjs/react-router-dom";
-
-import { Alert, Button, Modal, Pagination, Popconfirm, Spin } from "antd";
-
+import { useHistory } from "react-router-dom";
+import {
+  Alert,
+  Button,
+  Modal,
+  Pagination,
+  Popconfirm,
+  Spin,
+  Image,
+} from "antd";
 import { formatDate } from "../../../utilities/dateFormate";
 import UpdateUser from "./UpdateUser";
 import { coreAxios } from "../../../utilities/axios";
 
 const UserDashboard = () => {
-  const navigate = useHistory(); // Get the navigate function
+  const navigate = useHistory();
   const [rowData, setRowData] = useState({});
   const [loading, setLoading] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    fetchScholarshipInfo();
-  };
-
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false); // Docs Modal state
   const [searchQuery, setSearchQuery] = useState("");
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
   const [rollData, setRollData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Change the number of items per page as needed
+  const [itemsPerPage] = useState(10);
 
   const fetchScholarshipInfo = async () => {
     try {
@@ -57,7 +48,6 @@ const UserDashboard = () => {
   }, []);
 
   const handleDelete = async (RollID) => {
-    console.log(RollID);
     try {
       setLoading(true);
       const response = await coreAxios.delete(`/user/${RollID}`);
@@ -73,6 +63,29 @@ const UserDashboard = () => {
     }
   };
 
+  const handleVerification = async (userEmail, isVerified) => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.post(`/update-user`, {
+        email: userEmail,
+        isVerification: isVerified,
+      });
+
+      if (response?.status === 200) {
+        toast.success(isVerified ? "User Verified!" : "User Rejected!");
+        fetchScholarshipInfo();
+        setIsDocsModalOpen(false);
+      } else {
+        toast.error("Failed to update verification status");
+      }
+
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      toast.error("Error during verification!");
+    }
+  };
+
   const filteredRolls = rollData.filter((roll) =>
     searchQuery
       ? Object.values(roll)
@@ -85,18 +98,6 @@ const UserDashboard = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
-
-  const handleBackClick = () => {
-    // navigate(-1);
-  };
-  const confirm = (e) => {
-    console.log(e);
-    toast.success("Click on Yes");
-  };
-  const cancel = (e) => {
-    console.log(e);
-    toast.error("Click on No");
-  };
 
   const onChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -118,7 +119,7 @@ const UserDashboard = () => {
             <div className="ml-1">
               <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-                onClick={handleBackClick}
+                onClick={() => navigate(-1)}
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
@@ -132,7 +133,6 @@ const UserDashboard = () => {
             <div>
               <h3 className="text-[17px]">User Details ({rollData?.length})</h3>
             </div>
-
             <div className="relative mx-8 mr-4">
               <input
                 type="text"
@@ -142,7 +142,6 @@ const UserDashboard = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-
               <div className="absolute inset-y-0 flex items-center p-3">
                 <svg
                   className="w-4 h-4 text-gray-500 dark:text-gray-400"
@@ -168,6 +167,9 @@ const UserDashboard = () => {
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
                     Image
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
+                    Docs
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     DMF ID
@@ -201,7 +203,11 @@ const UserDashboard = () => {
 
               <tbody>
                 {currentItems.map((roll) => (
-                  <tr key={roll?.scholarshipRollNumber}>
+                  <tr
+                    key={roll._id}
+                    className={
+                      roll.isVerification ? "bg-green-200 text-green-600" : ""
+                    }>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
                         className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
@@ -213,10 +219,20 @@ const UserDashboard = () => {
                       />
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.uniqueId}
+                      <button
+                        className="font-semibold text-blue-600"
+                        onClick={() => {
+                          setRowData(roll);
+                          setIsDocsModalOpen(true); // Open Docs Modal
+                        }}>
+                        View Docs
+                      </button>
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.firstName} {roll?.lastName}
+                      {roll.uniqueId}
+                    </td>
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {roll.firstName} {roll.lastName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.username}
@@ -230,12 +246,11 @@ const UserDashboard = () => {
                     <td className="border border-tableBorder pl-1 text-center">
                       {roll.bloodGroup}
                     </td>
-
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll?.email}
+                      {roll.email}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll?.createdAt)}
+                      {formatDate(roll.createdAt)}
                     </td>
 
                     <td className="border border-tableBorder pl-1">
@@ -244,20 +259,17 @@ const UserDashboard = () => {
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                           onClick={() => {
                             setRowData(roll);
-                            setIsModalOpen(true);
-                          }} // Ensure this is correct
-                        >
+                            setIsProfileModalOpen(true); // Open Profile Modal
+                          }}>
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
                           </span>
                         </button>
                         <Popconfirm
-                          title="Delete the task"
-                          description="Are you sure to delete this task?"
-                          onConfirm={() => {
-                            handleDelete(roll._id);
-                          }}
-                          onCancel={cancel}
+                          title="Delete the user"
+                          description="Are you sure to delete this user?"
+                          onConfirm={() => handleDelete(roll._id)}
+                          onCancel={() => toast.error("Delete action canceled")}
                           okText="Yes"
                           cancelText="No">
                           <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
@@ -285,13 +297,66 @@ const UserDashboard = () => {
         </div>
       )}
 
+      {/* Profile Modal */}
       <Modal
-        title="Please Provided Valid Information"
-        open={isModalOpen}
-        // onOk={handleOk}
-        onCancel={handleCancel}
-        width={800}>
-        <UpdateUser handleCancel={handleCancel} rowData={rowData} />
+        title="User Profile"
+        open={isProfileModalOpen}
+        onCancel={() => setIsProfileModalOpen(false)}
+        footer={null}>
+        <UpdateUser rowData={rowData} />
+      </Modal>
+
+      {/* Docs Modal */}
+      <Modal
+        title="User Documents"
+        open={isDocsModalOpen}
+        onCancel={() => setIsDocsModalOpen(false)}
+        width={600}>
+        {/* Display NID and Photo */}
+        <div className="flex justify-center gap-4 flex-wrap">
+          {rowData?.nidInfo?.url && (
+            <div className="flex flex-col items-center">
+              <Image
+                src={rowData?.nidInfo?.url}
+                alt="NID"
+                className="object-cover mb-2 cursor-pointer"
+                width={250}
+                height={180}
+                preview={true} // Enable preview for NID
+              />
+              <p>NID</p>
+            </div>
+          )}
+          {rowData?.photoInfo?.url && (
+            <div className="flex flex-col items-center">
+              <Image
+                src={rowData?.photoInfo?.url}
+                alt="Photo"
+                className="object-cover mb-2 cursor-pointer"
+                width={250}
+                height={180}
+                preview={true}
+              />
+              <p>Photo</p>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 justify-center mt-4">
+          <Button
+            className="bg-green-500 hover:bg-green-700 text-white"
+            type="primary"
+            onClick={() => handleVerification(rowData.email, true)}>
+            Verify
+          </Button>
+          <Button
+            className="bg-red-500 hover:bg-red-700 text-white"
+            type="danger"
+            onClick={() => handleVerification(rowData.email, false)}>
+            Reject
+          </Button>
+        </div>
       </Modal>
     </>
   );

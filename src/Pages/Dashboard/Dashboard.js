@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { Link, Route, Switch, useRouteMatch } from "react-router-dom";
 import {
-  Link,
-  Route,
-  Switch,
-  useRouteMatch,
-} from "react-router-dom/cjs/react-router-dom";
-import { Menu, Drawer, Button } from "antd";
+  Menu,
+  Drawer,
+  Button,
+  Layout,
+  Typography,
+  Avatar,
+  Badge,
+  Spin,
+  theme,
+} from "antd";
 import {
   DashboardOutlined,
   ProfileOutlined,
@@ -21,8 +26,10 @@ import {
   QuestionCircleOutlined,
   PlusCircleOutlined,
   MenuOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 
+// Import all components
 import Scholarship from "../scholarship/Scholarship";
 import DashboardHome from "./DashboardHome/DashboardHome";
 import DepositInfo from "./DepositInfo/DepositInfo";
@@ -42,7 +49,6 @@ import QuizMoney from "../Quize/QuizMoney";
 import OrderDashboard from "./Order/OrderDashboard";
 import Order from "./Order/Order";
 import ResultDetails from "./ResultDetails/ResultDetails";
-
 import EducationCentre from "../EducationCentre/EducationCentre";
 import CreateCourse from "../Course/CreateCourse";
 import CourseDashboard from "../Course/CourseDashboard";
@@ -50,11 +56,18 @@ import Notice from "../Notice/Notice";
 import OldScholarshipData from "../scholarship/OldScholarshipData";
 import SeatPlan from "../scholarship/SeatPlan";
 
+const { Header, Sider, Content } = Layout;
+const { Text } = Typography;
+
 export default function Dashboard() {
   let { path, url } = useRouteMatch();
   const [userData, setUserData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
 
   useEffect(() => {
     getUserInfo();
@@ -62,13 +75,13 @@ export default function Dashboard() {
 
   const getUserInfo = async () => {
     try {
-      setLoading(true);
       const res = await coreAxios.get(`userinfo`);
       if (res?.status === 200) {
-        setLoading(false);
         setUserData(res?.data);
       }
     } catch (err) {
+      console.error("Failed to fetch user info:", err);
+    } finally {
       setLoading(false);
     }
   };
@@ -87,22 +100,13 @@ export default function Dashboard() {
       label: "Scholarship 2024",
       icon: <BookOutlined />,
     },
-    {
-      route: "admission",
-      label: "Admission",
-      icon: <BookOutlined />,
-    },
-    {
-      route: "seatPlan",
-      label: "Seat Plan",
-      icon: <BookOutlined />,
-    },
+    { route: "admission", label: "Admission", icon: <BookOutlined /> },
+    { route: "seatPlan", label: "Seat Plan", icon: <BookOutlined /> },
     { route: "resultDetails", label: "Result Details", icon: <FileOutlined /> },
     { route: "depositInfo", label: "Deposit", icon: <DollarOutlined /> },
     { route: "historyDashboard", label: "History", icon: <HistoryOutlined /> },
     { route: "addResult", label: "Add Result", icon: <FileAddOutlined /> },
     { route: "result", label: "Result", icon: <FileOutlined /> },
-
     { route: "users", label: "Users", icon: <UserOutlined /> },
     { route: "project", label: "Projects", icon: <ProjectOutlined /> },
     {
@@ -112,12 +116,16 @@ export default function Dashboard() {
     },
     {
       route: "suggestionBox",
-      label: "SuggestionBox",
+      label: "Suggestion Box",
       icon: <CommentOutlined />,
     },
     { route: "withdraw", label: "Withdraw", icon: <WalletOutlined /> },
-    { route: "quize", label: "Quize", icon: <QuestionCircleOutlined /> },
-    { route: "allQuize", label: "All Quiz", icon: <QuestionCircleOutlined /> },
+    { route: "quize", label: "Quiz", icon: <QuestionCircleOutlined /> },
+    {
+      route: "allQuize",
+      label: "All Quizzes",
+      icon: <QuestionCircleOutlined />,
+    },
     {
       route: "quizMoney",
       label: "Quiz Money",
@@ -126,13 +134,17 @@ export default function Dashboard() {
     {
       route: "courseDashboard",
       label: "Course Dashboard",
-      route: "notice",
-      label: "Notice",
-      icon: <QuestionCircleOutlined />,
+      icon: <BookOutlined />,
     },
+    { route: "notice", label: "Notice", icon: <FileOutlined /> },
     {
       route: "createQuize",
-      label: "Create Quize",
+      label: "Create Quiz",
+      icon: <PlusCircleOutlined />,
+    },
+    {
+      route: "users",
+      label: "Users",
       icon: <PlusCircleOutlined />,
     },
   ];
@@ -252,136 +264,201 @@ export default function Dashboard() {
 
   const handleDrawerOpen = () => setDrawerVisible(true);
   const handleDrawerClose = () => setDrawerVisible(false);
+  const toggleCollapse = () => setCollapsed(!collapsed);
 
-  const handleMenuClick = () => {
-    handleDrawerClose();
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col lg:flex-row pt-8">
-      {/* Mobile menu button */}
-      <Button
-        className="lg:hidden"
-        type="primary"
-        icon={<MenuOutlined />}
-        onClick={handleDrawerOpen}>
-        Menu
-      </Button>
-
-      {/* Drawer for mobile view */}
+    <Layout className="min-h-screen">
+      {/* Mobile Drawer */}
       <Drawer
-        title={userData?.userRole}
+        title={
+          <div className="flex items-center">
+            <Avatar
+              src={userData?.photoURL}
+              icon={<UserOutlined />}
+              className="mr-2"
+            />
+            <Text strong>{userData?.userRole}</Text>
+          </div>
+        }
         placement="left"
+        closable
         onClose={handleDrawerClose}
-        visible={drawerVisible}
-        bodyStyle={{ padding: 0 }}
-        width="75%">
+        open={drawerVisible}
+        width={250}
+        bodyStyle={{ padding: 0 }}>
         <Menu
+          theme="light"
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
-          style={{ height: "100%" }}
-          onClick={handleMenuClick}>
-          {roleMenuItems.map((data) => (
-            <Menu.Item key={data.route} icon={data.icon}>
-              <Link to={`${url}/${data.route}`}>{data.label}</Link>
+          onClick={handleDrawerClose}>
+          {roleMenuItems.map((item) => (
+            <Menu.Item key={item.route} icon={item.icon}>
+              <Link to={`${url}/${item.route}`}>{item.label}</Link>
             </Menu.Item>
           ))}
+          <Menu.Item key="logout" icon={<LogoutOutlined />}>
+            Logout
+          </Menu.Item>
         </Menu>
       </Drawer>
 
-      {/* Sidebar for desktop view */}
-      <div className="hidden lg:block lg:w-1/6 xl:w-1/6 border-r">
-        <div className="p-4 bg-green-400 text-white font-bold text-center">
-          {userData?.userRole}
+      {/* Desktop Sider */}
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={toggleCollapse}
+        width={250}
+        theme="light"
+        className="hidden lg:block shadow-md"
+        breakpoint="lg">
+        <div className="flex items-center justify-center h-16 p-4 bg-green-600">
+          <Text strong className="text-white">
+            {collapsed ? "APP" : "DMF Dashboard"}
+          </Text>
+        </div>
+        <div className="flex items-center p-4 border-b">
+          <Badge dot status="success">
+            <Avatar src={userData?.photoURL} icon={<UserOutlined />} />
+          </Badge>
+          {!collapsed && (
+            <div className="ml-3">
+              <Text strong className="block">
+                {userData?.displayName}
+              </Text>
+              <Text type="secondary" className="text-xs">
+                {userData?.userRole}
+              </Text>
+            </div>
+          )}
         </div>
         <Menu
-          mode="vertical"
+          theme="light"
+          mode="inline"
           defaultSelectedKeys={["dashboard"]}
-          style={{ height: "100%" }}>
-          {roleMenuItems.map((data) => (
-            <Menu.Item key={data.route} icon={data.icon}>
-              <Link to={`${url}/${data.route}`}>{data.label}</Link>
+          className="mt-2">
+          {roleMenuItems.map((item) => (
+            <Menu.Item key={item.route} icon={item.icon}>
+              <Link to={`${url}/${item.route}`}>{item.label}</Link>
             </Menu.Item>
           ))}
+          <Menu.Item key="logout" icon={<LogoutOutlined />}>
+            Logout
+          </Menu.Item>
         </Menu>
-      </div>
+      </Sider>
 
-      {/* Main content */}
-      <div className="flex-1 container rounded p-4">
-        <Switch>
-          <Route path={`${path}/scholarship`}>
-            <Scholarship />
-          </Route>
-          <Route path={`${path}/oldScholarshipData`}>
-            <OldScholarshipData />
-          </Route>
-          <Route path={`${path}/admission`}>
-            <EducationCentre />
-          </Route>
-          <Route path={`${path}/seatPlan`}>
-            <SeatPlan />
-          </Route>
-          <Route path={`${path}/resultDetails`}>
-            <ResultDetails />
-          </Route>
+      <Layout>
+        {/* <Header
+          style={{ background: colorBgContainer }}
+          className="p-0 shadow-sm flex items-center">
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
+            onClick={handleDrawerOpen}
+            className="lg:hidden h-16 w-16"
+          />
+          <div className="flex-1 flex justify-between items-center px-4">
+            <Text strong className="text-lg">
+              Dashboard
+            </Text>
+            <div className="flex items-center">
+              <Button type="text" icon={<UserOutlined />} />
+            </div>
+          </div>
+        </Header> */}
 
-          <Route path={`${path}/depositInfo`}>
-            <DepositInfo />
-          </Route>
-          <Route path={`${path}/historyDashboard`}>
-            <HistoryDashboard />
-          </Route>
-          <Route path={`${path}/addResult`}>
-            <AddResult />
-          </Route>
-          <Route path={`${path}/result`}>
-            <ResultPage />
-          </Route>
-          <Route path={`${path}/profile`}>
-            <Profile />
-          </Route>
-          <Route path={`${path}/users`}>
-            <UserDashboard />
-          </Route>
-          <Route path={`${path}/project`}>
-            <ProjectDashboard />
-          </Route>
-          <Route path={`${path}/suggestionBox`}>
-            <SuggestionBox />
-          </Route>
-          <Route path={`${path}/withdraw`}>
-            <Withdraw />
-          </Route>
-          <Route path={`${path}/quize`}>
-            <Quize />
-          </Route>
-          <Route path={`${path}/allQuize`}>
-            <AllQuize />
-          </Route>
-          <Route path={`${path}/quizMoney`}>
-            <QuizMoney />
-          </Route>
-          <Route path={`${path}/notice`}>
-            <Notice />
-          </Route>
-          <Route path={`${path}/orderDashboard`}>
-            <Order />
-          </Route>
-          <Route path={`${path}/orderDetails`}>
-            <OrderDashboard />
-          </Route>
-          <Route path={`${path}/courseDashboard`}>
-            <CourseDashboard />
-          </Route>
-
-          {/*   <Route path={`${path}/createQuize`}>
-            <CreateQuize />
-          </Route> ----*/}
-          <Route path={`${path}`}>
-            <DashboardHome />
-          </Route>
-        </Switch>
-      </div>
-    </div>
+        <Content
+          style={{
+            margin: "16px",
+            padding: 24,
+            minHeight: 280,
+            background: colorBgContainer,
+            borderRadius: borderRadiusLG,
+          }}>
+          <Switch>
+            <Route path={`${path}/scholarship`}>
+              <Scholarship />
+            </Route>
+            <Route path={`${path}/oldScholarshipData`}>
+              <OldScholarshipData />
+            </Route>
+            <Route path={`${path}/admission`}>
+              <EducationCentre />
+            </Route>
+            <Route path={`${path}/seatPlan`}>
+              <SeatPlan />
+            </Route>
+            <Route path={`${path}/resultDetails`}>
+              <ResultDetails />
+            </Route>
+            <Route path={`${path}/depositInfo`}>
+              <DepositInfo />
+            </Route>
+            <Route path={`${path}/historyDashboard`}>
+              <HistoryDashboard />
+            </Route>
+            <Route path={`${path}/addResult`}>
+              <AddResult />
+            </Route>
+            <Route path={`${path}/result`}>
+              <ResultPage />
+            </Route>
+            <Route path={`${path}/profile`}>
+              <Profile />
+            </Route>
+            <Route path={`${path}/users`}>
+              <UserDashboard />
+            </Route>
+            <Route path={`${path}/project`}>
+              <ProjectDashboard />
+            </Route>
+            <Route path={`${path}/suggestionBox`}>
+              <SuggestionBox />
+            </Route>
+            <Route path={`${path}/withdraw`}>
+              <Withdraw />
+            </Route>
+            <Route path={`${path}/quize`}>
+              <Quize />
+            </Route>
+            <Route path={`${path}/allQuize`}>
+              <AllQuize />
+            </Route>
+            <Route path={`${path}/quizMoney`}>
+              <QuizMoney />
+            </Route>
+            <Route path={`${path}/notice`}>
+              <Notice />
+            </Route>
+            <Route path={`${path}/orderDashboard`}>
+              <Order />
+            </Route>
+            <Route path={`${path}/orderDetails`}>
+              <OrderDashboard />
+            </Route>
+            <Route path={`${path}/courseDashboard`}>
+              <CourseDashboard />
+            </Route>
+            <Route path={`${path}/createQuize`}>
+              <CreateQuize />
+            </Route>
+            <Route path={`${path}/users`}>
+              <UserDashboard />
+            </Route>
+            <Route path={`${path}`}>
+              <DashboardHome />
+            </Route>
+          </Switch>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

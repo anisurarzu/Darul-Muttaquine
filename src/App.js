@@ -29,6 +29,7 @@ import PublicScholarship from "./Pages/scholarship/PublicScholarship";
 import CheckoutPage from "./Pages/Product/CheckoutPage";
 import CoursePage from "./Pages/Course/CoursePage";
 import CourseDetailsPage from "./Pages/Course/CourseDetailsPage";
+import ApplicationForm from "./Pages/scholarship/ApplicationForm";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,7 @@ const App = () => {
         <PrivateRoute path="/dashboard" component={Dashboard} />
         <PrivateRoute path="/quize" component={Quize} />
         <PrivateRoute path="/chat" component={Chat} />
+        <PrivateRoute path="/applicationForm" component={ApplicationForm} />
       </Switch>
       <Fotter />
       <ToastContainer />
