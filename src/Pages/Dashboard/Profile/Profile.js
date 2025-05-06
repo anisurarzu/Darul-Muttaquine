@@ -449,7 +449,7 @@ export default function Profile() {
                           alt="NID/BC"
                           className="w-full h-auto border rounded-md"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
                             onClick={() =>
                               setVerificationDocs((prev) => ({
@@ -460,7 +460,7 @@ export default function Profile() {
                             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                             Remove
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     ) : (
                       <Dragger
@@ -497,7 +497,7 @@ export default function Profile() {
                           alt="Passport Photo"
                           className="w-32 h-40 object-cover border rounded-md mx-auto"
                         />
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                        {/* <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
                           <button
                             onClick={() =>
                               setVerificationDocs((prev) => ({
@@ -508,7 +508,7 @@ export default function Profile() {
                             className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
                             Remove
                           </button>
-                        </div>
+                        </div> */}
                       </div>
                     ) : (
                       <Dragger

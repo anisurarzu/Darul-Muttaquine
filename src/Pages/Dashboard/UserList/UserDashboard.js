@@ -10,6 +10,7 @@ import {
   Popconfirm,
   Spin,
   Image,
+  Select,
 } from "antd";
 import { formatDate } from "../../../utilities/dateFormate";
 import UpdateUser from "./UpdateUser";
@@ -20,11 +21,12 @@ const UserDashboard = () => {
   const [rowData, setRowData] = useState({});
   const [loading, setLoading] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false); // Docs Modal state
+  const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [rollData, setRollData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'submitted', 'verified'
 
   const fetchScholarshipInfo = async () => {
     try {
@@ -86,14 +88,25 @@ const UserDashboard = () => {
     }
   };
 
-  const filteredRolls = rollData.filter((roll) =>
-    searchQuery
+  const filteredRolls = rollData.filter((roll) => {
+    // Apply search filter
+    const searchMatch = searchQuery
       ? Object.values(roll)
           .join("")
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
-      : true
-  );
+      : true;
+
+    // Apply status filter
+    let statusMatch = true;
+    if (filterStatus === "submitted") {
+      statusMatch = roll.nidInfo && roll.photoInfo;
+    } else if (filterStatus === "verified") {
+      statusMatch = roll.isVerification === true;
+    }
+
+    return searchMatch && statusMatch;
+  });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -131,38 +144,54 @@ const UserDashboard = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">User Details ({rollData?.length})</h3>
+              <h3 className="text-[17px]">
+                User Details ({filteredRolls?.length})
+              </h3>
             </div>
-            <div className="relative mx-8 mr-4">
-              <input
-                type="text"
-                id="table-search-users"
-                className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+            <div className="flex items-center gap-4">
+              <Select
+                defaultValue="all"
+                style={{ width: 180 }}
+                onChange={(value) => setFilterStatus(value)}
+                options={[
+                  { value: "all", label: "All Users" },
+                  { value: "submitted", label: "Documents Submitted" },
+                  { value: "verified", label: "Verified Users" },
+                ]}
               />
-              <div className="absolute inset-y-0 flex items-center p-3">
-                <svg
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20">
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
+              <div className="relative">
+                <input
+                  type="text"
+                  id="table-search-users"
+                  className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 20 20">
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
 
+          {/* Rest of your component remains the same */}
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
+              {/* Table headers and body remain the same */}
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
@@ -206,7 +235,11 @@ const UserDashboard = () => {
                   <tr
                     key={roll._id}
                     className={
-                      roll.isVerification ? "bg-green-200 text-green-600" : ""
+                      roll.isVerification
+                        ? "bg-green-200 text-green-600"
+                        : roll.nidInfo && roll.photoInfo
+                        ? "bg-yellow-200 text-yellow-600"
+                        : ""
                     }>
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
@@ -223,7 +256,7 @@ const UserDashboard = () => {
                         className="font-semibold text-blue-600"
                         onClick={() => {
                           setRowData(roll);
-                          setIsDocsModalOpen(true); // Open Docs Modal
+                          setIsDocsModalOpen(true);
                         }}>
                         View Docs
                       </button>
@@ -259,7 +292,7 @@ const UserDashboard = () => {
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                           onClick={() => {
                             setRowData(roll);
-                            setIsProfileModalOpen(true); // Open Profile Modal
+                            setIsProfileModalOpen(true);
                           }}>
                           <span>
                             <i className="pi pi-pencil font-semibold"></i>
@@ -312,7 +345,6 @@ const UserDashboard = () => {
         open={isDocsModalOpen}
         onCancel={() => setIsDocsModalOpen(false)}
         width={600}>
-        {/* Display NID and Photo */}
         <div className="flex justify-center gap-4 flex-wrap">
           {rowData?.nidInfo?.url && (
             <div className="flex flex-col items-center">
@@ -322,7 +354,7 @@ const UserDashboard = () => {
                 className="object-cover mb-2 cursor-pointer"
                 width={250}
                 height={180}
-                preview={true} // Enable preview for NID
+                preview={true}
               />
               <p>NID</p>
             </div>
@@ -342,7 +374,6 @@ const UserDashboard = () => {
           )}
         </div>
 
-        {/* Action Buttons */}
         <div className="flex gap-3 justify-center mt-4">
           <Button
             className="bg-green-500 hover:bg-green-700 text-white"
