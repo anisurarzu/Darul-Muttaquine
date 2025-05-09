@@ -3,32 +3,29 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 
-import { Upload, Select, DatePicker, Alert, Button } from "antd"; // Import Select from Ant Design
+import { Upload, Select, DatePicker, Alert, Button } from "antd";
 import { coreAxios } from "../../../utilities/axios";
 import useUserInfo from "../../../hooks/useUserInfo";
 
-const { Option } = Select; // Destructure Option from Select
+const { Option } = Select;
 
 const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
   const [loading, setLoading] = useState(false);
   const [projectList, setProjectList] = useState([]);
+  const [usersList, setUsersList] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const fetchProjectDashboardInfo = async () => {
     try {
       setLoading(true);
       const response = await coreAxios.get("project-info");
       if (response?.status === 200) {
-        // Filter the projects with approval status "Approve"
         const approvedProjects = response.data.filter(
           (project) => project.approvalStatus === "Approve"
         );
-
-        // Create an array containing only the project names
         const projectNames = approvedProjects?.map(
           (project) => project.projectName
         );
-
-        // Sort the project names by the createdAt field in descending order
         const sortedProjectNames = projectNames.sort((a, b) => {
           const projectA = approvedProjects.find(
             (project) => project.projectName === a
@@ -38,8 +35,6 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           );
           return new Date(projectB?.createdAt) - new Date(projectA?.createdAt);
         });
-
-        // Set the sorted project names
         setProjectList(sortedProjectNames);
       }
     } catch (error) {
@@ -49,29 +44,46 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get("users");
+      if (response?.status === 200) {
+        setUsersList(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchProjectDashboardInfo();
+    fetchUsers();
   }, []);
 
   const userInfo = useUserInfo();
-  console?.log("userInfo", userInfo);
 
   const formik = useFormik({
     initialValues: {
       amount: 0,
-      paymentMethod: "", // Initialize paymentMethod
+      paymentMethod: "",
       userName: "",
       phone: 0,
       tnxID: "",
       status: "Pending",
       depositDate: "",
+      project: "",
     },
     onSubmit: async (values) => {
       try {
         const allData = {
           ...values,
-          userName: userInfo?.username || "",
-          userID: userInfo?._id || "",
+          userName: selectedUser
+            ? selectedUser.username
+            : userInfo?.username || "",
+          userID: selectedUser ? selectedUser._id : userInfo?._id || "",
         };
         setLoading(true);
         const res = await coreAxios.post(`/deposit-info`, allData);
@@ -80,6 +92,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           setLoading(false);
           toast.success("Successfully Saved!");
           formik.resetForm();
+          setSelectedUser(null);
         }
       } catch (err) {
         setLoading(false);
@@ -89,7 +102,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
     enableReinitialize: true,
   });
 
-  const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount", "cash"]; // Define payment methods
+  const paymentMethods = ["bkash", "rocket", "nagad", "bankAccount", "cash"];
 
   return (
     <div className="">
@@ -107,7 +120,39 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
           className="text-center font-bold bangla-text text-[#2F5812] m-2"
         />
 
-        <div className="w-full  mb-4 px-2">
+        {/* User Dropdown */}
+        <div className="w-full mb-4 px-2">
+          <label htmlFor="user" className="block text-black dark:text-black">
+            Select User <span className="text-meta-1">*</span>
+          </label>
+          <Select
+            id="user"
+            name="user"
+            showSearch
+            optionFilterProp="children"
+            filterOption={(input, option) => {
+              const children = option.children || "";
+              return children
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase());
+            }}
+            onChange={(value) => {
+              const user = usersList.find((u) => u._id === value);
+              setSelectedUser(user);
+            }}
+            value={selectedUser?._id}
+            className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+            <Option value="">Select User</Option>
+            {usersList?.map((user) => (
+              <Option key={user._id} value={user._id}>
+                {user.username} ({user.uniqueId})
+              </Option>
+            ))}
+          </Select>
+        </div>
+
+        <div className="w-full mb-4 px-2">
           <label htmlFor="project" className="block text-black dark:text-black">
             Project <span className="text-meta-1">*</span>
           </label>
@@ -116,7 +161,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
             name="project"
             onChange={(value) => formik.setFieldValue("project", value)}
             value={formik.values.project}
-            className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+            className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
             {projectList?.map((method) => (
               <Option key={method} value={method}>
                 {method}
@@ -157,7 +202,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                 />
               </div>
 
-              <div className="w-full  mb-4">
+              <div className="w-full mb-4">
                 <label
                   htmlFor="paymentMethod"
                   className="block text-black dark:text-black">
@@ -170,7 +215,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                     formik.setFieldValue("paymentMethod", value)
                   }
                   value={formik.values.paymentMethod}
-                  className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                  className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
                   {paymentMethods?.map((method) => (
                     <Option key={method} value={method}>
                       {method}
@@ -220,12 +265,11 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                 />
               </div>
 
-              {/* Submit Button */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
                 <div></div>
                 <button
                   type="submit"
-                  className="justify-center rounded bg-primary p-3 font-medium text-gray  border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+                  className="justify-center rounded bg-primary p-3 font-medium text-gray border border-green-600 m-4 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
                   Submit
                 </button>
               </div>
@@ -260,7 +304,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                 />
               </div>
 
-              <div className="w-full  mb-4">
+              <div className="w-full mb-4">
                 <label
                   htmlFor="paymentMethod"
                   className="block text-black dark:text-black">
@@ -274,7 +318,7 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                   }
                   required={true}
                   value={formik.values.paymentMethod}
-                  className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                  className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
                   {paymentMethods?.map((method) => (
                     <Option key={method} value={method}>
                       {method}
@@ -324,13 +368,12 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
                 />
               </div>
 
-              {/* Submit Button */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
                 <div></div>
                 <Button
                   type="primary"
                   htmlType="submit"
-                  loading={loading} // Add loading prop here
+                  loading={loading}
                   className="w-full bg-green-600">
                   Submit
                 </Button>
