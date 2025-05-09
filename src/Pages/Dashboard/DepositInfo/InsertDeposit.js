@@ -131,11 +131,13 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
             showSearch
             optionFilterProp="children"
             filterOption={(input, option) => {
-              const children = option.children || "";
-              return children
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase());
+              // Search in both username and uniqueId
+              const userData = option.user || {};
+              const searchText = input.toLowerCase();
+              return (
+                userData.username?.toLowerCase().includes(searchText) ||
+                userData.uniqueId?.toLowerCase().includes(searchText)
+              );
             }}
             onChange={(value) => {
               const user = usersList.find((u) => u._id === value);
@@ -145,8 +147,22 @@ const InsertDeposit = ({ onHide, fetchRolls, handleCancel }) => {
             className="w-full rounded border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
             <Option value="">Select User</Option>
             {usersList?.map((user) => (
-              <Option key={user._id} value={user._id}>
-                {user.username} ({user.uniqueId})
+              <Option
+                key={user._id}
+                value={user._id}
+                user={user} // Pass the whole user object to filterOption
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src={user.image || "https://via.placeholder.com/40"}
+                    alt={user.username}
+                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                  />
+                  <div>
+                    <div className="font-medium">{user.username}</div>
+                    <div className="text-xs text-gray-500">{user.uniqueId}</div>
+                  </div>
+                </div>
               </Option>
             ))}
           </Select>
