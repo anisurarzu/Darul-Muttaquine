@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
-import { Modal, Button, Card, Alert } from "antd";
+import { Modal, Button, Card, Alert, Skeleton } from "antd";
 import SingleQuiz from "./SingleQuize";
 import { toast } from "react-toastify";
 import MainLoader from "../../components/Loader/MainLoader";
@@ -15,8 +15,16 @@ import {
   FaChartBar,
   FaArrowLeft,
   FaMoneyBillAlt,
-} from "react-icons/fa"; // Import icons
+  FaCalendarAlt,
+  FaQuestionCircle,
+  FaAward,
+  FaClock,
+  FaPauseCircle,
+  FaLock,
+} from "react-icons/fa";
 import { LockOutlined } from "@ant-design/icons";
+
+const { Meta } = Card;
 
 export default function Quize() {
   const [loading, setLoading] = useState(false);
@@ -28,16 +36,20 @@ export default function Quize() {
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState();
   const [quizMoney, setQuizMoney] = useState([]);
+  const [skeletonLoading, setSkeletonLoading] = useState(true);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const userId = userInfo?.uniqueId;
   const history = useHistory();
-  console.log("userInfo", userInfo);
 
   useEffect(() => {
     getQuizzes();
     getQuizMoneyInfo();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Simulate skeleton loading for 1.5 seconds
+    const timer = setTimeout(() => {
+      setSkeletonLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   const getQuizMoneyInfo = async () => {
@@ -55,7 +67,6 @@ export default function Quize() {
       setLoading(false);
     } catch (err) {
       setLoading(false);
-      // toast.error(err?.response?.data?.message || "An error occurred");
     }
   };
 
@@ -121,7 +132,6 @@ export default function Quize() {
       correctAnswer: answer.correctAnswer,
       userAnswer: answer.userAnswer,
       result: answer.result,
-      // answerTime: userAnswers.answers?.[i]?.answerTime,
     }));
 
     return {
@@ -146,13 +156,11 @@ export default function Quize() {
     }
   };
 
-  // Calculate the quiz amount
   const totalQuizAmount = quizMoney?.reduce(
     (total, deposit) => Number(total) + Number(deposit?.amount),
     0 || 0
   );
 
-  // Inside your component
   const showConfirm = () => {
     Modal.confirm({
       title: "আপনি কি টাকা তুলতে চাচ্ছেন?",
@@ -165,197 +173,227 @@ export default function Quize() {
     });
   };
 
+  // Skeleton loading component
+  const QuizCardSkeleton = () => (
+    <Card className="rounded-lg shadow-md">
+      <Skeleton active paragraph={{ rows: 4 }} />
+      <div className="flex justify-between mt-4">
+        <Skeleton.Button active size="large" shape="round" />
+        <Skeleton.Button active size="large" shape="round" />
+      </div>
+    </Card>
+  );
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "closed":
+        return (
+          <div className="flex items-center justify-center bg-red-100 text-red-600 rounded-lg p-2 mb-3">
+            <FaLock className="mr-2" />
+            এই কুইজের সময় শেষ হয়ে গেছে
+          </div>
+        );
+      case "pending":
+        return (
+          <div className="flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg p-2 mb-3">
+            <FaClock className="mr-2" />
+            কুইজটি আজ বিকেল ৪.০০ মিনিটে শুরু হবে
+          </div>
+        );
+      case "running":
+        return (
+          <div className="flex items-center justify-center bg-green-100 text-green-600 rounded-lg p-2 mb-3">
+            <FaClock className="mr-2" />
+            কুইজটি চলমান রয়েছ
+          </div>
+        );
+      case "continue":
+        return (
+          <div className="flex items-center justify-center bg-yellow-100 text-yellow-600 rounded-lg p-2 mb-3">
+            <FaPauseCircle className="mr-2" />
+            কুইজটির প্রতিযোগিতা শেষ হয়েছে
+          </div>
+        );
+      default:
+        return (
+          <div className="flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg p-2 mb-3">
+            <FaLock className="mr-2" />
+            কুইজটি স্থগিত করা হয়েছ
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="">
-      <div style={{ background: "#BDDE98" }}>
-        <h2
-          className="text-white font-semibold text-2xl md:text-[33px] py-4 lg:py-12 xl:py-12 text-center bangla-text"
-          style={{ color: "#2F5811" }}>
+    <div className="min-h-screen bg-gray-50">
+      <div className="bg-gradient-to-r from-green-600 to-green-800">
+        <h2 className="text-white font-semibold text-2xl md:text-3xl py-4 lg:py-8 text-center bangla-text">
           ইসলামিক কুইজ
         </h2>
       </div>
+
       {loading ? (
         <MainLoader />
       ) : (
-        <div className="mx-12 lg:mx-24 xl:mx-24">
-          <div className="flex justify-between">
+        <div className="container mx-auto px-4 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <Button
               type="primary"
-              className="mt-4 flex items-center"
+              className="flex items-center bg-green-600 hover:bg-green-700 border-green-600"
               onClick={() => history.goBack()}
-              style={{ backgroundColor: "#73A63B", borderColor: "#73A63B" }}>
-              <FaArrowLeft className="mr-2" />
+              icon={<FaArrowLeft className="mr-2" />}>
               Back
             </Button>
-            <div className="flex justify-center items-center gap-2">
-              <div className="text-[20px] font-semibold text-green-600 mt-4 px-4 py-2 bg-green-100 rounded-lg ">
-                ৳{totalQuizAmount}
+
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+              <div className="flex items-center bg-white shadow-md rounded-lg px-4 py-2">
+                <FaMoneyBillAlt className="text-green-600 mr-2 text-xl" />
+                <span className="text-2xl font-semibold text-green-600">
+                  ৳{totalQuizAmount}
+                </span>
               </div>
               <Button
                 type="primary"
-                className="mt-4 flex items-center"
+                className="flex items-center bg-green-600 hover:bg-green-700 border-green-600"
                 onClick={showConfirm}
-                style={{ backgroundColor: "#73A63B", borderColor: "#73A63B" }}>
-                <FaMoneyBillAlt className="mr-2" />
+                icon={<FaMoneyBillAlt className="mr-2" />}>
                 Withdraw
               </Button>
             </div>
           </div>
 
-          <div className="py-4 lg:py-8 xl:py-4">
-            {/*  <Alert
-              message={`গুরুত্বপূর্ণ ঘোষণা: আপনার পুরস্কারের টাকা সময়মতো ড্যাশবোর্ডের কুইজ মানি অপশনে যোগ করা হবে যদি আপনার স্থান লিডারবোর্ডে ১ থেকে ৫ এর মধ্যে হয়। `}
-              description=""
-              type="info"
-              showIcon
-              className="mb-2"
-            /> */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="prose max-w-none text-center mb-6 text-[15px] ">
+              <p className="text-gray-700 mb-4 leading-6">
+                এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন
+                এটিতে অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং
+                সময় দিয়ে এখানে পরীক্ষা করবো।
+              </p>
+              <p className="text-gray-700 leading-6">
+                প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
+                সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
+                ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব।
+              </p>
+              <p className="text-gray-700 leading-6">
+                ৫০০ টাকা থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে
+                নেওয়া হবে। আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন।
+                তবে, বিকাশের মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে।
+              </p>
+              <p className="text-gray-700 leading-6">
+                ধন্যবাদ। আপনি মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই
+                ক্ষেত্রে একই সেবা চার্জ প্রযোজ্য হবে।
+              </p>
+            </div>
 
-            <p className="text-justify lg:text-center xl:text-center py-1 text-[12px] lg:text-[17px] xl:text-[17px] px-2">
-              এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন এটিতে
-              অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং সময় দিয়ে
-              এখানে পরীক্ষা করবো।
-            </p>
-            <p className="text-justify lg:text-center xl:text-center text-[12px] lg:text-[17px] xl:text-[17px] px-2">
-              প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
-              সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
-              ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব। ৫০০ টাকা
-              থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে নেওয়া হবে।
-              আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন। তবে, বিকাশের
-              মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে। ধন্যবাদ। আপনি
-              মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই ক্ষেত্রে একই সেবা
-              চার্জ প্রযোজ্য হবে।
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-              <div></div>
-              <div></div>
-              <div>
-                <Alert
-                  message={`পরবর্তী কুইজের বিষয় হল "বি'দাত"`}
-                  type="success"
-                  className="text-center font-bold bangla-text text-[#2F5812]"
-                />
-              </div>
-              <div></div>
-              <div></div>
+            <div className="flex justify-center mb-6">
+              <Alert
+                message={`পরবর্তী কুইজের বিষয় হল "বি'দাত"`}
+                type="success"
+                className="text-center font-bold bangla-text max-w-md"
+                showIcon
+              />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {quizzes?.map((quiz, index) => {
-              const userAnswer = quiz?.userAnswers?.find(
-                (answer) => answer.userId === userId
-              );
+          {skeletonLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, index) => (
+                <QuizCardSkeleton key={index} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {quizzes?.map((quiz, index) => {
+                const userAnswer = quiz?.userAnswers?.find(
+                  (answer) => answer.userId === userId
+                );
 
-              const canViewResult =
-                userAnswer?.isSubmitted === "true" &&
-                userAnswer?.userId === userId;
+                const canViewResult =
+                  userAnswer?.isSubmitted === "true" &&
+                  userAnswer?.userId === userId;
 
-              return (
-                <Card
-                  key={index}
-                  title={quiz.quizName}
-                  className="rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                  style={{ borderColor: "#BCDE98" }}>
-                  {quiz?.status === "closed" ? (
-                    <div className="border border-red-500 text-red-500 rounded-lg bg-red-100 text-center mb-1">
-                      <LockOutlined className="text-3xl text-red-500 py-2 mr-2 bangla-text" />
-                      এই কুইজের সময় শেষ হয়ে গেছে
-                    </div>
-                  ) : quiz?.status === "pending" ? (
-                    <div className="border border-blue-500 text-blue-500 rounded-lg bg-blue-100 text-center mb-1">
-                      কুইজটি আজ বিকেল ৪.০০ মিনিটে শুরু হবে
-                    </div>
-                  ) : quiz?.status === "running" ? (
-                    <div className="border border-green-500 text-green-500 rounded-lg bg-green-100 text-center mb-1">
-                      কুইজটি চলমান রয়েছ
-                    </div>
-                  ) : quiz?.status === "continue" ? (
-                    <div className="border border-yellow-500 text-yellow-500 rounded-lg bg-yellow-100 text-center mb-1">
-                      কুইজটির প্রতিযোগিতা শেষ হয়েছে
-                    </div>
-                  ) : (
-                    <div className="border border-yellow-500 text-yellow-500 rounded-lg bg-yellow-100 text-center mb-1">
-                      কুইজটি স্থগিত করা হয়েছ
-                    </div>
-                  )}
-                  <p>শুরুর তারিখ: {formatDate(quiz?.startDate)}</p>
-                  <p>শেষ তারিখ: {formatDate(quiz?.endDate)}</p>
-                  <p>মোট প্রশ্ন: {quiz?.quizQuestions?.length}</p>
-                  <p className="px-1 border border-[#73A63B] rounded-lg text-[#73A63B] text-center">
-                    Sponsored By: {quiz?.sponsorName}
-                  </p>
-                  {/* {quiz?.status === "running" ? ( */}
-                  {quiz?.status === "running" && (
-                    <Button
-                      type="primary"
-                      className="mt-2 w-full flex items-center justify-center"
-                      onClick={() => showModal(quiz)}
-                      // disabled={quiz?.status !== "running"}
-                      style={{
-                        backgroundColor: "#73A63B",
-                        borderColor: "#73A63B",
-                      }}>
-                      <FaBook className="mr-2" />
-                      কুইজ শুরু করুন
-                    </Button>
-                  )}
-                  {quiz?.status === "continue" && (
-                    <Button
-                      type="primary"
-                      className="mt-2 w-full flex items-center justify-center"
-                      onClick={() => showModal(quiz)}
-                      // disabled={quiz?.status !== "running"}
-                      style={{
-                        backgroundColor: "#73A63B",
-                        borderColor: "#73A63B",
-                      }}>
-                      <FaBook className="mr-2" />
-                      কুইজ শুরু করুন
-                    </Button>
-                  )}
+                return (
+                  <Card
+                    key={index}
+                    className="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-0 m-4 lg:m-0 xl:m-0"
+                    cover={
+                      <div className="bg-gradient-to-r from-green-500 to-green-700 p-4 text-white rounded-t-lg">
+                        <h3 className="text-xl font-bold text-center">
+                          {quiz.quizName}
+                        </h3>
+                      </div>
+                    }>
+                    {getStatusBadge(quiz?.status)}
 
-                  {canViewResult && (
-                    <Button
-                      type="primary"
-                      className="mt-2 w-full flex items-center justify-center"
-                      onClick={() => {
-                        console.log("index", quiz?.status);
-                        if (
-                          quiz?.status === "closed" ||
-                          quiz?.status === "continue"
-                        ) {
-                          setQuizeID(quiz);
-                          showModal2(quiz);
-                        } else {
-                          toast?.warn(
-                            "You Can not view result before end the quiz"
-                          );
-                        }
-                      }}
-                      style={{
-                        backgroundColor: "#73A63B",
-                        borderColor: "#73A63B",
-                      }}>
-                      <FaTrophy className="mr-2" />
-                      ফলাফল দেখুন
-                    </Button>
-                  )}
-                  <Button
-                    type="primary"
-                    className="mt-2 w-full flex items-center justify-center"
-                    onClick={() => getQuizeDetailsResult(quiz?._id)}
-                    style={{
-                      backgroundColor: "#73A63B",
-                      borderColor: "#73A63B",
-                    }}>
-                    <FaChartBar className="mr-2" />
-                    লিডার বোর্ড
-                  </Button>
-                </Card>
-              );
-            })}
-          </div>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center text-gray-700">
+                        <FaCalendarAlt className="mr-2 text-green-600" />
+                        <span>শুরুর তারিখ: {formatDate(quiz?.startDate)}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <FaCalendarAlt className="mr-2 text-green-600" />
+                        <span>শেষ তারিখ: {formatDate(quiz?.endDate)}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <FaQuestionCircle className="mr-2 text-green-600" />
+                        <span>মোট প্রশ্ন: {quiz?.quizQuestions?.length}</span>
+                      </div>
+                      <div className="flex items-center text-gray-700">
+                        <FaAward className="mr-2 text-green-600" />
+                        <span>Sponsored By: {quiz?.sponsorName}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      {(quiz?.status === "running" ||
+                        quiz?.status === "continue") && (
+                        <Button
+                          type="primary"
+                          block
+                          className="flex items-center justify-center bg-green-600 hover:bg-green-700 border-green-600"
+                          onClick={() => showModal(quiz)}
+                          icon={<FaBook className="mr-2" />}>
+                          কুইজ শুরু করুন
+                        </Button>
+                      )}
+
+                      {canViewResult && (
+                        <Button
+                          type="default"
+                          block
+                          className="flex items-center justify-center border-green-600 text-green-600 hover:text-green-700 hover:border-green-700"
+                          onClick={() => {
+                            if (
+                              quiz?.status === "closed" ||
+                              quiz?.status === "continue"
+                            ) {
+                              setQuizeID(quiz);
+                              showModal2(quiz);
+                            } else {
+                              toast.warn(
+                                "You Can not view result before end the quiz"
+                              );
+                            }
+                          }}
+                          icon={<FaTrophy className="mr-2" />}>
+                          ফলাফল দেখুন
+                        </Button>
+                      )}
+
+                      <Button
+                        type="default"
+                        block
+                        className="flex items-center justify-center border-blue-600 text-blue-600 hover:text-blue-700 hover:border-blue-700"
+                        onClick={() => getQuizeDetailsResult(quiz?._id)}
+                        icon={<FaChartBar className="mr-2" />}>
+                        লিডার বোর্ড
+                      </Button>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
 
           {singleQuiz && (
             <Modal
@@ -363,7 +401,8 @@ export default function Quize() {
               open={isModalOpen}
               onCancel={handleCancel}
               footer={null}
-              width={800}>
+              width={800}
+              centered>
               <SingleQuiz quizze={singleQuiz} handleCancel={handleCancel} />
             </Modal>
           )}
@@ -373,19 +412,22 @@ export default function Quize() {
             open={isModalOpen2}
             onCancel={handleCancel}
             footer={null}
-            width={800}>
+            width={800}
+            centered>
             <ViewResult
               singleQuiz={singleQuiz}
               userResults={userResults}
               handleCancel={handleCancel}
             />
           </Modal>
+
           <Modal
             title={`লিডার বোর্ড`}
             open={isModalOpen3}
             onCancel={handleCancel}
             footer={null}
-            width={800}>
+            width={500}
+            centered>
             <ViewAllResult
               leaderBoard={leaderBoard}
               handleCancel={handleCancel}

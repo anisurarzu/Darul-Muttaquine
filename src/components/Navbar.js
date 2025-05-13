@@ -18,7 +18,8 @@ const Navbar = () => {
   let { path, url } = useRouteMatch();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const history = useHistory();
-  const userInfo = useUserInfo();
+  // const userInfo = useUserInfo();
+  const userInfo = localStorage.getItem("userInfo");
   console.log("userInfo", userInfo);
 
   // Check if the user is authenticated
@@ -141,13 +142,13 @@ const Navbar = () => {
                   ফলাফল
                 </NavLink>
               </li>
-              <li
+              {/* <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">
                 <NavLink to="/course" className="hover:text-green-500 pt-2">
                   কোর্সসমূহ
                 </NavLink>
-              </li>
+              </li> */}
 
               <li
                 style={{ background: "#408F49" }}

@@ -1,91 +1,80 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../../utilities/axios";
 import {
-  Alert,
-  Avatar,
   Card,
-  Col,
-  Progress,
-  Row,
   Statistic,
-  Steps,
+  Spin,
+  Progress,
+  Avatar,
+  Divider,
+  Skeleton,
+  Empty,
+  Result,
+  Button,
+  Modal,
+  List,
+  Tag,
 } from "antd";
-
-import { Spin } from "antd";
-
-import ProfileCard from "../Profile/ProfileCard";
+import {
+  UserOutlined,
+  DollarOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  ProjectOutlined,
+  WalletOutlined,
+  PieChartOutlined,
+  LineChartOutlined,
+  IdcardOutlined,
+  ExclamationCircleOutlined,
+  CalendarOutlined,
+} from "@ant-design/icons";
+import { motion } from "framer-motion";
 import ProjectCard from "../Project/ProjectCard";
 import { Link } from "react-router-dom";
-import {
-  ShoppingCartOutlined,
-  DollarCircleOutlined,
-  UsergroupAddOutlined,
-} from "@ant-design/icons";
-import Meta from "antd/es/card/Meta";
-import Title from "antd/es/skeleton/Title";
 
-export default function DashboardHome() {
+const DashboardHome = () => {
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const [users, setUsers] = useState([]);
-  const [scholarShipInfo, setScholarShipInfo] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [projectInfo, setProjectInfo] = useState([]);
   const [depositData, setDepositData] = useState([]);
   const [singleDepositData, setSingleDepositData] = useState([]);
   const [costData, setCostData] = useState([]);
   const [singleCostData, setSingleCostData] = useState([]);
   const [quizMoney, setQuizMoney] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedMonthDeposits, setSelectedMonthDeposits] = useState([]);
+  const [selectedMonthName, setSelectedMonthName] = useState("");
 
+  // Data fetching functions
   const getAllUserList = async () => {
     try {
-      setLoading(true);
       const response = await coreAxios.get(`/users`);
       if (response?.status === 200) {
-        setLoading(false);
         setUsers(response?.data);
       }
     } catch (err) {
-      setLoading(false);
       toast.error(err?.response?.data?.message);
     }
   };
+
   const getQuizMoneyInfo = async () => {
     try {
-      setLoading(true);
       const response = await coreAxios.get(`/quiz-money/${userInfo?.uniqueId}`);
-
       if (response?.status === 200) {
         const filteredData = response?.data?.filter(
           (item) => item.status !== "Paid"
         );
         setQuizMoney(filteredData);
       }
-
-      setLoading(false);
     } catch (err) {
-      setLoading(false);
-      // toast.error(err?.response?.data?.message || "An error occurred");
+      console.error(err);
     }
   };
 
-  const getScholarShipInfo = async () => {
-    try {
-      setLoading(true);
-      const response = await coreAxios.get(`/scholarship-info`);
-      if (response?.status === 200) {
-        setLoading(false);
-        setScholarShipInfo(response?.data);
-      }
-    } catch (err) {
-      setLoading(false);
-      toast.error(err?.response?.data?.message);
-    }
-  };
   const getProjectInfo = async () => {
     try {
-      setLoading(true);
       const response = await coreAxios.get("project-info");
       if (response?.status === 200) {
         const sortedData = response?.data?.sort((a, b) => {
@@ -98,467 +87,580 @@ export default function DashboardHome() {
       }
     } catch (err) {
       toast.error(err?.response?.data?.message);
-    } finally {
-      setLoading(false);
     }
   };
-  /* deposit info */
+
   const fetchDepositInfo = async () => {
     try {
-      setLoading(true);
-      const uri = "deposit-info";
-      const response = await coreAxios.get(uri);
+      const response = await coreAxios.get("deposit-info");
       if (response?.status === 200) {
         const approvedDeposits = response?.data.filter(
           (deposit) => deposit?.status === "Approved"
         );
         setDepositData(approvedDeposits);
-
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
-      console.error("Error fetching rolls:", error);
+      console.error("Error fetching deposits:", error);
     }
   };
 
   const getSingleDeposit = async () => {
     try {
-      setLoading(true);
-
       const response = await coreAxios.get(`deposit-info/${userInfo?._id}`);
       if (response?.status === 200) {
         setSingleDepositData(response?.data);
-
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
-      console.error("Error fetching rolls:", error);
+      console.error("Error fetching user deposits:", error);
     }
   };
 
-  /* cost info */
   const fetchCostInfo = async () => {
     try {
-      setLoading(true);
-      const uri = "cost-info";
-      const response = await coreAxios.get(uri);
+      const response = await coreAxios.get("cost-info");
       if (response?.status === 200) {
         const approvedDeposits = response?.data.filter(
           (deposit) => deposit.status === "Approved"
         );
         setCostData(approvedDeposits);
-
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
-      console.error("Error fetching rolls:", error);
+      console.error("Error fetching costs:", error);
     }
   };
+
   const getSingleCost = async () => {
     try {
-      setLoading(true);
-
       const response = await coreAxios.get(`cost-info/${userInfo?._id}`);
       if (response?.status === 200) {
         setSingleCostData(response?.data);
-
-        setLoading(false);
       }
     } catch (error) {
-      setLoading(false);
-      console.error("Error fetching rolls:", error);
+      console.error("Error fetching user costs:", error);
     }
   };
-  // Calculate the total amount
+
+  // Fetch all data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        await Promise.all([
+          fetchDepositInfo(),
+          getProjectInfo(),
+          getAllUserList(),
+          getSingleDeposit(),
+          getSingleCost(),
+          fetchCostInfo(),
+          getQuizMoneyInfo(),
+        ]);
+      } catch (error) {
+        console.error("Error loading dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (userInfo?.isVerification) {
+      fetchData();
+    }
+  }, [userInfo?.isVerification]);
+
+  // Calculate metrics
   const totalDepositAmount = depositData?.reduce(
     (total, deposit) => total + deposit?.amount,
     0
   );
 
-  const data = singleDepositData?.deposits?.filter(
+  const approvedUserDeposits = singleDepositData?.deposits?.filter(
     (deposit) => deposit.status === "Approved"
   );
-  console.log("---", data);
-  const depositAmount = data?.reduce(
+
+  const depositAmount = approvedUserDeposits?.reduce(
     (total, deposit) => total + deposit?.amount,
     0
   );
 
-  // Calculate the cost amount
   const totalCostAmount = costData?.reduce(
     (total, cost) => total + cost?.amount,
     0
   );
 
-  const data2 = singleCostData?.deposits?.filter(
+  const approvedUserCosts = singleCostData?.deposits?.filter(
     (cost) => cost?.status === "Approved"
   );
-  const costAmount =
-    data2?.reduce((total, cost) => total + cost?.amount, 0) || 0;
 
-  const percentage = ((Number(scholarShipInfo?.length) / 306) * 100).toFixed(2);
+  const costAmount = approvedUserCosts?.reduce(
+    (total, cost) => total + cost?.amount,
+    0
+  );
 
-  // Calculate the quiz amount
   const totalQuizAmount = quizMoney?.reduce(
     (total, deposit) => Number(total) + Number(deposit?.amount),
-    0 || 0
+    0
   );
 
-  useEffect(() => {
-    fetchDepositInfo();
-    getProjectInfo();
-    getAllUserList();
-    getScholarShipInfo();
-    getSingleDeposit();
-    getSingleCost();
-    fetchCostInfo();
-    getQuizMoneyInfo();
-  }, []);
-  const [stepsCount, setStepsCount] = useState(12);
-  const [stepsGap, setStepsGap] = useState(12);
-  const [stepsData, setStepsData] = useState([
-    { title: "Jan", status: "finish" },
+  const currentBalance = Number(totalDepositAmount) - Number(totalCostAmount);
 
-    { title: "Feb", status: "wait" },
-    { title: "Mar", status: "wait" },
-    { title: "Apr", status: "wait" },
-    { title: "May", status: "wait" },
-    { title: "June", status: "wait" },
-    { title: "July", status: "wait" },
-    { title: "Aug", status: "wait" },
-    { title: "Sep", status: "wait" },
-    { title: "Oct", status: "wait" },
-    { title: "Nov", status: "wait" },
-    { title: "Dec", status: "wait" },
-  ]);
-  const [direction, setDirection] = useState("vertical");
+  // Month steps data with enhanced functionality
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
-  const getMonthCount = (dateString) => {
-    const date = new Date(dateString);
-    return date.getMonth() + 1; // getMonth() returns 0 for January, so we add 1
+  const getMonthData = (deposits) => {
+    const monthData = {};
+
+    // Initialize all months with 0 amount
+    months.forEach((month) => {
+      monthData[month] = {
+        amount: 0,
+        deposits: [],
+      };
+    });
+
+    // Process each deposit
+    deposits?.forEach((deposit) => {
+      const date = new Date(deposit.depositDate);
+      const monthIndex = date.getMonth();
+      const monthName = months[monthIndex];
+
+      if (monthData[monthName]) {
+        monthData[monthName].amount += deposit.amount;
+        monthData[monthName].deposits.push(deposit);
+      }
+    });
+
+    return monthData;
   };
 
-  const finishedMonths = data?.map((item) => getMonthCount(item?.depositDate));
-  const updatedStepsData = stepsData?.map((step, index) => ({
-    ...step,
-    status: finishedMonths?.includes(index + 1) ? "finish" : "wait",
-    amount: finishedMonths?.amount,
-  }));
+  const monthData = getMonthData(approvedUserDeposits);
+
+  const handleMonthClick = (monthName) => {
+    if (monthData[monthName]?.deposits?.length > 0) {
+      setSelectedMonthDeposits(monthData[monthName].deposits);
+      setSelectedMonthName(monthName);
+      setIsModalVisible(true);
+    }
+  };
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+      },
+    },
+  };
+
+  if (!userInfo?.isVerification) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Result
+          icon={
+            <ExclamationCircleOutlined className="text-yellow-500 text-6xl" />
+          }
+          title="অ্যাকাউন্ট ভেরিফিকেশন প্রয়োজন"
+          subTitle={
+            <div className="text-lg">
+              <p>
+                ড্যাশবোর্ড এক্সেস করার জন্য আপনাকে প্রথমে আপনার প্রোফাইল ভেরিফাই
+                করতে হবে
+              </p>
+              <p className="mt-4">
+                নিচের বাটনে ক্লিক করে আপনার প্রোফাইলে যান এবং আইডি ভেরিফিকেশন
+                সম্পন্ন করুন
+              </p>
+            </div>
+          }
+          extra={
+            <Link to="/dashboard/profile">
+              <Button
+                type="primary"
+                size="large"
+                icon={<IdcardOutlined />}
+                className="bg-blue-500 hover:bg-blue-600 h-12 text-lg">
+                প্রোফাইলে যান
+              </Button>
+            </Link>
+          }
+          className="max-w-2xl text-center"
+        />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {[...Array(6)].map((_, i) => (
+            <Card key={i} className="shadow-lg">
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="lg:mr-8 xl:mr-8">
-      <Title
-        level={2}
-        className="mb-4 lg:mb-6 text-[#8ABF55] text-center lg:text-left">
-        Dashboard Overview
-      </Title>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="p-4 md:p-6">
+      <motion.div variants={itemVariants}>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
+          Financial Dashboard
+        </h1>
+      </motion.div>
 
-      {/* Statistics */}
-      {/* <Row gutter={16} className="mb-6 ">
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Orders"
-              value={1200}
-              prefix={<ShoppingCartOutlined style={{ color: "#8ABF55" }} />}
-              valueStyle={{ color: "#8ABF55" }}
-            />
+      {/* Key Metrics */}
+      <motion.div
+        variants={containerVariants}
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Total Users */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-700 text-lg font-medium">Total Users</p>
+                <h3 className="text-3xl font-bold text-blue-900 mt-2">
+                  {users?.length}
+                </h3>
+              </div>
+              <div className="p-4 rounded-full bg-blue-100">
+                <UserOutlined className="text-blue-600 text-2xl" />
+              </div>
+            </div>
+            <Divider className="my-4 border-blue-200" />
+            {userInfo?.userRole === "Super-Admin" && (
+              <Link
+                to="/dashboard/users"
+                className="text-blue-600 hover:text-blue-800 text-lg font-medium flex items-center">
+                View all users <ArrowUpOutlined className="ml-2 rotate-45" />
+              </Link>
+            )}
           </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="My Deposit"
-              value={depositAmount}
-              prefix={<DollarCircleOutlined style={{ color: "#8ABF55" }} />}
-              valueStyle={{ color: "#8ABF55" }}
-            />
+        </motion.div>
+
+        {/* Quiz Balance */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-green-50 to-green-100 border border-green-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-700 text-lg font-medium">
+                  Quiz Balance
+                </p>
+                <h3 className="text-3xl font-bold text-green-900 mt-2">
+                  ৳{totalQuizAmount.toLocaleString()}
+                </h3>
+              </div>
+              <div className="p-4 rounded-full bg-green-100">
+                <LineChartOutlined className="text-green-600 text-2xl" />
+              </div>
+            </div>
+            <Divider className="my-4 border-green-200" />
+            <Link
+              to="/dashboard/scholarship"
+              className="text-green-600 hover:text-green-800 text-lg font-medium flex items-center">
+              View details <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
           </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Deposit"
-              value={totalDepositAmount}
-              prefix={<DollarCircleOutlined style={{ color: "#8ABF55" }} />}
-              valueStyle={{ color: "#8ABF55" }}
-            />
+        </motion.div>
+
+        {/* My Deposit */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-700 text-lg font-medium">
+                  My Deposit
+                </p>
+                <h3 className="text-3xl font-bold text-purple-900 mt-2">
+                  ৳{depositAmount.toLocaleString()}
+                </h3>
+              </div>
+              <div className="p-4 rounded-full bg-purple-100">
+                <WalletOutlined className="text-purple-600 text-2xl" />
+              </div>
+            </div>
+            <Divider className="my-4 border-purple-200" />
+            <Link
+              to="/dashboard/depositInfo"
+              className="text-purple-600 hover:text-purple-800 text-lg font-medium flex items-center">
+              View history <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
           </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Total Users"
-              value={users?.length}
-              prefix={<UsergroupAddOutlined style={{ color: "#8ABF55" }} />}
-              valueStyle={{ color: "#8ABF55" }}
-            />
+        </motion.div>
+
+        {/* Total Deposit */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 border border-indigo-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-indigo-700 text-lg font-medium">
+                  Total Deposit
+                </p>
+                <h3 className="text-3xl font-bold text-indigo-900 mt-2">
+                  ৳{totalDepositAmount.toLocaleString()}
+                </h3>
+              </div>
+              <div className="p-4 rounded-full bg-indigo-100">
+                <ArrowUpOutlined className="text-indigo-600 text-2xl" />
+              </div>
+            </div>
+            <Divider className="my-4 border-indigo-200" />
+            <Link
+              to="/dashboard/depositInfo"
+              className="text-indigo-600 hover:text-indigo-800 text-lg font-medium flex items-center">
+              View all <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
           </Card>
-        </Col>
-        <Col xs={24} sm={12} md={8} lg={6}>
-          <Card>
-            <Statistic
-              title="Approved Withdrawal Request"
-              value={costData?.length}
-              prefix={<UsergroupAddOutlined style={{ color: "#8ABF55" }} />}
-              valueStyle={{ color: "#8ABF55" }}
-            />
-          </Card>
-        </Col>
-      </Row> */}
-      {loading ? (
-        <Spin tip="Loading...">
-          <Alert
-            message="Alert message title"
-            description="Further details about the context of this alert."
-            type="info"
-          />
-        </Spin>
-      ) : (
-        <div className="">
-          <div className="grid grid-cols-6 lg:grid-cols-12 xl:grid-cols-12 gap-2 my-2 mx-[15px] lg:mx-0 xl:mx-0">
-            {updatedStepsData?.map((data, idx) => (
-              <div
-                className={` px-2  rounded-md ${
-                  data?.status === "finish"
-                    ? "bg-green-400 text-white"
-                    : "text-green-400 border border-green-400"
-                }`}
-                key={idx}>
-                <p className="text-center text-[12px] lg:text-[15px] xl:text-[15px] ">
-                  {data?.title}
+        </motion.div>
+
+        {/* Approved Withdrawals */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-orange-700 text-lg font-medium">
+                  Withdrawals
+                </p>
+                <h3 className="text-3xl font-bold text-orange-900 mt-2">
+                  {costData?.length}
+                </h3>
+                <p className="text-orange-600 text-sm mt-1">
+                  Approved requests
                 </p>
               </div>
-            ))}
-          </div>
-          <div className="grid grid-cols-12 mx-4 lg:mx-0 xl:mx-0">
-            <div className="col-span-12 lg:col-span-12 xl:col-span-12 ">
-              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
-                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="flex items-center mb-1">
-                        <div class="text-3xl font-semibold">
-                          {scholarShipInfo?.length}
-                        </div>
-                      </div>
-                      <div class="text-[14px] font-medium text-green-800">
-                        Total Applications Of Scholarship-2025
-                      </div>
-                    </div>
-                  </div>
-
-                  <p class="text-[#f84525] font-medium text-lg hover:text-red-800">
-                    {percentage}% of prev (306)
-                  </p>
-                </div>
-                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="flex items-center mb-1">
-                        <div class="text-3xl font-semibold">
-                          {users?.length}
-                        </div>
-                      </div>
-                      <div class="text-[14px] font-medium text-green-800">
-                        Users
-                      </div>
-                    </div>
-                  </div>
-
-                  <a
-                    href="/gebruikers"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </a>
-                </div>
-                {/* dmf banking start */}
-                <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-4">
-                    <div>
-                      <div class="flex items-center mb-1">
-                        <div class="text-3xl font-semibold">
-                          ৳{totalQuizAmount}
-                        </div>
-                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
-                      </div>
-                      <div class="text-[14px] font-medium text-blue-800">
-                        Quiz Balance
-                      </div>
-                    </div>
-                    <div class="dropdown">
-                      <button
-                        type="button"
-                        class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                        <i class="ri-more-fill"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/scholarship"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
-                {/* dmf banking end */}
-                <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="text-3xl font-semibold mb-1">
-                        ৳{depositAmount}
-                      </div>
-                      <div class="text-[14px] font-medium text-purple-800">
-                        My Deposit
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/depositInfo"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
-                <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="text-3xl font-semibold mb-1">
-                        ৳{totalDepositAmount}
-                      </div>
-                      <div class="text-[14px] font-medium text-yellow-800">
-                        Total Deposit
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/depositInfo"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
-              </div>
-
-              {/* ----------------- 2nd div ---------------------*/}
-
-              <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 mb-6 p-2 ">
-                <div class="bg-green-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="flex items-center mb-1">
-                        <div class="text-3xl font-semibold">
-                          {costData?.length}
-                        </div>
-                      </div>
-                      <div class="text-[14px] font-medium text-green-800">
-                        Approved Withdrawal Request
-                      </div>
-                    </div>
-                  </div>
-
-                  <a
-                    href="/gebruikers"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </a>
-                </div>
-
-                <div class="bg-purple-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="text-3xl font-semibold mb-1">
-                        ৳{costAmount}
-                      </div>
-                      <div class="text-[14px] font-medium text-purple-800">
-                        My Withdrawal
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/withdraw"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
-                <div class="bg-blue-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-4">
-                    <div>
-                      <div class="flex items-center mb-1">
-                        <div class="text-3xl font-semibold">
-                          ৳{totalCostAmount}
-                        </div>
-                        <div class="p-1 rounded bg-emerald-500/10 text-emerald-500 text-[14px] font-semibold leading-none ml-2"></div>
-                      </div>
-                      <div class="text-[14px] font-medium text-blue-800">
-                        Withdrawal Amount
-                      </div>
-                    </div>
-                    <div class="dropdown">
-                      <button
-                        type="button"
-                        class="dropdown-toggle text-gray-400 hover:text-gray-600">
-                        <i class="ri-more-fill"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/withdraw"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
-                <div class="bg-yellow-100 rounded-md border border-gray-100 p-6 shadow-md shadow-black/5">
-                  <div class="flex justify-between mb-6">
-                    <div>
-                      <div class="text-3xl font-semibold mb-1">
-                        ৳{Number(totalDepositAmount) - Number(totalCostAmount)}
-                      </div>
-                      <div class="text-[14px] font-medium text-yellow-800">
-                        Current Balance
-                      </div>
-                    </div>
-                  </div>
-                  <Link
-                    to="/dashboard/depositInfo"
-                    class="text-[#f84525] font-medium text-sm hover:text-red-800">
-                    View
-                  </Link>
-                </div>
+              <div className="p-4 rounded-full bg-orange-100">
+                <ProjectOutlined className="text-orange-600 text-2xl" />
               </div>
             </div>
+            <Divider className="my-4 border-orange-200" />
+            <Link
+              to="/dashboard/withdraw"
+              className="text-orange-600 hover:text-orange-800 text-lg font-medium flex items-center">
+              View requests <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
+          </Card>
+        </motion.div>
+
+        {/* Current Balance */}
+        <motion.div variants={itemVariants}>
+          <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-cyan-50 to-cyan-100 border border-cyan-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-cyan-700 text-lg font-medium">
+                  Current Balance
+                </p>
+                <h3
+                  className={`text-3xl font-bold mt-2 ${
+                    currentBalance >= 0 ? "text-green-700" : "text-red-700"
+                  }`}>
+                  ৳{currentBalance.toLocaleString()}
+                </h3>
+              </div>
+              <div className="p-4 rounded-full bg-cyan-100">
+                <PieChartOutlined className="text-cyan-600 text-2xl" />
+              </div>
+            </div>
+            <Divider className="my-4 border-cyan-200" />
+            <div className="flex justify-between">
+              <span className="text-cyan-700 text-lg">
+                Deposits: ৳{totalDepositAmount.toLocaleString()}
+              </span>
+              <span className="text-cyan-700 text-lg">
+                Withdrawals: ৳{totalCostAmount.toLocaleString()}
+              </span>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
+
+      {/* Deposit Timeline */}
+      <motion.div variants={itemVariants} className="mb-8">
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-semibold text-gray-800">
+              Your Deposit Timeline
+            </h3>
+            <Link
+              to="/dashboard/depositInfo"
+              className="text-blue-600 text-lg flex items-center">
+              View details <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
           </div>
+          <div className="flex overflow-x-auto pb-2 scrollbar-hide">
+            {months.map((month, index) => {
+              const hasDeposits = monthData[month]?.amount > 0;
+              const currentMonth = new Date().getMonth();
+              const isCurrentMonth = index === currentMonth;
 
-          <div className="mx-8 lg:mx-0 xl:mx-0">
-            {/* ----------------1st div------------- */}
+              return (
+                <motion.div
+                  key={index}
+                  whileHover={{ scale: 1.05 }}
+                  onClick={() => handleMonthClick(month)}
+                  className={`flex flex-col items-center mx-2 px-5 py-4 rounded-xl min-w-[90px] cursor-pointer ${
+                    hasDeposits
+                      ? "bg-gradient-to-br from-green-100 to-green-50 shadow-md shadow-green-100/50 border border-green-200"
+                      : isCurrentMonth
+                      ? "bg-blue-50 border border-blue-200"
+                      : "bg-gray-100 border border-gray-200"
+                  }`}>
+                  <span
+                    className={`font-medium text-lg ${
+                      hasDeposits
+                        ? "text-green-700"
+                        : isCurrentMonth
+                        ? "text-blue-700"
+                        : "text-gray-500"
+                    }`}>
+                    {month}
+                  </span>
+                  {hasDeposits ? (
+                    <>
+                      <DollarOutlined className="text-green-500 mt-2 text-xl" />
+                      <span className="text-green-700 font-semibold mt-1">
+                        ৳{monthData[month].amount.toLocaleString()}
+                      </span>
+                    </>
+                  ) : (
+                    isCurrentMonth && (
+                      <CalendarOutlined className="text-blue-500 mt-2 text-xl" />
+                    )
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        </Card>
+      </motion.div>
 
-            <h2 className="py-2 text-[17px] font-semibold text-center">
+      {/* Projects Section */}
+      <motion.div variants={itemVariants}>
+        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-800">
               Running DMF Projects
             </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 lg:gap-8 xl:gap-8">
-              {/* {projectInfo?.map((project, index) => (
-                <div key={index}>
-                  <ProjectCard
-                    rowData={project}
-                    depositData={depositData}
-                    costData={costData}
-                  />
-                </div>
-              ))} */}
+            <Link
+              to="/dashboard/projects"
+              className="text-blue-600 text-lg flex items-center">
+              View all <ArrowUpOutlined className="ml-2 rotate-45" />
+            </Link>
+          </div>
+          {projectInfo?.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {projectInfo?.map((project, index) => (
-                <div key={index}>
+                <motion.div
+                  key={index}
+                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.2 }}>
                   <ProjectCard
                     rowData={project}
                     depositData={depositData}
                     costData={costData}
                   />
-                </div>
+                </motion.div>
               ))}
             </div>
+          ) : (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={
+                <span className="text-gray-500 text-lg">
+                  No active projects
+                </span>
+              }
+            />
+          )}
+        </Card>
+      </motion.div>
+
+      {/* Deposit Details Modal */}
+      <Modal
+        title={`Deposit Details for ${selectedMonthName}`}
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={null}
+        width={800}>
+        <List
+          itemLayout="horizontal"
+          dataSource={selectedMonthDeposits}
+          renderItem={(deposit) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<DollarOutlined className="text-green-500 text-2xl" />}
+                title={
+                  <div className="flex justify-between">
+                    <span className="font-medium">৳{deposit.amount}</span>
+                    <Tag color="blue">{deposit.project}</Tag>
+                  </div>
+                }
+                description={
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium">Date: </span>
+                      {new Date(deposit.depositDate).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <span className="font-medium">Method: </span>
+                      {deposit.paymentMethod}
+                    </div>
+                    <div>
+                      <span className="font-medium">Transaction ID: </span>
+                      {deposit.tnxID}
+                    </div>
+                    <div>
+                      <span className="font-medium">Phone: </span>
+                      {deposit.phone}
+                    </div>
+                  </div>
+                }
+              />
+            </List.Item>
+          )}
+        />
+        <div className="mt-4 p-4 bg-green-50 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-medium">
+              Total for {selectedMonthName}:
+            </span>
+            <span className="text-xl font-bold text-green-700">
+              ৳{monthData[selectedMonthName]?.amount.toLocaleString()}
+            </span>
           </div>
         </div>
-      )}
-    </div>
+      </Modal>
+    </motion.div>
   );
-}
+};
+
+export default DashboardHome;

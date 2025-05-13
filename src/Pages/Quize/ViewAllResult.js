@@ -1,69 +1,143 @@
 import React from "react";
-import { CaretUpOutlined, CaretDownOutlined } from "@ant-design/icons";
-import { Tooltip } from "antd";
+import { motion } from "framer-motion";
+import { TrophyFilled, CrownFilled, UserOutlined } from "@ant-design/icons";
+import { Tooltip, Skeleton, Avatar } from "antd";
 
-const ViewAllResult = ({ leaderBoard }) => {
-  // Sort results first by totalMarks (descending), then by answerTime (ascending)
-  const sortedResults = [...leaderBoard].sort((a, b) => {
-    if (b.totalMarks === a.totalMarks) {
-      // If totalMarks are the same, sort by answerTime
-      return a.answerTime - b.answerTime;
+const ViewAllResult = ({ leaderBoard, isLoading }) => {
+  const sortedResults = React.useMemo(() => {
+    if (!leaderBoard) return [];
+    return [...leaderBoard].sort((a, b) => {
+      if (b.totalMarks === a.totalMarks) {
+        return a.answerTime - b.answerTime;
+      }
+      return b.totalMarks - a.totalMarks;
+    });
+  }, [leaderBoard]);
+
+  const getRankBadge = (index) => {
+    if (index === 0) {
+      return (
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center shadow-md">
+          <CrownFilled className="text-white text-base" />
+        </div>
+      );
+    } else if (index === 1) {
+      return (
+        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center shadow-sm">
+          <CrownFilled className="text-white text-sm" />
+        </div>
+      );
+    } else if (index === 2) {
+      return (
+        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
+          <CrownFilled className="text-white text-xs" />
+        </div>
+      );
     }
-    return b.totalMarks - a.totalMarks;
-  });
+    return (
+      <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+        <span className="font-bold text-emerald-800 text-xs">{index + 1}</span>
+      </div>
+    );
+  };
 
-  console.log("sortedResults", sortedResults);
+  const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  const renderParticipant = (participant, index) => (
+    <motion.div
+      key={`participant-${index}`}
+      variants={itemVariants}
+      className={`flex items-center justify-between p-3 mb-2 rounded-lg shadow-sm hover:shadow-md transition-all ${
+        index < 5 ? "bg-emerald-50" : "bg-white"
+      }`}>
+      <div className="flex items-center gap-3">
+        {getRankBadge(index)}
+        <Avatar
+          size={40}
+          src={participant.image}
+          icon={<UserOutlined />}
+          className="border border-emerald-100"
+        />
+        <div>
+          <h3 className="text-lg font-semibold text-gray-800 capitalize leading-tight">
+            {participant.name.toLowerCase()}
+          </h3>
+          <p className="text-sm text-gray-600 leading-tight">
+            {participant.answerTime}s
+          </p>
+        </div>
+      </div>
+      <Tooltip title={`Score: ${participant.totalMarks}`}>
+        <div
+          className={`flex items-center px-3 py-1 rounded-full ${
+            index < 5 ? "bg-emerald-600" : "bg-emerald-500"
+          } text-white`}>
+          <TrophyFilled className="mr-1 text-sm" />
+          <span className="font-bold text-base">{participant.totalMarks}</span>
+        </div>
+      </Tooltip>
+    </motion.div>
+  );
+
+  const renderSkeleton = () => (
+    <motion.div
+      variants={itemVariants}
+      className="flex items-center justify-between p-3 mb-2 bg-white rounded-lg">
+      <div className="flex items-center gap-3">
+        <Skeleton.Avatar active size={40} />
+        <div>
+          <Skeleton.Input active size="small" className="w-32 h-6 mb-1" />
+          <Skeleton.Input active size="small" className="w-16 h-4" />
+        </div>
+      </div>
+      <Skeleton.Button active shape="round" className="w-12 h-8" />
+    </motion.div>
+  );
 
   return (
-    <div className="container mx-auto p-4">
-      <h3 className="bangla-text py-4 text-center text-xl font-bold">
-        মোট অংশগ্রহণকারীঃ ( {sortedResults?.length} ) জন
-      </h3>
-      {sortedResults?.map((result, index) => (
-        <div
-          key={index}
-          className={`grid grid-cols-12 gap-2 my-3 shadow-md border ${
-            index > 4 ? "border-yellow-400" : "border-green-500"
-          } rounded-md p-4 items-center`}>
-          <div className="col-span-1 flex justify-center">
-            {result?.totalMarks > 3 ? (
-              <CaretUpOutlined className="text-green-400 text-[20px]" />
-            ) : result?.totalMarks > 2 ? (
-              <CaretDownOutlined className="text-yellow-400 text-[20px]" />
-            ) : (
-              <CaretDownOutlined className="text-red-400 text-[20px]" />
-            )}
-          </div>
-          <h3 className="col-span-1 text-center font-semibold">{index + 1}</h3>
-          <img
-            className="col-span-2 w-12 h-12 lg:w-16 lg:h-16 rounded-full border border-green-100"
-            src={result?.image}
-            alt=""
-          />
-          <div className="col-span-6 lg:col-span-7 text-left">
-            <h3 className="uppercase text-[12px] lg:text-[15px] font-semibold">
-              {result?.name}
-            </h3>
-            <p className="text-[10px] lg:text-[12px] text-gray-600">
-              সময়: {result?.answerTime} সেকেন্ড
-            </p>
-          </div>
-          <Tooltip title={`Total Marks: ${result?.totalMarks}`}>
-            <h3
-              className={`col-span-1 text-center font-semibold rounded-full w-12 lg:w-16 xl:w-16 shadow-lg text-white ${
-                result?.totalMarks > 3
-                  ? "bg-green-400"
-                  : result?.totalMarks > 2
-                  ? "bg-yellow-400"
-                  : "bg-red-400"
-              }`}>
-              {result?.totalMarks}
-            </h3>
-          </Tooltip>
-        </div>
-      ))}
+    <div className="max-w-2xl mx-auto px-2 py-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mb-4">
+        <h1 className="text-2xl font-bold text-emerald-800 text-center">
+          Leaderboard
+        </h1>
+        <p className="text-lg text-emerald-600 text-center">
+          {isLoading ? (
+            <span className="inline-block w-20 h-6 bg-emerald-200 rounded animate-pulse"></span>
+          ) : (
+            `${sortedResults.length} participants`
+          )}
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: { opacity: 0 },
+          visible: {
+            opacity: 1,
+            transition: {
+              staggerChildren: 0.05,
+            },
+          },
+        }}
+        className="space-y-1">
+        {isLoading
+          ? Array(5)
+              .fill()
+              .map((_, i) => (
+                <React.Fragment key={i}>{renderSkeleton()}</React.Fragment>
+              ))
+          : sortedResults.map(renderParticipant)}
+      </motion.div>
     </div>
   );
 };
 
-export default ViewAllResult;
+export default React.memo(ViewAllResult);

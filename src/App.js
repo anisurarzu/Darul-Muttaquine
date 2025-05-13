@@ -69,6 +69,7 @@ const App = () => {
         <PrivateRoute path="/dashboard" component={Dashboard} />
         <PrivateRoute path="/quize" component={Quize} />
         <PrivateRoute path="/chat" component={Chat} />
+        <PrivateRoute path="/courses" component={CoursePage} />
         <PrivateRoute path="/applicationForm" component={ApplicationForm} />
       </Switch>
       <Fotter />

@@ -55,6 +55,7 @@ import CourseDashboard from "../Course/CourseDashboard";
 import Notice from "../Notice/Notice";
 import OldScholarshipData from "../scholarship/OldScholarshipData";
 import SeatPlan from "../scholarship/SeatPlan";
+import TourEntry from "../TourManagement/TourEntry";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -140,6 +141,11 @@ export default function Dashboard() {
     {
       route: "createQuize",
       label: "Create Quiz",
+      icon: <PlusCircleOutlined />,
+    },
+    {
+      route: "tourEntry",
+      label: "Tour Entry",
       icon: <PlusCircleOutlined />,
     },
   ];
@@ -261,13 +267,13 @@ export default function Dashboard() {
   const handleDrawerClose = () => setDrawerVisible(false);
   const toggleCollapse = () => setCollapsed(!collapsed);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin size="large" />
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-screen">
+  //       <Spin size="large" />
+  //     </div>
+  //   );
+  // }
 
   const renderMenuItems = () => (
     <>
@@ -440,6 +446,9 @@ export default function Dashboard() {
             </Route>
             <Route path={`${path}/createQuize`}>
               <CreateQuize />
+            </Route>
+            <Route path={`${path}/tourEntry`}>
+              <TourEntry />
             </Route>
             <Route path={`${path}`}>
               <DashboardHome />
