@@ -343,11 +343,17 @@ export default function PublicQuiz() {
             <div className="ml-3">
               <h3 className="font-semibold">{participant.name}</h3>
               <div className="flex items-center mt-1">
-                <Tag color="geekblue" className="font-semibold text-xs">
+                <Tag color="geekblue" className="font-semibold text-lg">
                   Score: {participant.totalMarks}
                 </Tag>
+                {(userInfo?.userRole === "Super-Admin" ||
+                  userInfo?.userRole === "Second-Accountant") && (
+                  <Tag color="geekblue" className="font-semibold text-lg">
+                    {participant.userPhone}
+                  </Tag>
+                )}
                 {currentLeaderboardView === "allTime" && (
-                  <Tag color="purple" className="ml-1 font-semibold text-xs">
+                  <Tag color="purple" className="ml-1 font-semibold text-sm">
                     Quizzes: {participant.quizzesAttended}
                   </Tag>
                 )}
@@ -356,7 +362,7 @@ export default function PublicQuiz() {
           </div>
 
           <div className="w-32">
-            <div className="flex justify-between text-xs text-gray-600 mb-1">
+            <div className="flex justify-between text-base text-gray-600 mb-1">
               <span>Accuracy</span>
               <span>{accuracy}%</span>
             </div>
@@ -423,8 +429,8 @@ export default function PublicQuiz() {
     const finalData = {
       quizID: selectedQuiz._id,
       isSubmitted: "true",
-      userId: userInfo?._id || "temp_" + tempUserInfo?.phone,
-      userName: userInfo?.name || tempUserInfo?.name,
+      userId: userInfo?.uniqueId || "temp_" + tempUserInfo?.phone,
+      userName: userInfo?.firstName + userInfo?.lastName || tempUserInfo?.name,
       userPhone: userInfo?.phone || tempUserInfo?.phone,
       userEmail: userInfo?.email || tempUserInfo?.email,
       answers: submissionData,
@@ -566,11 +572,9 @@ export default function PublicQuiz() {
               {(currentLeaderboardView === "allTime"
                 ? allTimeLeaderboard
                 : quizLeaderboard
-              )
-                .slice(0, 5)
-                .map((participant, index) =>
-                  renderLeaderboardItem(participant, index)
-                )}
+              ).map((participant, index) =>
+                renderLeaderboardItem(participant, index)
+              )}
 
               {((currentLeaderboardView === "allTime" &&
                 allTimeLeaderboard.length === 0) ||
@@ -734,11 +738,9 @@ export default function PublicQuiz() {
                   {(currentLeaderboardView === "allTime"
                     ? allTimeLeaderboard
                     : quizLeaderboard
-                  )
-                    .slice(0, 10)
-                    .map((participant, index) =>
-                      renderLeaderboardItem(participant, index)
-                    )}
+                  ).map((participant, index) =>
+                    renderLeaderboardItem(participant, index)
+                  )}
 
                   {((currentLeaderboardView === "allTime" &&
                     allTimeLeaderboard.length === 0) ||
