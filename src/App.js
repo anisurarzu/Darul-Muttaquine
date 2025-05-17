@@ -30,6 +30,7 @@ import CheckoutPage from "./Pages/Product/CheckoutPage";
 import CoursePage from "./Pages/Course/CoursePage";
 import CourseDetailsPage from "./Pages/Course/CourseDetailsPage";
 import ApplicationForm from "./Pages/scholarship/ApplicationForm";
+import PublicQuiz from "./Pages/Quize/PublicQuize";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -54,6 +55,7 @@ const App = () => {
         <Route exact path="/" component={Home} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/quizeMain" component={QuizeMainPage} />
+        <Route exact path="/publicQuize" component={PublicQuiz} />
         <Route exact path="/product" component={Product} />
         <Route exact path="/checkout" component={CheckoutPage} />
         <Route exact path="/registration" component={Registration} />
