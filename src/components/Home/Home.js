@@ -9,7 +9,7 @@ import Slider from "./Slider/Slider";
 
 import "./home.css";
 import demo from "../../images/GIF/animation-1.gif";
-import tempBanner from "../../images/web.png";
+import tempBanner from "../../images/New-Banner-2025-2.svg";
 
 export default function Home() {
   const [show, setShow] = useState(false);
@@ -20,12 +20,16 @@ export default function Home() {
   return (
     <div>
       {/* temp banner */}
-      {/*    <div>
+      <div>
         <div>
-          <img src={"https://i.ibb.co/tCWxvR1/borna-web-1.jpg"} alt="" />
+          <img
+            src={tempBanner}
+            alt="Foundation Banner"
+            className="w-full h-full  object-cover"
+          />
         </div>
-      </div> */}
-      <Slider />
+      </div>
+      {/* <Slider /> */}
       {/* <HeroSection /> */}
       <div className="relative overflow-hidden h-12 bg-white">
         <div
