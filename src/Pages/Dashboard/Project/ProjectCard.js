@@ -57,7 +57,8 @@ export default function ProjectCard({ rowData, depositData, costData }) {
               }
             />
           )
-        }>
+        }
+      >
         {loading ? (
           <Skeleton active paragraph={{ rows: 4 }} />
         ) : (
@@ -93,7 +94,8 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                     cursor: "pointer",
                   },
                   popover: { trigger: "click" },
-                }}>
+                }}
+              >
                 {rowData?.projectCoordinatorImages?.map((img, index) => (
                   <Avatar src={img} key={index} />
                 ))}
@@ -121,14 +123,16 @@ export default function ProjectCard({ rowData, depositData, costData }) {
                 icon={<EyeOutlined />}
                 onClick={() => setIsModalOpen(true)}
                 className="border-green-600 text-green-600 hover:bg-green-50 hover:border-green-700"
-                type="default">
+                type="default"
+              >
                 Details
               </Button>
               <Link to="/dashboard/depositInfo">
                 <Button
                   icon={<DollarCircleOutlined />}
                   className="bg-green-500 text-white hover:bg-green-600 border-none"
-                  type="primary">
+                  type="primary"
+                >
                   Donate
                 </Button>
               </Link>
@@ -142,7 +146,8 @@ export default function ProjectCard({ rowData, depositData, costData }) {
         open={isModalOpen}
         onCancel={handleCancel}
         width={800}
-        footer={null}>
+        footer={null}
+      >
         <Details
           handleCancel={handleCancel}
           rowData={rowData}

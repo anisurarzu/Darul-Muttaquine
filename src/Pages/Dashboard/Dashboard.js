@@ -56,6 +56,8 @@ import Notice from "../Notice/Notice";
 import OldScholarshipData from "../scholarship/OldScholarshipData";
 import SeatPlan from "../scholarship/SeatPlan";
 import TourEntry from "../TourManagement/TourEntry";
+import UpdateProfileFromAdmin from "./Profile/UpdateProfile/UpdateProfileFromAdmin";
+import UserPerformance from "./Performance/UserPerformance";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -89,12 +91,18 @@ export default function Dashboard() {
 
   const menuItems = [
     { route: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> },
+    { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
+    {
+      route: "myTask",
+      label: "My Task",
+      icon: <ProfileOutlined />,
+    },
     {
       route: "orderDashboard",
       label: "Order Dashboard",
       icon: <DashboardOutlined />,
     },
-    { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
+
     { route: "scholarship", label: "Scholarship 2025", icon: <BookOutlined /> },
     {
       route: "oldScholarshipData",
@@ -307,12 +315,14 @@ export default function Dashboard() {
         onClose={handleDrawerClose}
         open={drawerVisible}
         width={250}
-        bodyStyle={{ padding: 0 }}>
+        bodyStyle={{ padding: 0 }}
+      >
         <Menu
           theme="light"
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
-          onClick={handleDrawerClose}>
+          onClick={handleDrawerClose}
+        >
           {renderMenuItems()}
         </Menu>
       </Drawer>
@@ -325,7 +335,8 @@ export default function Dashboard() {
         width={250}
         theme="light"
         className="hidden lg:block shadow-md"
-        breakpoint="lg">
+        breakpoint="lg"
+      >
         <div className="flex items-center justify-center h-16 p-4 bg-green-600">
           <Text strong className="text-white">
             {collapsed ? "APP" : "DMF Dashboard"}
@@ -347,7 +358,8 @@ export default function Dashboard() {
           theme="light"
           mode="inline"
           defaultSelectedKeys={["dashboard"]}
-          className="mt-2">
+          className="mt-2"
+        >
           {renderMenuItems()}
         </Menu>
       </Sider>
@@ -355,7 +367,8 @@ export default function Dashboard() {
       <Layout>
         <Header
           style={{ background: colorBgContainer }}
-          className="p-0 shadow-sm flex items-center">
+          className="p-0 shadow-sm flex items-center"
+        >
           <Button
             type="text"
             icon={<MenuOutlined />}
@@ -379,10 +392,14 @@ export default function Dashboard() {
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-          }}>
+          }}
+        >
           <Switch>
             <Route path={`${path}/scholarship`}>
               <Scholarship />
+            </Route>
+            <Route path={`${path}/myTask`}>
+              <UserPerformance />
             </Route>
             <Route path={`${path}/oldScholarshipData`}>
               <OldScholarshipData />

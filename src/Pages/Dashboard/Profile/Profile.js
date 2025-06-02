@@ -238,7 +238,8 @@ export default function Profile() {
       headStyle={{
         backgroundColor: "#f0fdf4",
         borderBottom: "1px solid #e5e7eb",
-      }}>
+      }}
+    >
       <Skeleton active paragraph={{ rows: 4 }} />
     </Card>
   );
@@ -251,7 +252,8 @@ export default function Profile() {
       headStyle={{
         backgroundColor: "#f0fdf4",
         borderBottom: "1px solid #e5e7eb",
-      }}>
+      }}
+    >
       <div className="space-y-6">
         <div>
           <Skeleton.Input
@@ -334,12 +336,14 @@ export default function Profile() {
                   <div className="mt-3 flex flex-wrap justify-center md:justify-start gap-2">
                     <button
                       onClick={showModal2}
-                      className="px-4 py-2 bg-white text-green-600 rounded-md shadow hover:bg-green-50 transition-colors">
+                      className="px-4 py-2 bg-white text-green-600 rounded-md shadow hover:bg-green-50 transition-colors"
+                    >
                       Update Profile
                     </button>
                     <button
                       onClick={showModal}
-                      className="px-4 py-2 bg-white text-green-600 rounded-md shadow hover:bg-green-50 transition-colors">
+                      className="px-4 py-2 bg-white text-green-600 rounded-md shadow hover:bg-green-50 transition-colors"
+                    >
                       Change Password
                     </button>
                   </div>
@@ -360,7 +364,8 @@ export default function Profile() {
                 headStyle={{
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
-                }}>
+                }}
+              >
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-500">Full Name</p>
@@ -372,7 +377,8 @@ export default function Profile() {
                     <p className="text-sm text-gray-500">Email</p>
                     <a
                       href={`mailto:${userData?.email}`}
-                      className="font-medium text-green-600 hover:underline">
+                      className="font-medium text-green-600 hover:underline"
+                    >
                       {userData?.email}
                     </a>
                   </div>
@@ -403,7 +409,8 @@ export default function Profile() {
                 headStyle={{
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
-                }}>
+                }}
+              >
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-500">Current Address</p>
@@ -431,7 +438,8 @@ export default function Profile() {
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
                 }}
-                extra={renderVerificationStatus()}>
+                extra={renderVerificationStatus()}
+              >
                 <div className="space-y-6">
                   <div>
                     <h4 className="font-medium mb-3 text-gray-700">
@@ -465,7 +473,8 @@ export default function Profile() {
                     ) : (
                       <Dragger
                         {...uploadProps("nidOrBc")}
-                        className="border-2 border-dashed border-gray-300 rounded-md p-4 hover:border-green-500">
+                        className="border-2 border-dashed border-gray-300 rounded-md p-4 hover:border-green-500"
+                      >
                         <p className="ant-upload-drag-icon">
                           <UploadOutlined className="text-green-500" />
                         </p>
@@ -513,7 +522,8 @@ export default function Profile() {
                     ) : (
                       <Dragger
                         {...uploadProps("passportPhoto")}
-                        className="border-2 border-dashed border-gray-300 rounded-md p-4 hover:border-green-500">
+                        className="border-2 border-dashed border-gray-300 rounded-md p-4 hover:border-green-500"
+                      >
                         <p className="ant-upload-drag-icon">
                           <UploadOutlined className="text-green-500" />
                         </p>
@@ -552,7 +562,8 @@ export default function Profile() {
                 headStyle={{
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
-                }}>
+                }}
+              >
                 <div className="space-y-4">
                   <div>
                     <p className="text-sm text-gray-500">Gender</p>
@@ -581,7 +592,8 @@ export default function Profile() {
                 headStyle={{
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
-                }}>
+                }}
+              >
                 <div className="space-y-4">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Email Verification</span>
@@ -606,16 +618,19 @@ export default function Profile() {
                 headStyle={{
                   backgroundColor: "#f0fdf4",
                   borderBottom: "1px solid #e5e7eb",
-                }}>
+                }}
+              >
                 <div className="grid grid-cols-1 gap-2">
                   <button
                     onClick={showModal2}
-                    className="w-full text-left px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors border border-green-100">
+                    className="w-full text-left px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors border border-green-100"
+                  >
                     Update Profile
                   </button>
                   <button
                     onClick={showModal}
-                    className="w-full text-left px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors border border-green-100">
+                    className="w-full text-left px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors border border-green-100"
+                  >
                     Change Password
                   </button>
                   <button className="w-full text-left px-4 py-2 bg-green-50 text-green-600 rounded hover:bg-green-100 transition-colors border border-green-100">
@@ -635,7 +650,8 @@ export default function Profile() {
         onCancel={handleCancel}
         footer={null}
         centered
-        width={600}>
+        width={600}
+      >
         <ChangePassword onCancel={handleCancel} />
       </Modal>
       <Modal
@@ -644,7 +660,8 @@ export default function Profile() {
         onCancel={handleCancel}
         footer={null}
         centered
-        width={800}>
+        width={800}
+      >
         <UpdateProfile onCancel={handleCancel} />
       </Modal>
     </div>

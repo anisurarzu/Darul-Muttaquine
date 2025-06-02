@@ -74,7 +74,8 @@ export default function MiddleHome() {
             className="grid grid-cols-5 bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}>
+            transition={{ duration: 0.5, delay: index * 0.2 }}
+          >
             <div className="col-span-2">
               <img className="w-full" src={item.icon} alt={item.title} />
             </div>
@@ -96,21 +97,25 @@ export default function MiddleHome() {
         className="mt-16"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}>
+        transition={{ duration: 0.8 }}
+      >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
           <path
             fill="#BDDE98"
             fillOpacity="1"
-            d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+            d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          ></path>
         </svg>
         <div
           className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8 px-8 lg:px-32 xl:px-32"
-          style={{ background: "#BDDE98" }}>
+          style={{ background: "#BDDE98" }}
+        >
           <motion.div
             className="flex justify-center"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}>
+            transition={{ duration: 0.8 }}
+          >
             <img
               className="rounded-lg shadow-lg"
               src={voulenteer}
@@ -121,7 +126,8 @@ export default function MiddleHome() {
             className="flex justify-center"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}>
+            transition={{ duration: 0.8 }}
+          >
             <img
               className="rounded-lg shadow-lg"
               src={eidCard}
@@ -133,7 +139,8 @@ export default function MiddleHome() {
           <path
             fill="#BDDE98"
             fillOpacity="1"
-            d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path>
+            d="M0,160L48,133.3C96,107,192,53,288,53.3C384,53,480,107,576,117.3C672,128,768,96,864,112C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"
+          ></path>
         </svg>
       </motion.div>
 
@@ -170,7 +177,8 @@ export default function MiddleHome() {
             className="grid grid-cols-5 bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.2 }}>
+            transition={{ duration: 0.5, delay: index * 0.2 }}
+          >
             <div className="col-span-3">
               <h3 className="text-[16px] lg:text-[20px] xl:text-[20px] font-bold bangla-text">
                 {item.title}
@@ -193,13 +201,14 @@ export default function MiddleHome() {
           <h3 className="text-[19px] lg:text-[22px] xl:text-[23px] text-green-800 py-4 lg:py-8 xl:py-8 text-center font-semibold bangla-text">
             চলমান প্রজেক্ট সমূহ
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 lg:gap-8 xl:gap-8 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4s gap-4 lg:gap-8 xl:gap-8 pt-4">
             {projects?.map((project, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}>
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+              >
                 <ProjectCard rowData={project} />
               </motion.div>
             ))}

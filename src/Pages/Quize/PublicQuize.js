@@ -319,7 +319,8 @@ export default function PublicQuiz() {
     return (
       <div
         key={participant.name + index}
-        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4 mb-3 border border-gray-100">
+        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4 mb-3 border border-gray-100"
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="mr-3">
@@ -552,7 +553,8 @@ export default function PublicQuiz() {
             <Button
               size="small"
               onClick={() => showLeaderboard("allTime")}
-              disabled={currentLeaderboardView === "allTime"}>
+              disabled={currentLeaderboardView === "allTime"}
+            >
               সর্বকালের
             </Button>
           </div>
@@ -638,7 +640,8 @@ export default function PublicQuiz() {
                                 {quiz.quizName}
                               </h3>
                             </div>
-                          }>
+                          }
+                        >
                           <div className="flex-1 flex flex-col justify-between">
                             {getStatusBadge(quiz?.status)}
 
@@ -679,7 +682,8 @@ export default function PublicQuiz() {
                                       : () => showQuizModal(quiz)
                                   }
                                   icon={<FaBook className="mr-2" />}
-                                  disabled={isAttempted}>
+                                  disabled={isAttempted}
+                                >
                                   {isAttempted
                                     ? "ইতিমধ্যে অংশগ্রহণ করেছেন"
                                     : "কুইজ শুরু করুন"}
@@ -689,7 +693,8 @@ export default function PublicQuiz() {
                                 type="default"
                                 block
                                 icon={<FaTrophy className="mr-2" />}
-                                onClick={() => showLeaderboard("quiz", quiz)}>
+                                onClick={() => showLeaderboard("quiz", quiz)}
+                              >
                                 লিডারবোর্ড
                               </Button>
                             </div>
@@ -718,7 +723,8 @@ export default function PublicQuiz() {
                 <Button
                   size="small"
                   onClick={() => showLeaderboard("allTime")}
-                  disabled={currentLeaderboardView === "allTime"}>
+                  disabled={currentLeaderboardView === "allTime"}
+                >
                   সর্বকালের
                 </Button>
               </div>
@@ -763,7 +769,8 @@ export default function PublicQuiz() {
           onCancel={() => setIsInfoModalOpen(false)}
           footer={null}
           centered
-          width={600}>
+          width={600}
+        >
           <div className="p-4">
             <p className="text-gray-600 mb-6">
               কুইজে অংশগ্রহণের জন্য আপনার নাম ও ফোন নম্বর প্রদান করুন
@@ -775,7 +782,8 @@ export default function PublicQuiz() {
                 label="আপনার নাম"
                 rules={[
                   { required: true, message: "অনুগ্রহ করে আপনার নাম লিখুন" },
-                ]}>
+                ]}
+              >
                 <Input
                   prefix={<FaUser className="text-gray-400" />}
                   placeholder="আপনার পুরো নাম"
@@ -792,7 +800,8 @@ export default function PublicQuiz() {
                     pattern: /^01[3-9]\d{8}$/,
                     message: "সঠিক মোবাইল নম্বর লিখুন (01XXXXXXXXX)",
                   },
-                ]}>
+                ]}
+              >
                 <Input
                   prefix={<FaPhone className="text-gray-400" />}
                   placeholder="01XXXXXXXXX"
@@ -803,7 +812,8 @@ export default function PublicQuiz() {
               <Form.Item
                 name="email"
                 label="ইমেইল (ঐচ্ছিক)"
-                rules={[{ type: "email", message: "সঠিক ইমেইল ঠিকানা লিখুন" }]}>
+                rules={[{ type: "email", message: "সঠিক ইমেইল ঠিকানা লিখুন" }]}
+              >
                 <Input
                   prefix={<FaEnvelope className="text-gray-400" />}
                   placeholder="আপনার ইমেইল"
@@ -817,7 +827,8 @@ export default function PublicQuiz() {
                   htmlType="submit"
                   size="large"
                   block
-                  className="bg-green-600 hover:bg-green-700 border-green-600">
+                  className="bg-green-600 hover:bg-green-700 border-green-600"
+                >
                   তথ্য জমা দিন ও কুইজ শুরু করুন
                 </Button>
               </Form.Item>
@@ -835,7 +846,8 @@ export default function PublicQuiz() {
           centered
           destroyOnClose
           className="select-none"
-          style={{ userSelect: "none" }}>
+          style={{ userSelect: "none" }}
+        >
           {!quizStarted ? (
             <div className="p-4">
               <h3 className="text-lg font-semibold mb-4">
@@ -865,7 +877,8 @@ export default function PublicQuiz() {
                   type="primary"
                   className="bg-green-600 hover:bg-green-700"
                   onClick={startQuiz}
-                  size="large">
+                  size="large"
+                >
                   কুইজ শুরু করুন
                 </Button>
               </div>
@@ -889,7 +902,8 @@ export default function PublicQuiz() {
 
               <div
                 className="quiz-questions"
-                style={{ maxHeight: "60vh", overflowY: "auto" }}>
+                style={{ maxHeight: "60vh", overflowY: "auto" }}
+              >
                 {selectedQuiz?.quizQuestions.map((question, index) => (
                   <div key={index} className="mb-8 p-4 border rounded-lg">
                     <h4 className="text-lg font-medium mb-4">
@@ -899,13 +913,15 @@ export default function PublicQuiz() {
                       onChange={(e) =>
                         handleAnswerChange(index, e.target.value)
                       }
-                      value={userAnswers[`question${index}`]}>
+                      value={userAnswers[`question${index}`]}
+                    >
                       <Space direction="vertical">
                         {question.options.map((option, optIndex) => (
                           <Radio
                             key={optIndex}
                             value={option}
-                            className="text-lg">
+                            className="text-lg"
+                          >
                             {option}
                           </Radio>
                         ))}
@@ -921,7 +937,8 @@ export default function PublicQuiz() {
                   className="bg-green-600 hover:bg-green-700"
                   onClick={handleQuizSubmit}
                   size="large"
-                  loading={submitting}>
+                  loading={submitting}
+                >
                   জমা দিন
                 </Button>
               </div>
@@ -960,7 +977,8 @@ export default function PublicQuiz() {
 
               <div className="mb-6">
                 <Tooltip
-                  title={`${quizResults.correctAnswers} সঠিক / ${quizResults.wrongAnswers} ভুল`}>
+                  title={`${quizResults.correctAnswers} সঠিক / ${quizResults.wrongAnswers} ভুল`}
+                >
                   <Progress
                     percent={Math.round(
                       (quizResults.correctAnswers /
@@ -981,7 +999,8 @@ export default function PublicQuiz() {
               </h4>
               <div
                 className="space-y-4"
-                style={{ maxHeight: "40vh", overflowY: "auto" }}>
+                style={{ maxHeight: "40vh", overflowY: "auto" }}
+              >
                 {quizResults.questionsWithAnswers.map((qa, index) => (
                   <div
                     key={index}
@@ -989,7 +1008,8 @@ export default function PublicQuiz() {
                       qa.result === "correct"
                         ? "bg-green-50 border-green-200"
                         : "bg-red-50 border-red-200"
-                    }`}>
+                    }`}
+                  >
                     <div className="flex justify-between items-start mb-2">
                       <h5 className="font-medium">
                         {index + 1}. {qa.question}
@@ -1019,7 +1039,8 @@ export default function PublicQuiz() {
                   type="primary"
                   className="bg-green-600 hover:bg-green-700"
                   onClick={closeQuizModal}
-                  size="large">
+                  size="large"
+                >
                   বন্ধ করুন
                 </Button>
               </div>
