@@ -302,7 +302,8 @@ const DashboardHome = () => {
                 type="primary"
                 size="large"
                 icon={<IdcardOutlined />}
-                className="bg-blue-500 hover:bg-blue-600 h-12 text-lg">
+                className="bg-blue-500 hover:bg-blue-600 h-12 text-lg"
+              >
                 প্রোফাইলে যান
               </Button>
             </Link>
@@ -332,7 +333,8 @@ const DashboardHome = () => {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="p-4 md:p-6">
+      className="p-4 md:p-6"
+    >
       <motion.div variants={itemVariants}>
         <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
           Financial Dashboard
@@ -342,7 +344,8 @@ const DashboardHome = () => {
       {/* Key Metrics */}
       <motion.div
         variants={containerVariants}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+      >
         {/* Total Users */}
         <motion.div variants={itemVariants}>
           <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200">
@@ -361,7 +364,8 @@ const DashboardHome = () => {
             {userInfo?.userRole === "Super-Admin" && (
               <Link
                 to="/dashboard/users"
-                className="text-blue-600 hover:text-blue-800 text-lg font-medium flex items-center">
+                className="text-blue-600 hover:text-blue-800 text-lg font-medium flex items-center"
+              >
                 View all users <ArrowUpOutlined className="ml-2 rotate-45" />
               </Link>
             )}
@@ -387,14 +391,15 @@ const DashboardHome = () => {
             <Divider className="my-4 border-green-200" />
             <Link
               to="/dashboard/scholarship"
-              className="text-green-600 hover:text-green-800 text-lg font-medium flex items-center">
+              className="text-green-600 hover:text-green-800 text-lg font-medium flex items-center"
+            >
               View details <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </Card>
         </motion.div>
 
         {/* My Deposit */}
-        <motion.div variants={itemVariants}>
+        {/* <motion.div variants={itemVariants}>
           <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
             <div className="flex items-center justify-between">
               <div>
@@ -416,7 +421,7 @@ const DashboardHome = () => {
               View history <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </Card>
-        </motion.div>
+        </motion.div> */}
 
         {/* Total Deposit */}
         <motion.div variants={itemVariants}>
@@ -437,7 +442,8 @@ const DashboardHome = () => {
             <Divider className="my-4 border-indigo-200" />
             <Link
               to="/dashboard/depositInfo"
-              className="text-indigo-600 hover:text-indigo-800 text-lg font-medium flex items-center">
+              className="text-indigo-600 hover:text-indigo-800 text-lg font-medium flex items-center"
+            >
               View all <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </Card>
@@ -465,7 +471,8 @@ const DashboardHome = () => {
             <Divider className="my-4 border-orange-200" />
             <Link
               to="/dashboard/withdraw"
-              className="text-orange-600 hover:text-orange-800 text-lg font-medium flex items-center">
+              className="text-orange-600 hover:text-orange-800 text-lg font-medium flex items-center"
+            >
               View requests <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </Card>
@@ -482,7 +489,8 @@ const DashboardHome = () => {
                 <h3
                   className={`text-3xl font-bold mt-2 ${
                     currentBalance >= 0 ? "text-green-700" : "text-red-700"
-                  }`}>
+                  }`}
+                >
                   ৳{currentBalance.toLocaleString()}
                 </h3>
               </div>
@@ -512,7 +520,8 @@ const DashboardHome = () => {
             </h3>
             <Link
               to="/dashboard/depositInfo"
-              className="text-blue-600 text-lg flex items-center">
+              className="text-blue-600 text-lg flex items-center"
+            >
               View details <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </div>
@@ -533,7 +542,8 @@ const DashboardHome = () => {
                       : isCurrentMonth
                       ? "bg-blue-50 border border-blue-200"
                       : "bg-gray-100 border border-gray-200"
-                  }`}>
+                  }`}
+                >
                   <span
                     className={`font-medium text-lg ${
                       hasDeposits
@@ -541,7 +551,8 @@ const DashboardHome = () => {
                         : isCurrentMonth
                         ? "text-blue-700"
                         : "text-gray-500"
-                    }`}>
+                    }`}
+                  >
                     {month}
                   </span>
                   {hasDeposits ? (
@@ -564,7 +575,7 @@ const DashboardHome = () => {
       </motion.div>
 
       {/* Projects Section */}
-      <motion.div variants={itemVariants}>
+      {/* <motion.div variants={itemVariants}>
         <Card className="shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-800">
@@ -572,7 +583,8 @@ const DashboardHome = () => {
             </h2>
             <Link
               to="/dashboard/projects"
-              className="text-blue-600 text-lg flex items-center">
+              className="text-blue-600 text-lg flex items-center"
+            >
               View all <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </div>
@@ -582,7 +594,8 @@ const DashboardHome = () => {
                 <motion.div
                   key={index}
                   whileHover={{ y: -5 }}
-                  transition={{ duration: 0.2 }}>
+                  transition={{ duration: 0.2 }}
+                >
                   <ProjectCard
                     rowData={project}
                     depositData={depositData}
@@ -602,15 +615,16 @@ const DashboardHome = () => {
             />
           )}
         </Card>
-      </motion.div>
+      </motion.div> */}
 
       {/* Deposit Details Modal */}
-      <Modal
+      {/* <Modal
         title={`Deposit Details for ${selectedMonthName}`}
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
-        width={800}>
+        width={800}
+      >
         <List
           itemLayout="horizontal"
           dataSource={selectedMonthDeposits}
@@ -658,7 +672,7 @@ const DashboardHome = () => {
             </span>
           </div>
         </div>
-      </Modal>
+      </Modal> */}
     </motion.div>
   );
 };

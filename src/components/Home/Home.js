@@ -37,7 +37,7 @@ export default function Home() {
         )}
         <div style={{ display: bannerLoaded ? "block" : "none" }}>
           <img
-            src={eidBanner}
+            src={tempBanner}
             alt="Foundation Banner"
             className="w-full h-auto object-cover"
             onLoad={handleBannerLoad}
