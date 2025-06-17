@@ -1,12 +1,28 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Card, Input, Button, Form, message, Skeleton } from "antd";
+import React, { useState, useRef, useEffect } from "react";
+import { Formik, Form, Field } from "formik";
+import {
+  Card,
+  Input,
+  Button,
+  Select,
+  Divider,
+  Skeleton,
+  Alert,
+  Typography,
+  message,
+} from "antd";
+import * as Yup from "yup";
+import { LoadingOutlined, QrcodeOutlined } from "@ant-design/icons";
 import { Html5Qrcode } from "html5-qrcode";
 
+const { Title, Text } = Typography;
+const { Option } = Select;
+
 const ScholarshipPayment = () => {
-  const [scholarshipID, setScholarshipID] = useState(null);
-  const [amount, setAmount] = useState("");
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [scanning, setScanning] = useState(true);
+  const [scholarshipDetails, setScholarshipDetails] = useState(null);
+  const [scanning, setScanning] = useState(false);
   const [cameraError, setCameraError] = useState(false);
   const scannerRef = useRef(null);
   const scannerId = "qr-reader";
@@ -41,12 +57,16 @@ const ScholarshipPayment = () => {
           );
         } else {
           setCameraError(true);
-          message.error("No camera found. Please check your device.");
+          message.error(
+            "কোন ক্যামেরা পাওয়া যায়নি। আপনার ডিভাইস পরীক্ষা করুন।"
+          );
         }
       } catch (err) {
         console.error("Camera error:", err);
         setCameraError(true);
-        message.error("Failed to access camera. Please check permissions.");
+        message.error(
+          "ক্যামেরা অ্যাক্সেস করতে ব্যর্থ হয়েছে। অনুমতি পরীক্ষা করুন।"
+        );
       }
     };
 
@@ -54,15 +74,17 @@ const ScholarshipPayment = () => {
       scanner
         .stop()
         .then(() => {
-          setScholarshipID(decodedText);
+          setScholarshipDetails({ scholarshipID: decodedText });
           setScanning(false);
-          message.success("Scholarship ID scanned successfully!");
+          message.success("স্কলারশিপ আইডি সফলভাবে স্ক্যান করা হয়েছে!");
+          setStep(2);
         })
         .catch((err) => {
           console.error("Failed to stop scanner:", err);
-          message.error("Failed to stop scanner after scan.");
+          message.error("স্ক্যানার বন্ধ করতে ব্যর্থ হয়েছে।");
           setScanning(false);
-          setScholarshipID(decodedText);
+          setScholarshipDetails({ scholarshipID: decodedText });
+          setStep(2);
         });
     };
 
@@ -75,105 +97,410 @@ const ScholarshipPayment = () => {
     };
   }, [scanning]);
 
-  const handleWithdraw = async () => {
-    if (!scholarshipID || !amount) {
-      return message.warning("Please scan QR and enter amount.");
-    }
-
+  // Mock function to fetch scholarship details
+  const fetchScholarshipDetails = async (scholarshipID) => {
     setLoading(true);
+    // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    // Mock response
+    return {
+      scholarshipID,
+      withdrawalBalance: 1500,
+      registrationBalance: 2500,
+      studentName: "জাহিদ হাসান",
+      program: "কম্পিউটার বিজ্ঞান বিভাগ",
+    };
+  };
+
+  const handleScholarshipIDSubmit = async (values) => {
     try {
-      // Simulate API call
-      await new Promise((res) => setTimeout(res, 2000));
-      message.success("Withdraw request sent successfully!");
-      setAmount("");
-      setScholarshipID(null);
-      setScanning(true);
+      const details = await fetchScholarshipDetails(values.scholarshipID);
+      setScholarshipDetails(details);
+      setStep(2);
     } catch (error) {
-      message.error("Withdraw request failed.");
+      console.error("Error fetching scholarship details:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleWithdrawalSubmit = async (values) => {
+    setLoading(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Withdrawal request submitted:", values);
+      setStep(3); // Success step
+    } catch (error) {
+      console.error("Error submitting withdrawal:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setScholarshipDetails(null);
+    setStep(1);
+  };
+
+  const startQRScanner = () => {
+    setScanning(true);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <Card
-        title="Scholarship Withdraw Request"
-        className="w-full max-w-xl shadow-lg"
-        headStyle={{ fontSize: "1.25rem", textAlign: "center" }}
-      >
-        {scanning ? (
-          <div className="mb-4">
-            <p className="text-center font-semibold text-green-700 mb-2">
-              Scan Scholarship QR Code
-            </p>
-            {cameraError ? (
-              <div className="text-center p-4 border rounded bg-gray-50">
-                <p className="text-red-500 mb-2">Camera access failed</p>
-                <Button
-                  type="primary"
-                  onClick={() => {
-                    setCameraError(false);
-                    setScanning(true);
-                  }}
-                >
-                  Retry Camera Access
+    <div className="min-h-screen bg-green-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        <Card className="shadow-lg border-green-200">
+          <Title level={3} className="text-center mb-6 text-green-800">
+            স্কলারশিপ ফান্ড ব্যবস্থাপনা
+          </Title>
+
+          <Alert
+            message="স্কলারশিপ ফান্ড ব্যবহারের নির্দেশিকা"
+            description={
+              <ul className="list-disc pl-5 text-green-700">
+                <li>উইথড্রো করার অর্থ ব্যক্তিগত খরচের জন্য ব্যবহার করা যাবে</li>
+                <li>
+                  রেজিস্ট্রেশন ব্যালেন্স শুধুমাত্র কোর্স রেজিস্ট্রেশনের জন্য
+                </li>
+                <li>
+                  উইথড্রো রিকোয়েস্ট প্রসেস হতে ৩-৫ কর্মদিবস সময় লাগতে পারে
+                </li>
+                <li>সাবমিট করার আগে সকল তথ্য যাচাই করে নিন</li>
+              </ul>
+            }
+            type="success"
+            showIcon
+            className="mb-6 border-green-300 bg-green-50"
+          />
+
+          {scanning && (
+            <div className="mb-6">
+              <p className="text-center font-semibold text-green-700 mb-2">
+                স্কলারশিপ কিউআর কোড স্ক্যান করুন
+              </p>
+              {cameraError ? (
+                <div className="text-center p-4 border rounded bg-gray-50">
+                  <p className="text-red-500 mb-2">
+                    ক্যামেরা অ্যাক্সেস ব্যর্থ হয়েছে
+                  </p>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      setCameraError(false);
+                      setScanning(true);
+                    }}
+                  >
+                    ক্যামেরা অ্যাক্সেস পুনরায় চেষ্টা করুন
+                  </Button>
+                </div>
+              ) : (
+                <div className="w-full h-[250px] border rounded bg-gray-50 flex items-center justify-center">
+                  <div id={scannerId} className="w-full h-full" />
+                </div>
+              )}
+              <div className="text-center mt-4">
+                <Button onClick={() => setScanning(false)}>
+                  স্ক্যান বাতিল করুন
                 </Button>
               </div>
-            ) : (
-              <div className="w-full h-[250px] border rounded bg-gray-50 flex items-center justify-center">
-                <div id={scannerId} className="w-full h-full" />
-              </div>
-            )}
-          </div>
-        ) : (
-          <>
-            {loading ? (
-              <Skeleton active paragraph={{ rows: 2 }} />
-            ) : (
-              <Form layout="vertical" onFinish={handleWithdraw}>
-                <Form.Item label="Scholarship ID">
-                  <Input value={scholarshipID} disabled />
-                </Form.Item>
-                <Form.Item
-                  label="Withdraw Amount"
-                  rules={[
-                    { required: true, message: "Please enter an amount" },
-                  ]}
-                >
-                  <Input
-                    placeholder="Enter amount"
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                  />
-                </Form.Item>
-                <Form.Item>
+            </div>
+          )}
+
+          {!scanning && step === 1 && (
+            <Formik
+              initialValues={{ scholarshipID: "" }}
+              validationSchema={Yup.object({
+                scholarshipID: Yup.string()
+                  .required("স্কলারশিপ আইডি আবশ্যক")
+                  .matches(/^[A-Za-z0-9]+$/, "অবৈধ স্কলারশিপ আইডি ফরম্যাট"),
+              })}
+              onSubmit={handleScholarshipIDSubmit}
+            >
+              {({ errors, touched, setFieldValue }) => (
+                <Form>
+                  <div className="mb-6">
+                    <label
+                      htmlFor="scholarshipID"
+                      className="block text-sm font-medium text-green-700 mb-2"
+                    >
+                      স্কলারশিপ আইডি লিখুন
+                    </label>
+                    <div className="flex gap-2">
+                      <Field
+                        as={Input}
+                        name="scholarshipID"
+                        placeholder="যেমন: SCH20230001"
+                        size="large"
+                        className={`flex-1 ${
+                          errors.scholarshipID && touched.scholarshipID
+                            ? "border-red-500"
+                            : "border-green-300"
+                        }`}
+                      />
+                      <Button
+                        type="default"
+                        size="large"
+                        icon={<QrcodeOutlined />}
+                        onClick={startQRScanner}
+                        className="border-green-300"
+                      >
+                        স্ক্যান করুন
+                      </Button>
+                    </div>
+                    {errors.scholarshipID && touched.scholarshipID ? (
+                      <div className="text-red-500 text-sm mt-1">
+                        {errors.scholarshipID}
+                      </div>
+                    ) : null}
+                  </div>
+
                   <Button
                     type="primary"
                     htmlType="submit"
-                    className="bg-green-600 hover:bg-green-700 w-full"
+                    size="large"
+                    className="w-full bg-green-600 hover:bg-green-700 border-green-700"
                     loading={loading}
                   >
-                    Submit Withdraw Request
+                    {loading ? "যাচাই করা হচ্ছে..." : "ব্যালেন্স চেক করুন"}
                   </Button>
-                </Form.Item>
-              </Form>
-            )}
-            <div className="text-center mt-2">
+                </Form>
+              )}
+            </Formik>
+          )}
+
+          {!scanning && step === 2 && scholarshipDetails && (
+            <div>
+              {loading ? (
+                <Skeleton active paragraph={{ rows: 4 }} />
+              ) : (
+                <>
+                  <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+                    <Title level={4} className="mb-4 text-green-800">
+                      স্কলারশিপ বিবরণ
+                    </Title>
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <Text strong className="text-green-700">
+                          ছাত্রের নাম:
+                        </Text>
+                        <p className="text-green-800">
+                          {scholarshipDetails.studentName}
+                        </p>
+                      </div>
+                      <div>
+                        <Text strong className="text-green-700">
+                          প্রোগ্রাম:
+                        </Text>
+                        <p className="text-green-800">
+                          {scholarshipDetails.program}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Divider className="my-4 border-green-200" />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 bg-green-100 rounded border border-green-200">
+                        <Text strong className="text-green-700">
+                          উইথড্রো করার অর্থ:
+                        </Text>
+                        <p className="text-xl font-bold text-green-700">
+                          {scholarshipDetails.withdrawalBalance} টাকা
+                        </p>
+                        <Text className="text-green-600">
+                          ব্যক্তিগত খরচের জন্য
+                        </Text>
+                      </div>
+                      <div className="p-3 bg-green-50 rounded border border-green-200">
+                        <Text strong className="text-green-700">
+                          রেজিস্ট্রেশন ব্যালেন্স:
+                        </Text>
+                        <p className="text-xl font-bold text-green-700">
+                          {scholarshipDetails.registrationBalance} টাকা
+                        </p>
+                        <Text className="text-green-600">
+                          কোর্স রেজিস্ট্রেশনের জন্য
+                        </Text>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Formik
+                    initialValues={{
+                      amount: "",
+                      purpose: "withdrawal",
+                      paymentMethod: "",
+                    }}
+                    validationSchema={Yup.object({
+                      amount: Yup.number()
+                        .required("অর্থের পরিমাণ আবশ্যক")
+                        .min(100, "সর্বনিম্ন ১০০ টাকা উত্তোলন করা যাবে")
+                        .max(
+                          scholarshipDetails.withdrawalBalance,
+                          `${scholarshipDetails.withdrawalBalance} টাকার বেশি উত্তোলন করা যাবে না`
+                        ),
+                      paymentMethod: Yup.string().required(
+                        "পেমেন্ট পদ্ধতি নির্বাচন করুন"
+                      ),
+                    })}
+                    onSubmit={handleWithdrawalSubmit}
+                  >
+                    {({ errors, touched, values, setFieldValue }) => (
+                      <Form>
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-green-700 mb-2">
+                            অনুরোধের ধরন
+                          </label>
+                          <Field
+                            name="purpose"
+                            as={Select}
+                            size="large"
+                            className="w-full border-green-300"
+                            onChange={(value) =>
+                              setFieldValue("purpose", value)
+                            }
+                          >
+                            <Option value="withdrawal">ফান্ড উত্তোলন</Option>
+                            <Option value="registration">
+                              কোর্স রেজিস্ট্রেশন
+                            </Option>
+                          </Field>
+                        </div>
+
+                        {values.purpose === "withdrawal" && (
+                          <>
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium text-green-700 mb-2">
+                                উত্তোলনের পরিমাণ (টাকা)
+                              </label>
+                              <Field
+                                as={Input}
+                                name="amount"
+                                type="number"
+                                placeholder="টাকার পরিমাণ লিখুন"
+                                size="large"
+                                className="w-full border-green-300"
+                              />
+                              {errors.amount && touched.amount ? (
+                                <div className="text-red-500 text-sm mt-1">
+                                  {errors.amount}
+                                </div>
+                              ) : null}
+                              <Text className="block mt-1 text-green-600">
+                                প্রাপ্য: {scholarshipDetails.withdrawalBalance}{" "}
+                                টাকা
+                              </Text>
+                            </div>
+
+                            <div className="mb-6">
+                              <label className="block text-sm font-medium text-green-700 mb-2">
+                                পেমেন্ট পদ্ধতি
+                              </label>
+                              <Field
+                                name="paymentMethod"
+                                as={Select}
+                                placeholder="পেমেন্ট পদ্ধতি নির্বাচন করুন"
+                                size="large"
+                                className="w-full border-green-300"
+                                onChange={(value) =>
+                                  setFieldValue("paymentMethod", value)
+                                }
+                              >
+                                <Option value="bKash">bKash</Option>
+                                <Option value="Nagad">Nagad</Option>
+                                <Option value="Bank Transfer">
+                                  ব্যাংক ট্রান্সফার
+                                </Option>
+                              </Field>
+                              {errors.paymentMethod && touched.paymentMethod ? (
+                                <div className="text-red-500 text-sm mt-1">
+                                  {errors.paymentMethod}
+                                </div>
+                              ) : null}
+                            </div>
+                          </>
+                        )}
+
+                        {values.purpose === "registration" && (
+                          <Alert
+                            message="কোর্স রেজিস্ট্রেশন নোটিশ"
+                            description="আপনার রেজিস্ট্রেশন ব্যালেন্স কোর্স রেজিস্ট্রেশনের সময় স্বয়ংক্রিয়ভাবে ব্যবহৃত হবে। আলাদাভাবে উত্তোলনের প্রয়োজন নেই।"
+                            type="success"
+                            showIcon
+                            className="mb-6 border-green-300 bg-green-50"
+                          />
+                        )}
+
+                        <div className="flex space-x-4">
+                          <Button
+                            onClick={resetForm}
+                            size="large"
+                            className="flex-1 border-green-500 text-green-700 hover:border-green-700"
+                          >
+                            পিছনে
+                          </Button>
+                          <Button
+                            type="primary"
+                            htmlType="submit"
+                            size="large"
+                            className="flex-1 bg-green-600 hover:bg-green-700 border-green-700"
+                            loading={loading}
+                            disabled={values.purpose === "registration"}
+                          >
+                            {loading ? (
+                              <>
+                                <LoadingOutlined /> প্রসেসিং...
+                              </>
+                            ) : (
+                              "অনুরোধ সাবমিট করুন"
+                            )}
+                          </Button>
+                        </div>
+                      </Form>
+                    )}
+                  </Formik>
+                </>
+              )}
+            </div>
+          )}
+
+          {!scanning && step === 3 && (
+            <div className="text-center py-8">
+              <div className="mb-6">
+                <svg
+                  className="w-16 h-16 text-green-500 mx-auto"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+              </div>
+              <Title level={3} className="mb-2 text-green-800">
+                অনুরোধ সফলভাবে জমা হয়েছে!
+              </Title>
+              <Text className="block mb-6 text-green-700">
+                আপনার উত্তোলনের অনুরোধ প্রাপ্ত হয়েছে এবং প্রসেসিং চলছে।
+              </Text>
               <Button
-                type="link"
-                onClick={() => {
-                  setScholarshipID(null);
-                  setScanning(true);
-                }}
+                type="primary"
+                size="large"
+                onClick={resetForm}
+                className="bg-green-600 hover:bg-green-700 border-green-700"
               >
-                Scan Another QR
+                আরেকটি অনুরোধ করুন
               </Button>
             </div>
-          </>
-        )}
-      </Card>
+          )}
+        </Card>
+      </div>
     </div>
   );
 };

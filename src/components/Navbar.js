@@ -86,7 +86,7 @@ const Navbar = () => {
               to="/scholarship-payment"
               className="hover:text-green-500 pt-2"
             >
-              Money
+              স্কলারশিপ ফান্ড
             </NavLink>
             {/* <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
@@ -206,7 +206,7 @@ const Navbar = () => {
                   to="/scholarship-payment"
                   className="hover:text-green-500 pt-2"
                 >
-                  Money
+                  স্কলারশিপ ফান্ড
                 </NavLink>
               </li>
               {/* <li
