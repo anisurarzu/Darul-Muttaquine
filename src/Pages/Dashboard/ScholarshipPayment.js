@@ -357,14 +357,6 @@ const ScholarshipPayment = () => {
           {!scanning && step === 1 && (
             <Formik
               initialValues={{ scholarshipID: "" }}
-              validationSchema={Yup.object({
-                scholarshipID: Yup.string()
-                  .required("স্কলারশিপ আইডি আবশ্যক")
-                  .matches(
-                    /^DMS\d{5}$/,
-                    "অবৈধ স্কলারশিপ আইডি ফরম্যাট (সঠিক ফরম্যাট: DMSxxxxx, যেখানে x হচ্ছে সংখ্যা)"
-                  ),
-              })}
               onSubmit={handleScholarshipIDSubmit}
             >
               {({ errors, touched, setFieldValue }) => (
