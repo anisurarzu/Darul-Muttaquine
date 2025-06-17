@@ -58,6 +58,7 @@ import SeatPlan from "../scholarship/SeatPlan";
 import TourEntry from "../TourManagement/TourEntry";
 import UpdateProfileFromAdmin from "./Profile/UpdateProfile/UpdateProfileFromAdmin";
 import UserPerformance from "./Performance/UserPerformance";
+import ScholarshipFund from "../scholarship/ScholarshipFund";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -104,6 +105,11 @@ export default function Dashboard() {
     },
 
     { route: "scholarship", label: "Scholarship 2025", icon: <BookOutlined /> },
+    {
+      route: "scholarshipFund",
+      label: "Scholarship Fund",
+      icon: <BookOutlined />,
+    },
     {
       route: "oldScholarshipData",
       label: "Scholarship 2024",
@@ -397,6 +403,9 @@ export default function Dashboard() {
           <Switch>
             <Route path={`${path}/scholarship`}>
               <Scholarship />
+            </Route>
+            <Route path={`${path}/scholarshipFund`}>
+              <ScholarshipFund />
             </Route>
             <Route path={`${path}/myTask`}>
               <UserPerformance />
