@@ -10,10 +10,13 @@ import {
   Alert,
   Typography,
   message,
+  Descriptions,
 } from "antd";
 import * as Yup from "yup";
 import { LoadingOutlined, QrcodeOutlined } from "@ant-design/icons";
 import { Html5Qrcode } from "html5-qrcode";
+import axios from "axios";
+import { coreAxios } from "../../utilities/axios";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -97,43 +100,109 @@ const ScholarshipPayment = () => {
     };
   }, [scanning]);
 
-  // Mock function to fetch scholarship details
+  const determineScholarshipDetails = (studentData) => {
+    const classNumber = parseInt(studentData.instituteClass);
+    const totalMarks = studentData.resultDetails[0]?.totalMarks || 0;
+    let grade = null;
+    let withdrawalBalance = 0;
+    let registrationBalance = 0;
+
+    // For classes 3 to 5
+    if (classNumber >= 3 && classNumber <= 5) {
+      if (totalMarks >= 45 && totalMarks <= 48) {
+        grade = "General Grade";
+        withdrawalBalance = 700;
+        registrationBalance = 3000;
+      } else if (totalMarks >= 49 && totalMarks <= 50) {
+        grade = "Talentpool Grade";
+        withdrawalBalance = 1000;
+        registrationBalance = 3500;
+      }
+    }
+    // For classes 6 to 10
+    else if (classNumber >= 6 && classNumber <= 10) {
+      if (totalMarks >= 75 && totalMarks < 80) {
+        grade = "General Grade";
+        withdrawalBalance = 1000;
+        registrationBalance = 3500;
+      } else if (totalMarks >= 80 && totalMarks <= 100) {
+        grade = "Talentpool Grade";
+        withdrawalBalance = 1500;
+        registrationBalance = 4000;
+      }
+    }
+
+    return {
+      scholarshipID: studentData.scholarshipRollNumber,
+      studentName: studentData.name,
+      program: studentData.institute,
+      class: studentData.instituteClass,
+      totalMarks,
+      grade,
+      withdrawalBalance,
+      registrationBalance,
+      eligible: grade !== null,
+      image: studentData.image,
+    };
+  };
+
   const fetchScholarshipDetails = async (scholarshipID) => {
     setLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const response = await coreAxios.get(`/search-result/${scholarshipID}`);
+      const studentData = response.data;
+      const details = determineScholarshipDetails(studentData);
 
-    // Mock response
-    return {
-      scholarshipID,
-      withdrawalBalance: 1500,
-      registrationBalance: 2500,
-      studentName: "জাহিদ হাসান",
-      program: "কম্পিউটার বিজ্ঞান বিভাগ",
-    };
+      if (!details.eligible) {
+        message.error("এই শিক্ষার্থী স্কলারশিপ পায়নি।");
+        return null;
+      }
+
+      return details;
+    } catch (error) {
+      console.error("Error fetching scholarship details:", error);
+      message.error("স্কলারশিপ তথ্য পাওয়া যায়নি। আইডি চেক করুন।");
+      return null;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleScholarshipIDSubmit = async (values) => {
     try {
       const details = await fetchScholarshipDetails(values.scholarshipID);
-      setScholarshipDetails(details);
-      setStep(2);
+      if (details) {
+        setScholarshipDetails(details);
+        setStep(2);
+      }
     } catch (error) {
-      console.error("Error fetching scholarship details:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error processing scholarship details:", error);
     }
   };
 
   const handleWithdrawalSubmit = async (values) => {
     setLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log("Withdrawal request submitted:", values);
-      setStep(3); // Success step
+      const response = await coreAxios.post("/scholarship-cost-info", {
+        scholarshipID: scholarshipDetails.scholarshipID,
+        amount: values.amount,
+        paymentMethod: values.paymentMethod,
+        fundName: "withdrawal",
+      });
+
+      if (
+        response.data.message === "Scholarship cost info submitted successfully"
+      ) {
+        message.success("উত্তোলনের অনুরোধ সফলভাবে জমা হয়েছে!");
+        setStep(3);
+      } else {
+        throw new Error("API request failed");
+      }
     } catch (error) {
       console.error("Error submitting withdrawal:", error);
+      message.error(
+        "উত্তোলনের অনুরোধ জমা করতে ব্যর্থ হয়েছে। পরে আবার চেষ্টা করুন।"
+      );
     } finally {
       setLoading(false);
     }
@@ -211,11 +280,14 @@ const ScholarshipPayment = () => {
           {!scanning && step === 1 && (
             <Formik
               initialValues={{ scholarshipID: "" }}
-              validationSchema={Yup.object({
-                scholarshipID: Yup.string()
-                  .required("স্কলারশিপ আইডি আবশ্যক")
-                  .matches(/^[A-Za-z0-9]+$/, "অবৈধ স্কলারশিপ আইডি ফরম্যাট"),
-              })}
+              // validationSchema={Yup.object({
+              //   scholarshipID: Yup.string()
+              //     .required("স্কলারশিপ আইডি আবশ্যক")
+              //     .matches(
+              //       /^DMS\d{10}$/,
+              //       "অবৈধ স্কলারশিপ আইডি ফরম্যাট (সঠিক ফরম্যাট: DMSxxxxx, যেখানে x হচ্ছে সংখ্যা)"
+              //     ),
+              // })}
               onSubmit={handleScholarshipIDSubmit}
             >
               {({ errors, touched, setFieldValue }) => (
@@ -231,7 +303,7 @@ const ScholarshipPayment = () => {
                       <Field
                         as={Input}
                         name="scholarshipID"
-                        placeholder="যেমন: SCH20230001"
+                        placeholder="যেমন: DMS25505"
                         size="large"
                         className={`flex-1 ${
                           errors.scholarshipID && touched.scholarshipID
@@ -277,34 +349,52 @@ const ScholarshipPayment = () => {
               ) : (
                 <>
                   <div className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-                    <Title level={4} className="mb-4 text-green-800">
-                      স্কলারশিপ বিবরণ
-                    </Title>
-                    <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="flex items-center mb-4">
+                      {scholarshipDetails.image && (
+                        <img
+                          src={scholarshipDetails.image}
+                          alt="Student"
+                          className="w-16 h-16 rounded-full object-cover mr-4"
+                        />
+                      )}
                       <div>
-                        <Text strong className="text-green-700">
-                          ছাত্রের নাম:
-                        </Text>
-                        <p className="text-green-800">
+                        <Title level={4} className="mb-0 text-green-800">
                           {scholarshipDetails.studentName}
-                        </p>
-                      </div>
-                      <div>
-                        <Text strong className="text-green-700">
-                          প্রোগ্রাম:
-                        </Text>
-                        <p className="text-green-800">
+                        </Title>
+                        <Text className="text-green-600">
                           {scholarshipDetails.program}
-                        </p>
+                        </Text>
                       </div>
                     </div>
+
+                    <Descriptions
+                      bordered
+                      column={2}
+                      size="small"
+                      className="mb-4"
+                    >
+                      <Descriptions.Item label="শ্রেণী">
+                        {scholarshipDetails.class}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="প্রাপ্ত নম্বর">
+                        {scholarshipDetails.totalMarks}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="গ্রেড">
+                        <span className="font-semibold">
+                          {scholarshipDetails.grade}
+                        </span>
+                      </Descriptions.Item>
+                      <Descriptions.Item label="আইডি">
+                        {scholarshipDetails.scholarshipID}
+                      </Descriptions.Item>
+                    </Descriptions>
 
                     <Divider className="my-4 border-green-200" />
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="p-3 bg-green-100 rounded border border-green-200">
                         <Text strong className="text-green-700">
-                          উইথড্রো করার অর্থ:
+                          উত্তোলনের অর্থ:
                         </Text>
                         <p className="text-xl font-bold text-green-700">
                           {scholarshipDetails.withdrawalBalance} টাকা
