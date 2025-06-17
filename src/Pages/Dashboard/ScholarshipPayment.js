@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Card, Input, Button, Form, message, Skeleton } from "antd";
+import { Card, Input, Button, Form, message, Skeleton, Switch } from "antd";
 import { Html5Qrcode } from "html5-qrcode";
+import { SyncOutlined } from "@ant-design/icons";
 
 const ScholarshipPayment = () => {
   const [scholarshipID, setScholarshipID] = useState(null);
@@ -8,6 +9,9 @@ const ScholarshipPayment = () => {
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(true);
   const [cameraError, setCameraError] = useState(false);
+  const [cameras, setCameras] = useState([]);
+  const [currentCameraIndex, setCurrentCameraIndex] = useState(0);
+  const [isFrontCamera, setIsFrontCamera] = useState(false);
   const scannerRef = useRef(null);
   const scannerId = "qr-reader";
 
@@ -18,24 +22,13 @@ const ScholarshipPayment = () => {
     );
   };
 
-  // Function to find back camera
-  const getBackCamera = async () => {
+  // Function to get all available cameras
+  const getAvailableCameras = async () => {
     try {
       const devices = await Html5Qrcode.getCameras();
       if (devices && devices.length) {
-        // For mobile devices, try to find back camera
-        if (isMobileDevice()) {
-          // Different devices may label the back camera differently
-          const backCamera = devices.find(
-            (device) =>
-              device.label.toLowerCase().includes("back") ||
-              device.label.toLowerCase().includes("rear") ||
-              device.label.toLowerCase().includes("environment") ||
-              device.label.toLowerCase().includes("2")
-          );
-          return backCamera || devices[0]; // Fallback to first camera
-        }
-        return devices[0]; // For non-mobile, use first camera
+        setCameras(devices);
+        return devices;
       }
       return null;
     } catch (err) {
@@ -44,59 +37,86 @@ const ScholarshipPayment = () => {
     }
   };
 
-  useEffect(() => {
+  // Function to start scanner with specific camera
+  const startScanner = async (cameraIndex = 0) => {
     if (!scanning) return;
 
     const html5QrCode = new Html5Qrcode(scannerId);
     scannerRef.current = html5QrCode;
 
-    const startScanner = async () => {
-      try {
-        const camera = await getBackCamera();
-        if (camera) {
-          await html5QrCode.start(
-            camera.id,
-            {
-              fps: 10,
-              qrbox: { width: 250, height: 250 },
-              facingMode: isMobileDevice() ? "environment" : "user", // Explicitly set for mobile
-            },
-            (decodedText) => {
-              handleScanSuccess(html5QrCode, decodedText);
-            },
-            (errorMessage) => {
-              // Ignore scan errors
-            }
-          );
-        } else {
-          setCameraError(true);
-          message.error("No camera found. Please check your device.");
-        }
-      } catch (err) {
-        console.error("Camera error:", err);
+    try {
+      const availableCameras = await getAvailableCameras();
+      if (!availableCameras || availableCameras.length === 0) {
         setCameraError(true);
-        message.error("Failed to access camera. Please check permissions.");
+        message.error("No camera found. Please check your device.");
+        return;
       }
-    };
 
-    const handleScanSuccess = (scanner, decodedText) => {
-      scanner
-        .stop()
-        .then(() => {
-          setScholarshipID(decodedText);
-          setScanning(false);
-          message.success("Scholarship ID scanned successfully!");
-        })
-        .catch((err) => {
-          console.error("Failed to stop scanner:", err);
-          message.error("Failed to stop scanner after scan.");
-          setScanning(false);
-          setScholarshipID(decodedText);
-        });
-    };
+      // Ensure the index is within bounds
+      const index = Math.min(cameraIndex, availableCameras.length - 1);
+      const camera = availableCameras[index];
 
+      await html5QrCode.start(
+        camera.id,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          facingMode:
+            isMobileDevice() && !isFrontCamera ? "environment" : "user",
+        },
+        (decodedText) => {
+          handleScanSuccess(html5QrCode, decodedText);
+        },
+        (errorMessage) => {
+          // Ignore scan errors
+        }
+      );
+
+      setCurrentCameraIndex(index);
+      setIsFrontCamera(
+        camera.label.toLowerCase().includes("front") ||
+          camera.label.toLowerCase().includes("user") ||
+          camera.label.toLowerCase().includes("1")
+      );
+    } catch (err) {
+      console.error("Camera error:", err);
+      setCameraError(true);
+      message.error("Failed to access camera. Please check permissions.");
+    }
+  };
+
+  const handleScanSuccess = (scanner, decodedText) => {
+    scanner
+      .stop()
+      .then(() => {
+        setScholarshipID(decodedText);
+        setScanning(false);
+        message.success("Scholarship ID scanned successfully!");
+      })
+      .catch((err) => {
+        console.error("Failed to stop scanner:", err);
+        message.error("Failed to stop scanner after scan.");
+        setScanning(false);
+        setScholarshipID(decodedText);
+      });
+  };
+
+  const switchCamera = () => {
+    if (cameras.length < 2) {
+      message.warning("Only one camera available");
+      return;
+    }
+
+    const newIndex = (currentCameraIndex + 1) % cameras.length;
+    if (scannerRef.current && scannerRef.current.isScanning) {
+      scannerRef.current.stop().then(() => {
+        startScanner(newIndex);
+      });
+    }
+  };
+
+  useEffect(() => {
     startScanner();
-
     return () => {
       if (scannerRef.current && scannerRef.current.isScanning) {
         scannerRef.current.stop().catch(() => {});
@@ -132,9 +152,21 @@ const ScholarshipPayment = () => {
       >
         {scanning ? (
           <div className="mb-4">
-            <p className="text-center font-semibold text-green-700 mb-2">
-              Scan Scholarship QR Code
-            </p>
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-semibold text-green-700">
+                Scan Scholarship QR Code
+              </p>
+              {cameras.length > 1 && (
+                <Button
+                  icon={<SyncOutlined />}
+                  onClick={switchCamera}
+                  type="text"
+                  size="small"
+                >
+                  Switch Camera
+                </Button>
+              )}
+            </div>
             {cameraError ? (
               <div className="text-center p-4 border rounded bg-gray-50">
                 <p className="text-red-500 mb-2">Camera access failed</p>
@@ -145,7 +177,7 @@ const ScholarshipPayment = () => {
                   type="primary"
                   onClick={() => {
                     setCameraError(false);
-                    setScanning(true);
+                    startScanner();
                   }}
                 >
                   Retry Camera Access
