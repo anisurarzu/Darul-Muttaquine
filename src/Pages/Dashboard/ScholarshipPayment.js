@@ -76,11 +76,11 @@ const ScholarshipPayment = () => {
     const handleScanSuccess = async (decodedText) => {
       try {
         // Validate scanned ID format
-        if (!/^DMS\d{5}$/.test(decodedText)) {
-          message.error("অবৈধ স্কলারশিপ আইডি ফরম্যাট");
-          setScanning(false);
-          return;
-        }
+        // if (!/^DMS\d{5}$/.test(decodedText)) {
+        //   message.error("অবৈধ স্কলারশিপ আইডি ফরম্যাট");
+        //   setScanning(false);
+        //   return;
+        // }
 
         // Stop scanner
         await scannerRef.current.stop();
