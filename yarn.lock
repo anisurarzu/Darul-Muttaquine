@@ -6539,6 +6539,11 @@
     "html2canvas" "^1.0.0"
     "jspdf" "^2.3.1"
 
+"html5-qrcode@^2.3.8":
+  "integrity" "sha512-jsr4vafJhwoLVEDW3n1KvPnCCXWaQfRng0/EEYk1vNcQGcG/htAdhJX0be8YyqMoSz7+hZvOZSTAepsabiuhiQ=="
+  "resolved" "https://registry.npmjs.org/html5-qrcode/-/html5-qrcode-2.3.8.tgz"
+  "version" "2.3.8"
+
 "htmlparser2@^6.1.0":
   "integrity" "sha512-gyyPk6rgonLFEDGoeRgQNaEUvdJ4ktTmmUh/h2t7s+M8oPpIPxgNACWa+6ESR57kXstwqPiCut0V8NRpcwgU7A=="
   "resolved" "https://registry.npmjs.org/htmlparser2/-/htmlparser2-6.1.0.tgz"

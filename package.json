@@ -19,6 +19,7 @@
         "formik": "^2.4.6",
         "framer-motion": "^11.11.17",
         "html2pdf.js": "^0.10.2",
+        "html5-qrcode": "^2.3.8",
         "jspdf": "^2.5.2",
         "jspdf-autotable": "^3.8.3",
         "moment": "^2.30.1",

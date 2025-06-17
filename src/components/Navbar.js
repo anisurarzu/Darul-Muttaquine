@@ -78,8 +78,15 @@ const Navbar = () => {
             </NavLink> */}
             <NavLink
               to="/scholarship-public"
-              className="hover:text-green-500 pt-2">
+              className="hover:text-green-500 pt-2"
+            >
               শিহ্মাবৃত্তি
+            </NavLink>
+            <NavLink
+              to="/scholarship-payment"
+              className="hover:text-green-500 pt-2"
+            >
+              Money
             </NavLink>
             {/* <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
@@ -91,7 +98,8 @@ const Navbar = () => {
               <>
                 <div
                   onClick={handleLogout}
-                  className="cursor-pointer hover:text-green-500 pt-2">
+                  className="cursor-pointer hover:text-green-500 pt-2"
+                >
                   লগ আউট
                 </div>
                 <div>
@@ -126,21 +134,24 @@ const Navbar = () => {
             <ul className="grid grid-cols-3 gap-y-2 gap-x-4 items-center space-y-2 py-2 text-[1.4rem] ml-8 my-2">
               <li
                 style={{ background: "#408F49" }}
-                className="mt-2 p-2 text-white rounded-lg text-center">
+                className="mt-2 p-2 text-white rounded-lg text-center"
+              >
                 <NavLink to="/about" onClick={() => setShowMobileMenu(false)}>
                   আমাদের সম্পর্কে
                 </NavLink>
               </li>
               <li
                 style={{ background: "#408F49" }}
-                className="p-2 text-white rounded-lg text-center">
+                className="p-2 text-white rounded-lg text-center"
+              >
                 <NavLink to="/history" onClick={() => setShowMobileMenu(false)}>
                   <FileImageOutlined /> <span className="pl-1"> গ্যালারী</span>
                 </NavLink>
               </li>
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="   p-2 text-white rounded-lg text-center"
+              >
                 <NavLink to="/result" onClick={() => setShowMobileMenu(false)}>
                   ফলাফল
                 </NavLink>
@@ -155,30 +166,47 @@ const Navbar = () => {
 
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="   p-2 text-white rounded-lg text-center"
+              >
                 <NavLink
                   to="/dashboard"
-                  onClick={() => setShowMobileMenu(false)}>
+                  onClick={() => setShowMobileMenu(false)}
+                >
                   <DashboardOutlined />{" "}
                   <span className="pl-1"> ড্যাশবোর্ড</span>
                 </NavLink>
               </li>
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="   p-2 text-white rounded-lg text-center"
+              >
                 <NavLink
                   to="/publicQuize"
-                  onClick={() => setShowMobileMenu(false)}>
+                  onClick={() => setShowMobileMenu(false)}
+                >
                   <QuestionCircleOutlined /> <span className="pl-1"> কুইজ</span>
                 </NavLink>
               </li>
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="   p-2 text-white rounded-lg text-center"
+              >
                 <NavLink
                   to="/scholarship-public"
-                  className="hover:text-green-500 pt-2">
+                  className="hover:text-green-500 pt-2"
+                >
                   শিহ্মাবৃত্তি
+                </NavLink>
+              </li>
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center"
+              >
+                <NavLink
+                  to="/scholarship-payment"
+                  className="hover:text-green-500 pt-2"
+                >
+                  Money
                 </NavLink>
               </li>
               {/* <li
@@ -190,7 +218,8 @@ const Navbar = () => {
               </li> */}
               <li
                 style={{ background: "#408F49" }}
-                className="   p-2 text-white rounded-lg text-center">
+                className="   p-2 text-white rounded-lg text-center"
+              >
                 <NavLink to="/contact" onClick={() => setShowMobileMenu(false)}>
                   <ContactsOutlined /> <span className="pl-1"> যোগাযোগ</span>
                 </NavLink>
@@ -202,14 +231,16 @@ const Navbar = () => {
                     setShowMobileMenu(false);
                   }}
                   style={{ background: "#408F49" }}
-                  className="   p-2 text-white rounded-lg text-center">
+                  className="   p-2 text-white rounded-lg text-center"
+                >
                   <LoginOutlined />
                   <span className="pl-1"> লগ আউট</span>
                 </li>
               ) : (
                 <li
                   style={{ background: "#408F49" }}
-                  className="   p-2 text-white rounded-lg text-center">
+                  className="   p-2 text-white rounded-lg text-center"
+                >
                   <NavLink to="/login" onClick={() => setShowMobileMenu(false)}>
                     <LoginOutlined /> <span className="pl-1"> লগ ইন</span>
                   </NavLink>
@@ -218,7 +249,8 @@ const Navbar = () => {
               <li className="col-span-2 flex gap-2 justify-end">
                 <p
                   style={{ color: "#408F49" }}
-                  className="text-center pt-2 bangla-text">
+                  className="text-center pt-2 bangla-text"
+                >
                   {userInfo?.firstName} {userInfo?.lastName}
                 </p>
                 <div>
