@@ -11,6 +11,39 @@ const ScholarshipPayment = () => {
   const scannerRef = useRef(null);
   const scannerId = "qr-reader";
 
+  // Function to detect mobile devices
+  const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+  };
+
+  // Function to find back camera
+  const getBackCamera = async () => {
+    try {
+      const devices = await Html5Qrcode.getCameras();
+      if (devices && devices.length) {
+        // For mobile devices, try to find back camera
+        if (isMobileDevice()) {
+          // Different devices may label the back camera differently
+          const backCamera = devices.find(
+            (device) =>
+              device.label.toLowerCase().includes("back") ||
+              device.label.toLowerCase().includes("rear") ||
+              device.label.toLowerCase().includes("environment") ||
+              device.label.toLowerCase().includes("2")
+          );
+          return backCamera || devices[0]; // Fallback to first camera
+        }
+        return devices[0]; // For non-mobile, use first camera
+      }
+      return null;
+    } catch (err) {
+      console.error("Error getting cameras:", err);
+      return null;
+    }
+  };
+
   useEffect(() => {
     if (!scanning) return;
 
@@ -19,15 +52,14 @@ const ScholarshipPayment = () => {
 
     const startScanner = async () => {
       try {
-        const cameras = await Html5Qrcode.getCameras();
-        if (cameras && cameras.length) {
-          const cameraId = cameras[0].id;
-
+        const camera = await getBackCamera();
+        if (camera) {
           await html5QrCode.start(
-            cameraId,
+            camera.id,
             {
               fps: 10,
               qrbox: { width: 250, height: 250 },
+              facingMode: isMobileDevice() ? "environment" : "user", // Explicitly set for mobile
             },
             (decodedText) => {
               handleScanSuccess(html5QrCode, decodedText);
@@ -106,6 +138,9 @@ const ScholarshipPayment = () => {
             {cameraError ? (
               <div className="text-center p-4 border rounded bg-gray-50">
                 <p className="text-red-500 mb-2">Camera access failed</p>
+                <p className="text-sm text-gray-600 mb-3">
+                  Please ensure you've granted camera permissions and try again.
+                </p>
                 <Button
                   type="primary"
                   onClick={() => {
