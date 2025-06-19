@@ -94,6 +94,7 @@ export default function PublicQuiz() {
                 a.totalAnswerTime - b.totalAnswerTime
             )
             .map((item, index) => ({ ...item, rank: index + 1 }));
+
           setAllTimeLeaderboard(sorted);
         }
 
@@ -315,7 +316,7 @@ export default function PublicQuiz() {
           : selectedQuiz?.quizQuestions?.length || 10)) *
         100
     );
-
+    const displayName = participant.userName || participant.name || "Anonymous";
     return (
       <div
         key={participant.name + index}
@@ -342,7 +343,7 @@ export default function PublicQuiz() {
             />
 
             <div className="ml-3">
-              <h3 className="font-semibold">{participant.name}</h3>
+              <h3 className="font-semibold">{displayName}</h3>
               <div className="flex items-center mt-1">
                 <Tag color="geekblue" className="font-semibold text-lg">
                   Score: {participant.totalMarks}
@@ -431,7 +432,9 @@ export default function PublicQuiz() {
       quizID: selectedQuiz._id,
       isSubmitted: "true",
       userId: userInfo?.uniqueId || "temp_" + tempUserInfo?.phone,
-      userName: userInfo?.firstName + userInfo?.lastName || tempUserInfo?.name,
+      userName: userInfo
+        ? `${userInfo.firstName || ""} ${userInfo.lastName || ""}`.trim()
+        : tempUserInfo?.name || "Guest User",
       userPhone: userInfo?.phone || tempUserInfo?.phone,
       userEmail: userInfo?.email || tempUserInfo?.email,
       answers: submissionData,
@@ -480,6 +483,7 @@ export default function PublicQuiz() {
                 a.totalAnswerTime - b.totalAnswerTime
             )
             .map((item, index) => ({ ...item, rank: index + 1 }));
+          console.log("alltime---1", sorted);
           setAllTimeLeaderboard(sorted);
         }
 

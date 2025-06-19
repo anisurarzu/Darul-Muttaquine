@@ -1,139 +1,46 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {
-  Button,
-  Modal,
-  Input,
-  Form,
-  notification,
-  Avatar,
-  Tooltip,
-} from "antd";
+import { Rate, message, Skeleton } from "antd";
 import { useHistory } from "react-router-dom";
 import EnrollmentModal from "./EnrollmentModal";
 import { coreAxios } from "../../utilities/axios";
-
-const coursesData = [
-  {
-    id: 1,
-    title: "তথ্য ও যোগাযোগ প্রযুক্তি (H.S.C.)",
-    category: "আইসিটি",
-    description:
-      "আইসিটির বিভিন্ন বিষয় সম্পর্কে বিস্তারিত ধারণা এবং ব্যবহারিক জ্ঞান।",
-    instructor: {
-      name: "মোহাম্মদ হাসান",
-      image: "https://i.ibb.co/kSzpnXJ/unnamed.png", // Example image
-    },
-    startDate: "২০২৪-০১-১৫",
-    endDate: "২০২৪-০২-১৫",
-    duration: "১ মাস",
-    availableSeats: 25,
-    batchNumber: "BATCH 1",
-    outline: [
-      {
-        classNumber: 1,
-        topics: [
-          "AI সম্পর্কে ধারণা ও কিভাবে কাজ করে",
-          "রোবোটিকস",
-          "ক্রায়োসার্জারী",
-          "বায়োমেট্রিকস",
-          "বায়োফরমেট্রিক্সস",
-          "জেনেটিক ইঞ্জিনিয়ারিং",
-          "ন্যানোটেকনোলজি",
-        ],
-        description: "------------- এগুলো সম্পর্কে জাস্ট ধারণা দেওয়া...",
-      },
-      // More class outlines...
-    ],
-    image: "https://i.ibb.co/kSzpnXJ/unnamed.png",
-    qualifications: "মৌলিক কম্পিউটার জ্ঞান এবং ইন্টারনেট ব্যবহারের অভিজ্ঞতা।",
-    certifications: "কোর্স শেষে একটি সার্টিফিকেট প্রদান করা হবে।",
-    enrolledStudents: [
-      { name: "Student 1", image: "https://i.pravatar.cc/150?img=1" },
-      { name: "Student 2", image: "https://i.pravatar.cc/150?img=2" },
-      { name: "Student 3", image: "https://i.pravatar.cc/150?img=3" },
-      // More student images...
-    ],
-  },
-  {
-    id: 1,
-    title: "তথ্য ও যোগাযোগ প্রযুক্তি (H.S.C.)",
-    category: "আইসিটি",
-    description:
-      "আইসিটির বিভিন্ন বিষয় সম্পর্কে বিস্তারিত ধারণা এবং ব্যবহারিক জ্ঞান।",
-    instructor: {
-      name: "মোহাম্মদ হাসান",
-      image: "https://i.ibb.co/kSzpnXJ/unnamed.png", // Example image
-    },
-    startDate: "২০২৪-০১-১৫",
-    endDate: "২০২৪-০২-১৫",
-    duration: "১ মাস",
-    availableSeats: 25,
-    batchNumber: "BATCH 1",
-    outline: [
-      {
-        classNumber: 1,
-        topics: [
-          "AI সম্পর্কে ধারণা ও কিভাবে কাজ করে",
-          "রোবোটিকস",
-          "ক্রায়োসার্জারী",
-          "বায়োমেট্রিকস",
-          "বায়োফরমেট্রিক্সস",
-          "জেনেটিক ইঞ্জিনিয়ারিং",
-          "ন্যানোটেকনোলজি",
-        ],
-        description: "------------- এগুলো সম্পর্কে জাস্ট ধারণা দেওয়া...",
-      },
-      // More class outlines...
-    ],
-    image: "https://i.ibb.co/kSzpnXJ/unnamed.png",
-    qualifications: "মৌলিক কম্পিউটার জ্ঞান এবং ইন্টারনেট ব্যবহারের অভিজ্ঞতা।",
-    certifications: "কোর্স শেষে একটি সার্টিফিকেট প্রদান করা হবে।",
-    enrolledStudents: [
-      { name: "Student 1", image: "https://i.pravatar.cc/150?img=1" },
-      { name: "Student 2", image: "https://i.pravatar.cc/150?img=2" },
-      { name: "Student 3", image: "https://i.pravatar.cc/150?img=3" },
-      // More student images...
-    ],
-  },
-  // Other courses...
-];
-
-const saveEnrollmentToAPI = (values) => {
-  console.log("Sending to API:", values); // Simulate API call
-  notification.success({
-    message: "এনরোলমেন্ট সফল হয়েছে!",
-    description: `আপনি সফলভাবে ${values.courseTitle} কোর্সে এনরোল করেছেন।`,
-  });
-};
 
 export default function CoursePage() {
   const [isEnrollModalVisible, setIsEnrollModalVisible] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [courseData, setCourseData] = useState([]);
 
-  const fetchQuizeInfo = async () => {
+  const fetchCourseInfo = async () => {
     try {
       setLoading(true);
       const response = await coreAxios.get("/courses");
       if (response?.status === 200) {
-        setLoading(false);
-        const sortedData = response?.data?.courses?.sort((a, b) => {
-          return new Date(b?.createdAt) - new Date(a?.createdAt);
-        });
+        const sortedData = response?.data?.courses?.sort(
+          (a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)
+        );
         setCourseData(sortedData);
       }
     } catch (err) {
+      console.error(err);
+      message.error("Failed to load courses. Please try again later.");
+    } finally {
       setLoading(false);
-      console.log(err);
     }
   };
+
+  useEffect(() => {
+    fetchCourseInfo();
+  }, []);
 
   const handleEnrollClick = (course) => {
     setSelectedCourse(course);
     setIsEnrollModalVisible(true);
+  };
+
+  const handleDetailsClick = (courseId) => {
+    history.push(`/course/${courseId}`);
   };
 
   const closeEnrollModal = () => {
@@ -141,113 +48,160 @@ export default function CoursePage() {
     setSelectedCourse(null);
   };
 
-  const handleEnrollSubmit = (values) => {
-    saveEnrollmentToAPI({ ...values, courseTitle: selectedCourse.title });
-    closeEnrollModal();
-  };
-
-  useEffect(() => {
-    fetchQuizeInfo();
-  }, []);
-
-  const renderCourseCard = (course) => (
-    <motion.div
-      key={course.id}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="bg-white shadow-lg rounded-lg border hover:shadow-xl transition flex flex-col justify-between">
-      <img
-        src={"https://i.ibb.co/kSzpnXJ/unnamed.png"}
-        alt={course.title}
-        className="w-full h-[200px] object-cover rounded-t-md"
-      />
-      <div className="p-4 flex flex-col flex-grow ">
-        <h3 className="text-2xl font-bold text-[#2D6A3F] bangla-text">
-          {course.title}{" "}
-          <span
-            style={{
-              position: "relative",
-              top: "-213px",
-              right: "-84px",
-            }}
-            className="text-xl text-white bg-[#80CC37] p-2 rounded-full w-8 text-white font-semibold">
-            {"New"}
-          </span>
-        </h3>
-        <p className="text-gray-600 text-md mb-2 flex-grow ">
-          {course.description}
-        </p>
-
-        {/* Instructor Info */}
-        <div className="flex items-center">
-          <Avatar src={"https://i.pravatar.cc/150?img=1"} size="small" />
-          <span className="ml-2">{course?.instructorName}</span>
-        </div>
-
-        {/* Course Duration, Start & End Date, Available Seats, Batch No */}
-
-        {/* Enrolled Students - Manual Avatar Group */}
-        <div className="mt-4 grid grid-cols-3">
-          <div className="col-span-2">
-            <h4 className="text-md font-semibold text-[#2D6A3F]">
-              এনরোল্ড স্টুডেন্টস:
-            </h4>
-            <div className="flex space-x-2">
-              <Avatar.Group>
-                {course?.enrollments?.map((student, index) => (
-                  <Tooltip key={index} title={student?.name}>
-                    <Avatar
-                      src={"https://i.pravatar.cc/150?img=1"}
-                      size="small"
-                    />
-                  </Tooltip>
-                ))}
-              </Avatar.Group>
-            </div>
-          </div>
-          <div className="">
-            <p className="text-sm text-gray-600 text-right">
-              <span>সময়কাল:</span> {course.duration}
-            </p>
-            {/* <p className="text-sm text-gray-600">
-              <span>শুরু তারিখ:</span> {course.startDate}{" "}
-              <span>শেষ তারিখ:</span> {course.endDate}
-            </p> */}
-          </div>
+  const CourseSkeleton = () => (
+    <div className="bg-white rounded-xl overflow-hidden flex flex-col h-full border border-gray-100">
+      <Skeleton.Image active className="!w-full !h-48" />
+      <div className="p-6 flex flex-col flex-grow">
+        <Skeleton active paragraph={{ rows: 0 }} />
+        <Skeleton active paragraph={{ rows: 2 }} />
+        <div className="mt-auto">
+          <Skeleton.Button active size="default" className="!w-full !mt-4" />
         </div>
       </div>
-
-      <div className="flex justify-between p-4 mt-auto bangla-text">
-        <Button
-          size="small"
-          type="primary"
-          className="enroll-button hover:!bg-[#2D6A3F] hover:!text-white"
-          onClick={() => handleEnrollClick(course)}>
-          এনরোল করুন
-        </Button>
-        <Button
-          size="small"
-          className="details-button hover:!bg-[#2D6A3F] hover:!text-white"
-          onClick={() => history.push(`/course/${course._id}`)}>
-          বিস্তারিত
-        </Button>
-      </div>
-    </motion.div>
+    </div>
   );
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-4xl font-bold text-center mb-10 text-[#2D6A3F]">
-        কোর্সসমূহ
-      </h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {courseData.map((course) => renderCourseCard(course))}
+    <div className="w-full bg-gray-50 min-h-screen pb-16 overflow-x-hidden">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-green-600 to-green-700 text-white py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
+            আমাদের কোর্সসমূহ
+          </h1>
+          <p className="text-base sm:text-lg max-w-3xl mx-auto">
+            আধুনিক প্রযুক্তি ও ডিজিটাল দক্ষতা উন্নয়নের জন্য আমাদের বিশেষায়িত
+            কোর্সসমূহ
+          </p>
+        </div>
       </div>
 
+      {/* Course List */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8  mx-8 md:mx-12 lg:mx-16 xl:mx-20">
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {[...Array(5)].map((_, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              >
+                <CourseSkeleton />
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {courseData.map((course) => (
+              <motion.div
+                key={course._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ scale: 1.02 }}
+                className="bg-white rounded-2xl overflow-hidden flex flex-col h-full border border-gray-200"
+              >
+                <div className="h-[180px] w-full overflow-hidden">
+                  <img
+                    src={
+                      course.image ||
+                      "https://via.placeholder.com/600x400/EDF2F7/64748B?text=Course+Image"
+                    }
+                    alt={course.title}
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+
+                <div className="p-4 sm:p-6 flex flex-col flex-grow space-y-3">
+                  <div className="flex flex-wrap justify-between items-center">
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-medium">
+                      {course.category || "প্রযুক্তি"}
+                    </span>
+                    {course.isPremium && (
+                      <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full font-medium mt-2 sm:mt-0">
+                        প্রিমিয়াম
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-xl font-bold text-gray-900 leading-snug">
+                    {course.title}
+                  </h3>
+
+                  <p className="text-gray-700 text-sm line-clamp-3">
+                    {course.description?.slice(0, 100) ||
+                      "কোর্সের সংক্ষিপ্ত বিবরণ এখানে।"}
+                    ...
+                  </p>
+
+                  <div className="space-y-2 mt-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Rate
+                          disabled
+                          allowHalf
+                          defaultValue={course.rating || 4.5}
+                          className="text-sm"
+                        />
+                        <span className="text-gray-600 text-sm">
+                          ({course.totalReviews || 0} রিভিউ)
+                        </span>
+                      </div>
+                      <span className="text-gray-700 text-lg font-bold mt-2 sm:mt-0">
+                        {course.price
+                          ? `${new Intl.NumberFormat("bn-BD").format(
+                              course.price
+                            )}৳`
+                          : "০৳"}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 mt-3">
+                      <button
+                        onClick={() => handleDetailsClick(course._id)}
+                        className="w-full border-2 border-green-600 text-green-600 py-2 px-4 rounded-xl hover:bg-green-50 transition-all text-sm font-semibold"
+                      >
+                        বিস্তারিত
+                      </button>
+                      <button
+                        onClick={() => handleEnrollClick(course)}
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl transition-all text-sm font-semibold"
+                      >
+                        এনরোল করুন
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {!loading && courseData.length === 0 && (
+          <div className="text-center py-16">
+            <div className="text-gray-600 text-lg mb-6">
+              কোন কোর্স পাওয়া যায়নি
+            </div>
+            <button
+              onClick={fetchCourseInfo}
+              className="text-green-600 hover:text-green-700 font-semibold text-base px-6 py-2 border-2 border-green-600 rounded-lg hover:bg-green-50 transition-colors"
+            >
+              আবার চেষ্টা করুন
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Enrollment Modal */}
       <EnrollmentModal
         visible={isEnrollModalVisible}
         onClose={closeEnrollModal}
         course={selectedCourse}
+        onEnrollSuccess={() => {
+          message.success("সফলভাবে এনরোল করা হয়েছে!");
+          closeEnrollModal();
+        }}
       />
     </div>
   );
