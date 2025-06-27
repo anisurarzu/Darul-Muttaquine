@@ -634,9 +634,7 @@ const ScholarshipPayment = () => {
                               >
                                 <Option value="bKash">bKash</Option>
                                 <Option value="Nagad">Nagad</Option>
-                                <Option value="Bank Transfer">
-                                  ব্যাংক ট্রান্সফার
-                                </Option>
+                                <Option value="Cash">Cash</Option>
                               </Field>
                               {errors.paymentMethod && touched.paymentMethod ? (
                                 <div className="text-red-500 text-sm mt-1">
