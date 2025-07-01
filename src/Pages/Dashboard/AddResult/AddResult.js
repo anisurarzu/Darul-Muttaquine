@@ -1,37 +1,71 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useEffect } from "react";
 import { toast } from "react-toastify";
-import { Button, Flex, Progress, Result, Upload } from "antd";
-import { coreAxios } from "../../../utilities/axios";
 import { useFormik } from "formik";
-import Scholarship from "../../scholarship/Scholarship";
+import { coreAxios } from "../../../utilities/axios";
 
 const AddResult = () => {
   const formik = useFormik({
     initialValues: {
       scholarshipRollNumber: "",
-      totalCorrectAns: null,
-      totalWrongAns: null,
-      totalGivenAns: null,
-      totalMarks: null,
-    }, // Ensure you have proper initial values
+      totalCorrectAns: "",
+      totalWrongAns: "",
+      totalGivenAns: "",
+      totalMarks: "",
+      courseFund: "",
+      prizeMoney: "",
+    },
     onSubmit: async (values) => {
-      console.log("values", values); // Check if values are received correctly
       try {
-        const res = await coreAxios.post(`/add-result`, {
-          scholarshipRollNumber: values?.scholarshipRollNumber,
-          resultDetails: values,
-        });
+        const payload = {
+          scholarshipRollNumber: values.scholarshipRollNumber,
+          resultDetails: { ...values },
+        };
+
+        const res = await coreAxios.post(`/add-result`, payload);
         if (res?.status === 200) {
           toast.success("Successfully Saved!");
           formik.resetForm();
         }
       } catch (err) {
-        toast.error(err?.response?.data?.message);
+        toast.error(err?.response?.data?.message || "Something went wrong!");
       }
     },
     enableReinitialize: true,
   });
+
+  // Fetch on scholarshipRollNumber input change
+  useEffect(() => {
+    const roll = formik.values.scholarshipRollNumber;
+    if (roll && roll.length >= 4) {
+      const fetchData = async () => {
+        try {
+          const res = await coreAxios.get(`/search-result/${roll}`);
+          const data = res?.data;
+
+          if (data?.resultDetails?.length > 0) {
+            const result = data.resultDetails[0];
+
+            // Set result fields
+            formik.setFieldValue(
+              "totalCorrectAns",
+              result.totalCorrectAns || ""
+            );
+            formik.setFieldValue("totalWrongAns", result.totalWrongAns || "");
+            formik.setFieldValue("totalGivenAns", result.totalGivenAns || "");
+            formik.setFieldValue("totalMarks", result.totalMarks || "");
+            formik.setFieldValue("courseFund", result.courseFund || "");
+            formik.setFieldValue("prizeMoney", result.prizeMoney || "");
+          } else {
+            toast.info("No previous result data found for this Roll Number.");
+          }
+        } catch (err) {
+          toast.error("Result fetch failed or Roll Number not found.");
+        }
+      };
+
+      fetchData();
+    }
+  }, [formik.values.scholarshipRollNumber]);
 
   const inputData = [
     {
@@ -39,8 +73,6 @@ const AddResult = () => {
       name: "scholarshipRollNumber",
       type: "text",
       label: "Scholarship Roll Number",
-      errors: "",
-      register: "",
       required: true,
     },
     {
@@ -48,8 +80,6 @@ const AddResult = () => {
       name: "totalCorrectAns",
       type: "number",
       label: "Total Correct Answer",
-      errors: "",
-      register: "",
       required: true,
     },
     {
@@ -57,8 +87,6 @@ const AddResult = () => {
       name: "totalWrongAns",
       type: "number",
       label: "Total Wrong Answer",
-      errors: "",
-      register: "",
       required: true,
     },
     {
@@ -66,8 +94,6 @@ const AddResult = () => {
       name: "totalGivenAns",
       type: "number",
       label: "Total Given Answer",
-      errors: "",
-      register: "",
       required: true,
     },
     {
@@ -75,8 +101,20 @@ const AddResult = () => {
       name: "totalMarks",
       type: "number",
       label: "Total Marks",
-      errors: "",
-      register: "",
+      required: true,
+    },
+    {
+      id: "courseFund",
+      name: "courseFund",
+      type: "number",
+      label: "Course Fund",
+      required: true,
+    },
+    {
+      id: "prizeMoney",
+      name: "prizeMoney",
+      type: "number",
+      label: "Prize Money",
       required: true,
     },
   ];
@@ -94,49 +132,34 @@ const AddResult = () => {
             </p>
           </div>
         </div>
+
         <form
           className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
-          onSubmit={formik.handleSubmit}>
-          {inputData?.map(
-            ({
-              id,
-              name,
-              type,
-              label,
-              labelFor,
-              errors,
-              register,
-              required,
-              optionLabel = "",
-              selectedAutoValue,
-              setSelectedAutoValue,
-              autoCompleteMethod,
-              autoFilteredValue,
-            }) => (
-              <div className="w-full mb-4">
-                <label className="block text-black dark:text-black text-[12px] py-1">
-                  {label} <span className="text-meta-1">*</span>
-                </label>
-                <input
-                  id={id}
-                  name={name}
-                  type={type}
-                  required={required}
-                  width="full"
-                  onChange={formik.handleChange}
-                  value={formik.values?.[id]}
-                  className="w-[400px] h-[45px] rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                />
-              </div>
-            )
-          )}
+          onSubmit={formik.handleSubmit}
+        >
+          {inputData.map(({ id, name, type, label, required }) => (
+            <div key={id} className="w-full mb-4">
+              <label className="block text-black text-[12px] py-1">
+                {label} <span className="text-meta-1">*</span>
+              </label>
+              <input
+                id={id}
+                name={name}
+                type={type}
+                required={required}
+                onChange={formik.handleChange}
+                value={formik.values[id] || ""}
+                className="w-[400px] h-[45px] rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary"
+              />
+            </div>
+          ))}
 
-          {/* Submit Button */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1 ">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1">
             <div></div>
             <button
               type="submit"
-              className=" justify-center rounded bg-primary p-4 font-medium text-gray  border border-green-600 m-8 rounded hover:bg-green-600 hover:text-white hover:shadow-md">
+              className="justify-center rounded bg-primary p-4 font-medium text-gray border border-green-600 m-8 hover:bg-green-600 hover:text-white hover:shadow-md"
+            >
               Submit
             </button>
           </div>

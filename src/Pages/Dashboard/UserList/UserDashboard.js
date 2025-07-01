@@ -136,7 +136,8 @@ const UserDashboard = () => {
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
-                }}>
+                }}
+              >
                 <span>
                   <i className="pi pi-arrow-left font-semibold"></i>
                 </span>
@@ -174,7 +175,8 @@ const UserDashboard = () => {
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
-                    viewBox="0 0 20 20">
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       stroke="currentColor"
                       strokeLinecap="round"
@@ -240,7 +242,8 @@ const UserDashboard = () => {
                         : roll.nidInfo && roll.photoInfo
                         ? "bg-yellow-200 text-yellow-600"
                         : ""
-                    }>
+                    }
+                  >
                     <td className="border border-tableBorder pl-1 text-center flex justify-center ">
                       <img
                         className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
@@ -257,7 +260,8 @@ const UserDashboard = () => {
                         onClick={() => {
                           setRowData(roll);
                           setIsDocsModalOpen(true);
-                        }}>
+                        }}
+                      >
                         View Docs
                       </button>
                     </td>
@@ -293,9 +297,10 @@ const UserDashboard = () => {
                           onClick={() => {
                             setRowData(roll);
                             setIsProfileModalOpen(true);
-                          }}>
+                          }}
+                        >
                           <span>
-                            <i className="pi pi-pencil font-semibold"></i>
+                            <i className="pi pi-pencil font-semibold">Edit</i>
                           </span>
                         </button>
                         <Popconfirm
@@ -304,10 +309,13 @@ const UserDashboard = () => {
                           onConfirm={() => handleDelete(roll._id)}
                           onCancel={() => toast.error("Delete action canceled")}
                           okText="Yes"
-                          cancelText="No">
+                          cancelText="No"
+                        >
                           <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
                             <span>
-                              <i className="pi pi-trash font-semibold"></i>
+                              <i className="pi pi-trash font-semibold">
+                                Delete
+                              </i>
                             </span>
                           </button>
                         </Popconfirm>
@@ -335,7 +343,8 @@ const UserDashboard = () => {
         title="User Profile"
         open={isProfileModalOpen}
         onCancel={() => setIsProfileModalOpen(false)}
-        footer={null}>
+        footer={null}
+      >
         <UpdateUser rowData={rowData} />
       </Modal>
 
@@ -344,7 +353,8 @@ const UserDashboard = () => {
         title="User Documents"
         open={isDocsModalOpen}
         onCancel={() => setIsDocsModalOpen(false)}
-        width={600}>
+        width={600}
+      >
         <div className="flex justify-center gap-4 flex-wrap">
           {rowData?.nidInfo?.url && (
             <div className="flex flex-col items-center">
@@ -378,13 +388,15 @@ const UserDashboard = () => {
           <Button
             className="bg-green-500 hover:bg-green-700 text-white"
             type="primary"
-            onClick={() => handleVerification(rowData.email, true)}>
+            onClick={() => handleVerification(rowData.email, true)}
+          >
             Verify
           </Button>
           <Button
             className="bg-red-500 hover:bg-red-700 text-white"
             type="danger"
-            onClick={() => handleVerification(rowData.email, false)}>
+            onClick={() => handleVerification(rowData.email, false)}
+          >
             Reject
           </Button>
         </div>

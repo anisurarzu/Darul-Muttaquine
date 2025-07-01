@@ -3,7 +3,17 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
-import { Alert, Button, Modal, Pagination, Popconfirm, Spin, Tag } from "antd";
+import {
+  Alert,
+  Button,
+  Modal,
+  Pagination,
+  Popconfirm,
+  Spin,
+  Tag,
+  Descriptions,
+  Image,
+} from "antd";
 
 import CreateCourse from "./CreateCourse";
 import { coreAxios } from "../../utilities/axios";
@@ -11,15 +21,17 @@ import { formatDate } from "../../utilities/dateFormate";
 
 const CourseDashboard = () => {
   const history = useHistory();
-  const userInfo = JSON.parse(localStorage.getItem("userInfo")); // Get the navigate function
-  const [showDialog, setShowDialog] = useState(false); //insert customer
-  const [showDialog1, setShowDialog1] = useState(false); //update customer
-  const [selectedRoll, setSelectedRoll] = useState(null); // Initially set to null
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const [showDialog, setShowDialog] = useState(false);
+  const [showDialog1, setShowDialog1] = useState(false);
+  const [selectedRoll, setSelectedRoll] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [rowData, setRowData] = useState({});
   const [instructors, setInstructors] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -32,7 +44,13 @@ const CourseDashboard = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsModalOpen2(false);
+    setIsViewModalOpen(false);
     fetchQuizeInfo();
+  };
+
+  const showViewModal = (course) => {
+    setSelectedCourse(course);
+    setIsViewModalOpen(true);
   };
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,7 +58,7 @@ const CourseDashboard = () => {
   const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
   const [rollData, setRollData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(18); // Change the number of items per page as needed
+  const [itemsPerPage] = useState(18);
 
   const fetchQuizeInfo = async () => {
     try {
@@ -58,10 +76,10 @@ const CourseDashboard = () => {
       console.log(err);
     }
   };
-  // Fetch list of instructors from API
+
   const fetchInstructors = async () => {
     try {
-      const response = await coreAxios.get("/users"); // Change URL based on your backend
+      const response = await coreAxios.get("/users");
       setInstructors(response?.data);
     } catch (error) {
       toast.error("ইন্সট্রাক্টরদের তালিকা লোড করতে সমস্যা হয়েছে");
@@ -128,6 +146,7 @@ const CourseDashboard = () => {
     (total, deposit) => total + deposit?.amount,
     0
   );
+
   return (
     <>
       {loading ? (
@@ -148,7 +167,8 @@ const CourseDashboard = () => {
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
-                }}>
+                }}
+              >
                 <span>
                   <i className="pi pi-plus font-semibold"></i>
                 </span>
@@ -161,7 +181,8 @@ const CourseDashboard = () => {
                 style={{
                   outline: "none",
                   borderColor: "transparent !important",
-                }}>
+                }}
+              >
                 <span>
                   <i className="pi pi-arrow-left font-semibold"></i>
                 </span>
@@ -169,7 +190,7 @@ const CourseDashboard = () => {
               </button>
             </div>
             <div>
-              <h3 className="text-[17px]">Quize History</h3>
+              <h3 className="text-[17px]">Course Management</h3>
             </div>
 
             <div className="relative mx-8 mr-4">
@@ -188,7 +209,8 @@ const CourseDashboard = () => {
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
-                  viewBox="0 0 20 20">
+                  viewBox="0 0 20 20"
+                >
                   <path
                     stroke="currentColor"
                     strokeLinecap="round"
@@ -206,10 +228,10 @@ const CourseDashboard = () => {
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
-                    Quize Name
+                    Course Name
                   </th>
                   <th className="border border-tableBorder text-center p-2">
-                    Attendance
+                    Enrollments
                   </th>
                   <th className="border border-tableBorder text-center p-2">
                     Created Date
@@ -231,20 +253,14 @@ const CourseDashboard = () => {
 
               <tbody>
                 {currentItems.map((roll) => (
-                  <tr key={roll?.scholarshipRollNumber}>
+                  <tr key={roll?._id}>
                     <td className="border border-tableBorder pl-2 text-left">
-                      {/* <TableData status={roll?.status} data={roll?.userName} /> */}
                       {roll?.title}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center font-bold text-green-900">
-                      {/* <TableData status={roll?.status} data={roll?.amount} /> */}
-                      {roll?.userAnswers?.length}
+                      {roll?.enrollments?.length || 0}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {/* <TableData
-                        status={roll?.status}
-                        data={formatDate(roll?.depositDate)}
-                      /> */}
                       {formatDate(roll?.createdAt)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
@@ -254,50 +270,68 @@ const CourseDashboard = () => {
                       {formatDate(roll?.endDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {/* <TableData status={roll?.status} data={roll?.phone} /> */}
-                      {roll?.status}
+                      <Tag color={roll?.status === "Active" ? "green" : "red"}>
+                        {roll?.status || "Inactive"}
+                      </Tag>
                     </td>
 
                     <td className="border border-tableBorder pl-1">
-                      {roll?.status !== "Approved" && (
-                        <div className="flex justify-center items-center py-2 gap-1">
-                          {userInfo?.userRole === "Super-Admin" && (
-                            <button
-                              className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
-                              onClick={() => {
-                                setRowData(roll);
-                                setIsModalOpen2(true);
-                              }}>
-                              <span>
-                                <i className="pi pi-pencil font-semibold"></i>
-                              </span>
-                            </button>
-                          )}
+                      <div className="flex justify-center items-center py-2 gap-1">
+                        <button
+                          className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
+                          onClick={() => showViewModal(roll)}
+                        >
+                          <span>
+                            <i className="pi pi-eye font-semibold">View</i>
+                          </span>
+                        </button>
 
-                          <Popconfirm
-                            title="Delete the task"
-                            description="Are you sure to delete this task?"
-                            onConfirm={() => {
-                              if (
-                                userInfo?.userRole === "Super-Admin" ||
-                                "Admin"
-                              ) {
-                                handleDelete(roll?._id);
-                              } else {
-                                toast.error("Please contact with DMF Admin!");
-                              }
-                            }}
-                            onCancel={cancel}
-                            okText="Yes"
-                            cancelText="No">
-                            <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                              <span>
-                                <i className="pi pi-trash font-semibold"></i>
-                              </span>
-                            </button>
-                          </Popconfirm>
-                        </div>
-                      )}
+                        {roll?.status !== "Approved" && (
+                          <>
+                            {userInfo?.userRole === "Super-Admin" && (
+                              <button
+                                className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                                onClick={() => {
+                                  setRowData(roll);
+                                  setIsModalOpen2(true);
+                                }}
+                              >
+                                <span>
+                                  <i className="pi pi-pencil font-semibold">
+                                    Edit
+                                  </i>
+                                </span>
+                              </button>
+                            )}
+
+                            <Popconfirm
+                              title="Delete the course"
+                              description="Are you sure to delete this course?"
+                              onConfirm={() => {
+                                if (
+                                  userInfo?.userRole === "Super-Admin" ||
+                                  "Admin"
+                                ) {
+                                  handleDelete(roll?._id);
+                                } else {
+                                  toast.error("Please contact with Admin!");
+                                }
+                              }}
+                              onCancel={cancel}
+                              okText="Yes"
+                              cancelText="No"
+                            >
+                              <button className="font-semibold gap-2.5 rounded-lg bg-red-500 text-white py-2 px-4 text-xl">
+                                <span>
+                                  <i className="pi pi-trash font-semibold">
+                                    Delete
+                                  </i>
+                                </span>
+                              </button>
+                            </Popconfirm>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -317,21 +351,131 @@ const CourseDashboard = () => {
       )}
 
       <Modal
-        title="Please Provided Valid Information"
+        title="Create New Course"
         open={isModalOpen}
-        // onOk={handleOk}
         onCancel={handleCancel}
-        width={800}>
+        width={800}
+        footer={null}
+      >
         <CreateCourse handleCancel={handleCancel} instructors={instructors} />
       </Modal>
-      {/* <Modal
-        title="Please Provided Valid Information"
-        open={isModalOpen2}
-        // onOk={handleOk}
+
+      {/* View Course Details Modal */}
+      <Modal
+        title="Course Details"
+        open={isViewModalOpen}
         onCancel={handleCancel}
-        width={800}>
-        <UpdateQuizeStatus handleCancel={handleCancel} rowData={rowData} />
-      </Modal> */}
+        width={800}
+        footer={null}
+      >
+        {selectedCourse && (
+          <div className="course-details-container">
+            <div className="mb-6 text-center">
+              <Image
+                src={selectedCourse.image}
+                alt={selectedCourse.title}
+                width={300}
+                height={200}
+                className="rounded-lg mx-auto"
+                fallback="https://via.placeholder.com/300x200?text=No+Image"
+              />
+              <h2 className="text-2xl font-bold mt-4">
+                {selectedCourse.title}
+              </h2>
+              <p className="text-gray-600">{selectedCourse.category}</p>
+            </div>
+
+            <Descriptions bordered column={1} size="middle">
+              <Descriptions.Item label="Description">
+                {selectedCourse.description}
+              </Descriptions.Item>
+              <Descriptions.Item label="Instructor">
+                {selectedCourse.instructorName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Batch Number">
+                {selectedCourse.batchNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="Duration">
+                {selectedCourse.duration}
+              </Descriptions.Item>
+              <Descriptions.Item label="Start Date">
+                {formatDate(selectedCourse.startDate)}
+              </Descriptions.Item>
+              <Descriptions.Item label="End Date">
+                {formatDate(selectedCourse.endDate)}
+              </Descriptions.Item>
+              <Descriptions.Item label="Available Seats">
+                {selectedCourse.availableSeats}
+              </Descriptions.Item>
+              <Descriptions.Item label="Qualifications">
+                {selectedCourse.qualifications}
+              </Descriptions.Item>
+              <Descriptions.Item label="Price">
+                {selectedCourse.price} BDT
+              </Descriptions.Item>
+              <Descriptions.Item label="Certifications">
+                {selectedCourse.certifications || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Tag
+                  color={selectedCourse.status === "Active" ? "green" : "red"}
+                >
+                  {selectedCourse.status || "Inactive"}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Created At">
+                {formatDate(selectedCourse.createdAt)}
+              </Descriptions.Item>
+            </Descriptions>
+
+            {selectedCourse.enrollments?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  Enrollments ({selectedCourse.enrollments.length})
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border border-gray-200">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="py-2 px-4 border">Name</th>
+                        <th className="py-2 px-4 border">Class</th>
+                        <th className="py-2 px-4 border">Institute</th>
+                        <th className="py-2 px-4 border">Phone</th>
+                        <th className="py-2 px-4 border">Payment Method</th>
+                        <th className="py-2 px-4 border">Enrolled At</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selectedCourse.enrollments.map((enrollment, index) => (
+                        <tr key={index}>
+                          <td className="py-2 px-4 border">
+                            {enrollment.name}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {enrollment.class || enrollment.studentClass}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {enrollment.lastInstitute}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {enrollment.phone}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {enrollment.paymentMethod}
+                          </td>
+                          <td className="py-2 px-4 border">
+                            {formatDate(enrollment.enrolledAt)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </>
   );
 };

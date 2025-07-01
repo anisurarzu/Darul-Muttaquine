@@ -35,7 +35,7 @@ export default function CoursePage() {
   }, []);
 
   const handleEnrollClick = (course) => {
-    setSelectedCourse(course);
+    setSelectedCourse(course); // Passing the entire course object
     setIsEnrollModalVisible(true);
   };
 
@@ -157,7 +157,6 @@ export default function CoursePage() {
                       </span>
                     </div>
 
-                    {/* Updated buttons container with justify-between */}
                     <div className="flex flex-col sm:flex-row sm:justify-between space-y-3 sm:space-y-0 mt-3 gap-3">
                       <button
                         onClick={() => handleDetailsClick(course._id)}
@@ -194,11 +193,11 @@ export default function CoursePage() {
         )}
       </div>
 
-      {/* Enrollment Modal */}
+      {/* Enrollment Modal - Passing all course details */}
       <EnrollmentModal
         visible={isEnrollModalVisible}
         onClose={closeEnrollModal}
-        course={selectedCourse}
+        course={selectedCourse} // Passing the entire course object
         onEnrollSuccess={() => {
           message.success("সফলভাবে এনরোল করা হয়েছে!");
           closeEnrollModal();
