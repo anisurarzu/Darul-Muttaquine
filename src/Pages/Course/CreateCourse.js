@@ -21,7 +21,7 @@ const { Option } = Select;
 // ImgBB API Key
 const IMGBB_API_KEY = "5bdcb96655462459d117ee1361223929";
 
-const CreateCourse = ({ instructors }) => {
+const CreateCourse = ({ handleCancel, instructors }) => {
   const [imageUrl, setImageUrl] = useState("");
   const [instructorImageUrl, setInstructorImageUrl] = useState("");
 
@@ -68,12 +68,14 @@ const CreateCourse = ({ instructors }) => {
           message: "কোর্স তৈরি সফল হয়েছে!",
           description: `আপনি সফলভাবে "${values.title}" কোর্স তৈরি করেছেন।`,
         });
+        handleCancel();
       }
     } catch (error) {
       notification.error({
         message: "কোর্স তৈরি করতে সমস্যা হয়েছে",
         description: "দয়া করে আবার চেষ্টা করুন।",
       });
+      handleCancel();
     }
   };
 
@@ -116,7 +118,8 @@ const CreateCourse = ({ instructors }) => {
           ),
           price: Yup.number().required("কোর্সের মূল্য প্রদান করুন"),
         })}
-        onSubmit={saveCourseToAPI}>
+        onSubmit={saveCourseToAPI}
+      >
         {({
           values,
           handleChange,
@@ -128,14 +131,16 @@ const CreateCourse = ({ instructors }) => {
           <Form
             layout="vertical"
             onFinish={handleSubmit}
-            className="bg-white p-6 shadow-lg rounded-lg">
+            className="bg-white p-6 shadow-lg rounded-lg"
+          >
             {/* Title */}
             <Form.Item
               label="কোর্সের নাম"
               name="title"
               required
               validateStatus={errors.title && touched.title ? "error" : ""}
-              help={errors.title && touched.title ? errors.title : null}>
+              help={errors.title && touched.title ? errors.title : null}
+            >
               <Input
                 name="title"
                 value={values.title}
@@ -154,12 +159,14 @@ const CreateCourse = ({ instructors }) => {
               }
               help={
                 errors.category && touched.category ? errors.category : null
-              }>
+              }
+            >
               <Select
                 name="category"
                 value={values.category}
                 onChange={(value) => setFieldValue("category", value)}
-                placeholder="ক্যাটেগরি নির্বাচন করুন">
+                placeholder="ক্যাটেগরি নির্বাচন করুন"
+              >
                 <Option value="আইসিটি">আইসিটি</Option>
                 <Option value="ব্যবসা">ব্যবসা</Option>
                 <Option value="স্বাস্থ্য">স্বাস্থ্য</Option>
@@ -179,7 +186,8 @@ const CreateCourse = ({ instructors }) => {
                 errors.description && touched.description
                   ? errors.description
                   : null
-              }>
+              }
+            >
               <Input.TextArea
                 name="description"
                 value={values.description}
@@ -201,12 +209,14 @@ const CreateCourse = ({ instructors }) => {
                 errors.instructorName && touched.instructorName
                   ? errors.instructorName
                   : null
-              }>
+              }
+            >
               <Select
                 name="instructorName"
                 value={values.instructorName}
                 onChange={(value) => setFieldValue("instructorName", value)}
-                placeholder="ইন্সট্রাক্টরের নাম নির্বাচন করুন">
+                placeholder="ইন্সট্রাক্টরের নাম নির্বাচন করুন"
+              >
                 {instructors?.map((instructor) => (
                   <Option key={instructor.uniqueId} value={instructor.uniqueId}>
                     {instructor.firstName} {instructor?.lastName}
@@ -218,14 +228,16 @@ const CreateCourse = ({ instructors }) => {
             {/* Instructor Image Upload (Optional) */}
             <Form.Item
               label="ইন্সট্রাক্টরের ছবি (অপশনাল)"
-              name="instructorImage">
+              name="instructorImage"
+            >
               <Upload
                 name="instructorImage"
                 showUploadList={false}
                 beforeUpload={(file) => {
                   handleInstructorImageUpload(file, setFieldValue);
                   return false;
-                }}>
+                }}
+              >
                 <Button icon={<UploadOutlined />}>
                   ইন্সট্রাক্টরের ছবি আপলোড করুন
                 </Button>
@@ -240,7 +252,8 @@ const CreateCourse = ({ instructors }) => {
                 beforeUpload={(file) => {
                   handleImageUpload(file, setFieldValue);
                   return false;
-                }}>
+                }}
+              >
                 <Button icon={<UploadOutlined />}>
                   কোর্সের ছবি আপলোড করুন
                 </Button>
@@ -257,7 +270,8 @@ const CreateCourse = ({ instructors }) => {
               }
               help={
                 errors.startDate && touched.startDate ? errors.startDate : null
-              }>
+              }
+            >
               <DatePicker
                 name="startDate"
                 value={values.startDate}
@@ -273,7 +287,8 @@ const CreateCourse = ({ instructors }) => {
               name="endDate"
               required
               validateStatus={errors.endDate && touched.endDate ? "error" : ""}
-              help={errors.endDate && touched.endDate ? errors.endDate : null}>
+              help={errors.endDate && touched.endDate ? errors.endDate : null}
+            >
               <DatePicker
                 name="endDate"
                 value={values.endDate}
@@ -293,7 +308,8 @@ const CreateCourse = ({ instructors }) => {
               }
               help={
                 errors.duration && touched.duration ? errors.duration : null
-              }>
+              }
+            >
               <Input
                 name="duration"
                 value={values.duration}
@@ -314,7 +330,8 @@ const CreateCourse = ({ instructors }) => {
                 errors.availableSeats && touched.availableSeats
                   ? errors.availableSeats
                   : null
-              }>
+              }
+            >
               <InputNumber
                 name="availableSeats"
                 value={values.availableSeats}
@@ -336,7 +353,8 @@ const CreateCourse = ({ instructors }) => {
                 errors.batchNumber && touched.batchNumber
                   ? errors.batchNumber
                   : null
-              }>
+              }
+            >
               <Input
                 name="batchNumber"
                 value={values.batchNumber}
@@ -357,7 +375,8 @@ const CreateCourse = ({ instructors }) => {
                 errors.qualifications && touched.qualifications
                   ? errors.qualifications
                   : null
-              }>
+              }
+            >
               <Input.TextArea
                 name="qualifications"
                 value={values.qualifications}
@@ -379,7 +398,8 @@ const CreateCourse = ({ instructors }) => {
                 errors.certifications && touched.certifications
                   ? errors.certifications
                   : null
-              }>
+              }
+            >
               <Input.TextArea
                 name="certifications"
                 value={values.certifications}
@@ -395,7 +415,8 @@ const CreateCourse = ({ instructors }) => {
               name="price"
               required
               validateStatus={errors.price && touched.price ? "error" : ""}
-              help={errors.price && touched.price ? errors.price : null}>
+              help={errors.price && touched.price ? errors.price : null}
+            >
               <InputNumber
                 name="price"
                 value={values.price}
