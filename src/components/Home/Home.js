@@ -4,7 +4,7 @@ import DonationBox from "../DnationBox/DonationBox";
 import MiddleHome from "./MiddleHome/MiddleHome";
 import HelperCompany from "../HelperCompany/HelperCompany";
 import "./home.css";
-import tempBanner from "../../images/Course-Banner.jpg";
+import tempBanner from "../../images/temp-banner.png";
 import eidBanner from "../../images/eduladha.jpg";
 
 export default function Home() {
