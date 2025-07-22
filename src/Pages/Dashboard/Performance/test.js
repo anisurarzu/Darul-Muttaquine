@@ -16,7 +16,6 @@ import {
   Tag,
   Upload,
   message,
-  Grid,
 } from "antd";
 import {
   CheckOutlined,
@@ -35,7 +34,6 @@ import dayjs from "dayjs";
 
 const { TextArea } = Input;
 const { Option } = Select;
-const { useBreakpoint } = Grid;
 
 const TaskManagement = () => {
   const [tasks, setTasks] = useState([]);
@@ -53,7 +51,6 @@ const TaskManagement = () => {
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const screens = useBreakpoint();
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const isSuperAdmin = userInfo?.userRole === "Super-Admin";
@@ -103,7 +100,7 @@ const TaskManagement = () => {
     try {
       setUploading(true);
       const response = await fetch(
-        "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
+        "https://api.imgbb.com/1/upload?key=YOUR_IMGBB_API_KEY",
         {
           method: "POST",
           body: formData,
@@ -111,9 +108,8 @@ const TaskManagement = () => {
       );
 
       const result = await response.json();
-
-      if (result.status === 200) {
-        return result.data.url;
+      if (result.success) {
+        return result.data.url; // Return the direct URL
       }
       throw new Error(result.error?.message || "Upload failed");
     } catch (error) {
@@ -127,7 +123,7 @@ const TaskManagement = () => {
   const customRequest = async ({ file, onSuccess, onError }) => {
     try {
       const url = await handleUpload(file);
-      onSuccess({ url }, file);
+      onSuccess({ url }, file); // Pass the URL in the response
     } catch (error) {
       onError(error);
     }
@@ -154,35 +150,18 @@ const TaskManagement = () => {
     onSubmit: async (values) => {
       try {
         setSubmitting(true);
+        const selectedUser = users.find((u) => u._id === values.assignedTo);
 
-        // Upload new files first
-        const uploadPromises = fileList
-          .filter(
-            (file) => file.originFileObj && !file.url && !file.response?.url
-          )
-          .map((file) => handleUpload(file.originFileObj));
-
-        const uploadedUrls = await Promise.all(uploadPromises);
-
-        // Create a mapping of originFileObj to uploaded URLs
-        const urlMap = {};
-        fileList.forEach((file, index) => {
-          if (file.originFileObj && !file.url && !file.response?.url) {
-            urlMap[file.uid] = uploadedUrls[index];
-          }
-        });
-
-        // Process all files to get URLs
+        // Process files to get URLs - both new uploads and existing files
         const fileUrls = fileList
           .map((file) => {
-            if (file.url) return file.url;
+            // For newly uploaded files (they'll have response.url)
             if (file.response?.url) return file.response.url;
-            if (urlMap[file.uid]) return urlMap[file.uid];
+            // For existing files (they'll have url property)
+            if (file.url) return file.url;
             return null;
           })
-          .filter((url) => url);
-
-        const selectedUser = users.find((u) => u._id === values.assignedTo);
+          .filter((url) => url); // Remove any null values
 
         const taskData = {
           title: values.title,
@@ -192,7 +171,7 @@ const TaskManagement = () => {
           assignedToImage: selectedUser?.image,
           notes: values.notes,
           dueDate: values.dueDate.format("YYYY-MM-DD"),
-          files: fileUrls,
+          files: fileUrls, // Array of image URLs
           mark: values.mark,
         };
 
@@ -310,13 +289,13 @@ const TaskManagement = () => {
           status: taskToEdit.status,
         });
 
-        // Handle files safely
+        // Safely handle files
         setFileList(
           (taskToEdit.files || [])
-            .filter((file) => typeof file === "string")
+            .filter((file) => file)
             .map((file) => ({
               uid: file,
-              name: file.split("/").pop() || "file",
+              name: file?.split("/").pop() || "file",
               status: "done",
               url: file,
             }))
@@ -357,7 +336,6 @@ const TaskManagement = () => {
       dataIndex: "title",
       key: "title",
       render: (text) => <span className="font-medium">{text}</span>,
-      responsive: ["md"],
     },
     {
       title: "Assigned To",
@@ -370,11 +348,7 @@ const TaskManagement = () => {
             icon={<UserOutlined />}
             className="mr-2"
           />
-          {screens.md ? (
-            <span>{text}</span>
-          ) : (
-            <span>{text.split(" ")[0]}</span> // Show only first name on mobile
-          )}
+          <span>{text}</span>
         </div>
       ),
     },
@@ -382,9 +356,7 @@ const TaskManagement = () => {
       title: "Due Date",
       dataIndex: "dueDate",
       key: "dueDate",
-      render: (text) =>
-        dayjs(text).format(screens.md ? "DD MMM YYYY" : "DD/MM"),
-      responsive: ["md"],
+      render: (text) => dayjs(text).format("DD MMM YYYY"),
     },
     {
       title: "Status",
@@ -393,11 +365,10 @@ const TaskManagement = () => {
       render: (status) => getStatusTag(status),
     },
     {
-      title: "Mark",
+      title: "Task Mark",
       dataIndex: "mark",
       key: "mark",
       render: (mark) => <span>{mark}/5</span>,
-      responsive: ["md"],
     },
     {
       title: "Rating",
@@ -408,10 +379,8 @@ const TaskManagement = () => {
           value={mark}
           onChange={(value) => updateMark(record._id, value)}
           disabled={!isSuperAdmin || record.status !== "completed"}
-          count={screens.md ? 5 : 3} // Show fewer stars on mobile
         />
       ),
-      responsive: ["sm"],
     },
     {
       title: "Actions",
@@ -426,9 +395,8 @@ const TaskManagement = () => {
                 record.status === "completed" ||
                 record.assignedTo !== currentUserId
               }
-              size={screens.md ? "default" : "small"}
             >
-              {screens.md ? "Complete Task" : "Complete"}
+              Complete Task
             </Button>
           )}
 
@@ -439,18 +407,16 @@ const TaskManagement = () => {
                 icon={<EditOutlined />}
                 onClick={() => showModal(record._id)}
                 className="text-gray-600"
-                size={screens.md ? "default" : "small"}
               >
-                {screens.md && "Edit"}
+                Edit
               </Button>
               <Button
                 type="link"
                 icon={<DeleteOutlined />}
                 onClick={() => deleteTask(record._id)}
                 className="text-red-500"
-                size={screens.md ? "default" : "small"}
               >
-                {screens.md && "Delete"}
+                Delete
               </Button>
             </>
           )}
@@ -458,84 +424,6 @@ const TaskManagement = () => {
       ),
     },
   ];
-
-  const expandedRowRender = (record) => {
-    return (
-      <div className="p-4 bg-gray-50">
-        <div className="mb-2">
-          <span className="font-semibold">Notes:</span>
-          <p className="mt-1">{record.notes || "No notes provided"}</p>
-        </div>
-        {record.files?.length > 0 && (
-          <div className="mb-2">
-            <span className="font-semibold">Attachments:</span>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {record.files
-                .filter((file) => typeof file === "string")
-                .map((file, index) => (
-                  <a
-                    key={`${record._id}-file-${index}`}
-                    href={file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Tag
-                      icon={<FileOutlined />}
-                      className="cursor-pointer hover:bg-blue-50"
-                    >
-                      {file.split("/").pop()}
-                    </Tag>
-                  </a>
-                ))}
-            </div>
-          </div>
-        )}
-        {record.submission && (
-          <div className="mt-4 p-3 bg-white rounded border">
-            <div className="font-semibold">Submission Details:</div>
-            <div className="mt-1">
-              {record.submission.comments || "No comments"}
-            </div>
-            {record.submission.files?.length > 0 && (
-              <div className="mt-2">
-                <div className="font-medium">Submitted Files:</div>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {record.submission.files
-                    .filter((file) => typeof file === "string")
-                    .map((file, index) => (
-                      <a
-                        key={`submission-${index}`}
-                        href={file}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Tag
-                          icon={<FileOutlined />}
-                          className="cursor-pointer hover:bg-blue-50"
-                        >
-                          {file.split("/").pop()}
-                        </Tag>
-                      </a>
-                    ))}
-                </div>
-              </div>
-            )}
-            <div className="text-sm text-gray-500 mt-2">
-              Submitted:{" "}
-              {record.submission.submittedAt
-                ? dayjs(record.submission.submittedAt).format(
-                    "DD MMM YYYY HH:mm"
-                  )
-                : "No submission date"}
-            </div>
-          </div>
-        )}
-        <div className="text-sm text-gray-500 mt-2">
-          Created: {dayjs(record.createdAt).format("DD MMM YYYY")}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="p-4">
@@ -546,9 +434,8 @@ const TaskManagement = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => showModal()}
-            size={screens.md ? "default" : "small"}
           >
-            {screens.md ? "Create Task" : "Create"}
+            Create Task
           </Button>
         )}
       </div>
@@ -567,10 +454,86 @@ const TaskManagement = () => {
             rowKey="_id"
             loading={loading.tasks}
             expandable={{
-              expandedRowRender,
+              expandedRowRender: (record) => (
+                <div className="p-4 bg-gray-50">
+                  <div className="mb-2">
+                    <span className="font-semibold">Notes:</span>
+                    <p className="mt-1">
+                      {record.notes || "No notes provided"}
+                    </p>
+                  </div>
+                  {record.files?.length > 0 && (
+                    <div className="mb-2">
+                      <span className="font-semibold">Attachments:</span>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {record.files.map(
+                          (file, index) =>
+                            file && (
+                              <a
+                                key={`${record._id}-file-${index}`}
+                                href={file}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Tag
+                                  icon={<FileOutlined />}
+                                  className="cursor-pointer hover:bg-blue-50"
+                                >
+                                  {file?.split("/").pop()}
+                                </Tag>
+                              </a>
+                            )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {record.submission && (
+                    <div className="mt-4 p-3 bg-white rounded border">
+                      <div className="font-semibold">Submission Details:</div>
+                      <div className="mt-1">
+                        {record.submission.comments || "No comments"}
+                      </div>
+                      {record.submission.files?.length > 0 && (
+                        <div className="mt-2">
+                          <div className="font-medium">Submitted Files:</div>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {record.submission.files.map(
+                              (file, index) =>
+                                file && (
+                                  <a
+                                    key={`submission-${index}`}
+                                    href={file}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <Tag
+                                      icon={<FileOutlined />}
+                                      className="cursor-pointer hover:bg-blue-50"
+                                    >
+                                      {file?.split("/").pop()}
+                                    </Tag>
+                                  </a>
+                                )
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500 mt-2">
+                        Submitted:{" "}
+                        {record.submission.submittedAt
+                          ? dayjs(record.submission.submittedAt).format(
+                              "DD MMM YYYY HH:mm"
+                            )
+                          : "No submission date"}
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-500 mt-2">
+                    Created: {dayjs(record.createdAt).format("DD MMM YYYY")}
+                  </div>
+                </div>
+              ),
             }}
-            scroll={{ x: true }}
-            size={screens.md ? "default" : "small"}
           />
         </Card>
       )}
@@ -580,7 +543,7 @@ const TaskManagement = () => {
         open={modalState.visible && !modalState.isSubmission}
         onCancel={handleCloseModal}
         footer={null}
-        width={screens.md ? 700 : "90%"}
+        width={700}
         destroyOnClose
       >
         <Form layout="vertical" onFinish={taskFormik.handleSubmit}>
@@ -595,7 +558,6 @@ const TaskManagement = () => {
               value={taskFormik.values.title}
               onChange={taskFormik.handleChange}
               placeholder="Enter task title"
-              size={screens.md ? "default" : "large"}
             />
           </Form.Item>
 
@@ -624,7 +586,6 @@ const TaskManagement = () => {
               loading={loading.users}
               placeholder="Select user"
               className="w-full"
-              size={screens.md ? "default" : "large"}
             >
               {users.map((user) => (
                 <Option
@@ -643,11 +604,9 @@ const TaskManagement = () => {
                       <div className="font-medium truncate">
                         {user.fullName}
                       </div>
-                      {screens.md && (
-                        <div className="text-xs text-gray-500 truncate">
-                          {user.uniqueId} • {user.email}
-                        </div>
-                      )}
+                      <div className="text-xs text-gray-500 truncate">
+                        {user.uniqueId} • {user.email}
+                      </div>
                     </div>
                   </div>
                 </Option>
@@ -660,7 +619,6 @@ const TaskManagement = () => {
               name="status"
               value={taskFormik.values.status}
               onChange={(value) => taskFormik.setFieldValue("status", value)}
-              size={screens.md ? "default" : "large"}
             >
               <Option value="pending">Pending</Option>
               <Option value="in-progress">In Progress</Option>
@@ -679,7 +637,6 @@ const TaskManagement = () => {
               value={taskFormik.values.dueDate}
               onChange={(date) => taskFormik.setFieldValue("dueDate", date)}
               style={{ width: "100%" }}
-              size={screens.md ? "default" : "large"}
             />
           </Form.Item>
 
@@ -693,7 +650,6 @@ const TaskManagement = () => {
                 name="mark"
                 value={taskFormik.values.mark}
                 onChange={(value) => taskFormik.setFieldValue("mark", value)}
-                count={5}
               />
             </Form.Item>
           )}
@@ -705,7 +661,6 @@ const TaskManagement = () => {
               onChange={taskFormik.handleChange}
               rows={4}
               placeholder="Additional instructions..."
-              size={screens.md ? "default" : "large"}
             />
           </Form.Item>
 
@@ -714,6 +669,7 @@ const TaskManagement = () => {
               customRequest={customRequest}
               fileList={fileList}
               onChange={({ fileList: updatedFileList }) => {
+                // Ensure all files have proper structure
                 const safeFileList = updatedFileList.map((file) => ({
                   ...file,
                   name:
@@ -723,33 +679,20 @@ const TaskManagement = () => {
                 setFileList(safeFileList);
               }}
               multiple
-              listType={screens.md ? "picture" : "text"}
+              listType="picture"
               beforeUpload={() => false}
             >
-              <Button
-                icon={<UploadOutlined />}
-                loading={uploading}
-                size={screens.md ? "default" : "large"}
-              >
+              <Button icon={<UploadOutlined />} loading={uploading}>
                 Upload Files
               </Button>
             </Upload>
           </Form.Item>
 
           <Form.Item className="text-right">
-            <Button
-              onClick={handleCloseModal}
-              className="mr-2"
-              size={screens.md ? "default" : "large"}
-            >
+            <Button onClick={handleCloseModal} className="mr-2">
               Cancel
             </Button>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={submitting}
-              size={screens.md ? "default" : "large"}
-            >
+            <Button type="primary" htmlType="submit" loading={submitting}>
               {modalState.mode === "edit" ? "Update Task" : "Create Task"}
             </Button>
           </Form.Item>
