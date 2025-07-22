@@ -36,7 +36,6 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const TaskManagement = () => {
-  // State management
   const [tasks, setTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState({
@@ -45,42 +44,93 @@ const TaskManagement = () => {
   });
   const [modalState, setModalState] = useState({
     visible: false,
-    mode: "create", // 'create' or 'edit'
+    mode: "create",
     isSubmission: false,
     taskId: null,
   });
   const [fileList, setFileList] = useState([]);
+  const [submissionFileList, setSubmissionFileList] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const currentUserRole = "admin"; // This would normally come from auth context
 
-  // Data fetching
+  // Get user info from localStorage
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const isSuperAdmin = userInfo?.userRole === "Super-Admin";
+  const currentUserId = userInfo?._id;
+
+  const fetchTasks = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, tasks: true }));
+      const endpoint = isSuperAdmin ? "/tasks" : `/tasks/user/${currentUserId}`;
+      const response = await coreAxios.get(endpoint);
+      setTasks(response.data);
+    } catch (error) {
+      message.error("Failed to fetch tasks");
+    } finally {
+      setLoading((prev) => ({ ...prev, tasks: false }));
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      setLoading((prev) => ({ ...prev, users: true }));
+      const response = await coreAxios.get("/users");
+      setUsers(
+        response.data.map((user) => ({
+          ...user,
+          fullName: `${user.firstName} ${user.lastName}`,
+        }))
+      );
+    } catch (error) {
+      message.error("Failed to fetch users");
+    } finally {
+      setLoading((prev) => ({ ...prev, users: false }));
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch users
-        const usersResponse = await coreAxios.get("/users");
-        setUsers(
-          usersResponse.data.map((user) => ({
-            ...user,
-            fullName: `${user.firstName} ${user.lastName}`,
-          }))
-        );
-
-        // Fetch tasks
-        const tasksResponse = await coreAxios.get("/tasks");
-        setTasks(tasksResponse.data);
-
-        setLoading({ tasks: false, users: false });
-      } catch (error) {
-        message.error("Failed to fetch data");
-        setLoading({ tasks: false, users: false });
-      }
+    const loadData = async () => {
+      await Promise.all([fetchUsers(), fetchTasks()]);
     };
+    loadData();
+  }, [isSuperAdmin, currentUserId]);
 
-    fetchData();
-  }, []);
+  const handleUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file);
 
-  // Formik for task management
+    try {
+      setUploading(true);
+      const response = await fetch(
+        `https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const result = await response.json();
+      if (result.success) {
+        return result.data.url;
+      }
+      throw new Error(result.error.message || "Upload failed");
+    } catch (error) {
+      message.error(`Upload failed: ${error.message}`);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const customRequest = async ({ file, onSuccess, onError }) => {
+    try {
+      const url = await handleUpload(file);
+      onSuccess(url, file);
+    } catch (error) {
+      onError(error);
+    }
+  };
+
   const taskFormik = useFormik({
     initialValues: {
       title: "",
@@ -89,6 +139,7 @@ const TaskManagement = () => {
       dueDate: null,
       files: [],
       mark: 0,
+      status: "pending", // Added status to initial values
     },
     validationSchema: Yup.object({
       title: Yup.string().required("Title is required"),
@@ -101,16 +152,17 @@ const TaskManagement = () => {
     onSubmit: async (values) => {
       try {
         setSubmitting(true);
-
         const selectedUser = users.find((u) => u._id === values.assignedTo);
+
         const taskData = {
           title: values.title,
+          status: values.status, // Now using the status from form values
           assignedTo: values.assignedTo,
           assignedToName: selectedUser?.fullName,
           assignedToImage: selectedUser?.image,
           notes: values.notes,
           dueDate: values.dueDate.format("YYYY-MM-DD"),
-          files: fileList.map((file) => file.name),
+          files: fileList.map((file) => file.response || file.url),
           mark: values.mark,
         };
 
@@ -122,9 +174,7 @@ const TaskManagement = () => {
           message.success("Task created successfully");
         }
 
-        // Refresh tasks
-        const res = await coreAxios.get("/tasks");
-        setTasks(res.data);
+        await fetchTasks();
         handleCloseModal();
       } catch (error) {
         message.error(
@@ -138,34 +188,85 @@ const TaskManagement = () => {
     },
   });
 
-  // Formik for task submission
-  const submissionFormik = useFormik({
-    initialValues: {
-      comments: "",
-      submissionFiles: [],
-    },
-    onSubmit: async (values) => {
-      try {
-        setSubmitting(true);
-        await coreAxios.post(`/tasks/${modalState.taskId}/submit`, {
-          comments: values.comments,
-          files: values.submissionFiles.map((file) => file.name),
-        });
-        message.success("Task submitted successfully");
+  const completeTask = async (taskId) => {
+    try {
+      // Optimistic update
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task._id === taskId ? { ...task, status: "completed" } : task
+        )
+      );
 
-        // Refresh tasks
-        const res = await coreAxios.get("/tasks");
-        setTasks(res.data);
-        handleCloseModal();
-      } catch (error) {
-        message.error("Failed to submit task");
-      } finally {
-        setSubmitting(false);
-      }
-    },
-  });
+      await coreAxios.put(`/tasks/${taskId}/complete`);
+      message.success("Task completed successfully");
 
-  // Modal handlers
+      // Refresh from server
+      await fetchTasks();
+    } catch (error) {
+      // Revert on error
+      await fetchTasks();
+      message.error("Failed to complete task");
+    }
+  };
+
+  const deleteTask = async (taskId) => {
+    Modal.confirm({
+      title: "Confirm Deletion",
+      content: "Are you sure you want to delete this task?",
+      async onOk() {
+        try {
+          // Optimistic update
+          setTasks((prevTasks) =>
+            prevTasks.filter((task) => task._id !== taskId)
+          );
+
+          await coreAxios.delete(`/tasks/${taskId}`);
+          message.success("Task deleted successfully");
+
+          await fetchTasks();
+        } catch (error) {
+          await fetchTasks();
+          message.error("Failed to delete task");
+        }
+      },
+    });
+  };
+
+  const updateMark = async (taskId, newMark) => {
+    try {
+      // Optimistic update
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task._id === taskId ? { ...task, mark: newMark } : task
+        )
+      );
+
+      await coreAxios.patch(`/tasks/${taskId}/mark`, { mark: newMark });
+      message.success("Mark updated successfully");
+
+      await fetchTasks();
+    } catch (error) {
+      await fetchTasks();
+      message.error("Failed to update mark");
+    }
+  };
+
+  const getStatusTag = (status) => {
+    const statusConfig = {
+      pending: { color: "orange", icon: <ClockCircleOutlined /> },
+      "in-progress": { color: "blue", icon: <ClockCircleOutlined /> },
+      completed: { color: "green", icon: <CheckOutlined /> },
+    };
+
+    const config = statusConfig[status] || { color: "default", icon: null };
+
+    return (
+      <Tag color={config.color} icon={config.icon}>
+        {status.toUpperCase()}
+      </Tag>
+    );
+  };
+
   const showModal = (taskId = null, isSubmission = false) => {
     if (isSubmission) {
       setModalState({
@@ -177,22 +278,22 @@ const TaskManagement = () => {
     }
 
     if (taskId) {
-      // Edit mode
-      const taskToEdit = tasks.find((task) => task.id === taskId);
+      const taskToEdit = tasks.find((task) => task._id === taskId);
       if (taskToEdit) {
         taskFormik.setValues({
           title: taskToEdit.title,
           assignedTo: taskToEdit.assignedTo,
           notes: taskToEdit.notes,
           dueDate: dayjs(taskToEdit.dueDate),
-          files: taskToEdit.files,
           mark: taskToEdit.mark,
+          status: taskToEdit.status, // Added status when editing
         });
         setFileList(
           taskToEdit.files.map((file) => ({
             uid: file,
-            name: file,
+            name: file.split("/").pop(),
             status: "done",
+            url: file,
           }))
         );
       }
@@ -203,7 +304,6 @@ const TaskManagement = () => {
         taskId,
       });
     } else {
-      // Create mode
       taskFormik.resetForm();
       setFileList([]);
       setModalState({
@@ -223,62 +323,10 @@ const TaskManagement = () => {
       taskId: null,
     });
     taskFormik.resetForm();
-    submissionFormik.resetForm();
     setFileList([]);
+    setSubmissionFileList([]);
   };
 
-  // Task actions
-  const deleteTask = async (taskId) => {
-    Modal.confirm({
-      title: "Confirm Deletion",
-      content: "Are you sure you want to delete this task?",
-      okText: "Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      async onOk() {
-        try {
-          await coreAxios.delete(`/tasks/${taskId}`);
-          setTasks(tasks.filter((task) => task.id !== taskId));
-          message.success("Task deleted successfully");
-        } catch (error) {
-          message.error("Failed to delete task");
-        }
-      },
-    });
-  };
-
-  const updateMark = async (taskId, newMark) => {
-    try {
-      await coreAxios.patch(`/tasks/${taskId}`, { mark: newMark });
-      setTasks(
-        tasks.map((task) =>
-          task.id === taskId ? { ...task, mark: newMark } : task
-        )
-      );
-      message.success("Mark updated successfully");
-    } catch (error) {
-      message.error("Failed to update mark");
-    }
-  };
-
-  // UI helpers
-  const getStatusTag = (status) => {
-    const statusConfig = {
-      pending: { color: "orange", icon: <ClockCircleOutlined /> },
-      "in-progress": { color: "blue", icon: <ClockCircleOutlined /> },
-      completed: { color: "green", icon: <CheckOutlined /> },
-    };
-
-    const config = statusConfig[status] || { color: "default", icon: null };
-
-    return (
-      <Tag color={config.color} icon={config.icon}>
-        {status.toUpperCase()}
-      </Tag>
-    );
-  };
-
-  // Table columns
   const columns = [
     {
       title: "Title",
@@ -314,16 +362,20 @@ const TaskManagement = () => {
       render: (status) => getStatusTag(status),
     },
     {
-      title: "Mark",
+      title: "Task Mark",
       dataIndex: "mark",
       key: "mark",
+      render: (mark) => <span>{mark}/5</span>,
+    },
+    {
+      title: "Rating",
+      dataIndex: "mark",
+      key: "rating",
       render: (mark, record) => (
         <Rate
           value={mark}
-          onChange={(value) => updateMark(record.id, value)}
-          disabled={
-            currentUserRole !== "admin" || record.status !== "completed"
-          }
+          onChange={(value) => updateMark(record._id, value)}
+          disabled={!isSuperAdmin || record.status !== "completed"}
         />
       ),
     },
@@ -332,22 +384,25 @@ const TaskManagement = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          {record.status !== "completed" && currentUserRole !== "admin" && (
+          {!isSuperAdmin && (
             <Button
-              type="link"
-              onClick={() => showModal(record.id, true)}
-              className="text-blue-500"
+              type="primary"
+              onClick={() => completeTask(record._id)}
+              disabled={
+                record.status === "completed" ||
+                record.assignedTo !== currentUserId
+              }
             >
-              Submit
+              Complete Task
             </Button>
           )}
 
-          {currentUserRole === "admin" && (
+          {isSuperAdmin && (
             <>
               <Button
                 type="link"
                 icon={<EditOutlined />}
-                onClick={() => showModal(record.id)}
+                onClick={() => showModal(record._id)}
                 className="text-gray-600"
               >
                 Edit
@@ -355,7 +410,7 @@ const TaskManagement = () => {
               <Button
                 type="link"
                 icon={<DeleteOutlined />}
-                onClick={() => deleteTask(record.id)}
+                onClick={() => deleteTask(record._id)}
                 className="text-red-500"
               >
                 Delete
@@ -371,7 +426,7 @@ const TaskManagement = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Task Management</h1>
-        {currentUserRole === "admin" && (
+        {isSuperAdmin && (
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -393,7 +448,8 @@ const TaskManagement = () => {
           <Table
             columns={columns}
             dataSource={tasks}
-            rowKey="id"
+            rowKey="_id"
+            loading={loading.tasks}
             expandable={{
               expandedRowRender: (record) => (
                 <div className="p-4 bg-gray-50">
@@ -406,18 +462,58 @@ const TaskManagement = () => {
                       <span className="font-semibold">Attachments:</span>
                       <div className="flex flex-wrap gap-2 mt-1">
                         {record.files.map((file, index) => (
-                          <Tag
-                            key={`${record.id}-file-${index}`}
-                            icon={<FileOutlined />}
-                            className="cursor-pointer hover:bg-blue-50"
+                          <a
+                            key={`${record._id}-file-${index}`}
+                            href={file}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            {file}
-                          </Tag>
+                            <Tag
+                              icon={<FileOutlined />}
+                              className="cursor-pointer hover:bg-blue-50"
+                            >
+                              {file.split("/").pop()}
+                            </Tag>
+                          </a>
                         ))}
                       </div>
                     </div>
                   )}
-                  <div className="text-sm text-gray-500">
+                  {record.submission && (
+                    <div className="mt-4 p-3 bg-white rounded border">
+                      <div className="font-semibold">Submission Details:</div>
+                      <div className="mt-1">{record.submission.comments}</div>
+                      {record.submission.files?.length > 0 && (
+                        <div className="mt-2">
+                          <div className="font-medium">Submitted Files:</div>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {record.submission.files.map((file, index) => (
+                              <a
+                                key={`submission-${index}`}
+                                href={file}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                <Tag
+                                  icon={<FileOutlined />}
+                                  className="cursor-pointer hover:bg-blue-50"
+                                >
+                                  {file.split("/").pop()}
+                                </Tag>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="text-sm text-gray-500 mt-2">
+                        Submitted:{" "}
+                        {dayjs(record.submission.submittedAt).format(
+                          "DD MMM YYYY HH:mm"
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-500 mt-2">
                     Created: {dayjs(record.createdAt).format("DD MMM YYYY")}
                   </div>
                 </div>
@@ -476,19 +572,13 @@ const TaskManagement = () => {
               loading={loading.users}
               placeholder="Select user"
               className="w-full"
-              style={{ height: 40 }} // Added fixed height
-              dropdownStyle={{
-                borderRadius: 8,
-                padding: 8,
-              }}
-              optionLabelProp="label" // This ensures the selected value shows properly
             >
               {users.map((user) => (
                 <Option
                   key={user._id}
                   value={user._id}
                   user={user}
-                  label={user.fullName} // This will be shown in the select field
+                  label={user.fullName}
                 >
                   <div className="flex items-center gap-3">
                     <Avatar
@@ -497,8 +587,6 @@ const TaskManagement = () => {
                       className="w-10 h-10 rounded-full object-cover border border-gray-200"
                     />
                     <div className="flex-1 min-w-0">
-                      {" "}
-                      {/* Added min-w-0 to prevent overflow */}
                       <div className="font-medium truncate">
                         {user.fullName}
                       </div>
@@ -509,6 +597,18 @@ const TaskManagement = () => {
                   </div>
                 </Option>
               ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Status" required>
+            <Select
+              name="status"
+              value={taskFormik.values.status}
+              onChange={(value) => taskFormik.setFieldValue("status", value)}
+            >
+              <Option value="pending">Pending</Option>
+              <Option value="in-progress">In Progress</Option>
+              <Option value="completed">Completed</Option>
             </Select>
           </Form.Item>
 
@@ -526,7 +626,7 @@ const TaskManagement = () => {
             />
           </Form.Item>
 
-          {currentUserRole === "admin" && (
+          {isSuperAdmin && (
             <Form.Item
               label="Mark (0-5)"
               validateStatus={taskFormik.errors.mark ? "error" : ""}
@@ -552,12 +652,16 @@ const TaskManagement = () => {
 
           <Form.Item label="Attachments">
             <Upload
+              customRequest={customRequest}
               fileList={fileList}
               onChange={({ fileList }) => setFileList(fileList)}
-              beforeUpload={() => false}
               multiple
+              listType="picture"
+              beforeUpload={() => false}
             >
-              <Button icon={<UploadOutlined />}>Select Files</Button>
+              <Button icon={<UploadOutlined />} loading={uploading}>
+                Upload Files
+              </Button>
             </Upload>
           </Form.Item>
 
@@ -567,50 +671,6 @@ const TaskManagement = () => {
             </Button>
             <Button type="primary" htmlType="submit" loading={submitting}>
               {modalState.mode === "edit" ? "Update Task" : "Create Task"}
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Task Submission Modal */}
-      <Modal
-        title="Submit Task"
-        open={modalState.visible && modalState.isSubmission}
-        onCancel={handleCloseModal}
-        footer={null}
-        width={700}
-        destroyOnClose
-      >
-        <Form layout="vertical" onFinish={submissionFormik.handleSubmit}>
-          <Form.Item label="Comments">
-            <TextArea
-              name="comments"
-              value={submissionFormik.values.comments}
-              onChange={submissionFormik.handleChange}
-              rows={4}
-              placeholder="Add your comments..."
-            />
-          </Form.Item>
-
-          <Form.Item label="Submission Files">
-            <Upload
-              fileList={submissionFormik.values.submissionFiles}
-              onChange={({ fileList }) =>
-                submissionFormik.setFieldValue("submissionFiles", fileList)
-              }
-              beforeUpload={() => false}
-              multiple
-            >
-              <Button icon={<UploadOutlined />}>Select Files</Button>
-            </Upload>
-          </Form.Item>
-
-          <Form.Item className="text-right">
-            <Button onClick={handleCloseModal} className="mr-2">
-              Cancel
-            </Button>
-            <Button type="primary" htmlType="submit" loading={submitting}>
-              Submit Task
             </Button>
           </Form.Item>
         </Form>

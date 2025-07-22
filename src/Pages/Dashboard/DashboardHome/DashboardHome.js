@@ -399,7 +399,7 @@ const DashboardHome = () => {
         </motion.div>
 
         {/* My Deposit */}
-        {/* <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants}>
           <Card className="h-full shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200">
             <div className="flex items-center justify-between">
               <div>
@@ -417,11 +417,12 @@ const DashboardHome = () => {
             <Divider className="my-4 border-purple-200" />
             <Link
               to="/dashboard/depositInfo"
-              className="text-purple-600 hover:text-purple-800 text-lg font-medium flex items-center">
+              className="text-purple-600 hover:text-purple-800 text-lg font-medium flex items-center"
+            >
               View history <ArrowUpOutlined className="ml-2 rotate-45" />
             </Link>
           </Card>
-        </motion.div> */}
+        </motion.div>
 
         {/* Total Deposit */}
         <motion.div variants={itemVariants}>
