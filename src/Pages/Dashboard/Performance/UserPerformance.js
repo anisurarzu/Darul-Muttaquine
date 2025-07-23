@@ -27,6 +27,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   UserOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -36,9 +37,11 @@ import dayjs from "dayjs";
 const { TextArea } = Input;
 const { Option } = Select;
 const { useBreakpoint } = Grid;
+const { RangePicker } = DatePicker;
 
 const TaskManagement = () => {
   const [tasks, setTasks] = useState([]);
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState({
     tasks: true,
@@ -53,6 +56,10 @@ const TaskManagement = () => {
   const [fileList, setFileList] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [filters, setFilters] = useState({
+    status: null,
+    dateRange: null,
+  });
   const screens = useBreakpoint();
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
@@ -64,7 +71,12 @@ const TaskManagement = () => {
       setLoading((prev) => ({ ...prev, tasks: true }));
       const endpoint = isSuperAdmin ? "/tasks" : `/tasks/user/${currentUserId}`;
       const response = await coreAxios.get(endpoint);
-      setTasks(response.data);
+
+      // Reverse the array so last-added data comes first
+      const reversedTasks = response.data.slice().reverse();
+
+      setTasks(reversedTasks);
+      setFilteredTasks(reversedTasks); // Initialize filtered tasks with reversed list
     } catch (error) {
       message.error("Failed to fetch tasks");
     } finally {
@@ -95,6 +107,27 @@ const TaskManagement = () => {
     };
     loadData();
   }, [isSuperAdmin, currentUserId]);
+
+  // Apply filters when tasks or filters change
+  useEffect(() => {
+    let result = [...tasks];
+
+    // Status filter
+    if (filters.status) {
+      result = result.filter((task) => task.status === filters.status);
+    }
+
+    // Date range filter
+    if (filters.dateRange && filters.dateRange.length === 2) {
+      const [start, end] = filters.dateRange;
+      result = result.filter((task) => {
+        const taskDate = dayjs(task.createdAt);
+        return taskDate.isAfter(start) && taskDate.isBefore(end);
+      });
+    }
+
+    setFilteredTasks(result);
+  }, [tasks, filters]);
 
   const handleUpload = async (file) => {
     const formData = new FormData();
@@ -221,13 +254,16 @@ const TaskManagement = () => {
 
   const completeTask = async (taskId) => {
     try {
+      const now = new Date().toISOString();
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task._id === taskId ? { ...task, status: "completed" } : task
+          task._id === taskId
+            ? { ...task, status: "completed", completedAt: now }
+            : task
         )
       );
 
-      await coreAxios.put(`/tasks/${taskId}/complete`);
+      await coreAxios.put(`/tasks/${taskId}/complete`, { completedAt: now });
       message.success("Task completed successfully");
       await fetchTasks();
     } catch (error) {
@@ -351,6 +387,21 @@ const TaskManagement = () => {
     setFileList([]);
   };
 
+  const handleStatusFilter = (status) => {
+    setFilters((prev) => ({ ...prev, status: status || null }));
+  };
+
+  const handleDateRangeFilter = (dates) => {
+    setFilters((prev) => ({ ...prev, dateRange: dates || null }));
+  };
+
+  const resetFilters = () => {
+    setFilters({
+      status: null,
+      dateRange: null,
+    });
+  };
+
   const columns = [
     {
       title: "Title",
@@ -387,10 +438,24 @@ const TaskManagement = () => {
       responsive: ["md"],
     },
     {
+      title: "Completed Date",
+      dataIndex: "completedAt",
+      key: "completedAt",
+      render: (text) =>
+        text ? dayjs(text).format(screens.md ? "DD MMM YYYY" : "DD/MM") : "-",
+      responsive: ["md"],
+    },
+    {
       title: "Status",
       dataIndex: "status",
       key: "status",
       render: (status) => getStatusTag(status),
+      filters: [
+        { text: "Pending", value: "pending" },
+        { text: "In Progress", value: "in-progress" },
+        { text: "Completed", value: "completed" },
+      ],
+      onFilter: (value, record) => record.status === value,
     },
     {
       title: "Mark",
@@ -531,27 +596,71 @@ const TaskManagement = () => {
           </div>
         )}
         <div className="text-sm text-gray-500 mt-2">
-          Created: {dayjs(record.createdAt).format("DD MMM YYYY")}
+          Created: {dayjs(record.createdAt).format("DD MMM YYYY HH:mm")}
         </div>
+        {record.completedAt && (
+          <div className="text-sm text-gray-500 mt-1">
+            Completed: {dayjs(record.completedAt).format("DD MMM YYYY HH:mm")}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+      {/* <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Task Management</h1>
-        {isSuperAdmin && (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => showModal()}
-            size={screens.md ? "default" : "small"}
+      
+      </div> */}
+
+      {/* Filter Section */}
+      <Card className="mb-4">
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex items-center gap-2">
+            <FilterOutlined />
+            <span className="font-medium">Filters:</span>
+          </div>
+
+          <Select
+            placeholder="Filter by Status"
+            allowClear
+            onChange={handleStatusFilter}
+            value={filters.status}
+            style={{ width: screens.md ? 200 : 150 }}
+            size={screens.md ? "default" : "middle"}
           >
-            {screens.md ? "Create Task" : "Create"}
+            <Option value="pending">Pending</Option>
+            <Option value="in-progress">In Progress</Option>
+            <Option value="completed">Completed</Option>
+          </Select>
+
+          <RangePicker
+            placeholder={["Start Date", "End Date"]}
+            onChange={handleDateRangeFilter}
+            value={filters.dateRange}
+            style={{ width: screens.md ? 300 : 200 }}
+            size={screens.md ? "default" : "middle"}
+          />
+
+          <Button
+            onClick={resetFilters}
+            size={screens.md ? "default" : "middle"}
+          >
+            Reset Filters
           </Button>
-        )}
-      </div>
+          {isSuperAdmin && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => showModal()}
+              size={screens.md ? "default" : "small"}
+            >
+              {screens.md ? "Create Task" : "Create"}
+            </Button>
+          )}
+        </div>
+      </Card>
 
       {loading.tasks || loading.users ? (
         <>
@@ -560,17 +669,22 @@ const TaskManagement = () => {
           <Skeleton active paragraph={{ rows: 4 }} />
         </>
       ) : (
-        <Card>
+        <Card bodyStyle={{ padding: "12px" }}>
           <Table
             columns={columns}
-            dataSource={tasks}
+            dataSource={filteredTasks}
             rowKey="_id"
             loading={loading.tasks}
             expandable={{
               expandedRowRender,
             }}
-            scroll={{ x: true }}
-            size={screens.md ? "default" : "small"}
+            scroll={{ x: 800 }}
+            size="small"
+            pagination={{
+              pageSize: 10,
+              showSizeChanger: false,
+              simple: true,
+            }}
           />
         </Card>
       )}

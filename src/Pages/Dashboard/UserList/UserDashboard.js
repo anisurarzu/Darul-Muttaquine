@@ -15,6 +15,7 @@ import {
 import { formatDate } from "../../../utilities/dateFormate";
 import UpdateUser from "./UpdateUser";
 import { coreAxios } from "../../../utilities/axios";
+import * as XLSX from "xlsx";
 
 const UserDashboard = () => {
   const navigate = useHistory();
@@ -86,6 +87,29 @@ const UserDashboard = () => {
       setLoading(false);
       toast.error("Error during verification!");
     }
+  };
+
+  const exportToExcel = () => {
+    const dataToExport = filteredRolls.map((user) => ({
+      "DMF ID": user.uniqueId,
+      Name: `${user.firstName} ${user.lastName}`,
+      "User Name": user.username,
+      Role: user.userRole,
+      Phone: user.phone,
+      "Blood Group": user.bloodGroup,
+      Email: user.email,
+      "Join Date": formatDate(user.createdAt),
+      Status: user.isVerification
+        ? "Verified"
+        : user.nidInfo && user.photoInfo
+        ? "Documents Submitted"
+        : "Not Submitted",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "users_data.xlsx");
   };
 
   const filteredRolls = rollData.filter((roll) => {
@@ -190,10 +214,32 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          {/* Rest of your component remains the same */}
+          {/* Export button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={exportToExcel}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg inline-flex items-center"
+            >
+              <svg
+                className="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              Export to Excel
+            </button>
+          </div>
+
           <div className="relative overflow-x-auto shadow-md">
             <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
-              {/* Table headers and body remain the same */}
               <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
