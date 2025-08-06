@@ -245,6 +245,7 @@ export default function Dashboard() {
         return menuItems.filter((item) =>
           [
             "dashboard",
+            "myTask",
             "profile",
             "depositInfo",
             "suggestionBox",
@@ -256,6 +257,7 @@ export default function Dashboard() {
         return menuItems.filter((item) =>
           [
             "dashboard",
+            "myTask",
             "profile",
             "depositInfo",
             "suggestionBox",

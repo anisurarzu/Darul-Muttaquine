@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useHistory } from "react-router-dom";
 import {
   Alert,
@@ -11,6 +10,8 @@ import {
   Spin,
   Image,
   Select,
+  Table,
+  Tag,
 } from "antd";
 import { formatDate } from "../../../utilities/dateFormate";
 import UpdateUser from "./UpdateUser";
@@ -23,13 +24,16 @@ const UserDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isDocsModalOpen, setIsDocsModalOpen] = useState(false);
+  const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [rollData, setRollData] = useState([]);
+  const [usersData, setUsersData] = useState([]);
+  const [allDepositsData, setAllDepositsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const [filterStatus, setFilterStatus] = useState("all"); // 'all', 'submitted', 'verified'
+  const [filterStatus, setFilterStatus] = useState("all");
 
-  const fetchScholarshipInfo = async () => {
+  // Fetch all users data
+  const fetchUsersData = async () => {
     try {
       setLoading(true);
       const response = await coreAxios.get(`/users`);
@@ -37,31 +41,74 @@ const UserDashboard = () => {
         const sortedData = response?.data?.sort((a, b) => {
           return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
-        setRollData(sortedData);
-        setLoading(false);
+        setUsersData(sortedData);
       }
     } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
       setLoading(false);
-      console.error("Error fetching rolls:", error);
+    }
+  };
+
+  // Fetch all deposits data
+  const fetchAllDepositsData = async () => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get(`/deposit-info`);
+      if (response?.status === 200) {
+        setAllDepositsData(response.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching deposits:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchScholarshipInfo();
+    fetchUsersData();
+    fetchAllDepositsData();
   }, []);
 
-  const handleDelete = async (RollID) => {
+  // Get deposits for a specific user
+  const getUserDeposits = (userId) => {
+    if (!Array.isArray(allDepositsData)) return [];
+    return allDepositsData.filter((deposit) => deposit?.userID === userId);
+  };
+
+  // Check current month deposit status for a user
+  const getCurrentMonthDepositStatus = (userId) => {
+    const userDeposits = getUserDeposits(userId);
+    if (userDeposits.length === 0) return "due";
+
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const hasCurrentMonthDeposit = userDeposits.some((deposit) => {
+      if (!deposit?.depositDate) return false;
+      const depositDate = new Date(deposit.depositDate);
+      return (
+        depositDate.getMonth() === currentMonth &&
+        depositDate.getFullYear() === currentYear &&
+        deposit.status === "Approved"
+      );
+    });
+
+    return hasCurrentMonthDeposit ? "paid" : "due";
+  };
+
+  const handleDelete = async (userId) => {
     try {
       setLoading(true);
-      const response = await coreAxios.delete(`/user/${RollID}`);
+      const response = await coreAxios.delete(`/user/${userId}`);
       if (response.data) {
         toast.success("Successfully Deleted!");
-        setLoading(false);
-        fetchScholarshipInfo();
-      } else {
-        setLoading(false);
+        fetchUsersData();
       }
     } catch (error) {
+      console.error("Error deleting user:", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -76,21 +123,18 @@ const UserDashboard = () => {
 
       if (response?.status === 200) {
         toast.success(isVerified ? "User Verified!" : "User Rejected!");
-        fetchScholarshipInfo();
+        fetchUsersData();
         setIsDocsModalOpen(false);
-      } else {
-        toast.error("Failed to update verification status");
       }
-
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       toast.error("Error during verification!");
+    } finally {
+      setLoading(false);
     }
   };
 
   const exportToExcel = () => {
-    const dataToExport = filteredRolls.map((user) => ({
+    const dataToExport = filteredUsers.map((user) => ({
       "DMF ID": user.uniqueId,
       Name: `${user.firstName} ${user.lastName}`,
       "User Name": user.username,
@@ -99,6 +143,7 @@ const UserDashboard = () => {
       "Blood Group": user.bloodGroup,
       Email: user.email,
       "Join Date": formatDate(user.createdAt),
+      "Current Month Status": getCurrentMonthDepositStatus(user._id),
       Status: user.isVerification
         ? "Verified"
         : user.nidInfo && user.photoInfo
@@ -112,10 +157,10 @@ const UserDashboard = () => {
     XLSX.writeFile(workbook, "users_data.xlsx");
   };
 
-  const filteredRolls = rollData.filter((roll) => {
+  const filteredUsers = usersData.filter((user) => {
     // Apply search filter
     const searchMatch = searchQuery
-      ? Object.values(roll)
+      ? Object.values(user)
           .join("")
           .toLowerCase()
           .includes(searchQuery.toLowerCase())
@@ -124,9 +169,9 @@ const UserDashboard = () => {
     // Apply status filter
     let statusMatch = true;
     if (filterStatus === "submitted") {
-      statusMatch = roll.nidInfo && roll.photoInfo;
+      statusMatch = user.nidInfo && user.photoInfo;
     } else if (filterStatus === "verified") {
-      statusMatch = roll.isVerification === true;
+      statusMatch = user.isVerification === true;
     }
 
     return searchMatch && statusMatch;
@@ -134,19 +179,56 @@ const UserDashboard = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
   const onChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  // Columns for deposit history table
+  const depositColumns = [
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      render: (amount) => `৳${amount}`,
+    },
+    {
+      title: "Date",
+      dataIndex: "depositDate",
+      key: "depositDate",
+      render: (date) => formatDate(date),
+    },
+    {
+      title: "Transaction ID",
+      dataIndex: "tnxID",
+      key: "tnxID",
+    },
+    {
+      title: "Payment Method",
+      dataIndex: "paymentMethod",
+      key: "paymentMethod",
+      render: (method) => method.toUpperCase(),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (status) => (
+        <Tag color={status === "Approved" ? "green" : "orange"}>
+          {status.toUpperCase()}
+        </Tag>
+      ),
+    },
+  ];
 
   return (
     <>
       {loading ? (
         <Spin tip="Loading...">
           <Alert
-            message="Alert message title"
-            description="Further details about the context of this alert."
+            message="Loading Data"
+            description="Please wait while we load the data."
             type="info"
           />
         </Spin>
@@ -157,27 +239,23 @@ const UserDashboard = () => {
               <button
                 className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
                 onClick={() => navigate(-1)}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}
               >
-                <span>
-                  <i className="pi pi-arrow-left font-semibold"></i>
-                </span>
+                <i className="pi pi-arrow-left font-semibold"></i>
                 BACK
               </button>
             </div>
+
             <div>
               <h3 className="text-[17px]">
-                User Details ({filteredRolls?.length})
+                User Details ({filteredUsers?.length})
               </h3>
             </div>
+
             <div className="flex items-center gap-4">
               <Select
                 defaultValue="all"
                 style={{ width: 180 }}
-                onChange={(value) => setFilterStatus(value)}
+                onChange={setFilterStatus}
                 options={[
                   { value: "all", label: "All Users" },
                   { value: "submitted", label: "Documents Submitted" },
@@ -188,14 +266,14 @@ const UserDashboard = () => {
                 <input
                   type="text"
                   id="table-search-users"
-                  className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                   <svg
-                    className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                    className="w-4 h-4 text-gray-500"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -214,7 +292,6 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          {/* Export button */}
           <div className="flex justify-end mb-4">
             <button
               onClick={exportToExcel}
@@ -232,15 +309,15 @@ const UserDashboard = () => {
                   strokeLinejoin="round"
                   strokeWidth="2"
                   d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                ></path>
+                />
               </svg>
               Export to Excel
             </button>
           </div>
 
           <div className="relative overflow-x-auto shadow-md">
-            <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
-              <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <table className="w-full text-xl text-left rtl:text-right text-gray-500">
+              <thead className="text-xl text-gray-700 uppercase bg-gray-50">
                 <tr>
                   <th className="border border-tableBorder text-center p-2">
                     Image
@@ -270,6 +347,9 @@ const UserDashboard = () => {
                     Email
                   </th>
                   <th className="border border-tableBorder text-center p-2">
+                    C.M.D.S
+                  </th>
+                  <th className="border border-tableBorder text-center p-2">
                     Join Date
                   </th>
                   <th className="border border-tableBorder text-center p-2">
@@ -279,61 +359,77 @@ const UserDashboard = () => {
               </thead>
 
               <tbody>
-                {currentItems.map((roll) => (
+                {currentItems.map((user) => (
                   <tr
-                    key={roll._id}
+                    key={user._id}
                     className={
-                      roll.isVerification
+                      user.isVerification
                         ? "bg-green-200 text-green-600"
-                        : roll.nidInfo && roll.photoInfo
+                        : user.nidInfo && user.photoInfo
                         ? "bg-yellow-200 text-yellow-600"
                         : ""
                     }
                   >
-                    <td className="border border-tableBorder pl-1 text-center flex justify-center ">
+                    <td className="border border-tableBorder pl-1 text-center flex justify-center">
                       <img
-                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
+                        className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] object-cover"
                         src={
-                          roll?.image ||
+                          user?.image ||
                           "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU"
                         }
                         alt=""
                       />
                     </td>
+
                     <td className="border border-tableBorder pl-1 text-center">
                       <button
                         className="font-semibold text-blue-600"
                         onClick={() => {
-                          setRowData(roll);
+                          setRowData(user);
                           setIsDocsModalOpen(true);
                         }}
                       >
                         View Docs
                       </button>
                     </td>
+
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.uniqueId}
+                      {user.uniqueId}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.firstName} {roll.lastName}
+                      {user.firstName} {user.lastName}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.username}
+                      {user.username}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.userRole}
+                      {user.userRole}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.phone}
+                      {user.phone}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.bloodGroup}
+                      {user.bloodGroup}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      {roll.email}
+                      {user.email}
                     </td>
+
                     <td className="border border-tableBorder pl-1 text-center">
-                      {formatDate(roll.createdAt)}
+                      <Tag
+                        color={
+                          getCurrentMonthDepositStatus(user._id) === "paid"
+                            ? "green"
+                            : "red"
+                        }
+                        style={{ fontWeight: "bold" }}
+                      >
+                        {getCurrentMonthDepositStatus(user._id).toUpperCase()}
+                      </Tag>
+                    </td>
+
+                    <td className="border border-tableBorder pl-1 text-center">
+                      {formatDate(user.createdAt)}
                     </td>
 
                     <td className="border border-tableBorder pl-1">
@@ -341,28 +437,33 @@ const UserDashboard = () => {
                         <button
                           className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                           onClick={() => {
-                            setRowData(roll);
+                            setRowData(user);
                             setIsProfileModalOpen(true);
                           }}
                         >
-                          <span>
-                            <i className="pi pi-pencil font-semibold">Edit</i>
-                          </span>
+                          <i className="pi pi-pencil font-semibold">Edit</i>
                         </button>
+
+                        <button
+                          className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
+                          onClick={() => {
+                            setRowData(user);
+                            setIsDepositModalOpen(true);
+                          }}
+                        >
+                          <i className="pi pi-history font-semibold">History</i>
+                        </button>
+
                         <Popconfirm
                           title="Delete the user"
                           description="Are you sure to delete this user?"
-                          onConfirm={() => handleDelete(roll._id)}
+                          onConfirm={() => handleDelete(user._id)}
                           onCancel={() => toast.error("Delete action canceled")}
                           okText="Yes"
                           cancelText="No"
                         >
-                          <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                            <span>
-                              <i className="pi pi-trash font-semibold">
-                                Delete
-                              </i>
-                            </span>
+                          <button className="font-semibold gap-2.5 rounded-lg bg-red-500 text-white py-2 px-4 text-xl">
+                            <i className="pi pi-trash font-semibold">Delete</i>
                           </button>
                         </Popconfirm>
                       </div>
@@ -371,11 +472,12 @@ const UserDashboard = () => {
                 ))}
               </tbody>
             </table>
+
             <div className="flex justify-center p-2">
               <Pagination
                 showQuickJumper
                 current={currentPage}
-                total={filteredRolls.length}
+                total={filteredUsers.length}
                 pageSize={itemsPerPage}
                 onChange={onChange}
               />
@@ -384,7 +486,6 @@ const UserDashboard = () => {
         </div>
       )}
 
-      {/* Profile Modal */}
       <Modal
         title="User Profile"
         open={isProfileModalOpen}
@@ -394,7 +495,6 @@ const UserDashboard = () => {
         <UpdateUser rowData={rowData} />
       </Modal>
 
-      {/* Docs Modal */}
       <Modal
         title="User Documents"
         open={isDocsModalOpen}
@@ -446,6 +546,26 @@ const UserDashboard = () => {
             Reject
           </Button>
         </div>
+      </Modal>
+
+      <Modal
+        title={`Deposit History for ${rowData.firstName || ""} ${
+          rowData.lastName || ""
+        }`}
+        open={isDepositModalOpen}
+        onCancel={() => setIsDepositModalOpen(false)}
+        footer={null}
+        width={800}
+      >
+        <Table
+          columns={depositColumns}
+          dataSource={getUserDeposits(rowData._id)}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+          locale={{
+            emptyText: "No deposit history found for this user",
+          }}
+        />
       </Modal>
     </>
   );

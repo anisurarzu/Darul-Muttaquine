@@ -66,7 +66,7 @@ const DashboardHome = () => {
         const filteredData = response?.data?.filter(
           (item) => item.status !== "Paid"
         );
-        setQuizMoney(filteredData);
+        setQuizMoney(filteredData || []);
       }
     } catch (err) {
       console.error(err);
@@ -83,7 +83,7 @@ const DashboardHome = () => {
         const approvedProjects = sortedData?.filter(
           (project) => project.approvalStatus === "Approve"
         );
-        setProjectInfo(approvedProjects);
+        setProjectInfo(approvedProjects || []);
       }
     } catch (err) {
       toast.error(err?.response?.data?.message);
@@ -97,7 +97,7 @@ const DashboardHome = () => {
         const approvedDeposits = response?.data.filter(
           (deposit) => deposit?.status === "Approved"
         );
-        setDepositData(approvedDeposits);
+        setDepositData(approvedDeposits || []);
       }
     } catch (error) {
       console.error("Error fetching deposits:", error);
@@ -108,10 +108,11 @@ const DashboardHome = () => {
     try {
       const response = await coreAxios.get(`deposit-info/${userInfo?._id}`);
       if (response?.status === 200) {
-        setSingleDepositData(response?.data);
+        setSingleDepositData(response?.data || { deposits: [] });
       }
     } catch (error) {
       console.error("Error fetching user deposits:", error);
+      setSingleDepositData({ deposits: [] });
     }
   };
 
@@ -122,7 +123,7 @@ const DashboardHome = () => {
         const approvedDeposits = response?.data.filter(
           (deposit) => deposit.status === "Approved"
         );
-        setCostData(approvedDeposits);
+        setCostData(approvedDeposits || []);
       }
     } catch (error) {
       console.error("Error fetching costs:", error);
@@ -133,10 +134,11 @@ const DashboardHome = () => {
     try {
       const response = await coreAxios.get(`cost-info/${userInfo?._id}`);
       if (response?.status === 200) {
-        setSingleCostData(response?.data);
+        setSingleCostData(response?.data || { deposits: [] });
       }
     } catch (error) {
       console.error("Error fetching user costs:", error);
+      setSingleCostData({ deposits: [] });
     }
   };
 
@@ -166,39 +168,42 @@ const DashboardHome = () => {
     }
   }, [userInfo?.isVerification]);
 
-  // Calculate metrics
-  const totalDepositAmount = depositData?.reduce(
-    (total, deposit) => total + deposit?.amount,
-    0
-  );
+  // Calculate metrics with safe defaults
+  const totalDepositAmount =
+    depositData?.reduce(
+      (total, deposit) => total + (deposit?.amount || 0),
+      0
+    ) || 0;
 
-  const approvedUserDeposits = singleDepositData?.deposits?.filter(
-    (deposit) => deposit.status === "Approved"
-  );
+  const approvedUserDeposits =
+    singleDepositData?.deposits?.filter(
+      (deposit) => deposit?.status === "Approved"
+    ) || [];
 
-  const depositAmount = approvedUserDeposits?.reduce(
-    (total, deposit) => total + deposit?.amount,
-    0
-  );
+  const depositAmount =
+    approvedUserDeposits?.reduce(
+      (total, deposit) => total + (deposit?.amount || 0),
+      0
+    ) || 0;
 
-  const totalCostAmount = costData?.reduce(
-    (total, cost) => total + cost?.amount,
-    0
-  );
+  const totalCostAmount =
+    costData?.reduce((total, cost) => total + (cost?.amount || 0), 0) || 0;
 
-  const approvedUserCosts = singleCostData?.deposits?.filter(
-    (cost) => cost?.status === "Approved"
-  );
+  const approvedUserCosts =
+    singleCostData?.deposits?.filter((cost) => cost?.status === "Approved") ||
+    [];
 
-  const costAmount = approvedUserCosts?.reduce(
-    (total, cost) => total + cost?.amount,
-    0
-  );
+  const costAmount =
+    approvedUserCosts?.reduce(
+      (total, cost) => total + (cost?.amount || 0),
+      0
+    ) || 0;
 
-  const totalQuizAmount = quizMoney?.reduce(
-    (total, deposit) => Number(total) + Number(deposit?.amount),
-    0
-  );
+  const totalQuizAmount =
+    quizMoney?.reduce(
+      (total, deposit) => Number(total) + (Number(deposit?.amount) || 0),
+      0
+    ) || 0;
 
   const currentBalance = Number(totalDepositAmount) - Number(totalCostAmount);
 
@@ -231,12 +236,16 @@ const DashboardHome = () => {
 
     // Process each deposit
     deposits?.forEach((deposit) => {
+      if (!deposit?.depositDate) return;
+
       const date = new Date(deposit.depositDate);
+      if (isNaN(date.getTime())) return;
+
       const monthIndex = date.getMonth();
       const monthName = months[monthIndex];
 
       if (monthData[monthName]) {
-        monthData[monthName].amount += deposit.amount;
+        monthData[monthName].amount += deposit.amount || 0;
         monthData[monthName].deposits.push(deposit);
       }
     });
@@ -248,7 +257,7 @@ const DashboardHome = () => {
 
   const handleMonthClick = (monthName) => {
     if (monthData[monthName]?.deposits?.length > 0) {
-      setSelectedMonthDeposits(monthData[monthName].deposits);
+      setSelectedMonthDeposits(monthData[monthName].deposits || []);
       setSelectedMonthName(monthName);
       setIsModalVisible(true);
     }
@@ -353,7 +362,7 @@ const DashboardHome = () => {
               <div>
                 <p className="text-blue-700 text-lg font-medium">Total Users</p>
                 <h3 className="text-3xl font-bold text-blue-900 mt-2">
-                  {users?.length}
+                  {users?.length || 0}
                 </h3>
               </div>
               <div className="p-4 rounded-full bg-blue-100">
@@ -381,7 +390,7 @@ const DashboardHome = () => {
                   Quiz Balance
                 </p>
                 <h3 className="text-3xl font-bold text-green-900 mt-2">
-                  ৳{totalQuizAmount.toLocaleString()}
+                  ৳{(totalQuizAmount || 0).toLocaleString()}
                 </h3>
               </div>
               <div className="p-4 rounded-full bg-green-100">
@@ -407,7 +416,7 @@ const DashboardHome = () => {
                   My Deposit
                 </p>
                 <h3 className="text-3xl font-bold text-purple-900 mt-2">
-                  ৳{depositAmount.toLocaleString()}
+                  ৳{(depositAmount || 0).toLocaleString()}
                 </h3>
               </div>
               <div className="p-4 rounded-full bg-purple-100">
@@ -433,7 +442,7 @@ const DashboardHome = () => {
                   Total Deposit
                 </p>
                 <h3 className="text-3xl font-bold text-indigo-900 mt-2">
-                  ৳{totalDepositAmount.toLocaleString()}
+                  ৳{(totalDepositAmount || 0).toLocaleString()}
                 </h3>
               </div>
               <div className="p-4 rounded-full bg-indigo-100">
@@ -459,7 +468,7 @@ const DashboardHome = () => {
                   Withdrawals
                 </p>
                 <h3 className="text-3xl font-bold text-orange-900 mt-2">
-                  {costData?.length}
+                  {costData?.length || 0}
                 </h3>
                 <p className="text-orange-600 text-sm mt-1">
                   Approved requests
@@ -492,7 +501,7 @@ const DashboardHome = () => {
                     currentBalance >= 0 ? "text-green-700" : "text-red-700"
                   }`}
                 >
-                  ৳{currentBalance.toLocaleString()}
+                  ৳{(currentBalance || 0).toLocaleString()}
                 </h3>
               </div>
               <div className="p-4 rounded-full bg-cyan-100">
@@ -502,10 +511,10 @@ const DashboardHome = () => {
             <Divider className="my-4 border-cyan-200" />
             <div className="flex justify-between">
               <span className="text-cyan-700 text-lg">
-                Deposits: ৳{totalDepositAmount.toLocaleString()}
+                Deposits: ৳{(totalDepositAmount || 0).toLocaleString()}
               </span>
               <span className="text-cyan-700 text-lg">
-                Withdrawals: ৳{totalCostAmount.toLocaleString()}
+                Withdrawals: ৳{(totalCostAmount || 0).toLocaleString()}
               </span>
             </div>
           </Card>
@@ -528,7 +537,7 @@ const DashboardHome = () => {
           </div>
           <div className="flex overflow-x-auto pb-2 scrollbar-hide">
             {months.map((month, index) => {
-              const hasDeposits = monthData[month]?.amount > 0;
+              const hasDeposits = (monthData[month]?.amount || 0) > 0;
               const currentMonth = new Date().getMonth();
               const isCurrentMonth = index === currentMonth;
 
@@ -560,7 +569,7 @@ const DashboardHome = () => {
                     <>
                       <DollarOutlined className="text-green-500 mt-2 text-xl" />
                       <span className="text-green-700 font-semibold mt-1">
-                        ৳{monthData[month].amount.toLocaleString()}
+                        ৳{(monthData[month]?.amount || 0).toLocaleString()}
                       </span>
                     </>
                   ) : (
@@ -575,105 +584,41 @@ const DashboardHome = () => {
         </Card>
       </motion.div>
 
-      {/* Projects Section */}
-      {/* <motion.div variants={itemVariants}>
-        <Card className="shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl bg-gradient-to-br from-white to-gray-50 border border-gray-200">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-800">
-              Running DMF Projects
-            </h2>
-            <Link
-              to="/dashboard/projects"
-              className="text-blue-600 text-lg flex items-center"
-            >
-              View all <ArrowUpOutlined className="ml-2 rotate-45" />
-            </Link>
-          </div>
-          {projectInfo?.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {projectInfo?.map((project, index) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -5 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ProjectCard
-                    rowData={project}
-                    depositData={depositData}
-                    costData={costData}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <span className="text-gray-500 text-lg">
-                  No active projects
-                </span>
-              }
-            />
-          )}
-        </Card>
-      </motion.div> */}
-
-      {/* Deposit Details Modal */}
-      {/* <Modal
-        title={`Deposit Details for ${selectedMonthName}`}
+      {/* Month Deposit Details Modal */}
+      <Modal
+        title={`Deposits for ${selectedMonthName}`}
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
         width={800}
       >
-        <List
-          itemLayout="horizontal"
-          dataSource={selectedMonthDeposits}
-          renderItem={(deposit) => (
-            <List.Item>
-              <List.Item.Meta
-                avatar={<DollarOutlined className="text-green-500 text-2xl" />}
-                title={
-                  <div className="flex justify-between">
-                    <span className="font-medium">৳{deposit.amount}</span>
-                    <Tag color="blue">{deposit.project}</Tag>
-                  </div>
-                }
-                description={
-                  <div className="space-y-2">
-                    <div>
-                      <span className="font-medium">Date: </span>
-                      {new Date(deposit.depositDate).toLocaleDateString()}
-                    </div>
-                    <div>
-                      <span className="font-medium">Method: </span>
-                      {deposit.paymentMethod}
-                    </div>
-                    <div>
-                      <span className="font-medium">Transaction ID: </span>
-                      {deposit.tnxID}
-                    </div>
-                    <div>
-                      <span className="font-medium">Phone: </span>
-                      {deposit.phone}
-                    </div>
-                  </div>
-                }
-              />
-            </List.Item>
-          )}
-        />
-        <div className="mt-4 p-4 bg-green-50 rounded-lg">
-          <div className="flex justify-between items-center">
-            <span className="text-lg font-medium">
-              Total for {selectedMonthName}:
-            </span>
-            <span className="text-xl font-bold text-green-700">
-              ৳{monthData[selectedMonthName]?.amount.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </Modal> */}
+        {selectedMonthDeposits?.length > 0 ? (
+          <List
+            itemLayout="horizontal"
+            dataSource={selectedMonthDeposits}
+            renderItem={(deposit) => (
+              <List.Item>
+                <List.Item.Meta
+                  avatar={<Avatar icon={<DollarOutlined />} />}
+                  title={`৳${(deposit.amount || 0).toLocaleString()}`}
+                  description={
+                    <>
+                      <div>Method: {deposit.paymentMethod}</div>
+                      <div>
+                        Date:{" "}
+                        {new Date(deposit.depositDate).toLocaleDateString()}
+                      </div>
+                      <div>Transaction ID: {deposit.transactionId}</div>
+                    </>
+                  }
+                />
+              </List.Item>
+            )}
+          />
+        ) : (
+          <Empty description="No deposits found for this month" />
+        )}
+      </Modal>
     </motion.div>
   );
 };

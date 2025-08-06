@@ -59,6 +59,9 @@ const Navbar = () => {
             <NavLink to="/result" className="hover:text-green-500 pt-2">
               ফলাফল
             </NavLink>
+            <NavLink to="/investment" className="hover:text-green-500 pt-2">
+              ইনভেস্টমেন্ট
+            </NavLink>
             <NavLink to="/course" className="hover:text-green-500 pt-2">
               কোর্সসমূহ
             </NavLink>
@@ -210,6 +213,9 @@ const Navbar = () => {
                   স্কলারশিপ ফান্ড
                 </NavLink>
               </li>
+              <NavLink to="/investment" className="hover:text-green-500 pt-2">
+                ইনভেস্টমেন্ট
+              </NavLink>
               {/* <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center">

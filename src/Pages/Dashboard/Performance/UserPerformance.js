@@ -407,8 +407,16 @@ const TaskManagement = () => {
       title: "Title",
       dataIndex: "title",
       key: "title",
-      render: (text) => <span className="font-medium">{text}</span>,
-      responsive: ["md"],
+      render: (text, record) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{text}</span>
+          {!screens.md && (
+            <span className="text-xs text-gray-500">
+              {record.assignedToName.split(" ")[0]}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       title: "Assigned To",
@@ -421,13 +429,10 @@ const TaskManagement = () => {
             icon={<UserOutlined />}
             className="mr-2"
           />
-          {screens.md ? (
-            <span>{text}</span>
-          ) : (
-            <span>{text.split(" ")[0]}</span> // Show only first name on mobile
-          )}
+          {screens.md && <span>{text}</span>}
         </div>
       ),
+      responsive: ["md"],
     },
     {
       title: "Due Date",
@@ -435,7 +440,6 @@ const TaskManagement = () => {
       key: "dueDate",
       render: (text) =>
         dayjs(text).format(screens.md ? "DD MMM YYYY" : "DD/MM"),
-      responsive: ["md"],
     },
     {
       title: "Completed Date",
@@ -473,7 +477,7 @@ const TaskManagement = () => {
           value={mark}
           onChange={(value) => updateMark(record._id, value)}
           disabled={!isSuperAdmin || record.status !== "completed"}
-          count={screens.md ? 5 : 3} // Show fewer stars on mobile
+          count={screens.md ? 5 : 3}
         />
       ),
       responsive: ["sm"],
