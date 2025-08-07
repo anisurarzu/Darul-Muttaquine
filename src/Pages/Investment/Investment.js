@@ -3,6 +3,10 @@ import { motion } from "framer-motion";
 import { Card, Button, Modal, Progress, Alert } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
+import investmentGif from "../../images/GIF/investment.gif";
+import investmentLogo from "../../images/GIF/i-logo.gif";
+import InvestmentLogin from "./InvestmentLogin";
+
 const Investment = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -10,73 +14,33 @@ const Investment = () => {
   const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   const handleLoginClick = () => {
-    const today = new Date();
-    const septemberFirst = new Date(today.getFullYear(), 8, 1); // Month is 0-indexed (8 = September)
+    setIsModalVisible(true);
+    // const today = new Date();
+    // const septemberFirst = new Date(today.getFullYear(), 8, 1); // Month is 0-indexed (8 = September)
 
-    if (today >= septemberFirst) {
-      setIsLoading(true);
-      setProgress(0);
+    // if (today >= septemberFirst) {
+    //   setIsLoading(true);
+    //   setProgress(0);
 
-      // Simulate progress
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setIsLoading(false);
-            setIsModalVisible(true);
-            return 100;
-          }
-          return prev + 10;
-        });
-      }, 200);
-    } else {
-      setShowLoginMessage(true);
-    }
+    //   // Simulate progress
+    //   const interval = setInterval(() => {
+    //     setProgress((prev) => {
+    //       if (prev >= 100) {
+    //         clearInterval(interval);
+    //         setIsLoading(false);
+    //         setIsModalVisible(true);
+    //         return 100;
+    //       }
+    //       return prev + 10;
+    //     });
+    //   }, 200);
+    // } else {
+    //   setShowLoginMessage(true);
+    // }
   };
 
   const handleCancel = () => {
     setIsModalVisible(false);
-  };
-
-  // Animation for money multiplication
-  const MoneyAnimation = () => {
-    const [coins, setCoins] = useState([]);
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCoins((prev) => {
-          const newCoin = {
-            id: Date.now(),
-            x: Math.random() * 100,
-            y: 0,
-            size: Math.random() * 10 + 5,
-          };
-          return [...prev.slice(-10), newCoin];
-        });
-      }, 300);
-
-      return () => clearInterval(interval);
-    }, []);
-
-    return (
-      <div className="relative h-20 w-full overflow-hidden">
-        {coins.map((coin) => (
-          <motion.div
-            key={coin.id}
-            initial={{ x: `${coin.x}%`, y: 0, opacity: 1 }}
-            animate={{ y: 100, opacity: 0 }}
-            transition={{ duration: 2 }}
-            className="absolute"
-            style={{
-              width: `${coin.size}px`,
-              height: `${coin.size}px`,
-              backgroundColor: "#facc15",
-              borderRadius: "50%",
-            }}
-          />
-        ))}
-      </div>
-    );
   };
 
   return (
@@ -91,32 +55,14 @@ const Investment = () => {
         transition={{ duration: 1 }}
         className="text-center mb-12 relative"
       >
-        {/* Animated Investment Vector */}
-        <motion.div
-          className="relative w-60 h-60 mx-auto mb-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, scale: [0.95, 1, 0.98, 1] }}
-          transition={{ duration: 2, repeat: Infinity, repeatType: "mirror" }}
-        >
+        {/* GIF Animation */}
+        <div className="relative w-[200px] h-[150px] mx-auto mb-6">
           <img
-            src="https://cdn-icons-png.flaticon.com/512/2011/2011576.png"
+            src={investmentLogo} // Make sure this path matches your GIF location
             alt="Investment Animation"
             className="w-full h-full object-contain drop-shadow-xl"
           />
-          {/* Money going in & out visual effect (simulated) */}
-          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 flex gap-2 animate-bounce">
-            <div className="w-5 h-8 bg-green-500 rounded-sm shadow-md"></div>
-            <div className="w-5 h-8 bg-green-400 rounded-sm shadow-md"></div>
-          </div>
-          <div className="absolute bottom-0 left-[-30px] flex flex-col items-center animate-pulse">
-            <div className="w-6 h-10 bg-yellow-300 rounded shadow-md"></div>
-            <span className="text-xs text-gray-700 mt-1">দুনিয়া</span>
-          </div>
-          <div className="absolute bottom-0 right-[-30px] flex flex-col items-center animate-pulse">
-            <div className="w-6 h-10 bg-purple-300 rounded shadow-md"></div>
-            <span className="text-xs text-gray-700 mt-1">আখিরাত</span>
-          </div>
-        </motion.div>
+        </div>
 
         <h1 className="text-4xl md:text-5xl font-bold text-emerald-700 drop-shadow-sm">
           ডিএমএফ ইনভেস্টমেন্ট লগইন পোর্টাল
@@ -152,7 +98,6 @@ const Investment = () => {
               strokeColor="#16a34a"
             />
             <p className="mt-2 text-gray-600">লগইন পোর্টাল লোড হচ্ছে...</p>
-            <MoneyAnimation />
           </div>
         )}
 
@@ -170,8 +115,16 @@ const Investment = () => {
         )}
       </motion.div>
 
+      <div className="relative w-[220px] h-[220px] mx-auto mb-6">
+        <img
+          src={investmentGif} // Make sure this path matches your GIF location
+          alt="Investment Animation"
+          className="w-full h-full object-contain drop-shadow-xl"
+        />
+      </div>
+
       {/* Directional Instruction Card */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
@@ -208,62 +161,17 @@ const Investment = () => {
             </li>
           </ul>
         </Card>
-      </motion.div>
+      </motion.div> */}
 
       {/* Login Modal */}
       <Modal
-        title={
-          <span className="text-green-700">ইনভেস্টমেন্ট পোর্টাল লগইন</span>
-        }
         visible={isModalVisible}
         onCancel={handleCancel}
         footer={null}
         centered
         width={400}
       >
-        <div className="p-4">
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2">
-              ইনভেস্টমেন্ট আইডি
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                className="w-full p-3 border border-green-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="আপনার আইডি লিখুন"
-              />
-              <UserOutlined className="absolute left-3 top-3.5 text-gray-400" />
-            </div>
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-gray-700 mb-2">পাসওয়ার্ড</label>
-            <div className="relative">
-              <input
-                type="password"
-                className="w-full p-3 border border-green-300 rounded-lg pl-10 focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="আপনার পাসওয়ার্ড লিখুন"
-              />
-              <LockOutlined className="absolute left-3 top-3.5 text-gray-400" />
-            </div>
-          </div>
-
-          <Button
-            type="primary"
-            block
-            size="large"
-            className="bg-green-600 hover:bg-green-700 border-0 h-12 font-bold"
-          >
-            লগইন করুন
-          </Button>
-
-          <div className="mt-4 text-center text-sm text-gray-600">
-            পাসওয়ার্ড ভুলে গেছেন?{" "}
-            <a href="#" className="text-green-600 hover:underline">
-              এখানে ক্লিক করুন
-            </a>
-          </div>
-        </div>
+        <InvestmentLogin />
       </Modal>
 
       {/* Footer */}

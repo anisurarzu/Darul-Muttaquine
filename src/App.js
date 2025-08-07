@@ -33,6 +33,7 @@ import ApplicationForm from "./Pages/scholarship/ApplicationForm";
 import PublicQuiz from "./Pages/Quize/PublicQuize";
 import ScholarshipPayment from "./Pages/Dashboard/ScholarshipPayment";
 import Investment from "./Pages/Investment/Investment";
+import InvestmentProfile from "./Pages/Investment/InvestmentProfile";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -67,12 +68,17 @@ const App = () => {
         <Route exact path="/course" component={CoursePage} />
         <Route exact path="/course/:id" component={CourseDetailsPage} />
         <Route exact path="/about" component={About} />
-        <Route exact path="/investment" component={Investment} />
+
         <Route exact path="/scholarship-public" component={PublicScholarship} />
         <Route
           exact
           path="/scholarship-payment"
           component={ScholarshipPayment}
+        />
+        <PrivateRoute path="/investment" component={Investment} />
+        <PrivateRoute
+          path="/investment-profile"
+          component={InvestmentProfile}
         />
         <PrivateRoute path="/admitCard/:id" component={AdmitCard} />
         <PrivateRoute path="/scholarship" component={Scholarship} />

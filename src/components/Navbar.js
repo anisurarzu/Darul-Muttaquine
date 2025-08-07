@@ -19,7 +19,7 @@ const Navbar = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const history = useHistory();
   // const userInfo = useUserInfo();
-  const userInfo = localStorage.getItem("userInfo");
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   console.log("userInfo", userInfo);
 
   // Check if the user is authenticated
@@ -29,6 +29,7 @@ const Navbar = () => {
   const handleLogout = () => {
     // Clear all data from local storage
     localStorage?.clear();
+    sessionStorage.removeItem("investmentAuth");
 
     // Redirect to the login page
     history?.push("/login");
