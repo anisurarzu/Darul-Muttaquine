@@ -85,14 +85,17 @@ const DonationBox = ({ onHide, fetchRolls }) => {
     <div className=" py-2 lg:py-8 xl:py-8 " style={{ background: "#F5F5F5" }}>
       <div
         className="rounded-lg border my-4 mx-8 lg:mx-28 xl:mx-28 p-8"
-        style={{ background: "#FFFFFF" }}>
+        style={{ background: "#FFFFFF" }}
+      >
         <form
           className="grid grid-cols-1 lg:grid-cols-4 xl:grid-cols-4 gap-1 lg:gap-8 xl:gap-8 text-[12px] lg:text-[18px] xl:text-[18px]"
-          onSubmit={formik.handleSubmit}>
+          onSubmit={formik.handleSubmit}
+        >
           <div className="w-full  mb-4">
             <label
               htmlFor="project"
-              className="block text-black dark:text-black py-1">
+              className="block text-black dark:text-black py-1"
+            >
               অনুদানের প্রকল্প <span className="text-meta-1">*</span>
             </label>
             <Select
@@ -100,7 +103,8 @@ const DonationBox = ({ onHide, fetchRolls }) => {
               name="project"
               onChange={(value) => formik.setFieldValue("project", value)}
               value={formik.values.project}
-              className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary lg:h-[43px] xl:h-[43px]">
+              className="w-full rounded  border-stroke bg-transparent py-0 px-2 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary lg:h-[43px] xl:h-[43px]"
+            >
               {projectList?.map((method) => (
                 <Option key={method} value={method}>
                   {method}
@@ -144,7 +148,8 @@ const DonationBox = ({ onHide, fetchRolls }) => {
 
           <button
             type="submit"
-            className="justify-center rounded bg-green-600 text-white  font-medium text-gray  border border-green-600 lg:ml-8 xl:ml-8 mt-12 p-3 lg:mb-4 lg:mr-8 xl:mb-4 xl:mr-8 rounded hover:bg-green-800 hover:text-white hover:shadow-md">
+            className="justify-center rounded bg-green-600 text-white  font-medium text-gray  border border-green-600 lg:ml-8 xl:ml-8 mt-12 p-3 lg:mb-4 lg:mr-8 xl:mb-4 xl:mr-8 rounded hover:bg-green-800 hover:text-white hover:shadow-md"
+          >
             দান করুন
           </button>
         </form>
@@ -154,7 +159,8 @@ const DonationBox = ({ onHide, fetchRolls }) => {
           open={isModalOpen}
           // onOk={handleOk}
           onCancel={handleCancel}
-          width={800}>
+          width={800}
+        >
           <InsertDonation handleCancel={handleCancel} values={formik?.values} />
         </Modal>
       </div>

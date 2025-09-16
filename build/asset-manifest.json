@@ -1,0 +1,40 @@
+{
+  "files": {
+    "main.css": "/static/css/main.fb012638.css",
+    "main.js": "/static/js/main.a846444a.js",
+    "static/js/213.7c893b74.chunk.js": "/static/js/213.7c893b74.chunk.js",
+    "static/js/667.d9b24bec.chunk.js": "/static/js/667.d9b24bec.chunk.js",
+    "static/js/701.39a99288.chunk.js": "/static/js/701.39a99288.chunk.js",
+    "static/js/453.b4be1faa.chunk.js": "/static/js/453.b4be1faa.chunk.js",
+    "static/media/banner-2.gif": "/static/media/banner-2.d2e116fe3baa06767fb8.gif",
+    "static/media/animation-1.gif": "/static/media/animation-1.887fd8f397559c1441cd.gif",
+    "static/media/animation-2.gif": "/static/media/animation-2.2a4434e260b71f1f8cad.gif",
+    "static/media/em040421n08.gif": "/static/media/em040421n08.2b8a07ea77fe5aa2c973.gif",
+    "static/media/investment.gif": "/static/media/investment.124f666aa078ca276faa.gif",
+    "static/media/inv-banner.gif": "/static/media/inv-banner.ca5d6139fd708ab839f5.gif",
+    "static/media/eid-card.jpg": "/static/media/eid-card.b0ed3402ed422c64ea62.jpg",
+    "static/media/566.jpg": "/static/media/566.6473c081d17277b63873.jpg",
+    "static/media/i-logo.gif": "/static/media/i-logo.6ba35d3ad4f01603c51e.gif",
+    "static/media/scholarship-2-removebg-preview.png": "/static/media/scholarship-2-removebg-preview.85acd15ce62426e0ec9a.png",
+    "static/media/voluenteer.jpg": "/static/media/voluenteer.4e7507684013097e1a47.jpg",
+    "static/media/s-2022-removebg-preview.png": "/static/media/s-2022-removebg-preview.b1fc58418d7b54959a05.png",
+    "static/media/seraat.png": "/static/media/seraat.165f481695c5d5b80b69.png",
+    "static/media/vecteezy_fund-raising-and-money-donation-illustration_6901910.jpg": "/static/media/vecteezy_fund-raising-and-money-donation-illustration_6901910.eb1ee5285a0187aa9425.jpg",
+    "static/media/vecteezy_food-and-groceries-donation-illustration_6916104.jpg": "/static/media/vecteezy_food-and-groceries-donation-illustration_6916104.2284942b16626bf2bcd2.jpg",
+    "static/media/New-Main-2.png": "/static/media/New-Main-2.f2a2cdb2131a0fe80c88.png",
+    "static/media/Untitled-1_703368e4-8b89-48eb-832e-13c3d740cf28.jpeg": "/static/media/Untitled-1_703368e4-8b89-48eb-832e-13c3d740cf28.053700587608b75da7ba.jpeg",
+    "static/media/banner02.jpeg": "/static/media/banner02.638a62a361197d8b590e.jpeg",
+    "static/media/tss.png": "/static/media/tss.604ffcfa4a53170310e0.png",
+    "index.html": "/index.html",
+    "main.fb012638.css.map": "/static/css/main.fb012638.css.map",
+    "main.a846444a.js.map": "/static/js/main.a846444a.js.map",
+    "213.7c893b74.chunk.js.map": "/static/js/213.7c893b74.chunk.js.map",
+    "667.d9b24bec.chunk.js.map": "/static/js/667.d9b24bec.chunk.js.map",
+    "701.39a99288.chunk.js.map": "/static/js/701.39a99288.chunk.js.map",
+    "453.b4be1faa.chunk.js.map": "/static/js/453.b4be1faa.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fb012638.css",
+    "static/js/main.a846444a.js"
+  ]
+}

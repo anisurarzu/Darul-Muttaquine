@@ -59,6 +59,7 @@ import TourEntry from "../TourManagement/TourEntry";
 import UpdateProfileFromAdmin from "./Profile/UpdateProfile/UpdateProfileFromAdmin";
 import UserPerformance from "./Performance/UserPerformance";
 import ScholarshipFund from "../scholarship/ScholarshipFund";
+import InvestmentUsersDashboard from "../Investment/InvestmentUsersDashboard ";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -92,6 +93,11 @@ export default function Dashboard() {
 
   const menuItems = [
     { route: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> },
+    {
+      route: "investment",
+      label: "Investment",
+      icon: <DashboardOutlined />,
+    },
     { route: "profile", label: "Profile", icon: <ProfileOutlined /> },
     {
       route: "myTask",
@@ -408,6 +414,9 @@ export default function Dashboard() {
             </Route>
             <Route path={`${path}/scholarshipFund`}>
               <ScholarshipFund />
+            </Route>
+            <Route path={`${path}/investment`}>
+              <InvestmentUsersDashboard />
             </Route>
             <Route path={`${path}/myTask`}>
               <UserPerformance />

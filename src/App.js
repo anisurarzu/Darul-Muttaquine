@@ -34,6 +34,7 @@ import PublicQuiz from "./Pages/Quize/PublicQuize";
 import ScholarshipPayment from "./Pages/Dashboard/ScholarshipPayment";
 import Investment from "./Pages/Investment/Investment";
 import InvestmentProfile from "./Pages/Investment/InvestmentProfile";
+import InvestmentRegistration from "./Pages/Investment/InvestmentRegistration ";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -76,6 +77,10 @@ const App = () => {
           component={ScholarshipPayment}
         />
         <PrivateRoute path="/investment" component={Investment} />
+        <PrivateRoute
+          path="/investment-registration"
+          component={InvestmentRegistration}
+        />
         <PrivateRoute
           path="/investment-profile"
           component={InvestmentProfile}
