@@ -170,13 +170,13 @@ const DonationSection = ({ language }) => {
   };
 
   return (
-    <div className="bg-white py-16 px-6">
+    <div className="bg-white py-16 md:py-20 px-6">
       <div className="mx-auto md:mx-[100px] lg:mx-[200px]">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
-            {language === "bangla" ? "আপনার দান করুন" : "Make Your Donation"}
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            {language === "bangla" ? "দান করুন" : "Make Your Donation"}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2xl text-gray-600 max-w-3xl mx-auto">
             {language === "bangla"
               ? "আপনার দান অসহায় মানুষদের সাহায্য করতে এবং শিক্ষা প্রসারে গুরুত্বপূর্ণ ভূমিকা পালন করে"
               : "Your donation plays a vital role in helping the underprivileged and promoting education"}
@@ -400,15 +400,15 @@ const BlogSection = ({ language }) => {
   ];
 
   return (
-    <div className="py-16 px-6 bg-gray-50">
+    <div className="py-16 md:py-24 px-6 bg-gray-50">
       <div className="mx-auto md:mx-[100px] lg:mx-[200px]">
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
             {language === "bangla"
               ? "সাম্প্রতিক ব্লগ পোস্ট"
               : "Recent Blog Posts"}
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2xl text-gray-600 max-w-3xl mx-auto">
             {language === "bangla"
               ? "আমাদের সংস্থার কার্যক্রম এবং সাম্প্রতিক খবর সম্পর্কে জানুন"
               : "Learn about our organization's activities and recent news"}
@@ -467,16 +467,16 @@ const BlogSection = ({ language }) => {
 const JoinUsSection = ({ language }) => {
   return (
     <div
-      className="py-20 px-6 bg-cover bg-center bg-fixed relative"
+      className="py-20 md:py-28 px-6 bg-cover bg-center bg-fixed relative"
       style={{
         backgroundImage:
-          "url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1500&q=80')",
+          "url('https://i.ibb.co.com/v4MdvZyX/1758086923536-1758086915189-714c07e-IMG-20250725-160733-154.jpg')",
       }}
     >
       <div className="absolute inset-0 bg-black bg-opacity-60"></div>
 
       <div className="max-w-7xl mx-auto relative z-10 text-center text-white">
-        <h2 className="text-4xl font-bold mb-6">
+        <h2 className="text-4xl md:text-5xl font-bold mb-6">
           {language === "bangla" ? "আমাদের সাথে যোগ দিন" : "Join Us"}
         </h2>
         <p className="text-2xl mb-12 max-w-4xl mx-auto">
@@ -781,9 +781,9 @@ export default function Home() {
       {/* Timeline Section */}
       <div className="bg-gray-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-3xl md:text-3xl font-bold text-center mb-12 text-gray-800">
             {language === "bangla"
-              ? "স্কলারশিপ সময়সূচী"
+              ? "স্কলারশিপ সময়সূচী ২০২৬"
               : "Scholarship Timeline"}
           </h2>
 

@@ -6,26 +6,21 @@ import {
   MailOutlined,
   CheckCircleTwoTone,
 } from "@ant-design/icons";
-import { Timeline } from "antd";
 import { toast } from "react-toastify";
 import { coreAxios } from "../../utilities/axios";
 
 const CommitteeMembersSection = ({ language }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filteredMembers, setFilteredMembers] = useState([]);
 
-  // Fetch all users
   const getAllUserList = async () => {
     try {
       setLoading(true);
       const response = await coreAxios.get(`/users`);
       if (response?.status === 200) {
-        const sortedData = response?.data?.sort(
-          (a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)
-        );
-        const filteredData = sortedData?.filter(
-          (item) => item?.uniqueId !== "DMF-4232"
+        // Filter out users without cmRole and the specific ID
+        const filteredData = response?.data?.filter(
+          (item) => item?.uniqueId !== "DMF-4232" && item.cmRole
         );
         setUsers(filteredData);
       }
@@ -40,121 +35,110 @@ const CommitteeMembersSection = ({ language }) => {
     getAllUserList();
   }, []);
 
-  useEffect(() => {
-    if (users.length > 0) {
-      const cmRoleUsers = users.filter((user) => user.cmRole);
-      setFilteredMembers(cmRoleUsers);
-    }
-  }, [users]);
-
-  // Role sorting order
-  const roleOrder = {
-    President: 1,
-    "Vice President": 2,
-    Secretary: 3,
-    Treasurer: 4,
-    Advisor: 5,
-    "Executive Member": 6,
-  };
-
-  const sortedMembers = filteredMembers.sort(
-    (a, b) => (roleOrder[a.cmRole] || 99) - (roleOrder[b.cmRole] || 99)
-  );
-
   if (loading) {
     return (
-      <div className="bg-gray-50 py-10 px-4 text-center">
-        <LoadingOutlined className="text-3xl text-green-600 animate-spin" />
-        <p className="mt-3 text-gray-600 text-base">
+      <div className="bg-gray-50 py-16 px-4 text-center">
+        <LoadingOutlined className="text-4xl text-green-600 animate-spin" />
+        <p className="mt-4 text-gray-600 text-lg">
           {language === "bangla" ? "লোড হচ্ছে..." : "Loading..."}
         </p>
       </div>
     );
   }
 
-  return (
-    <div className="bg-gray-50 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-14 text-gray-800">
-          {language === "bangla"
-            ? "কমিটি পরিচালনা পর্ষদ"
-            : "Committee Management Board"}
-        </h2>
+  const MemberCard = ({ member }) => (
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-6 flex flex-col items-center text-center group">
+      {/* Profile Image */}
+      <div className="relative mb-4">
+        <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-green-100 group-hover:border-green-200 transition-colors">
+          <img
+            src={member.image}
+            alt={member.username || member.firstName}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.src =
+                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80";
+            }}
+          />
+        </div>
+        {member.isVerification && (
+          <CheckCircleTwoTone
+            twoToneColor="#22c55e"
+            className="absolute bottom-0 right-0 text-2xl bg-white rounded-full"
+          />
+        )}
+      </div>
 
-        {sortedMembers.length === 0 ? (
-          <div className="text-center py-10 bg-white rounded-xl shadow">
-            <UserOutlined className="text-5xl text-gray-400 mb-3" />
-            <p className="text-gray-600 text-lg">
+      {/* Name and Role */}
+      <h3 className="text-lg font-bold text-gray-800 mb-1">
+        {member.firstName} {member.lastName}
+      </h3>
+      <p className="text-green-600 font-semibold mb-2 capitalize">
+        {member.cmRole.toLowerCase()}
+      </p>
+
+      {/* Profession */}
+      {member.profession && (
+        <p className="text-gray-600 text-sm mb-4">{member.profession}</p>
+      )}
+
+      {/* Contact Information */}
+      <div className="mt-auto pt-4 border-t border-gray-100 w-full">
+        <div className="flex justify-center space-x-4">
+          {member.email && (
+            <a
+              href={`mailto:${member.email}`}
+              className="text-gray-400 hover:text-green-600 transition-colors"
+              title="Email"
+            >
+              <MailOutlined className="text-lg" />
+            </a>
+          )}
+          {member.phone && (
+            <a
+              href={`tel:${member.phone}`}
+              className="text-gray-400 hover:text-green-600 transition-colors"
+              title="Phone"
+            >
+              <PhoneOutlined className="text-lg" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="bg-gray-50 py-16 px-4">
+      <div className="mx-8 md:mx-[100px] lg:mx-[200px]">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            {language === "bangla"
+              ? "কমিটি পরিচালনা পর্ষদ"
+              : "Committee Management Board"}
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto text-2xl">
+            {language === "bangla"
+              ? "আমাদের দক্ষ ও অভিজ্ঞ কমিটি সদস্যদের সাথে পরিচিত হোন"
+              : "Meet our skilled and experienced committee members"}
+          </p>
+        </div>
+
+        {users.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {users.map((member) => (
+              <MemberCard key={member._id} member={member} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <UserOutlined className="text-5xl text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg">
               {language === "bangla"
-                ? "কোন কমিটি সদস্য পাওয়া যায়নি"
+                ? "কোন কমিটি সদস্য খুঁজে পাওয়া যায়নি"
                 : "No committee members found"}
             </p>
           </div>
-        ) : (
-          <Timeline mode="alternate" className="scholarship-timeline">
-            {sortedMembers.map((member, index) => (
-              <Timeline.Item key={member._id} color="green">
-                <div
-                  className={`bg-white rounded-xl shadow-md px-7 py-5 flex items-center gap-6 hover:shadow-lg transition
-          ${
-            index % 2 === 0
-              ? "justify-start text-left"
-              : "justify-start md:justify-end text-left md:text-right"
-          }
-        `}
-                >
-                  {/* Profile Image */}
-                  <div
-                    className={`w-20 h-20 rounded-full border-2 border-green-500 overflow-hidden flex-shrink-0
-            ${index % 2 === 0 ? "" : "order-2"}
-          `}
-                  >
-                    <img
-                      src={member.image}
-                      alt={member.username || member.firstName}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/150?text=No+Image";
-                      }}
-                    />
-                  </div>
-
-                  {/* Info */}
-                  <div
-                    className={`flex-1 min-w-0 ${
-                      index % 2 === 0 ? "" : "order-1"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-800 truncate">
-                        {member.firstName} {member.lastName}
-                      </h3>
-                      {member.isVerification && (
-                        <CheckCircleTwoTone twoToneColor="#22c55e" />
-                      )}
-                    </div>
-                    <p className="text-base text-green-600 font-medium">
-                      {member.cmRole}
-                    </p>
-                    <p className="text-sm text-gray-600 truncate">
-                      {member.profession}
-                    </p>
-                    <div className="text-sm text-gray-700 mt-2 space-y-1">
-                      <p>
-                        <MailOutlined className="mr-2 text-green-500" />
-                        {member.email}
-                      </p>
-                      <p>
-                        <PhoneOutlined className="mr-2 text-green-500" />0
-                        {member.phone}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Timeline.Item>
-            ))}
-          </Timeline>
         )}
       </div>
     </div>
