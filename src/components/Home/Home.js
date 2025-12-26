@@ -796,7 +796,13 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
                 <div className="text-center">
                   <FilePdfOutlined className="text-3xl mb-3" />
-                  <h3 className="font-bold text-lg mb-2">
+                  <h3 className="font-bold text-lg mb-2"  onClick={() =>
+                  window.open(
+                    "https://drive.google.com/file/d/1ECZU-7SvYJD77rColdg8eqHibsrn6OQa/view?usp=sharing",
+                    "_blank"
+                  )
+                }>
+                    
                     {language === "bangla"
                       ? "সম্পূর্ণ নোটিস ডাউনলোড"
                       : "Download Full Notice"}
