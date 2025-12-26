@@ -12,6 +12,7 @@ import {
   Select,
   Modal,
   Divider,
+  Typography,
 } from "antd";
 import {
   CalendarOutlined,
@@ -43,14 +44,142 @@ import {
   DollarCircleOutlined,
   GroupOutlined,
   MobileOutlined,
+  FireOutlined,
 } from "@ant-design/icons";
 import ReviewsSection from "./ReviewsSection";
 import CommitteeMembersSection from "./CommitteeMembersSection";
-// import { useRouter } from "next/router";
 
 const { Option } = Select;
+const { Text } = Typography;
 
-// Scholarship Notice Component
+// CountdownTimer Component
+const CountdownTimer = ({ targetDate, onComplete, language }) => {
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isCompleted: false
+  });
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = targetDate.getTime() - new Date().getTime();
+      
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        
+        setTimeLeft({ days, hours, minutes, seconds, isCompleted: false });
+      } else {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, isCompleted: true });
+        if (onComplete) onComplete();
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate, onComplete]);
+
+  if (timeLeft.isCompleted) {
+    return (
+      <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white p-4 rounded-xl text-center">
+        <Text strong className="text-white text-lg md:text-xl">
+          {language === "bangla" ? "আবেদন বন্ধ!" : "Application Closed!"}
+        </Text>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap justify-center gap-2 md:gap-4">
+      <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-3 md:p-4 min-w-[70px] text-center shadow-lg">
+        <div className="text-2xl md:text-3xl font-bold">{timeLeft.days}</div>
+        <div className="text-xs md:text-sm">
+          {language === "bangla" ? "দিন" : "Days"}
+        </div>
+      </div>
+      <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-3 md:p-4 min-w-[70px] text-center shadow-lg">
+        <div className="text-2xl md:text-3xl font-bold">{timeLeft.hours}</div>
+        <div className="text-xs md:text-sm">
+          {language === "bangla" ? "ঘণ্টা" : "Hours"}
+        </div>
+      </div>
+      <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg p-3 md:p-4 min-w-[70px] text-center shadow-lg">
+        <div className="text-2xl md:text-3xl font-bold">{timeLeft.minutes}</div>
+        <div className="text-xs md:text-sm">
+          {language === "bangla" ? "মিনিট" : "Minutes"}
+        </div>
+      </div>
+      <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-lg p-3 md:p-4 min-w-[70px] text-center shadow-lg">
+        <div className="text-2xl md:text-3xl font-bold">{timeLeft.seconds}</div>
+        <div className="text-xs md:text-sm">
+          {language === "bangla" ? "সেকেন্ড" : "Seconds"}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Counter Component
+const Counter = ({ end, duration, label, icon }) => {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          let startTime = null;
+          const step = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const currentCount = Math.floor(progress * end);
+
+            setCount(currentCount);
+
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            }
+          };
+
+          window.requestAnimationFrame(step);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (countRef.current) {
+      observer.observe(countRef.current);
+    }
+
+    return () => {
+      if (countRef.current) {
+        observer.unobserve(countRef.current);
+      }
+    };
+  }, [end, duration]);
+
+  return (
+    <div
+      ref={countRef}
+      className="text-center p-4 md:p-6 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm border border-white border-opacity-30"
+    >
+      <div className="text-2xl md:text-3xl font-bold mb-2 text-white">
+        {icon}
+      </div>
+      <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+        {count}+
+      </div>
+      <div className="text-base md:text-lg text-white opacity-90">{label}</div>
+    </div>
+  );
+};
+
 // Scholarship Notice Component
 const ScholarshipNotice = ({ language, isOpen, onClose }) => {
   const noticeContent = {
@@ -717,61 +846,6 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
   );
 };
 
-// Counter Component
-const Counter = ({ end, duration, label, icon }) => {
-  const [count, setCount] = useState(0);
-  const countRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          let startTime = null;
-          const step = (timestamp) => {
-            if (!startTime) startTime = timestamp;
-            const progress = Math.min((timestamp - startTime) / duration, 1);
-            const currentCount = Math.floor(progress * end);
-
-            setCount(currentCount);
-
-            if (progress < 1) {
-              window.requestAnimationFrame(step);
-            }
-          };
-
-          window.requestAnimationFrame(step);
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (countRef.current) {
-      observer.observe(countRef.current);
-    }
-
-    return () => {
-      if (countRef.current) {
-        observer.unobserve(countRef.current);
-      }
-    };
-  }, [end, duration]);
-
-  return (
-    <div
-      ref={countRef}
-      className="text-center p-4 md:p-6 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm border border-white border-opacity-30"
-    >
-      <div className="text-2xl md:text-3xl font-bold mb-2 text-white">
-        {icon}
-      </div>
-      <div className="text-3xl md:text-4xl font-bold text-white mb-2">
-        {count}+
-      </div>
-      <div className="text-base md:text-lg text-white opacity-90">{label}</div>
-    </div>
-  );
-};
-
 // Image Gallery Component
 const ImageGallery = ({ language }) => {
   const galleryImages = [
@@ -1236,9 +1310,38 @@ const JoinUsSection = ({ language }) => {
 export default function Home() {
   const [language, setLanguage] = useState("bangla");
   const [noticeModalVisible, setNoticeModalVisible] = useState(false);
-  // const router = useRouter();
+  const [isApplicationOpen, setIsApplicationOpen] = useState(true);
+  const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Content translations
+  // Application period: Dec 27, 2025 2:00 PM to Jan 13, 2026 12:00 AM
+  const applicationStart = new Date('2025-12-27T14:00:00');
+  const applicationEnd = new Date('2026-01-13T00:00:00');
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = new Date();
+      const difference = applicationEnd.getTime() - now.getTime();
+      
+      if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        
+        setGlobalTimeLeft({ days, hours, minutes, seconds });
+        setIsApplicationOpen(true);
+      } else {
+        setGlobalTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsApplicationOpen(false);
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const content = {
     bangla: {
       title: "দারুল মুত্তাক্বীন ফাউন্ডেশন",
@@ -1247,6 +1350,7 @@ export default function Home() {
       scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন স্কলারশিপ ২০২৬",
       scholarshipText:
         "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ১৩ জানুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
+      scholarshipSubtext: "বাকি সময়ঃ",
       registerButton: "রেজিস্ট্রেশন করুন",
       languageButton: "English",
       features: [
@@ -1296,11 +1400,6 @@ export default function Home() {
           children: "প্রাথমিক আবেদন শেষ তারিখ",
           color: "blue",
         },
-        // {
-        //   label: "৩১ জানুয়ারি, ২০২৬",
-        //   children: "রেজিস্ট্রেশন শেষ",
-        //   color: "red",
-        // },
         {
           label: "২৩ জানুয়ারি, ২০২৬",
           children: "স্কলারশিপ পরীক্ষা",
@@ -1320,7 +1419,8 @@ export default function Home() {
         "Darul Muttakin Foundation is a non-political, non-profit educational, Dawah and welfare service organization dedicated to human welfare. 'To engage ourselves in religious education, propagation and welfare work solely for the pleasure of Allah'",
       scholarshipTitle: "Upcoming DMF Scholarship 2026",
       scholarshipText:
-        "Registration starts from December 27, 2:00 PM. Interested students can register now.",
+        "Registration starts from December 27, 2:00 PM to January 13, 2026. Interested students can register now.",
+      scholarshipSubtext: "Time remaining:",
       registerButton: "Register Now",
       languageButton: "বাংলা",
       features: [
@@ -1366,14 +1466,9 @@ export default function Home() {
           color: "green",
         },
         {
-          label: "January 15, 2026",
+          label: "January 13, 2026",
           children: "Initial application deadline",
           color: "blue",
-        },
-        {
-          label: "January 31, 2026",
-          children: "Registration closes",
-          color: "red",
         },
         {
           label: "January 23, 2026",
@@ -1391,12 +1486,8 @@ export default function Home() {
   };
 
   const handleRegistrationClick = () => {
-    // router.push('/scholarship-public');
+    window.location.href = "/scholarship-public";
   };
-
-  useEffect(() => {
-    // Component did mount
-  }, []);
 
   const toggleLanguage = () => {
     setLanguage(language === "bangla" ? "english" : "bangla");
@@ -1424,19 +1515,51 @@ export default function Home() {
             {currentContent.scholarshipText}
           </p>
 
+          {/* Countdown Timer Section */}
+          <div className="mb-6 md:mb-8">
+            <div className="inline-flex items-center bg-black bg-opacity-30 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 mb-4">
+              <FireOutlined className="text-yellow-400 mr-2 md:mr-3" />
+              <Text strong className="text-white text-sm md:text-lg">
+                {currentContent.scholarshipSubtext}
+              </Text>
+            </div>
+            
+            <div className="flex justify-center mb-6">
+              <CountdownTimer 
+                targetDate={applicationEnd}
+                onComplete={() => setIsApplicationOpen(false)}
+                language={language}
+              />
+            </div>
+
+            {/* <div className="flex justify-center">
+              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 md:p-4 inline-block">
+                <Text className="text-white text-sm md:text-base">
+                  <CalendarOutlined className="mr-2" />
+                  {language === "bangla" ? "আবেদনের সময়সীমা" : "Application Period"}: 
+                  <br className="md:hidden" />
+                  <span className="font-bold ml-1 md:ml-2">
+                    ২৭ ডিসেম্বর - ১৩ জানুয়ারি
+                  </span>
+                </Text>
+              </div>
+            </div> */}
+          </div>
+
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-8 md:mb-12">
             <button
-              onClick={() => {
-                handleRegistrationClick();
-                // Add your routing logic here
-                window.location.href = "/scholarship-public";
-                // Or if you're using React Router:
-                // navigate("/scholarshipPublic");
-              }}
-              className="bg-white text-green-800 font-bold border-0 px-6 md:px-10 py-3 md:py-4 text-base md:text-xl rounded-lg hover:bg-gray-100 transition-all duration-300 flex items-center shadow-lg w-full md:w-auto justify-center"
+              onClick={handleRegistrationClick}
+              disabled={!isApplicationOpen}
+              className={`font-bold border-0 px-6 md:px-10 py-3 md:py-4 text-base md:text-xl rounded-lg transition-all duration-300 flex items-center shadow-lg w-full md:w-auto justify-center ${
+                isApplicationOpen 
+                  ? 'bg-white text-green-800 hover:bg-gray-100' 
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
               <CalendarOutlined className="mr-2 md:mr-3" />
-              {currentContent.registerButton}
+              {isApplicationOpen 
+                ? currentContent.registerButton 
+                : (language === "bangla" ? "আবেদন বন্ধ" : "Application Closed")}
             </button>
 
             <button
