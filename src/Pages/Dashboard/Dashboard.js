@@ -60,6 +60,7 @@ import UpdateProfileFromAdmin from "./Profile/UpdateProfile/UpdateProfileFromAdm
 import UserPerformance from "./Performance/UserPerformance";
 import ScholarshipFund from "../scholarship/ScholarshipFund";
 import InvestmentUsersDashboard from "../Investment/InvestmentUsersDashboard ";
+import OldScholarshipDataV25 from "../scholarship/OldScholarshipDataV25";
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -110,7 +111,7 @@ export default function Dashboard() {
       icon: <DashboardOutlined />,
     },
 
-    { route: "scholarship", label: "Scholarship 2025", icon: <BookOutlined /> },
+    { route: "scholarship", label: "Scholarship 2026", icon: <BookOutlined /> },
     {
       route: "scholarshipFund",
       label: "Scholarship Fund",
@@ -119,6 +120,11 @@ export default function Dashboard() {
     {
       route: "oldScholarshipData",
       label: "Scholarship 2024",
+      icon: <BookOutlined />,
+    },
+    {
+      route: "oldScholarshipDataV25",
+      label: "Scholarship 2025",
       icon: <BookOutlined />,
     },
     { route: "admission", label: "Admission", icon: <BookOutlined /> },
@@ -196,6 +202,7 @@ export default function Dashboard() {
               "orderDetails",
               "admission",
               "oldScholarshipData",
+              'ldScholarshipDataV25',
               "seatPlan",
             ].includes(item.route)
         );
@@ -423,6 +430,9 @@ export default function Dashboard() {
             </Route>
             <Route path={`${path}/oldScholarshipData`}>
               <OldScholarshipData />
+            </Route>
+            <Route path={`${path}/oldScholarshipDataV25`}>
+              <OldScholarshipDataV25 />
             </Route>
             <Route path={`${path}/admission`}>
               <EducationCentre />

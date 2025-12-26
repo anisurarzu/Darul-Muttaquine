@@ -10,6 +10,8 @@ import {
   Form,
   Input,
   Select,
+  Modal,
+  Divider,
 } from "antd";
 import {
   CalendarOutlined,
@@ -28,11 +30,692 @@ import {
   ArrowRightOutlined,
   PhoneOutlined,
   MailOutlined,
+  FilePdfOutlined,
+  EyeOutlined,
+  DownloadOutlined,
+  NotificationOutlined,
+  CloseOutlined,
+  InfoCircleOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  BookOutlined,
+  TrophyOutlined,
+  DollarCircleOutlined,
+  GroupOutlined,
+  MobileOutlined,
 } from "@ant-design/icons";
 import ReviewsSection from "./ReviewsSection";
 import CommitteeMembersSection from "./CommitteeMembersSection";
+// import { useRouter } from "next/router";
 
 const { Option } = Select;
+
+// Scholarship Notice Component
+// Scholarship Notice Component
+const ScholarshipNotice = ({ language, isOpen, onClose }) => {
+  const noticeContent = {
+    bangla: {
+      title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৬",
+      subtitle: "বিস্তারিত তথ্য ও নির্দেশিকা",
+      organizer: "আয়োজনে: দারুল মুত্তাক্বীন ফাউন্ডেশন",
+      examCenter: "পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা উচ্চ বিদ্যালয়",
+      writtenExamDate: "লিখিত পরীক্ষার তারিখ: ২৩ জানুয়ারি ২০২৫ (শুক্রবার)",
+      vivaExamDate: "ভাইবা পরীক্ষার তারিখ: ৩০ জানুয়ারী ২০২৫ (শুক্রবার)",
+      applicationPeriod:
+        "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ১৩ জানুয়ারি ২০২৬",
+      participants: "অংশগ্রহণকারী: ৩য় থেকে ১২শ শ্রেণির সকল শিক্ষার্থী",
+
+      importantDates: [
+        {
+          icon: <CalendarOutlined />,
+          text: "আবেদন শুরু: ২৭ ডিসেম্বর ২০২৫ (দুপুর ২টা)",
+        },
+        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ১৩ জানুয়ারি ২০২৬" },
+        {
+          icon: <ClockCircleOutlined />,
+          text: "লিখিত পরীক্ষা: ২৩ জানুয়ারি ২০২৫",
+        },
+        {
+          icon: <ClockCircleOutlined />,
+          text: "ভাইবা পরীক্ষা: ৩০ জানুয়ারি ২০২৫",
+        },
+      ],
+
+      groups: [
+        { name: "চ গ্রুপ", classes: "৩য় ও ৪র্থ শ্রেণি", fee: "৫০ টাকা" },
+        { name: "ঙ গ্রুপ", classes: "৫ম শ্রেণি", fee: "৫০ টাকা" },
+        { name: "ঘ গ্রুপ", classes: "৬ষ্ঠ ও ৭ম শ্রেণি", fee: "১০০ টাকা" },
+        { name: "গ গ্রুপ", classes: "৮ম শ্রেণি", fee: "১০০ টাকা" },
+        { name: "খ গ্রুপ", classes: "৯ম ও ১০ম শ্রেণি", fee: "১০০ টাকা" },
+        { name: "ক গ্রুপ", classes: "১১শ ও ১২শ শ্রেণি", fee: "১০০ টাকা" },
+      ],
+
+      importantNotes: [
+        {
+          icon: <InfoCircleOutlined />,
+          title: "পরীক্ষার নির্দেশনা",
+          points: [
+            "একাধিক গ্রুপের জন্য একই বই সিলেবাস হিসেবে থাকলেও, বিভিন্ন গ্রুপের জন্য আলাদা প্রশ্নপত্র",
+            "ছেলে-মেয়ে আলাদা কক্ষে পরীক্ষা দেওয়ার ব্যবস্থা",
+            "শিক্ষার্থীদের নির্ধারিত আসনে বসে পরীক্ষা দিতে হবে",
+          ],
+        },
+        {
+          icon: <CheckCircleOutlined />,
+          title: "যোগ্যতা ও মানবন্টন",
+          points: [
+            "লিখিত পরীক্ষায় ৭০% নম্বর পেলে ভাইবার জন্য ডাকা হবে",
+            "ভুল উত্তরের জন্য নম্বর কর্তন করা হবে না",
+            "প্রতিটি গ্রুপের জন্য আলাদা প্রশ্নপত্র",
+          ],
+        },
+        {
+          icon: <TrophyOutlined />,
+          title: "পুরস্কার ও স্বীকৃতি",
+          points: [
+            "নগদ অর্থ পুরস্কার",
+            "ক্রেস্ট ও সনদপত্র",
+            "বিশেষ মেধাবৃত্তির সুযোগ",
+          ],
+        },
+      ],
+
+      applicationProcess: {
+        title: "আবেদন পদ্ধতি",
+        methods: [
+          {
+            type: "অনলাইন আবেদন",
+            steps: [
+              "ওয়েবসাইট: ourdmf.com",
+              "শিক্ষাবৃত্তি অপশনে ক্লিক করুন",
+              "অনলাইন ফর্ম পূরণ করুন",
+              "অনলাইন পেমেন্ট সম্পন্ন করুন",
+            ],
+          },
+          {
+            type: "অফলাইন আবেদন",
+            steps: [
+              "দারুল মুত্তাক্বীন অফিসে সরাসরি আবেদন",
+              "হতেয়া রোড, তক্তারচালা দাখিল মাদ্রাসার পূর্ব পাশে",
+              "স্ব-স্ব শিক্ষাপ্রতিষ্ঠানে আবেদন",
+            ],
+          },
+        ],
+      },
+
+      requirements: [
+        {
+          text: "আবেদন ফর্ম ইংরেজি বর্ণে পূরণ করতে হবে",
+          icon: <BookOutlined />,
+        },
+        {
+          text: "আবেদন ফি প্রদান (মোবাইল ব্যাংকিং/ক্যাশ)",
+          icon: <DollarCircleOutlined />,
+        },
+        { text: "পাসপোর্ট সাইজের ছবি (ঐচ্ছিক)", icon: <UserOutlined /> },
+      ],
+
+      benefits: [
+        "বিভিন্ন প্রতিষ্ঠানের সাথে প্রতিযোগিতামূলক পরীক্ষার অভিজ্ঞতা",
+        "ইসলামিক ও জেনারেল বিষয়ে জ্ঞান বৃদ্ধি",
+        "ভবিষ্যতের এডমিশন ও চাকরির জন্য উপযোগী",
+        "পাবলিক পরীক্ষাভীতি দূরীকরণ",
+        "মেধা যাচাইয়ের অনন্য সুযোগ",
+      ],
+
+      contact: {
+        title: "যোগাযোগ",
+        facebook: {
+          page: "Facebook Page: Darul Muttaquine",
+          group: "Facebook Group: Darul Muttaquine Foundation",
+          youth: "দারুল মুত্তাক্বীন যুব সংঘ",
+        },
+        phoneNumbers: [
+          { name: "আশিকুর রহমান (সভাপতি, DMF)", number: "01927-920081" },
+          { name: "সাইফুল্লাহ সাদী (সহ-সভাপতি, DMF)", number: "01918737415" },
+          { name: "তানভীর হোসেন (যুব সংঘ সভাপতি)", number: "01838243941" },
+        ],
+      },
+
+      downloadLink: "https://drive.google.com/drive/folders/your-folder-link",
+    },
+    english: {
+      title: "Darul Muttaqine Scholarship 2026",
+      subtitle: "Detailed Information & Guidelines",
+      organizer: "Organized by: Darul Muttaqine Foundation",
+      examCenter: "Exam Center: Taktarchala Sobuj Bangla High School",
+      writtenExamDate: "Written Exam Date: January 23, 2025 (Friday)",
+      vivaExamDate: "Viva Exam Date: January 30, 2025 (Friday)",
+      applicationPeriod:
+        "Application Period: December 27, 2025 - January 13, 2026",
+      participants: "Participants: Students from 3rd to 12th Grade",
+
+      importantDates: [
+        {
+          icon: <CalendarOutlined />,
+          text: "Application Starts: December 27, 2025 (2:00 PM)",
+        },
+        {
+          icon: <CalendarOutlined />,
+          text: "Application Ends: January 13, 2026",
+        },
+        {
+          icon: <ClockCircleOutlined />,
+          text: "Written Exam: January 23, 2025",
+        },
+        { icon: <ClockCircleOutlined />, text: "Viva Exam: January 30, 2025" },
+      ],
+
+      groups: [
+        { name: "Cha Group", classes: "3rd & 4th Grade", fee: "50 Taka" },
+        { name: "U Group", classes: "5th Grade", fee: "50 Taka" },
+        { name: "Gh Group", classes: "6th & 7th Grade", fee: "100 Taka" },
+        { name: "G Group", classes: "8th Grade", fee: "100 Taka" },
+        { name: "Kha Group", classes: "9th & 10th Grade", fee: "100 Taka" },
+        { name: "Ka Group", classes: "11th & 12th Grade", fee: "100 Taka" },
+      ],
+
+      importantNotes: [
+        {
+          icon: <InfoCircleOutlined />,
+          title: "Exam Instructions",
+          points: [
+            "Separate question papers for different groups",
+            "Separate rooms for boys and girls",
+            "Students must sit in assigned seats",
+          ],
+        },
+        {
+          icon: <CheckCircleOutlined />,
+          title: "Eligibility & Marks Distribution",
+          points: [
+            "70% marks required for viva exam",
+            "No negative marking for wrong answers",
+            "Different question papers for each group",
+          ],
+        },
+        {
+          icon: <TrophyOutlined />,
+          title: "Prizes & Recognition",
+          points: [
+            "Cash prizes",
+            "Crest & Certificates",
+            "Special scholarship opportunities",
+          ],
+        },
+      ],
+
+      applicationProcess: {
+        title: "Application Process",
+        methods: [
+          {
+            type: "Online Application",
+            steps: [
+              "Website: ourdmf.com",
+              "Click on Scholarship option",
+              "Fill online form",
+              "Complete online payment",
+            ],
+          },
+          {
+            type: "Offline Application",
+            steps: [
+              "Apply directly at Darul Muttaqine office",
+              "Hoteya Road, east side of Taktarchala Dakhil Madrasa",
+              "Apply at respective educational institutions",
+            ],
+          },
+        ],
+      },
+
+      requirements: [
+        {
+          text: "Application form must be filled in English",
+          icon: <BookOutlined />,
+        },
+        {
+          text: "Application fee payment (Mobile Banking/Cash)",
+          icon: <DollarCircleOutlined />,
+        },
+        { text: "Passport size photo (Optional)", icon: <UserOutlined /> },
+      ],
+
+      benefits: [
+        "Experience of competitive exams with various institutions",
+        "Knowledge enhancement in Islamic and general subjects",
+        "Useful for future admission and job exams",
+        "Reduction of public exam fear",
+        "Unique opportunity for talent assessment",
+      ],
+
+      contact: {
+        title: "Contact Information",
+        facebook: {
+          page: "Facebook Page: Darul Muttaquine",
+          group: "Facebook Group: Darul Muttaquine Foundation",
+          youth: "Darul Muttaqine Youth Union",
+        },
+        phoneNumbers: [
+          { name: "Ashikur Rahman (President, DMF)", number: "01927-920081" },
+          {
+            name: "Saifullah Sadi (Vice President, DMF)",
+            number: "01918737415",
+          },
+          {
+            name: "Tanvir Hossain (Youth Union President)",
+            number: "01838243941",
+          },
+        ],
+      },
+
+      downloadLink: "https://drive.google.com/drive/folders/your-folder-link",
+    },
+  };
+
+  const content = noticeContent[language];
+
+  return (
+    <Modal
+      title={null}
+      open={isOpen}
+      onCancel={onClose}
+      footer={null}
+      width="95%"
+      style={{
+        maxWidth: "1200px",
+        top: 20,
+        padding: 0,
+      }}
+      bodyStyle={{
+        padding: 0,
+        maxHeight: "90vh",
+        overflowY: "auto",
+      }}
+      closeIcon={
+        <div className="fixed top-4 right-4 z-50">
+          <button
+            onClick={onClose}
+            className="bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+          >
+            <CloseOutlined className="text-gray-700 text-lg" />
+          </button>
+        </div>
+      }
+    >
+      <div className="scholarship-notice-modal">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6">
+          <div className="mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-white/20 p-2 rounded-lg">
+                    <NotificationOutlined className="text-2xl" />
+                  </div>
+                  <span className="text-lg font-medium bg-white/20 px-3 py-1 rounded-full">
+                    {language === "bangla"
+                      ? "অফিসিয়াল নোটিস"
+                      : "Official Notice"}
+                  </span>
+                </div>
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                  {content.title}
+                </h1>
+                <p className="text-blue-100 text-lg">{content.subtitle}</p>
+              </div>
+
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 md:p-6 w-full md:w-auto">
+                <div className="flex flex-wrap gap-4">
+                  {content.importantDates.map((date, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className="text-blue-300">{date.icon}</div>
+                      <span className="text-sm md:text-base">{date.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-4 md:p-8">
+          {/* Quick Info Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <BookOutlined className="text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {language === "bangla" ? "পরীক্ষার কেন্দ্র" : "Exam Center"}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {content.examCenter}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-green-100 p-2 rounded-lg">
+                  <GroupOutlined className="text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {language === "bangla" ? "অংশগ্রহণকারী" : "Participants"}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {content.participants}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-purple-100 p-2 rounded-lg">
+                  <CalendarOutlined className="text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {language === "bangla"
+                      ? "আবেদনের সময়"
+                      : "Application Period"}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {content.applicationPeriod}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-orange-50 border border-orange-100 rounded-xl p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-orange-100 p-2 rounded-lg">
+                  <TrophyOutlined className="text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-600">
+                    {language === "bangla" ? "আয়োজক" : "Organizer"}
+                  </p>
+                  <p className="font-semibold text-gray-800">
+                    {content.organizer}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Groups & Important Info */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Exam Groups */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-100 flex items-center gap-2">
+                  <GroupOutlined className="text-blue-600" />
+                  {language === "bangla"
+                    ? "পরীক্ষার গ্রুপ সমূহ"
+                    : "Exam Groups"}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {content.groups.map((group, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 hover:bg-blue-50 transition-colors border border-gray-100"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-bold text-gray-800">
+                            {group.name}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            {group.classes}
+                          </p>
+                        </div>
+                        <span className="bg-blue-100 text-blue-700 text-sm font-medium px-3 py-1 rounded-full">
+                          {group.fee}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2">
+                        {language === "bangla" ? "আবেদন ফি" : "Application Fee"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Important Notes */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-100">
+                  {language === "bangla"
+                    ? "গুরুত্বপূর্ণ তথ্য"
+                    : "Important Information"}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {content.importantNotes.map((note, index) => (
+                    <div key={index} className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`p-2 rounded-lg ${
+                            index === 0
+                              ? "bg-blue-100 text-blue-600"
+                              : index === 1
+                              ? "bg-green-100 text-green-600"
+                              : "bg-orange-100 text-orange-600"
+                          }`}
+                        >
+                          {note.icon}
+                        </div>
+                        <h3 className="font-semibold text-gray-800">
+                          {note.title}
+                        </h3>
+                      </div>
+                      <ul className="space-y-2">
+                        {note.points.map((point, idx) => (
+                          <li
+                            key={idx}
+                            className="flex items-start gap-2 text-gray-700"
+                          >
+                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Application Process */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-6 pb-3 border-b border-gray-100 flex items-center gap-2">
+                  <BookOutlined className="text-green-600" />
+                  {content.applicationProcess.title}
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {content.applicationProcess.methods.map((method, index) => (
+                    <div key={index} className="space-y-4">
+                      <div
+                        className={`p-4 rounded-lg ${
+                          index === 0
+                            ? "bg-green-50 border border-green-100"
+                            : "bg-blue-50 border border-blue-100"
+                        }`}
+                      >
+                        <h3 className="font-bold text-gray-800 mb-3">
+                          {method.type}
+                        </h3>
+                        <ul className="space-y-2">
+                          {method.steps.map((step, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <span
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-sm font-medium ${
+                                  index === 0
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-blue-100 text-blue-700"
+                                }`}
+                              >
+                                {idx + 1}
+                              </span>
+                              <span className="text-gray-700">{step}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Sidebar */}
+            <div className="space-y-6">
+              {/* Requirements */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <CheckCircleOutlined className="text-purple-600" />
+                  {language === "bangla"
+                    ? "প্রয়োজনীয় কাগজপত্র"
+                    : "Required Documents"}
+                </h2>
+                <div className="space-y-3">
+                  {content.requirements.map((req, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div className="text-purple-600 mt-1">{req.icon}</div>
+                      <span className="text-gray-700">{req.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Benefits */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <TrophyOutlined className="text-blue-600" />
+                  {language === "bangla" ? "সুবিধা সমূহ" : "Benefits"}
+                </h2>
+                <ul className="space-y-3">
+                  {content.benefits.map((benefit, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-gray-700">{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Contact Information */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                  <PhoneOutlined className="text-green-600" />
+                  {content.contact.title}
+                </h2>
+
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <NotificationOutlined />
+                      <span className="font-medium">Facebook:</span>
+                    </div>
+                    <div className="pl-6 space-y-1">
+                      <p className="text-sm text-gray-700">
+                        {content.contact.facebook.page}
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        {content.contact.facebook.group}
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        {content.contact.facebook.youth}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Divider className="my-4" />
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <MobileOutlined />
+                      <span className="font-medium">
+                        {language === "bangla"
+                          ? "যোগাযোগ নম্বর"
+                          : "Contact Numbers"}
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {content.contact.phoneNumbers.map((phone, index) => (
+                        <div key={index} className="bg-gray-50 rounded-lg p-3">
+                          <p className="font-medium text-gray-800 text-sm">
+                            {phone.name}
+                          </p>
+                          <p className="text-blue-600 font-bold">
+                            {phone.number}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Download Button */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+                <div className="text-center">
+                  <FilePdfOutlined className="text-3xl mb-3" />
+                  <h3 className="font-bold text-lg mb-2">
+                    {language === "bangla"
+                      ? "সম্পূর্ণ নোটিস ডাউনলোড"
+                      : "Download Full Notice"}
+                  </h3>
+                  <p className="text-blue-100 text-sm mb-4">
+                    {language === "bangla"
+                      ? "বিস্তারিত তথ্যের জন্য আমাদের Google Drive থেকে ডাউনলোড করুন"
+                      : "Download complete details from our Google Drive"}
+                  </p>
+                  <a
+                    href={content.downloadLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-gray-100 font-semibold py-3 px-6 rounded-lg transition-colors w-full justify-center"
+                  >
+                    <DownloadOutlined />
+                    {language === "bangla"
+                      ? "গুগল ড্রাইভ থেকে ডাউনলোড"
+                      : "Download from Google Drive"}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Note */}
+          <div className="mt-8 bg-yellow-50 border border-yellow-100 rounded-xl p-6">
+            <div className="flex items-start gap-3">
+              <InfoCircleOutlined className="text-yellow-600 text-xl mt-1" />
+              <div>
+                <h4 className="font-bold text-gray-800 mb-2">
+                  {language === "bangla"
+                    ? "গুরুত্বপূর্ণ নোট"
+                    : "Important Note"}
+                </h4>
+                <p className="text-gray-700">
+                  {language === "bangla"
+                    ? "সমস্ত তথ্য পরিবর্তনের অধিকার সংরক্ষিত। যে কোন পরিবর্তনের জন্য আমাদের ওয়েবসাইট নিয়মিত চেক করুন।"
+                    : "All information is subject to change. Please check our website regularly for any updates."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+};
 
 // Counter Component
 const Counter = ({ end, duration, label, icon }) => {
@@ -76,15 +759,15 @@ const Counter = ({ end, duration, label, icon }) => {
   return (
     <div
       ref={countRef}
-      className="text-center p-6 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm border border-white border-opacity-30"
+      className="text-center p-4 md:p-6 bg-white bg-opacity-20 rounded-xl backdrop-blur-sm border border-white border-opacity-30"
     >
-      <div className="text-3xl md:text-4xl font-bold mb-2 text-white">
+      <div className="text-2xl md:text-3xl font-bold mb-2 text-white">
         {icon}
       </div>
-      <div className="text-4xl md:text-5xl font-bold text-white mb-2">
+      <div className="text-3xl md:text-4xl font-bold text-white mb-2">
         {count}+
       </div>
-      <div className="text-lg md:text-xl text-white opacity-90">{label}</div>
+      <div className="text-base md:text-lg text-white opacity-90">{label}</div>
     </div>
   );
 };
@@ -131,27 +814,31 @@ const ImageGallery = ({ language }) => {
   ];
 
   return (
-    <div className="mx-12 md:mx-24 lg:mx-[200px] py-16 px-6">
-      <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+    <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-[200px] py-12 md:py-16 px-4 md:px-6">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-800">
         {language === "bangla" ? "আমাদের কার্যক্রম" : "Our Activities"}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
         {galleryImages.map((image, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl shadow overflow-hidden hover:shadow-xl transition-shadow duration-300"
+            className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden"
           >
-            <img
-              alt={image.title}
-              src={image.src}
-              className="w-full h-60 object-cover"
-            />
-            <div className="p-6">
-              <h3 className="text-3xl font-semibold text-gray-800 mb-3">
+            <div className="relative h-48 md:h-56 overflow-hidden">
+              <img
+                alt={image.title}
+                src={image.src}
+                className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="p-4 md:p-6">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">
                 {image.title}
               </h3>
-              <p className="text-gray-600 text-xl">{image.description}</p>
+              <p className="text-gray-600 text-sm md:text-base">
+                {image.description}
+              </p>
             </div>
           </div>
         ))}
@@ -170,54 +857,54 @@ const DonationSection = ({ language }) => {
   };
 
   return (
-    <div className="bg-white py-16 md:py-20 px-6">
-      <div className="mx-auto md:mx-[100px] lg:mx-[200px]">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+    <div className="bg-white py-12 md:py-20 px-4 md:px-6">
+      <div className="mx-auto max-w-7xl">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             {language === "bangla" ? "দান করুন" : "Make Your Donation"}
           </h2>
-          <p className="text-2xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             {language === "bangla"
               ? "আপনার দান অসহায় মানুষদের সাহায্য করতে এবং শিক্ষা প্রসারে গুরুত্বপূর্ণ ভূমিকা পালন করে"
               : "Your donation plays a vital role in helping the underprivileged and promoting education"}
           </p>
         </div>
 
-        <div className="bg-green-50 rounded-2xl p-10 shadow-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-6 md:p-10 shadow-xl border border-green-100">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
             {/* Left side content */}
             <div className="flex flex-col justify-center">
-              <h3 className="text-3xl font-semibold text-gray-800 mb-6">
+              <h3 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4 md:mb-6">
                 {language === "bangla"
                   ? "দারুল মুত্তাক্বীন ফাউন্ডেশন"
                   : "Darul Muttaqine Foundation"}
               </h3>
-              <p className="text-lg text-gray-700 mb-6">
+              <p className="text-base md:text-lg text-gray-700 mb-6">
                 {language === "bangla"
                   ? "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক প্রতিষ্ঠান যা শিক্ষা, দাওয়াহ ও মানবকল্যাণে নিবেদিত। বর্তমানে এটি সরকারের নিবন্ধন প্রক্রিয়াধীন রয়েছে।"
                   : "Darul Muttaqine Foundation is a non-political, non-profit organization dedicated to education, da'wah, and human welfare. Government registration is currently under process."}
               </p>
-              <div className="p-6 bg-white rounded-xl shadow-md">
-                <p className="text-green-700 font-medium text-lg">
-                  <HeartOutlined className="mr-3" />
+              <div className="p-4 md:p-6 bg-white rounded-xl shadow-md border border-green-200">
+                <p className="text-green-700 font-medium text-base md:text-lg flex items-start gap-3">
+                  <HeartOutlined className="text-green-600 mt-1" />
                   {language === "bangla"
                     ? "আপনার দান দারুল মুত্তাক্বীন ফাউন্ডেশনের শিক্ষা ও মানবকল্যাণমূলক কার্যক্রমে সহায়তা করবে।"
-                    : "Your donation will support Darul Muttaqine Foundation’s education and welfare activities."}
+                    : "Your donation will support Darul Muttaqine Foundation's education and welfare activities."}
                 </p>
               </div>
             </div>
 
             {/* Right side form */}
-            <div className="bg-white p-8 rounded-xl shadow-md">
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-md border border-gray-100">
               <Form
                 name="donation"
                 onFinish={onFinish}
                 layout="vertical"
-                className="space-y-6"
+                className="space-y-4 md:space-y-6"
               >
                 <Form.Item
                   label={
-                    <span className="text-lg font-semibold">
+                    <span className="text-base md:text-lg font-semibold">
                       {language === "bangla" ? "দান তহবিল" : "Donation Fund"}
                     </span>
                   }
@@ -238,7 +925,7 @@ const DonationSection = ({ language }) => {
                     }
                     size="large"
                     onChange={setDonationFund}
-                    className="h-12 text-lg rounded-lg"
+                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
                   >
                     <Option value="education">
                       {language === "bangla"
@@ -261,7 +948,7 @@ const DonationSection = ({ language }) => {
 
                 <Form.Item
                   label={
-                    <span className="text-lg font-semibold">
+                    <span className="text-base md:text-lg font-semibold">
                       {language === "bangla" ? "ফোন / ইমেইল" : "Phone / Email"}
                     </span>
                   }
@@ -283,13 +970,13 @@ const DonationSection = ({ language }) => {
                         ? "মোবাইল/ইমেইল লিখুন"
                         : "Type mobile/email"
                     }
-                    className="h-12 text-lg rounded-lg"
+                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
                   />
                 </Form.Item>
 
                 <Form.Item
                   label={
-                    <span className="text-lg font-semibold">
+                    <span className="text-base md:text-lg font-semibold">
                       {language === "bangla"
                         ? "দানের পরিমাণ"
                         : "Donation Amount"}
@@ -316,7 +1003,7 @@ const DonationSection = ({ language }) => {
                     }
                     onChange={(e) => setDonationAmount(e.target.value)}
                     prefix={<DollarOutlined className="text-gray-400" />}
-                    className="h-12 text-lg rounded-lg"
+                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
                   />
                 </Form.Item>
 
@@ -325,7 +1012,7 @@ const DonationSection = ({ language }) => {
                     type="primary"
                     htmlType="submit"
                     size="large"
-                    className="w-full bg-green-600 hover:bg-green-700 h-14 text-xl font-semibold rounded-lg"
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 h-12 md:h-14 text-base md:text-xl font-semibold rounded-lg shadow-lg"
                     icon={<HeartOutlined />}
                   >
                     {language === "bangla" ? "দান করুন" : "Donate Now"}
@@ -400,50 +1087,54 @@ const BlogSection = ({ language }) => {
   ];
 
   return (
-    <div className="py-16 md:py-24 px-6 bg-gray-50">
-      <div className="mx-auto md:mx-[100px] lg:mx-[200px]">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+    <div className="py-12 md:py-24 px-4 md:px-6 bg-gray-50">
+      <div className="mx-auto max-w-7xl">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             {language === "bangla"
               ? "সাম্প্রতিক ব্লগ পোস্ট"
               : "Recent Blog Posts"}
           </h2>
-          <p className="text-2xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
             {language === "bangla"
               ? "আমাদের সংস্থার কার্যক্রম এবং সাম্প্রতিক খবর সম্পর্কে জানুন"
               : "Learn about our organization's activities and recent news"}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {blogPosts.map((post) => (
             <div
               key={post.id}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col"
+              className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col"
             >
-              <img
-                alt={post.title}
-                src={post.image}
-                className="w-full h-56 object-cover"
-              />
-              <div className="p-6 flex-grow">
-                <div className="mb-4">
-                  <span className="inline-block px-4 py-1 bg-green-100 text-green-800 text-base font-medium rounded-full">
+              <div className="relative h-48 overflow-hidden">
+                <img
+                  alt={post.title}
+                  src={post.image}
+                  className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-4 md:p-6 flex-grow">
+                <div className="mb-3">
+                  <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
                     {post.category}
                   </span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 line-clamp-2">
                   {post.title}
                 </h3>
-                <p className="text-gray-600 mb-4">{post.excerpt}</p>
+                <p className="text-gray-600 text-sm md:text-base mb-4 line-clamp-3">
+                  {post.excerpt}
+                </p>
               </div>
-              <div className="px-6 pb-6 mt-auto">
+              <div className="px-4 md:px-6 pb-4 md:pb-6 mt-auto">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500 text-base">
+                  <span className="text-gray-500 text-sm md:text-base flex items-center">
                     <CalendarOutlined className="mr-2" />
                     {post.date}
                   </span>
-                  <button className="text-green-600 font-semibold flex items-center">
+                  <button className="text-green-600 font-semibold text-sm md:text-base flex items-center hover:text-green-700">
                     {language === "bangla" ? "আরও পড়ুন" : "Read More"}
                     <ArrowRightOutlined className="ml-2" />
                   </button>
@@ -453,8 +1144,8 @@ const BlogSection = ({ language }) => {
           ))}
         </div>
 
-        <div className="text-center mt-12">
-          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors duration-300">
+        <div className="text-center mt-8 md:mt-12">
+          <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 md:py-4 md:px-8 rounded-lg text-base md:text-lg transition-all duration-300 shadow-lg hover:shadow-xl">
             {language === "bangla" ? "সমস্ত ব্লগ দেখুন" : "View All Blogs"}
           </button>
         </div>
@@ -467,72 +1158,72 @@ const BlogSection = ({ language }) => {
 const JoinUsSection = ({ language }) => {
   return (
     <div
-      className="py-20 md:py-28 px-6 bg-cover bg-center bg-fixed relative"
+      className="py-16 md:py-28 px-4 md:px-6 bg-cover bg-center relative"
       style={{
         backgroundImage:
           "url('https://i.ibb.co.com/v4MdvZyX/1758086923536-1758086915189-714c07e-IMG-20250725-160733-154.jpg')",
       }}
     >
-      <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
 
       <div className="max-w-7xl mx-auto relative z-10 text-center text-white">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6">
           {language === "bangla" ? "আমাদের সাথে যোগ দিন" : "Join Us"}
         </h2>
-        <p className="text-2xl mb-12 max-w-4xl mx-auto">
+        <p className="text-lg md:text-xl mb-8 md:mb-12 max-w-4xl mx-auto">
           {language === "bangla"
             ? "আমাদের মিশনে অংশগ্রহণ করুন এবং একটি ভালো পরিবর্তন আনতে সাহায্য করুন"
             : "Participate in our mission and help make a positive change"}
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-8 h-full">
-            <div className="text-5xl mb-6 text-green-400">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
+            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
               <UserOutlined />
             </div>
-            <h3 className="text-2xl font-semibold mb-4">
+            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
               {language === "bangla" ? "স্বেচ্ছাসেবক" : "Volunteer"}
             </h3>
-            <p className="mb-6 text-lg">
+            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
               {language === "bangla"
                 ? "আপনার সময় এবং দক্ষতা দান করুন আমাদের বিভিন্ন কার্যক্রমে সাহায্য করার জন্য"
                 : "Donate your time and skills to help with our various activities"}
             </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg text-lg w-full transition-colors duration-300">
+            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "যোগ দিন" : "Join Now"}
             </button>
           </div>
 
-          <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-8 h-full">
-            <div className="text-5xl mb-6 text-green-400">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
+            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
               <HeartOutlined />
             </div>
-            <h3 className="text-2xl font-semibold mb-4">
+            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
               {language === "bangla" ? "দান করুন" : "Donate"}
             </h3>
-            <p className="mb-6 text-lg">
+            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
               {language === "bangla"
                 ? "আর্থিকভাবে আমাদের মিশন সমর্থন করুন এবং একটি পার্থক্য তৈরি করুন"
                 : "Support our mission financially and make a difference"}
             </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg text-lg w-full transition-colors duration-300">
+            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "দান করুন" : "Donate Now"}
             </button>
           </div>
 
-          <div className="bg-white bg-opacity-10 backdrop-blur-md rounded-xl p-8 h-full">
-            <div className="text-5xl mb-6 text-green-400">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
+            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
               <TeamOutlined />
             </div>
-            <h3 className="text-2xl font-semibold mb-4">
+            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
               {language === "bangla" ? "অংশীদার হন" : "Partner With Us"}
             </h3>
-            <p className="mb-6 text-lg">
+            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
               {language === "bangla"
                 ? "আমাদের সাথে অংশীদারিত্ব করুন এবং আমাদের প্রভাব বৃদ্ধি করুন"
                 : "Partner with us and amplify our impact"}
             </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg text-lg w-full transition-colors duration-300">
+            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "যোগাযোগ করুন" : "Contact Us"}
             </button>
           </div>
@@ -544,6 +1235,8 @@ const JoinUsSection = ({ language }) => {
 
 export default function Home() {
   const [language, setLanguage] = useState("bangla");
+  const [noticeModalVisible, setNoticeModalVisible] = useState(false);
+  // const router = useRouter();
 
   // Content translations
   const content = {
@@ -553,57 +1246,63 @@ export default function Home() {
         "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। 'শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা'",
       scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন স্কলারশিপ ২০২৬",
       scholarshipText:
-        "রেজিস্ট্রেশন শুরু হবে ১ জানুয়ারি থেকে ৩১ জানুয়ারি পর্যন্ত। আগ্রহী শিক্ষার্থীরা আমাদের ওয়েবসাইট নিয়মিত চেক করুন আরো বিস্তারিত তথ্যের জন্য।",
-      registerButton: "রেজিস্ট্রেশন (শীঘ্রই আসছে)",
+        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ১৩ জানুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
+      registerButton: "রেজিস্ট্রেশন করুন",
       languageButton: "English",
       features: [
         {
           title: "শিক্ষাবৃত্তি প্রোগ্রাম",
           description:
             "মেধাবী কিন্তু আর্থিকভাবে অসচ্ছল শিক্ষার্থীদের জন্য সম্পূর্ণ বিনামূল্যে শিক্ষাবৃত্তি প্রদান।",
-          icon: <DollarOutlined className="text-3xl text-green-600" />,
+          icon: (
+            <DollarOutlined className="text-2xl md:text-3xl text-green-600" />
+          ),
           color: "green",
         },
         {
           title: "দরিদ্রদের স্বাবলম্বীকরণ",
           description:
             "দরিদ্র ও অসহায় মানুষদের আত্মনির্ভরশীল করে গড়ে তোলার জন্য বিভিন্ন প্রশিক্ষণ ও আর্থিক সহায়তা প্রদান।",
-          icon: <UserOutlined className="text-3xl text-blue-600" />,
+          icon: <UserOutlined className="text-2xl md:text-3xl text-blue-600" />,
           color: "blue",
         },
         {
           title: "খাদ্য সহায়তা",
           description:
             "দুঃস্থ ও প্রয়োজনীয় মানুষের মধ্যে বিনামূল্যে খাদ্য বিতরণের কার্যক্রম।",
-          icon: <GiftOutlined className="text-3xl text-orange-600" />,
+          icon: (
+            <GiftOutlined className="text-2xl md:text-3xl text-orange-600" />
+          ),
           color: "orange",
         },
         {
           title: "ফ্রি অনলাইন/অফলাইন কোর্স",
           description:
             "ইংরেজি ও আইসিটি বিষয়ে বিনামূল্যে অনলাইন এবং অফলাইন প্রশিক্ষণ প্রদান。",
-          icon: <LaptopOutlined className="text-3xl text-purple-600" />,
+          icon: (
+            <LaptopOutlined className="text-2xl md:text-3xl text-purple-600" />
+          ),
           color: "purple",
         },
       ],
       timeline: [
         {
-          label: "১ জানুয়ারি, ২০২৬",
+          label: "২৭ ডিসেম্বর, ২০২৫ (২:০০ PM)",
           children: "রেজিস্ট্রেশন শুরু",
           color: "green",
         },
         {
-          label: "১৫ জানুয়ারি, ২০২৬",
+          label: "১৩ জানুয়ারি, ২০২৬",
           children: "প্রাথমিক আবেদন শেষ তারিখ",
           color: "blue",
         },
+        // {
+        //   label: "৩১ জানুয়ারি, ২০২৬",
+        //   children: "রেজিস্ট্রেশন শেষ",
+        //   color: "red",
+        // },
         {
-          label: "৩১ জানুয়ারি, ২০২৬",
-          children: "রেজিস্ট্রেশন শেষ",
-          color: "red",
-        },
-        {
-          label: "১৫ ফেব্রুয়ারি, ২০২৬",
+          label: "২৩ জানুয়ারি, ২০২৬",
           children: "স্কলারশিপ পরীক্ষা",
           color: "purple",
         },
@@ -621,42 +1320,48 @@ export default function Home() {
         "Darul Muttakin Foundation is a non-political, non-profit educational, Dawah and welfare service organization dedicated to human welfare. 'To engage ourselves in religious education, propagation and welfare work solely for the pleasure of Allah'",
       scholarshipTitle: "Upcoming DMF Scholarship 2026",
       scholarshipText:
-        "Registration will be open from January 1 to January 31. Interested students should check our website regularly for more detailed information.",
-      registerButton: "Registration (Coming Soon)",
+        "Registration starts from December 27, 2:00 PM. Interested students can register now.",
+      registerButton: "Register Now",
       languageButton: "বাংলা",
       features: [
         {
           title: "Scholarship Program",
           description:
             "Full scholarships for talented but financially disadvantaged students.",
-          icon: <DollarOutlined className="text-3xl text-green-600" />,
+          icon: (
+            <DollarOutlined className="text-2xl md:text-3xl text-green-600" />
+          ),
           color: "green",
         },
         {
           title: "Poverty Alleviation",
           description:
             "Training and financial support to make poor and helpless people self-reliant.",
-          icon: <UserOutlined className="text-3xl text-blue-600" />,
+          icon: <UserOutlined className="text-2xl md:text-3xl text-blue-600" />,
           color: "blue",
         },
         {
           title: "Food Donation",
           description:
             "Free food distribution programs for the distressed and needy people.",
-          icon: <GiftOutlined className="text-3xl text-orange-600" />,
+          icon: (
+            <GiftOutlined className="text-2xl md:text-3xl text-orange-600" />
+          ),
           color: "orange",
         },
         {
           title: "Free Online/Offline Courses",
           description:
             "Free training in English and ICT through online and offline platforms.",
-          icon: <LaptopOutlined className="text-3xl text-purple-600" />,
+          icon: (
+            <LaptopOutlined className="text-2xl md:text-3xl text-purple-600" />
+          ),
           color: "purple",
         },
       ],
       timeline: [
         {
-          label: "January 1, 2026",
+          label: "December 27, 2025 (2:00 PM)",
           children: "Registration begins",
           color: "green",
         },
@@ -671,7 +1376,7 @@ export default function Home() {
           color: "red",
         },
         {
-          label: "February 15, 2026",
+          label: "January 23, 2026",
           children: "Scholarship test",
           color: "purple",
         },
@@ -683,6 +1388,10 @@ export default function Home() {
         { value: 5, label: "Years", icon: <CalendarOutlined /> },
       ],
     },
+  };
+
+  const handleRegistrationClick = () => {
+    // router.push('/scholarship-public');
   };
 
   useEffect(() => {
@@ -698,43 +1407,49 @@ export default function Home() {
   return (
     <div className="home-container">
       {/* Scholarship Announcement Banner */}
-      <div className="w-full relative bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 text-white py-12 px-6 overflow-hidden">
+      <div className="w-full relative bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 text-white py-8 md:py-12 px-4 md:px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="mb-6">
-            <span className="inline-flex items-center bg-yellow-400 text-green-900 text-lg font-semibold px-6 py-2 rounded-full">
+          <div className="mb-4 md:mb-6">
+            <span className="inline-flex items-center bg-yellow-400 text-green-900 text-sm md:text-lg font-semibold px-4 md:px-6 py-1 md:py-2 rounded-full">
               <RocketOutlined className="mr-2" />
               {language === "bangla" ? "নতুন ঘোষণা" : "New Announcement"}
             </span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6">
             {currentContent.scholarshipTitle}
           </h2>
 
-          <p className="text-2xl mb-8 max-w-4xl mx-auto">
+          <p className="text-base md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-4xl mx-auto">
             {currentContent.scholarshipText}
           </p>
 
-          <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-12">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-8 md:mb-12">
             <button
-              className="bg-white text-green-800 font-bold border-0 px-10 py-4 text-xl rounded-lg hover:bg-gray-100 transition-colors duration-300 flex items-center"
-              disabled
+              onClick={() => {
+                handleRegistrationClick();
+                // Add your routing logic here
+                window.location.href = "/scholarship-public";
+                // Or if you're using React Router:
+                // navigate("/scholarshipPublic");
+              }}
+              className="bg-white text-green-800 font-bold border-0 px-6 md:px-10 py-3 md:py-4 text-base md:text-xl rounded-lg hover:bg-gray-100 transition-all duration-300 flex items-center shadow-lg w-full md:w-auto justify-center"
             >
-              <CalendarOutlined className="mr-3" />
+              <CalendarOutlined className="mr-2 md:mr-3" />
               {currentContent.registerButton}
             </button>
 
             <button
               onClick={toggleLanguage}
-              className="bg-transparent text-white border-2 border-white px-8 py-3 text-lg rounded-lg hover:bg-white hover:text-green-800 transition-colors duration-300 flex items-center"
+              className="bg-transparent text-white border-2 border-white px-6 md:px-8 py-2 md:py-3 text-base md:text-lg rounded-lg hover:bg-white hover:text-green-800 transition-all duration-300 flex items-center justify-center w-full md:w-auto"
             >
-              <GlobalOutlined className="mr-3" />
+              <GlobalOutlined className="mr-2 md:mr-3" />
               {currentContent.languageButton}
             </button>
           </div>
 
           {/* Stats Section with Animated Counters */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-6 md:mt-8">
             {currentContent.stats.map((stat, index) => (
               <Counter
                 key={index}
@@ -748,50 +1463,123 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Scholarship Notice Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-6 md:py-8 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-6">
+            <div className="flex items-center">
+              <div className="bg-white/20 p-2 md:p-3 rounded-lg mr-3 md:mr-4">
+                <NotificationOutlined className="text-2xl md:text-3xl" />
+              </div>
+              <div>
+                <h3 className="text-lg md:text-2xl font-bold mb-1 md:mb-2">
+                  {language === "bangla"
+                    ? "শিক্ষাবৃত্তি নোটিস"
+                    : "Scholarship Notice"}
+                </h3>
+                <p className="text-sm md:text-lg opacity-90">
+                  {language === "bangla"
+                    ? "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৬ এর সম্পূর্ণ তথ্য"
+                    : "Complete information about Darul Muttaqine Scholarship 2026"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 md:gap-4 w-full md:w-auto mt-4 md:mt-0">
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
+                size="large"
+                onClick={() => setNoticeModalVisible(true)}
+                className="bg-white text-blue-700 hover:bg-gray-100 border-0 font-semibold h-11 md:h-12 px-4 md:px-6 text-base md:text-lg flex-1 md:flex-none"
+              >
+                <span className="hidden md:inline">
+                  {language === "bangla" ? "নোটিস দেখুন" : "View Notice"}
+                </span>
+                <span className="md:hidden">
+                  {language === "bangla" ? "দেখুন" : "View"}
+                </span>
+              </Button>
+
+              <Button
+                type="default"
+                icon={<FilePdfOutlined />}
+                size="large"
+                onClick={() =>
+                  window.open(
+                    "https://drive.google.com/file/d/1ECZU-7SvYJD77rColdg8eqHibsrn6OQa/view?usp=sharing",
+                    "_blank"
+                  )
+                }
+                className="bg-transparent text-white border-2 border-white hover:bg-white hover:text-blue-700 font-semibold h-11 md:h-12 px-4 md:px-6 text-base md:text-lg flex-1 md:flex-none"
+              >
+                <span className="hidden md:inline">
+                  {language === "bangla" ? "PDF ডাউনলোড" : "Download PDF"}
+                </span>
+                <span className="md:hidden">
+                  {language === "bangla" ? "PDF" : "PDF"}
+                </span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Image Gallery Section */}
       <ImageGallery language={language} />
 
       {/* Features Section */}
-      <div className="mx-12 md:mx-24 lg:mx-[200px] py-16 px-6">
-        <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+      <div className="mx-4 md:mx-8 lg:mx-16 xl:mx-[200px] py-12 md:py-16 px-4 md:px-6">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-800">
           {language === "bangla" ? "আমাদের সেবাসমূহ" : "Our Services"}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {currentContent.features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white p-8 rounded-xl shadow text-center hover:shadow-xl transition-shadow duration-300"
+              className="bg-white p-6 md:p-8 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-center border border-gray-100"
             >
               <div
-                className={`bg-${feature.color}-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6`}
+                className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 ${
+                  feature.color === "green"
+                    ? "bg-green-100"
+                    : feature.color === "blue"
+                    ? "bg-blue-100"
+                    : feature.color === "orange"
+                    ? "bg-orange-100"
+                    : "bg-purple-100"
+                }`}
               >
                 {feature.icon}
               </div>
-              <h3 className="text-3xl font-semibold mb-4 text-gray-800">
+              <h3 className="text-lg md:text-xl lg:text-2xl font-semibold mb-3 md:mb-4 text-gray-800">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 text-xl">{feature.description}</p>
+              <p className="text-gray-600 text-sm md:text-base lg:text-lg">
+                {feature.description}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Timeline Section */}
-      {/* Timeline Section */}
-      <div className="bg-gray-50 py-12 px-4">
+      <div className="bg-gray-50 py-8 md:py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-3xl font-bold text-center mb-12 text-gray-800">
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8 md:mb-12 text-gray-800">
             {language === "bangla"
               ? "স্কলারশিপ সময়সূচী ২০২৬"
               : "Scholarship Timeline"}
           </h2>
 
-          <Timeline
-            items={currentContent.timeline}
-            mode="alternate"
-            className="scholarship-timeline"
-          />
+          <div className="px-2 md:px-0">
+            <Timeline
+              items={currentContent.timeline}
+              mode="alternate"
+              className="scholarship-timeline"
+            />
+          </div>
         </div>
       </div>
 
@@ -809,30 +1597,31 @@ export default function Home() {
 
       {/* Committee Members Section */}
       <CommitteeMembersSection language={language} />
-      {/* Alert for mobile users */}
+
+      {/* Scholarship Notice Modal */}
+      <ScholarshipNotice
+        language={language}
+        isOpen={noticeModalVisible}
+        onClose={() => setNoticeModalVisible(false)}
+      />
+
+      {/* Mobile Alert */}
       <div className="fixed bottom-4 right-4 z-50 md:hidden">
-        <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded-lg shadow-lg max-w-xs">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-xl shadow-xl max-w-xs">
+          <div className="flex items-start gap-3">
+            <NotificationOutlined className="text-xl mt-1 flex-shrink-0" />
+            <div>
+              <p className="text-sm font-medium mb-1">
                 {language === "bangla"
-                  ? "স্কলারশিপের জন্য রেজিস্ট্রেশন শুরু হবে শীঘ্রই"
-                  : "Scholarship registration will open soon"}
+                  ? "শিক্ষাবৃত্তি নোটিস"
+                  : "Scholarship Notice"}
               </p>
+              <button
+                onClick={() => setNoticeModalVisible(true)}
+                className="text-blue-100 hover:text-white text-sm underline"
+              >
+                {language === "bangla" ? "এখানে ক্লিক করুন" : "Click here"}
+              </button>
             </div>
           </div>
         </div>
