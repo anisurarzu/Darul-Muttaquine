@@ -805,7 +805,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                   loading={loading}
                   icon={<FormOutlined />}
                   disabled={!isApplicationOpen}
-                  className={`flex-1 max-w-md ${!isApplicationOpen ? 'opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'} border-0 shadow-md`}
+                  className={`flex-1 max-w-lg ${!isApplicationOpen ? 'opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'} border-0 shadow-md`}
                 >
                   {loading ? "Submitting... / জমা হচ্ছে..." : "Submit Application / আবেদন জমা দিন"}
                 </Button>

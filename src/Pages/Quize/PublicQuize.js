@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Button,
   Card,
@@ -67,6 +67,7 @@ export default function PublicQuiz() {
   const [currentLeaderboardView, setCurrentLeaderboardView] =
     useState("allTime");
   const history = useHistory();
+  const handleQuizSubmitRef = useRef(null);
 
   // Fetch quizzes from API
   useEffect(() => {
@@ -147,7 +148,7 @@ export default function PublicQuiz() {
       if (quizStarted && !quizSubmitted) {
         e.preventDefault();
         e.returnValue =
-          "আপনি কি নিশ্চিত যে আপনি কুইজ ছেড়ে যেতে চান? আপনার অগ্রগতি হারিয়ে যাবে।";
+          "আপনি কি নিশ্চিত যে আপনি কুইজ ছেড়ে যেতে চান? আপনার উত্তর স্বয়ংক্রিয়ভাবে জমা দেওয়া হবে।";
       }
     };
 
@@ -155,6 +156,50 @@ export default function PublicQuiz() {
 
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [quizStarted, quizSubmitted]);
+
+  // Detect tab switching and auto-submit if user switches tabs during quiz
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.hidden && quizStarted && !quizSubmitted && !submitting && handleQuizSubmitRef.current) {
+        // User switched to another tab - auto-submit
+        message.warning("আপনি অন্য ট্যাবে গেছেন। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+        await handleQuizSubmitRef.current();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [quizStarted, quizSubmitted, submitting]);
+
+  // Prevent keyboard shortcuts that might help cheating
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        // Prevent F12 (DevTools), Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (View Source)
+        if (
+          e.key === "F12" ||
+          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+          (e.ctrlKey && e.key === "U") ||
+          (e.ctrlKey && e.key === "S") ||
+          (e.ctrlKey && e.shiftKey && e.key === "C")
+        ) {
+          e.preventDefault();
+          message.warning("এই কাজটি কুইজ চলাকালীন অনুমোদিত নয়");
+        }
+      }
+    };
+
+    if (quizStarted && !quizSubmitted) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [quizStarted, quizSubmitted]);
 
@@ -221,10 +266,22 @@ export default function PublicQuiz() {
     }
   };
 
-  const closeQuizModal = () => {
-    if (quizStarted && !quizSubmitted) {
-      handleQuizSubmit();
+  const closeQuizModal = async () => {
+    // Security: If quiz is started and not submitted, auto-submit before closing
+    if (quizStarted && !quizSubmitted && !submitting) {
+      message.warning("কুইজ বন্ধ করা হচ্ছে... আপনার উত্তর স্বয়ংক্রিয়ভাবে জমা দেওয়া হবে");
+      await handleQuizSubmit();
+      // Wait a moment for submission to complete
+      setTimeout(() => {
+        resetQuizState();
+      }, 1000);
+    } else {
+      // Allow closing if quiz hasn't started OR if quiz is already submitted
+      resetQuizState();
     }
+  };
+
+  const resetQuizState = () => {
     setIsQuizModalOpen(false);
     setSelectedQuiz(null);
     setQuizStarted(false);
@@ -232,6 +289,7 @@ export default function PublicQuiz() {
     setUserAnswers({});
     setQuizSubmitted(false);
     setQuizResults(null);
+    setSubmitting(false);
   };
 
   const onUserInfoSubmit = async (values) => {
@@ -320,7 +378,7 @@ export default function PublicQuiz() {
     return (
       <div
         key={participant.name + index}
-        className="bg-white rounded-lg shadow-sm hover:shadow-md transition-all duration-300 p-4 mb-3 border border-gray-100"
+        className="bg-gradient-to-r from-white to-gray-50 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 p-4 mb-3 border-2 border-gray-100 hover:border-emerald-200 transform hover:scale-[1.02]"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -405,7 +463,7 @@ export default function PublicQuiz() {
     }));
   };
 
-  const handleQuizSubmit = async () => {
+  const handleQuizSubmit = useCallback(async () => {
     if (quizSubmitted || submitting) return;
 
     setSubmitting(true);
@@ -497,7 +555,12 @@ export default function PublicQuiz() {
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [quizSubmitted, submitting, selectedQuiz, userAnswers, startTime, userInfo]);
+
+  // Update ref when handleQuizSubmit changes
+  useEffect(() => {
+    handleQuizSubmitRef.current = handleQuizSubmit;
+  }, [handleQuizSubmit]);
 
   const timerDisplay = () => {
     const minutes = Math.floor(secondsLeft / 60);
@@ -509,23 +572,23 @@ export default function PublicQuiz() {
     switch (status) {
       case "closed":
         return (
-          <div className="flex items-center justify-center bg-red-100 text-red-600 rounded-lg p-2 mb-3">
-            <FaLock className="mr-2" />
-            এই কুইজের সময় শেষ হয়ে গেছে
+          <div className="flex items-center justify-center bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl p-3 mb-4 shadow-lg">
+            <FaLock className="mr-2 text-lg" />
+            <span className="font-semibold">এই কুইজের সময় শেষ হয়ে গেছে</span>
           </div>
         );
       case "running":
         return (
-          <div className="flex items-center justify-center bg-green-100 text-green-600 rounded-lg p-2 mb-3">
-            <FaClock className="mr-2" />
-            কুইজটি চলমান রয়েছ
+          <div className="flex items-center justify-center bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl p-3 mb-4 shadow-lg animate-pulse">
+            <FaClock className="mr-2 text-lg" />
+            <span className="font-semibold">কুইজটি চলমান রয়েছে</span>
           </div>
         );
       default:
         return (
-          <div className="flex items-center justify-center bg-gray-100 text-gray-600 rounded-lg p-2 mb-3">
-            <FaClock className="mr-2" />
-            কুইজটি স্থগিত করা হয়েছ
+          <div className="flex items-center justify-center bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-xl p-3 mb-4 shadow-lg">
+            <FaClock className="mr-2 text-lg" />
+            <span className="font-semibold">কুইজটি স্থগিত করা হয়েছে</span>
           </div>
         );
     }
@@ -535,32 +598,41 @@ export default function PublicQuiz() {
   // The JSX part of your component doesn't need changes as we've only modified the logic
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-green-600 to-green-800 relative">
-        <h2 className="text-white font-semibold text-2xl md:text-3xl py-4 lg:py-8 text-center">
-          ইসলামিক কুইজ
-        </h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
+      <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <h2 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl py-6 lg:py-10 text-center drop-shadow-lg">
+            ইসলামিক কুইজ
+          </h2>
+          <p className="text-emerald-100 text-center text-sm md:text-base pb-4 md:pb-6">
+            আপনার ইসলামিক জ্ঞান পরীক্ষা করুন এবং পুরস্কার জয় করুন
+          </p>
+        </div>
       </div>
 
       <div className="container mx-auto px-4 lg:px-8 py-6">
         {/* Mobile Leaderboard First */}
-        <div className="lg:hidden bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold flex items-center">
-              <FaTrophy className="text-yellow-500 mr-2" />
-              {currentLeaderboardView === "allTime"
-                ? "সর্বকালের লিডারবোর্ড"
-                : `${selectedQuiz?.quizName?.substring(0, 20)}${
-                    selectedQuiz?.quizName?.length > 20 ? "..." : ""
-                  } লিডারবোর্ড`}
-            </h3>
-            <Button
-              size="small"
-              onClick={() => showLeaderboard("allTime")}
-              disabled={currentLeaderboardView === "allTime"}
-            >
-              সর্বকালের
-            </Button>
+        <div className="lg:hidden bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-6 mb-6">
+          <div className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 -m-6 mb-6 p-4 rounded-t-2xl">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-extrabold text-white flex items-center">
+                <FaTrophy className="text-yellow-200 mr-2 text-xl" />
+                {currentLeaderboardView === "allTime"
+                  ? "সর্বকালের লিডারবোর্ড"
+                  : `${selectedQuiz?.quizName?.substring(0, 20)}${
+                      selectedQuiz?.quizName?.length > 20 ? "..." : ""
+                    } লিডারবোর্ড`}
+              </h3>
+              <Button
+                size="small"
+                onClick={() => showLeaderboard("allTime")}
+                disabled={currentLeaderboardView === "allTime"}
+                className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+              >
+                সর্বকালের
+              </Button>
+            </div>
           </div>
 
           <Divider className="my-3" />
@@ -599,20 +671,23 @@ export default function PublicQuiz() {
             message={`স্বাগতম, ${userInfo.firstName}! এখন আপনি কুইজে অংশগ্রহণ করতে পারেন।`}
             type="success"
             showIcon
-            className="mb-6"
+            className="mb-6 rounded-xl border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50"
           />
         )}
 
         <Row gutter={[16, 16]}>
           {/* Main Content */}
           <Col xs={24} lg={16}>
-            <div className="mb-8 bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
-                বর্তমান কুইজসমূহ
-              </h3>
-              <p className="text-gray-600 text-center mb-4">
-                নিচের কুইজগুলোতে অংশগ্রহণ করে আপনার ইসলামিক জ্ঞান পরীক্ষা করুন
-              </p>
+            <div className="mb-8 bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 rounded-2xl shadow-2xl p-6 md:p-8 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="relative z-10">
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-3 text-center drop-shadow-lg">
+                  বর্তমান কুইজসমূহ
+                </h3>
+                <p className="text-emerald-50 text-center text-base md:text-lg">
+                  নিচের কুইজগুলোতে অংশগ্রহণ করে আপনার ইসলামিক জ্ঞান পরীক্ষা করুন
+                </p>
+              </div>
             </div>
 
             {loading || skeletonLoading ? (
@@ -637,12 +712,15 @@ export default function PublicQuiz() {
                     <Col xs={24} sm={12} md={8} key={quiz._id}>
                       <div className="h-full">
                         <Card
-                          className="rounded-lg shadow-md hover:shadow-lg transition-all duration-300 border-0 h-full flex flex-col"
+                          className="rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 border-2 border-gray-100 h-full flex flex-col overflow-hidden group"
                           cover={
-                            <div className="bg-gradient-to-r from-green-500 to-green-700 p-4 text-white rounded-t-lg">
-                              <h3 className="text-xl font-bold text-center">
-                                {quiz.quizName}
-                              </h3>
+                            <div className="bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 p-5 md:p-6 text-white relative overflow-hidden">
+                              <div className="absolute inset-0 bg-black/10"></div>
+                              <div className="relative z-10">
+                                <h3 className="text-lg md:text-xl font-extrabold text-center drop-shadow-lg">
+                                  {quiz.quizName}
+                                </h3>
+                              </div>
                             </div>
                           }
                         >
@@ -650,21 +728,29 @@ export default function PublicQuiz() {
                             {getStatusBadge(quiz?.status)}
 
                             <div className="space-y-3 mb-4 mt-2">
-                              <div className="flex items-center text-gray-700">
-                                <FaClock className="mr-2 text-green-600" />
-                                <span>শুরু: {formatDate(quiz.startDate)}</span>
+                              <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
+                                <div className="bg-emerald-100 p-2 rounded-lg mr-3">
+                                  <FaClock className="text-emerald-600" />
+                                </div>
+                                <span className="font-medium">শুরু: {formatDate(quiz.startDate)}</span>
                               </div>
-                              <div className="flex items-center text-gray-700">
-                                <FaClock className="mr-2 text-green-600" />
-                                <span>শেষ: {formatDate(quiz.endDate)}</span>
+                              <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
+                                <div className="bg-red-100 p-2 rounded-lg mr-3">
+                                  <FaClock className="text-red-600" />
+                                </div>
+                                <span className="font-medium">শেষ: {formatDate(quiz.endDate)}</span>
                               </div>
-                              <div className="flex items-center text-gray-700">
-                                <FaClock className="mr-2 text-green-600" />
-                                <span>সময়: {quiz.duration} মিনিট</span>
+                              <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
+                                <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                                  <FaClock className="text-blue-600" />
+                                </div>
+                                <span className="font-medium">সময়: {quiz.duration} মিনিট</span>
                               </div>
-                              <div className="flex items-center text-gray-700">
-                                <FaBook className="mr-2 text-green-600" />
-                                <span>
+                              <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
+                                <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                                  <FaBook className="text-purple-600" />
+                                </div>
+                                <span className="font-medium">
                                   মোট প্রশ্ন: {quiz.quizQuestions.length}
                                 </span>
                               </div>
@@ -675,10 +761,11 @@ export default function PublicQuiz() {
                                 <Button
                                   type="primary"
                                   block
-                                  className={`flex items-center justify-center ${
+                                  size="large"
+                                  className={`flex items-center justify-center rounded-xl font-semibold transition-all duration-300 ${
                                     isAttempted
                                       ? "bg-gray-400 border-gray-400 cursor-not-allowed"
-                                      : "bg-green-600 hover:bg-green-700 border-green-600"
+                                      : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105"
                                   }`}
                                   onClick={
                                     isAttempted
@@ -696,6 +783,8 @@ export default function PublicQuiz() {
                               <Button
                                 type="default"
                                 block
+                                size="large"
+                                className="rounded-xl font-semibold border-2 border-amber-300 hover:border-amber-400 bg-gradient-to-r from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 text-amber-700 hover:text-amber-800 shadow-md hover:shadow-lg transition-all duration-300"
                                 icon={<FaTrophy className="mr-2" />}
                                 onClick={() => showLeaderboard("quiz", quiz)}
                               >
@@ -714,23 +803,26 @@ export default function PublicQuiz() {
 
           {/* Desktop Leaderboard Sidebar */}
           <Col xs={24} lg={8}>
-            <div className="bg-white rounded-lg shadow-md p-6 h-fit sticky top-6">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold flex items-center">
-                  <FaTrophy className="text-yellow-500 mr-2" />
-                  {currentLeaderboardView === "allTime"
-                    ? "সর্বকালের লিডারবোর্ড"
-                    : `${selectedQuiz?.quizName?.substring(0, 20)}${
-                        selectedQuiz?.quizName?.length > 20 ? "..." : ""
-                      } লিডারবোর্ড`}
-                </h3>
-                <Button
-                  size="small"
-                  onClick={() => showLeaderboard("allTime")}
-                  disabled={currentLeaderboardView === "allTime"}
-                >
-                  সর্বকালের
-                </Button>
+            <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-100 p-6 h-fit sticky top-6 overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 -m-6 mb-6 p-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-extrabold text-white flex items-center">
+                    <FaTrophy className="text-yellow-200 mr-2 text-xl" />
+                    {currentLeaderboardView === "allTime"
+                      ? "সর্বকালের লিডারবোর্ড"
+                      : `${selectedQuiz?.quizName?.substring(0, 20)}${
+                          selectedQuiz?.quizName?.length > 20 ? "..." : ""
+                        } লিডারবোর্ড`}
+                  </h3>
+                  <Button
+                    size="small"
+                    onClick={() => showLeaderboard("allTime")}
+                    disabled={currentLeaderboardView === "allTime"}
+                    className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+                  >
+                    সর্বকালের
+                  </Button>
+                </div>
               </div>
 
               <Divider className="my-3" />
@@ -768,17 +860,30 @@ export default function PublicQuiz() {
 
         {/* User Info Modal */}
         <Modal
-          title="কুইজে অংশগ্রহণ করতে আপনার তথ্য দিন"
+          title={
+            <div className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              কুইজে অংশগ্রহণ করতে আপনার তথ্য দিন
+            </div>
+          }
           open={isInfoModalOpen}
           onCancel={() => setIsInfoModalOpen(false)}
           footer={null}
           centered
-          width={600}
+          width="90%"
+          style={{ maxWidth: 600 }}
+          className="rounded-2xl"
+          styles={{
+            content: {
+              borderRadius: '1rem',
+            }
+          }}
         >
-          <div className="p-4">
-            <p className="text-gray-600 mb-6">
-              কুইজে অংশগ্রহণের জন্য আপনার নাম ও ফোন নম্বর প্রদান করুন
-            </p>
+          <div className="p-4 md:p-6">
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 mb-6 border-2 border-emerald-200">
+              <p className="text-gray-700 font-medium text-center">
+                কুইজে অংশগ্রহণের জন্য আপনার নাম ও ফোন নম্বর প্রদান করুন
+              </p>
+            </div>
 
             <Form form={form} layout="vertical" onFinish={onUserInfoSubmit}>
               <Form.Item
@@ -831,7 +936,8 @@ export default function PublicQuiz() {
                   htmlType="submit"
                   size="large"
                   block
-                  className="bg-green-600 hover:bg-green-700 border-green-600"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 rounded-xl font-semibold"
+                  icon={<FaCheckCircle className="mr-2" />}
                 >
                   তথ্য জমা দিন ও কুইজ শুরু করুন
                 </Button>
@@ -842,75 +948,114 @@ export default function PublicQuiz() {
 
         {/* Quiz Modal */}
         <Modal
-          title={selectedQuiz?.quizName}
+          title={
+            <div className="text-xl md:text-2xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent px-4 md:px-6 py-2 md:py-3">
+              {selectedQuiz?.quizName}
+            </div>
+          }
           open={isQuizModalOpen}
           onCancel={closeQuizModal}
           footer={null}
-          width={800}
+          width="90%"
+          style={{ maxWidth: 900 }}
           centered
           destroyOnClose
-          className="select-none"
-          style={{ userSelect: "none" }}
+          className="select-none rounded-2xl"
+          maskClosable={!quizStarted || quizSubmitted}
+          closable={!quizStarted || quizSubmitted}
+          styles={{
+            content: {
+              borderRadius: '1rem',
+              padding: 0,
+            }
+          }}
         >
           {!quizStarted ? (
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-4">
-                কুইজটি শুরু করতে প্রস্তুত?
-              </h3>
-              <div className="space-y-3 mb-6">
-                <p>
-                  <strong>মোট প্রশ্ন:</strong>{" "}
-                  {selectedQuiz?.quizQuestions.length}
-                </p>
-                <p>
-                  <strong>সময়:</strong> {selectedQuiz?.duration} মিনিট
-                </p>
-                <p>
-                  <strong>নিয়ম:</strong>
-                </p>
-                <ul className="list-disc pl-5">
-                  <li>আপনি শুধুমাত্র একবার কুইজে অংশগ্রহণ করতে পারবেন</li>
-                  <li>
-                    সময় শেষ হয়ে গেলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
-                  </li>
-                  <li>পৃষ্ঠা রিফ্রেশ করলে আপনার অগ্রগতি হারিয়ে যাবে</li>
-                </ul>
+            <div  className="p-8 md:p-8">
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 mb-6 border-2 border-emerald-200">
+                <h3 className="text-xl md:text-2xl font-extrabold mb-4 text-gray-800 text-center">
+                  কুইজটি শুরু করতে প্রস্তুত?
+                </h3>
+                <div className="space-y-4 mb-6">
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <p className="text-gray-700">
+                      <strong className="text-emerald-600">মোট প্রশ্ন:</strong>{" "}
+                      <span className="font-semibold">{selectedQuiz?.quizQuestions.length}</span>
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <p className="text-gray-700">
+                      <strong className="text-emerald-600">সময়:</strong>{" "}
+                      <span className="font-semibold">{selectedQuiz?.duration} মিনিট</span>
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-xl shadow-sm">
+                    <p className="text-gray-700 mb-3">
+                      <strong className="text-emerald-600">নিয়ম:</strong>
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2 text-gray-600">
+                      <li>আপনি শুধুমাত্র একবার কুইজে অংশগ্রহণ করতে পারবেন</li>
+                      <li>
+                        সময় শেষ হয়ে গেলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                      </li>
+                      <li>মডাল বন্ধ করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে</li>
+                      <li className="text-red-600 font-semibold">
+                        ⚠️ অন্য ট্যাবে যাওয়া বা ট্যাব পরিবর্তন করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                      </li>
+                      <li>পৃষ্ঠা রিফ্রেশ করলে আপনার অগ্রগতি হারিয়ে যাবে</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end">
                 <Button
                   type="primary"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 rounded-xl font-semibold"
                   onClick={startQuiz}
                   size="large"
+                  icon={<FaBook className="mr-2" />}
                 >
                   কুইজ শুরু করুন
                 </Button>
               </div>
             </div>
           ) : !quizSubmitted ? (
-            <div>
-              <div className="flex justify-between items-center mb-4">
-                <div className="text-lg font-semibold">
-                  প্রশ্ন{" "}
-                  {
-                    Object.keys(userAnswers).filter(
-                      (k) => userAnswers[k] !== ""
-                    ).length
-                  }
-                  /{selectedQuiz?.quizQuestions.length}
+            <div className="p-6 md:p-8">
+              <div className="bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-4 md:p-6 mb-6 shadow-xl">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
+                    <div className="text-white text-sm font-medium mb-1">অগ্রগতি</div>
+                    <div className="text-white text-xl md:text-2xl font-extrabold">
+                      প্রশ্ন{" "}
+                      {
+                        Object.keys(userAnswers).filter(
+                          (k) => userAnswers[k] !== ""
+                        ).length
+                      }
+                      /{selectedQuiz?.quizQuestions.length}
+                    </div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl">
+                    <div className="text-white text-sm font-medium mb-1">সময়</div>
+                    <div className="text-white text-2xl md:text-3xl font-extrabold animate-pulse">
+                      {timerDisplay()}
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-red-500 text-white px-3 py-1 rounded-full">
-                  {timerDisplay()}
+                <div className="mt-4 bg-yellow-500/30 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-yellow-300/50">
+                  <p className="text-white text-xs md:text-sm font-semibold text-center">
+                    ⚠️ সতর্কতা: অন্য ট্যাবে যাওয়া বা ট্যাব পরিবর্তন করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                  </p>
                 </div>
               </div>
 
               <div
-                className="quiz-questions"
+                className="quiz-questions space-y-4 px-2 md:px-4"
                 style={{ maxHeight: "60vh", overflowY: "auto" }}
               >
                 {selectedQuiz?.quizQuestions.map((question, index) => (
-                  <div key={index} className="mb-8 p-4 border rounded-lg">
-                    <h4 className="text-lg font-medium mb-4">
+                  <div key={index} className="bg-gradient-to-r from-gray-50 to-blue-50 p-6 md:p-8 rounded-xl border-2 border-gray-200 hover:border-emerald-300 transition-all duration-300">
+                    <h4 className="text-lg md:text-xl font-bold mb-5 md:mb-6 text-gray-800">
                       {index + 1}. {question.question}
                     </h4>
                     <Radio.Group
@@ -918,13 +1063,14 @@ export default function PublicQuiz() {
                         handleAnswerChange(index, e.target.value)
                       }
                       value={userAnswers[`question${index}`]}
+                      className="w-full"
                     >
-                      <Space direction="vertical">
+                      <Space direction="vertical" className="w-full" size="large">
                         {question.options.map((option, optIndex) => (
                           <Radio
                             key={optIndex}
                             value={option}
-                            className="text-lg"
+                            className="text-base md:text-lg p-4 md:p-5 bg-white rounded-lg border-2 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-300 w-full"
                           >
                             {option}
                           </Radio>
@@ -935,39 +1081,43 @@ export default function PublicQuiz() {
                 ))}
               </div>
 
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-end mt-6 md:mt-8 pt-4 md:pt-6 border-t-2 border-gray-200 px-2 md:px-4">
                 <Button
                   type="primary"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 rounded-xl font-semibold"
                   onClick={handleQuizSubmit}
                   size="large"
                   loading={submitting}
+                  icon={<FaCheckCircle className="mr-2" />}
                 >
                   জমা দিন
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="quiz-results">
-              <h3 className="text-xl font-bold text-center mb-6">
-                আপনার কুইজ ফলাফল
-              </h3>
+            <div className="quiz-results p-6 md:p-8">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 md:p-8 mb-6 text-white text-center shadow-xl">
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-2 drop-shadow-lg">
+                  আপনার কুইজ ফলাফল
+                </h3>
+                <p className="text-emerald-100 text-base md:text-lg">অভিনন্দন! কুইজ সম্পন্ন হয়েছে</p>
+              </div>
 
-              <div className="flex justify-between items-center mb-8">
-                <div className="bg-white shadow-md p-4 rounded-lg text-center flex-1 mx-2">
-                  <div className="text-2xl font-bold text-green-600">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <div className="bg-gradient-to-br from-emerald-500 to-green-600 shadow-xl p-6 rounded-2xl text-center text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl md:text-5xl font-extrabold mb-2">
                     {quizResults.correctAnswers}
                   </div>
-                  <div className="text-gray-600">সঠিক উত্তর</div>
+                  <div className="text-emerald-100 font-semibold">সঠিক উত্তর</div>
                 </div>
-                <div className="bg-white shadow-md p-4 rounded-lg text-center flex-1 mx-2">
-                  <div className="text-2xl font-bold text-red-600">
+                <div className="bg-gradient-to-br from-red-500 to-rose-600 shadow-xl p-6 rounded-2xl text-center text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl md:text-5xl font-extrabold mb-2">
                     {quizResults.wrongAnswers}
                   </div>
-                  <div className="text-gray-600">ভুল উত্তর</div>
+                  <div className="text-red-100 font-semibold">ভুল উত্তর</div>
                 </div>
-                <div className="bg-white shadow-md p-4 rounded-lg text-center flex-1 mx-2">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl p-6 rounded-2xl text-center text-white transform hover:scale-105 transition-all duration-300">
+                  <div className="text-4xl md:text-5xl font-extrabold mb-2">
                     {Math.round(
                       (quizResults.correctAnswers /
                         quizResults.totalQuestions) *
@@ -975,7 +1125,7 @@ export default function PublicQuiz() {
                     )}
                     %
                   </div>
-                  <div className="text-gray-600">সাফল্যের হার</div>
+                  <div className="text-blue-100 font-semibold">সাফল্যের হার</div>
                 </div>
               </div>
 
@@ -998,11 +1148,11 @@ export default function PublicQuiz() {
                 </Tooltip>
               </div>
 
-              <h4 className="text-lg font-semibold mb-4">
+              <h4 className="text-lg md:text-xl font-semibold mb-4 px-2">
                 প্রশ্ন অনুযায়ী ফলাফল:
               </h4>
               <div
-                className="space-y-4"
+                className="space-y-4 px-2"
                 style={{ maxHeight: "40vh", overflowY: "auto" }}
               >
                 {quizResults.questionsWithAnswers.map((qa, index) => (
@@ -1038,10 +1188,10 @@ export default function PublicQuiz() {
                 ))}
               </div>
 
-              <div className="flex justify-center mt-6">
+              <div className="flex justify-center mt-6 px-2">
                 <Button
                   type="primary"
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 rounded-xl font-semibold"
                   onClick={closeQuizModal}
                   size="large"
                 >

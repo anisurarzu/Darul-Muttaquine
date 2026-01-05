@@ -9,6 +9,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loginError, setLoginError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const history = useHistory();
   const location = useLocation();
 
@@ -112,77 +113,150 @@ export default function Login() {
 
   if (initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#DDEFC5]">
-        <div className="w-[500px] p-10 bg-white rounded-xl shadow-lg">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 px-4 py-8">
+        <div className="w-full max-w-md md:max-w-lg p-6 md:p-10 bg-white rounded-2xl shadow-2xl border-2 border-gray-100">
           <div className="flex justify-center mb-8">
-            <div className="w-40 h-40 bg-gray-200 animate-pulse rounded-lg"></div>
+            <div className="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-gray-200 to-gray-300 animate-pulse rounded-2xl"></div>
           </div>
 
-          <div className="h-10 bg-gray-200 animate-pulse rounded mb-6"></div>
+          <div className="h-8 md:h-10 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-xl mb-6"></div>
 
           <div className="space-y-6">
             <div>
-              <div className="h-16 bg-gray-200 animate-pulse rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-14 md:h-16 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-xl mb-2"></div>
+              <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded w-3/4"></div>
             </div>
 
             <div>
-              <div className="h-16 bg-gray-200 animate-pulse rounded mb-2"></div>
-              <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+              <div className="h-14 md:h-16 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-xl mb-2"></div>
+              <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded w-3/4"></div>
             </div>
           </div>
 
-          <div className="h-16 bg-gray-200 animate-pulse rounded mt-8"></div>
+          <div className="h-14 md:h-16 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded-xl mt-8"></div>
 
-          <div className="h-4 bg-gray-200 animate-pulse rounded mt-8"></div>
+          <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded w-2/3 mx-auto mt-8"></div>
 
-          <div className="h-4 bg-gray-200 animate-pulse rounded mt-10 pt-6"></div>
+          <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 animate-pulse rounded w-1/2 mx-auto mt-10 pt-6"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#DDEFC5]">
-      <div className="w-[500px] p-10 bg-white rounded-xl shadow-lg">
-        <div className="flex justify-center mb-8">
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-40 h-auto transition-all hover:scale-105"
-          />
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 px-4 py-8 relative overflow-hidden">
+      {/* Decorative Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-200/30 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="container mx-auto max-w-7xl px-2 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-center min-h-[calc(100vh-4rem)] py-4">
+          {/* Left Side - Islamic Messages (Desktop) */}
+          <div className="hidden lg:flex flex-col justify-center items-center space-y-6 p-4 xl:p-5 bg-gradient-to-br from-emerald-100/50 to-teal-100/50 rounded-2xl border-2 border-emerald-200/50 backdrop-blur-sm">
+            {/* Islamic Pattern/Icon */}
+            <div className="w-24 h-24 xl:w-28 xl:h-28 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-2xl transform hover:scale-110 transition-transform duration-300">
+              <svg className="w-16 h-16 xl:w-20 xl:h-20 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            
+            {/* Foundation Mission Statement */}
+            <div className="text-center space-y-3">
+              <div className="text-4xl xl:text-5xl text-emerald-600 mb-2">❝</div>
+              <p className="text-base xl:text-lg font-bold text-gray-800 leading-relaxed">
+                "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা"
+              </p>
+              <div className="text-4xl xl:text-5xl text-emerald-600 mt-2">❞</div>
+              <p className="text-xs xl:text-sm text-gray-600 mt-2">- দারুল মুত্তাক্বীন ফাউন্ডেশন</p>
+            </div>
+
+            {/* Hadith with Reference */}
+            <div className="bg-white/80 p-4 xl:p-5 rounded-xl shadow-lg border-l-4 border-emerald-500">
+              <p className="text-sm xl:text-base text-gray-700 font-semibold text-center leading-relaxed mb-3">
+                "যে ব্যক্তি জ্ঞান অন্বেষণ করে, আল্লাহ তার জন্য জান্নাতের পথ সহজ করে দেন"
+              </p>
+              <div className="text-center space-y-1">
+                <p className="text-xs xl:text-sm text-emerald-700 font-medium">- হাদীস শরীফ</p>
+                <p className="text-xs text-gray-500">সহীহ মুসলিম, হাদীস নং: ২৬৯৯</p>
+              </div>
+            </div>
+
+            {/* Decorative Islamic Pattern */}
+            <div className="flex items-center justify-center space-x-3 mt-2">
+              <div className="w-12 h-1 bg-gradient-to-r from-transparent to-emerald-500"></div>
+              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+              <div className="w-12 h-1 bg-gradient-to-l from-transparent to-emerald-500"></div>
+            </div>
+          </div>
+
+          {/* Mobile Islamic Message Banner */}
+          <div className="lg:hidden mb-4 sm:mb-6 p-4 sm:p-5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl sm:rounded-2xl shadow-xl">
+            <div className="text-center space-y-3">
+              <div className="text-3xl sm:text-4xl mb-2">☪</div>
+              <p className="text-sm sm:text-base font-bold leading-relaxed">
+                "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা"
+              </p>
+              <p className="text-xs sm:text-sm opacity-90">- দারুল মুত্তাক্বীন ফাউন্ডেশন</p>
+            </div>
+          </div>
+
+          {/* Center - Login Form */}
+          <div className="w-full p-4 sm:p-6 md:p-8 lg:p-10 bg-white rounded-xl sm:rounded-2xl shadow-2xl border-2 border-gray-100 relative z-10">
+        {/* Logo Section */}
+        <div className="flex justify-center mb-6 md:mb-8">
+          <div className="bg-gradient-to-br from-emerald-100 to-teal-100 p-4 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+            <img
+              src={logo}
+              alt="দারুল মুত্তাক্বীন ফাউন্ডেশন"
+              className="w-32 h-auto md:w-40 transition-all"
+            />
+          </div>
         </div>
 
-        <h1 className="text-4xl font-bold text-center text-gray-700 mb-3">
-          লগ ইন করুন
-        </h1>
-        <p className="text-center text-gray-500 mb-8 text-xl">
-          আপনার অ্যাকাউন্টে অ্যাক্সেস পেতে
-        </p>
+        {/* Header Section */}
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+            লগ ইন করুন
+          </h1>
+          <p className="text-base md:text-lg lg:text-xl text-gray-600 mb-2">
+            আপনার অ্যাকাউন্টে অ্যাক্সেস পেতে
+          </p>
+          <p className="text-sm md:text-base text-gray-500">
+            দারুল মুত্তাক্বীন ফাউন্ডেশনের সদস্য হলে লগ ইন করুন
+          </p>
+        </div>
 
+        {/* Enhanced Error Message */}
         {loginError && (
-          <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-            <div className="flex items-center">
+          <div className="mb-6 p-4 md:p-5 bg-gradient-to-r from-red-50 to-rose-50 border-l-4 border-red-500 rounded-xl shadow-lg">
+            <div className="flex items-start">
               <div className="flex-shrink-0">
-                <svg
-                  className="h-5 w-5 text-red-500"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor">
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <div className="bg-red-100 p-2 rounded-lg">
+                  <svg
+                    className="h-5 w-5 md:h-6 md:w-6 text-red-600"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
               </div>
-              <div className="ml-3">
-                <p className="text-lg">{loginError}</p>
+              <div className="ml-3 flex-1">
+                <p className="text-base md:text-lg font-semibold text-red-800">{loginError}</p>
+                <p className="text-sm md:text-base text-red-600 mt-1">
+                  দয়া করে আবার চেষ্টা করুন বা পাসওয়ার্ড রিসেট করুন
+                </p>
               </div>
               <div className="ml-auto pl-3">
                 <button
                   onClick={() => setLoginError("")}
-                  className="text-red-500 hover:text-red-700">
+                  className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-100 transition-colors">
                   <svg
                     className="h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
@@ -208,18 +282,27 @@ export default function Login() {
           validateOnBlur={false}>
           {({ errors, touched }) => (
             <Form>
-              <div className="space-y-6">
+              <div className="space-y-5 md:space-y-6">
+                {/* Email Field */}
                 <div>
-                  <label className="block mb-3 text-xl font-medium text-gray-600">
-                    ই-মেইল
+                  <label className="block mb-2 md:mb-3 text-base md:text-lg font-semibold text-gray-700">
+                    <span className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      ই-মেইল ঠিকানা
+                    </span>
+                    <span className="text-xs md:text-sm text-gray-500 font-normal block mt-1">
+                      আপনার নিবন্ধিত ই-মেইল ঠিকানা লিখুন
+                    </span>
                   </label>
                   <Field name="email">
                     {({ field }) => (
                       <div>
                         <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg
-                              className="h-6 w-6 text-gray-400"
+                              className="h-5 w-5 md:h-6 md:w-6 text-gray-400"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -235,17 +318,20 @@ export default function Login() {
                           <input
                             {...field}
                             type="email"
-                            placeholder="আপনার ই-মেইল লিখুন"
-                            className={`w-full pl-12 pr-4 py-4 text-xl border rounded-lg focus:outline-none focus:ring-2 ${
+                            placeholder="উদাহরণ: example@email.com"
+                            className={`w-full pl-12 md:pl-14 pr-4 py-3 md:py-4 text-base md:text-lg border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
                               errors.email && touched.email
-                                ? "border-red-500 focus:ring-red-200"
-                                : "border-gray-300 focus:ring-green-200"
+                                ? "border-red-500 focus:ring-red-200 focus:border-red-600 bg-red-50"
+                                : "border-gray-300 focus:ring-emerald-200 focus:border-emerald-500 bg-gray-50 focus:bg-white"
                             }`}
                           />
                         </div>
                         {errors.email && touched.email && (
-                          <div className="text-red-500 text-lg mt-2">
-                            {errors.email}
+                          <div className="flex items-center gap-2 text-red-600 text-sm md:text-base mt-2 bg-red-50 p-2 rounded-lg">
+                            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span>{errors.email}</span>
                           </div>
                         )}
                       </div>
@@ -253,17 +339,26 @@ export default function Login() {
                   </Field>
                 </div>
 
+                {/* Password Field */}
                 <div>
-                  <label className="block mb-3 text-xl font-medium text-gray-600">
-                    পাসওয়ার্ড
+                  <label className="block mb-2 md:mb-3 text-base md:text-lg font-semibold text-gray-700">
+                    <span className="flex items-center gap-2">
+                      <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                      পাসওয়ার্ড
+                    </span>
+                    <span className="text-xs md:text-sm text-gray-500 font-normal block mt-1">
+                      কমপক্ষে ৪ অক্ষরের পাসওয়ার্ড লিখুন
+                    </span>
                   </label>
                   <Field name="password">
                     {({ field }) => (
                       <div>
                         <div className="relative">
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                             <svg
-                              className="h-6 w-6 text-gray-400"
+                              className="h-5 w-5 md:h-6 md:w-6 text-gray-400"
                               xmlns="http://www.w3.org/2000/svg"
                               fill="none"
                               viewBox="0 0 24 24"
@@ -278,77 +373,91 @@ export default function Login() {
                           </div>
                           <input
                             {...field}
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="আপনার পাসওয়ার্ড লিখুন"
-                            className={`w-full pl-12 pr-4 py-4 text-xl border rounded-lg focus:outline-none focus:ring-2 ${
+                            className={`w-full pl-12 md:pl-14 pr-12 md:pr-14 py-3 md:py-4 text-base md:text-lg border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
                               errors.password && touched.password
-                                ? "border-red-500 focus:ring-red-200"
-                                : "border-gray-300 focus:ring-green-200"
+                                ? "border-red-500 focus:ring-red-200 focus:border-red-600 bg-red-50"
+                                : "border-gray-300 focus:ring-emerald-200 focus:border-emerald-500 bg-gray-50 focus:bg-white"
                             }`}
                           />
                           <button
                             type="button"
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            onClick={() => {
-                              const input = document.querySelector(
-                                'input[name="password"]'
-                              );
-                              if (input.type === "password") {
-                                input.type = "text";
-                              } else {
-                                input.type = "password";
-                              }
-                            }}>
-                            <svg
-                              className="h-6 w-6 text-gray-400 hover:text-gray-500"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                              />
-                            </svg>
+                            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                            onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? "পাসওয়ার্ড লুকান" : "পাসওয়ার্ড দেখুন"}>
+                            {showPassword ? (
+                              <svg
+                                className="h-5 w-5 md:h-6 md:w-6"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="h-5 w-5 md:h-6 md:w-6"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                            )}
                           </button>
                         </div>
                         {errors.password && touched.password && (
-                          <div className="text-red-500 text-lg mt-2">
-                            {errors.password}
+                          <div className="flex items-center gap-2 text-red-600 text-sm md:text-base mt-2 bg-red-50 p-2 rounded-lg">
+                            <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <span>{errors.password}</span>
                           </div>
                         )}
                       </div>
                     )}
                   </Field>
-                  <div className="text-right mt-3">
+                  <div className="flex justify-between items-center mt-3">
+                    <div className="text-xs md:text-sm text-gray-500">
+                      পাসওয়ার্ড ভুলে গেছেন?
+                    </div>
                     <Link
                       to="/forgot-password"
-                      className="text-lg text-green-600 hover:underline">
-                      পাসওয়ার্ড ভুলে গেছেন?
+                      className="text-sm md:text-base font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors">
+                      পাসওয়ার্ড রিসেট করুন
                     </Link>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8">
+              <div className="mt-6 md:mt-8">
                 <button
                   type="submit"
-                  className={`w-full py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-medium text-xl rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition ${
+                  className={`w-full py-4 md:py-5 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white font-bold text-base md:text-lg lg:text-xl rounded-xl focus:outline-none focus:ring-4 focus:ring-emerald-300 shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 ${
                     loading ? "opacity-70 cursor-not-allowed" : ""
                   }`}
                   disabled={loading}>
                   {loading ? (
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center gap-3">
                       <svg
-                        className="animate-spin -ml-1 mr-3 h-6 w-6 text-white"
+                        className="animate-spin h-5 w-5 md:h-6 md:w-6 text-white"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24">
@@ -364,10 +473,15 @@ export default function Login() {
                           fill="currentColor"
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      লগ ইন হচ্ছে...
+                      <span>লগ ইন হচ্ছে...</span>
                     </div>
                   ) : (
-                    "লগ ইন করুন"
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                      </svg>
+                      লগ ইন করুন
+                    </span>
                   )}
                 </button>
               </div>
@@ -375,21 +489,102 @@ export default function Login() {
           )}
         </Formik>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-600 text-xl">
-            নতুন ব্যবহারকারী?{" "}
+        {/* Registration Link */}
+        <div className="mt-6 md:mt-8 text-center">
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-4 md:p-5 rounded-xl border-2 border-emerald-100">
+            <p className="text-gray-700 text-base md:text-lg mb-2">
+              নতুন ব্যবহারকারী?
+            </p>
             <Link
               to="/registration"
-              className="text-green-600 font-medium hover:underline">
-              নিবন্ধন করুন
+              className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-bold text-base md:text-lg hover:underline transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              এখনই নিবন্ধন করুন
             </Link>
-          </p>
+            <p className="text-xs md:text-sm text-gray-500 mt-2">
+              নিবন্ধন করে আমাদের সেবা গ্রহণ করুন
+            </p>
+          </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-gray-100">
-          <p className="text-lg text-gray-500 text-center">
-            © {new Date().getFullYear()} দারুল মুততাক্বীন ফাউন্ডেশন
+        {/* Footer */}
+        <div className="mt-8 md:mt-10 pt-6 border-t-2 border-gray-200">
+          <p className="text-sm md:text-base text-gray-500 text-center mb-2">
+            © {new Date().getFullYear()} দারুল মুত্তাক্বীন ফাউন্ডেশন
           </p>
+          <p className="text-xs md:text-sm text-gray-400 text-center">
+            সকল অধিকার সংরক্ষিত
+          </p>
+        </div>
+          </div>
+
+          {/* Right Side - Islamic Icons & Messages (Desktop) */}
+          <div className="hidden lg:flex flex-col justify-center items-center space-y-6 p-4 xl:p-5 bg-gradient-to-br from-teal-100/50 to-cyan-100/50 rounded-2xl border-2 border-teal-200/50 backdrop-blur-sm">
+            {/* Islamic Star Pattern */}
+            <div className="relative w-32 h-32 xl:w-36 xl:h-36">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-28 h-28 xl:w-32 xl:h-32 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center shadow-2xl transform hover:rotate-12 transition-transform duration-300">
+                  <svg className="w-20 h-20 xl:w-24 xl:h-24 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            {/* Hadith with Reference */}
+            <div className="text-center space-y-3">
+              <div className="bg-white/80 p-4 xl:p-5 rounded-xl shadow-lg border-l-4 border-teal-500">
+                <p className="text-sm xl:text-base text-gray-700 font-semibold mb-3 leading-relaxed">
+                  "শিক্ষা গ্রহণ করা প্রত্যেক মুসলমান নর-নারীর উপর ফরজ"
+                </p>
+                <div className="text-center space-y-1">
+                  <p className="text-xs xl:text-sm text-teal-700 font-medium">- হাদীস শরীফ</p>
+                  <p className="text-xs text-gray-500">সহীহ বুখারী, হাদীস নং: ১</p>
+                  <p className="text-xs text-gray-500">সহীহ মুসলিম, হাদীস নং: ২২৪৬</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Foundation Mission */}
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 xl:p-5 rounded-xl shadow-xl w-full">
+              <h3 className="text-lg xl:text-xl font-bold mb-3 text-center">আমাদের লক্ষ্য</h3>
+              <ul className="space-y-2 text-xs xl:text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-200 mt-0.5">✓</span>
+                  <span>শিক্ষা প্রসার</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-200 mt-0.5">✓</span>
+                  <span>দাওয়াহ কার্যক্রম</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-200 mt-0.5">✓</span>
+                  <span>মানবকল্যাণ</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-emerald-200 mt-0.5">✓</span>
+                  <span>সমাজ উন্নয়ন</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Decorative Elements */}
+            <div className="flex flex-col items-center space-y-2 mt-2">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+                <div className="w-10 h-1 bg-gradient-to-r from-teal-500 to-cyan-500"></div>
+                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+              </div>
+              <div className="text-3xl xl:text-4xl text-teal-600">☪</div>
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                <div className="w-10 h-1 bg-gradient-to-l from-teal-500 to-cyan-500"></div>
+                <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
