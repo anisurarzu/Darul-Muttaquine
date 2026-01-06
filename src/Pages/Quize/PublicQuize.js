@@ -73,6 +73,9 @@ export default function PublicQuiz() {
   const [blurActive, setBlurActive] = useState(false);
   const screenshotAttemptsRef = useRef(0);
   const canvasDetectionRef = useRef(null);
+  const ambientLightSensorRef = useRef(null);
+  const brightnessMonitorRef = useRef(null);
+  const lastBrightnessRef = useRef(null);
 
   // Fetch quizzes from API
   useEffect(() => {
@@ -137,8 +140,8 @@ export default function PublicQuiz() {
   // Prevent context menu (right click) and text selection during quiz
   useEffect(() => {
     const handleContextMenu = (e) => {
-      if (quizStarted && !quizSubmitted) {
-        e.preventDefault();
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
+      e.preventDefault();
         e.stopPropagation();
         message.warning("কুইজ চলাকালীন এই কাজটি অনুমোদিত নয়");
         return false;
@@ -146,21 +149,21 @@ export default function PublicQuiz() {
     };
 
     const handleSelectStart = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         e.preventDefault();
         return false;
       }
     };
 
     const handleDragStart = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         e.preventDefault();
         return false;
       }
     };
 
     const handleCopy = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         e.preventDefault();
         message.warning("কুইজ চলাকালীন কপি করা অনুমোদিত নয়");
         return false;
@@ -168,20 +171,20 @@ export default function PublicQuiz() {
     };
 
     const handleCut = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         e.preventDefault();
         return false;
       }
     };
 
     const handlePaste = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         e.preventDefault();
         return false;
       }
     };
 
-    if (quizStarted && !quizSubmitted) {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
       document.addEventListener("contextmenu", handleContextMenu, true);
       document.addEventListener("selectstart", handleSelectStart, true);
       document.addEventListener("dragstart", handleDragStart, true);
@@ -213,7 +216,7 @@ export default function PublicQuiz() {
       document.body.style.mozUserSelect = "";
       document.body.style.msUserSelect = "";
     };
-  }, [quizStarted, quizSubmitted]);
+  }, [quizStarted, quizSubmitted, quizResults]);
 
   // Prevent page reload or close before the quiz is submitted or time runs out
   useEffect(() => {
@@ -255,42 +258,46 @@ export default function PublicQuiz() {
     };
   }, [quizStarted, quizSubmitted, submitting]);
 
-  // Canvas-based screenshot detection
+  // Canvas-based screenshot detection - Trigger on FIRST attempt
   useEffect(() => {
-    if (quizStarted && !quizSubmitted) {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
       // Monitor for canvas read attempts (common in screenshot tools)
       const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
       const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
       
       HTMLCanvasElement.prototype.toDataURL = function(...args) {
-        if (quizStarted && !quizSubmitted) {
+        if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
           screenshotAttemptsRef.current += 1;
-          if (screenshotAttemptsRef.current >= 2) {
+          // Auto-submit on FIRST attempt
+          if (screenshotAttemptsRef.current >= 1) {
             message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
             setTimeout(() => {
-              if (handleQuizSubmitRef.current) {
+              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                 handleQuizSubmitRef.current();
+              } else if (quizSubmitted && quizResults) {
+                // Close modal if already submitted
+                closeQuizModal();
               }
             }, 500);
-          } else {
-            message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
           }
         }
         return originalToDataURL.apply(this, args);
       };
 
       CanvasRenderingContext2D.prototype.getImageData = function(...args) {
-        if (quizStarted && !quizSubmitted) {
+        if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
           screenshotAttemptsRef.current += 1;
-          if (screenshotAttemptsRef.current >= 2) {
+          // Auto-submit on FIRST attempt
+          if (screenshotAttemptsRef.current >= 1) {
             message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
             setTimeout(() => {
-              if (handleQuizSubmitRef.current) {
+              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                 handleQuizSubmitRef.current();
+              } else if (quizSubmitted && quizResults) {
+                // Close modal if already submitted
+                closeQuizModal();
               }
             }, 500);
-          } else {
-            message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
           }
         }
         return originalGetImageData.apply(this, args);
@@ -301,12 +308,12 @@ export default function PublicQuiz() {
         CanvasRenderingContext2D.prototype.getImageData = originalGetImageData;
       };
     }
-  }, [quizStarted, quizSubmitted]);
+  }, [quizStarted, quizSubmitted, quizResults]);
 
   // Prevent keyboard shortcuts that might help cheating
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (quizStarted && !quizSubmitted) {
+      if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
         // Prevent F12 (DevTools), Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (View Source)
           // Prevent Print Screen (Windows) and Cmd+Shift+3/4/5 (Mac) and other screenshot shortcuts
           const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4" || e.key === "5");
@@ -328,13 +335,15 @@ export default function PublicQuiz() {
             e.stopPropagation();
             e.stopImmediatePropagation();
             
-            // Auto-submit if screenshot attempt detected
+            // Auto-submit on FIRST screenshot attempt
             if (isMacScreenshot || isWindowsScreenshot || isAndroidScreenshot) {
               screenshotAttemptsRef.current += 1;
               message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
               setTimeout(() => {
-                if (handleQuizSubmitRef.current) {
+                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                   handleQuizSubmitRef.current();
+                } else if (quizSubmitted && quizResults) {
+                  closeQuizModal();
                 }
               }, 500);
             } else {
@@ -343,14 +352,16 @@ export default function PublicQuiz() {
             return false;
           }
           
-          // Detect Mac screenshot via Cmd+Shift combinations
+          // Detect Mac screenshot via Cmd+Shift combinations - Trigger on FIRST attempt
           if (e.metaKey && e.shiftKey) {
             screenshotAttemptsRef.current += 1;
-            if (screenshotAttemptsRef.current >= 2) {
+            if (screenshotAttemptsRef.current >= 1) {
               message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
               setTimeout(() => {
-                if (handleQuizSubmitRef.current) {
+                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                   handleQuizSubmitRef.current();
+                } else if (quizSubmitted && quizResults) {
+                  closeQuizModal();
                 }
               }, 500);
             }
@@ -358,14 +369,14 @@ export default function PublicQuiz() {
       }
     };
 
-    if (quizStarted && !quizSubmitted) {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
       document.addEventListener("keydown", handleKeyDown, true);
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [quizStarted, quizSubmitted]);
+  }, [quizStarted, quizSubmitted, quizResults]);
 
   const checkQuizAccess = async (quiz) => {
     const token = localStorage.getItem("token");
@@ -605,9 +616,9 @@ export default function PublicQuiz() {
     );
   };
 
-  // Dynamic watermark movement during quiz - More frequent changes
+  // Dynamic watermark movement during quiz and results - More frequent changes
   useEffect(() => {
-    if (quizStarted && !quizSubmitted) {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
       // Change watermark position more frequently to make screenshots less useful
       watermarkIntervalRef.current = setInterval(() => {
         setWatermarkPosition({
@@ -630,9 +641,243 @@ export default function PublicQuiz() {
     };
   }, [quizStarted, quizSubmitted]);
 
-  // Detect screen capture attempts and mobile screenshot gestures
+  // Camera Flash Detection - Detect if someone takes a photo with external camera
   useEffect(() => {
-    if (quizStarted && !quizSubmitted) {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
+      let ambientLightSensor = null;
+      let brightnessCheckInterval = null;
+      let lastBrightness = null;
+      let flashDetectionCount = 0;
+
+      // Method 1: Ambient Light Sensor API (if available)
+      if ('AmbientLightSensor' in window) {
+        try {
+          // eslint-disable-next-line no-undef
+          ambientLightSensor = new AmbientLightSensor();
+          
+          ambientLightSensor.addEventListener('reading', () => {
+            const currentLight = ambientLightSensor.illuminance;
+            
+            if (lastBrightness !== null) {
+              // Detect sudden brightness spike (camera flash)
+              const brightnessChange = Math.abs(currentLight - lastBrightness);
+              const brightnessRatio = currentLight / (lastBrightness || 1);
+              
+              // Flash typically causes 5-10x brightness increase
+              if (brightnessRatio > 3 && brightnessChange > 100) {
+                flashDetectionCount += 1;
+                screenshotAttemptsRef.current += 1;
+                
+                if (screenshotAttemptsRef.current >= 1) {
+                  message.error("ক্যামেরা ফ্ল্যাশ সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+                  setTimeout(() => {
+                    if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                      handleQuizSubmitRef.current();
+                    } else if (quizSubmitted && quizResults) {
+                      closeQuizModal();
+                    }
+                  }, 500);
+                }
+              }
+            }
+            
+            lastBrightness = currentLight;
+          });
+
+          ambientLightSensor.addEventListener('error', (error) => {
+            console.log('Ambient Light Sensor error:', error);
+          });
+
+          ambientLightSensor.start();
+          ambientLightSensorRef.current = ambientLightSensor;
+        } catch (error) {
+          console.log('Ambient Light Sensor not available:', error);
+        }
+      }
+
+      // Method 2: Screen Brightness Monitoring (via CSS media queries and visibility)
+      const checkScreenBrightness = () => {
+        // Monitor for rapid screen state changes that might indicate flash
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const screenBrightness = window.screen?.brightness || null;
+        
+        // Detect if screen suddenly becomes very bright or very dark
+        if (lastBrightnessRef.current !== null) {
+          // This is a heuristic - rapid changes might indicate flash
+        }
+        
+        lastBrightnessRef.current = screenBrightness;
+      };
+
+      // Check brightness every 100ms
+      brightnessCheckInterval = setInterval(checkScreenBrightness, 100);
+      brightnessMonitorRef.current = brightnessCheckInterval;
+
+      // Method 3: Monitor for rapid visibility changes (flash can cause this)
+      let visibilityFlashCount = 0;
+      let lastVisibilityTime = Date.now();
+      
+      const handleVisibilityForFlash = () => {
+        const now = Date.now();
+        const timeSinceLastChange = now - lastVisibilityTime;
+        
+        // Rapid visibility changes might indicate flash
+        if (timeSinceLastChange < 200) {
+          visibilityFlashCount += 1;
+          
+          if (visibilityFlashCount >= 3) {
+            screenshotAttemptsRef.current += 1;
+            if (screenshotAttemptsRef.current >= 1) {
+              message.error("স্ক্রিন ক্যাপচার চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+              setTimeout(() => {
+                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                  handleQuizSubmitRef.current();
+                } else if (quizSubmitted && quizResults) {
+                  closeQuizModal();
+                }
+              }, 500);
+            }
+          }
+        } else {
+          visibilityFlashCount = 0;
+        }
+        
+        lastVisibilityTime = now;
+      };
+
+      // Method 4: Monitor screen orientation and device motion (camera movement detection)
+      let deviceMotionCount = 0;
+      const handleDeviceMotion = (e) => {
+        if (e.acceleration && e.acceleration.x !== null) {
+          const acceleration = Math.sqrt(
+            Math.pow(e.acceleration.x || 0, 2) +
+            Math.pow(e.acceleration.y || 0, 2) +
+            Math.pow(e.acceleration.z || 0, 2)
+          );
+          
+          // Sudden device movement might indicate camera positioning
+          if (acceleration > 15) {
+            deviceMotionCount += 1;
+            if (deviceMotionCount >= 5) {
+              screenshotAttemptsRef.current += 1;
+              if (screenshotAttemptsRef.current >= 1) {
+                message.error("ডিভাইস চলাচল সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+                setTimeout(() => {
+                  if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                    handleQuizSubmitRef.current();
+                  } else if (quizSubmitted && quizResults) {
+                    closeQuizModal();
+                  }
+                }, 500);
+              }
+            }
+          }
+        }
+      };
+
+      // Method 5: Monitor camera/media device access attempts
+      let originalGetUserMedia = null;
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+        const getUserMediaWrapper = function(constraints) {
+          // If camera is requested during quiz, it might be for taking photos
+          if (constraints && constraints.video) {
+            screenshotAttemptsRef.current += 1;
+            if (screenshotAttemptsRef.current >= 1) {
+              message.error("ক্যামেরা অ্যাক্সেস চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+              setTimeout(() => {
+                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                  handleQuizSubmitRef.current();
+                } else if (quizSubmitted && quizResults) {
+                  closeQuizModal();
+                }
+              }, 500);
+              return Promise.reject(new Error('Camera access blocked during quiz'));
+            }
+          }
+          return originalGetUserMedia(constraints);
+        };
+        navigator.mediaDevices.getUserMedia = getUserMediaWrapper;
+      }
+
+      // Method 6: Visual flash detection overlay
+      let flashInterval = null;
+      const flashOverlay = document.createElement('div');
+      flashOverlay.id = 'flash-detection-overlay';
+      flashOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 99999;
+        transition: opacity 0.1s;
+      `;
+      document.body.appendChild(flashOverlay);
+
+      // Rapidly flash white overlay to detect camera flash reflection
+      flashInterval = setInterval(() => {
+        flashOverlay.style.opacity = '0.1';
+        setTimeout(() => {
+          flashOverlay.style.opacity = '0';
+        }, 50);
+      }, 2000);
+
+      document.addEventListener('visibilitychange', handleVisibilityForFlash);
+      
+      // Request device motion permission if available
+      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('devicemotion', handleDeviceMotion);
+            }
+          })
+          .catch(console.error);
+      } else {
+        window.addEventListener('devicemotion', handleDeviceMotion);
+      }
+
+      return () => {
+        if (ambientLightSensor) {
+          try {
+            ambientLightSensor.stop();
+          } catch (e) {
+            console.log('Error stopping ambient light sensor:', e);
+          }
+        }
+        if (brightnessCheckInterval) {
+          clearInterval(brightnessCheckInterval);
+        }
+        if (flashInterval) {
+          clearInterval(flashInterval);
+        }
+        document.removeEventListener('visibilitychange', handleVisibilityForFlash);
+        window.removeEventListener('devicemotion', handleDeviceMotion);
+        
+        // Restore original getUserMedia
+        if (navigator.mediaDevices && originalGetUserMedia) {
+          navigator.mediaDevices.getUserMedia = originalGetUserMedia;
+        }
+        
+        // Remove flash overlay
+        const overlay = document.getElementById('flash-detection-overlay');
+        if (overlay) {
+          overlay.remove();
+        }
+        
+        ambientLightSensorRef.current = null;
+        brightnessMonitorRef.current = null;
+      };
+    }
+  }, [quizStarted, quizSubmitted, quizResults]);
+
+  // Detect screen capture attempts and mobile screenshot gestures - Improved detection
+  useEffect(() => {
+    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
       // Monitor for screen sharing attempts
       const checkScreenCapture = async () => {
         if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
@@ -641,8 +886,10 @@ export default function PublicQuiz() {
             // If user grants screen capture, auto-submit quiz
             message.error("স্ক্রিন শেয়ার সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
             stream.getTracks().forEach(track => track.stop());
-            if (handleQuizSubmitRef.current) {
+            if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
               await handleQuizSubmitRef.current();
+            } else if (quizSubmitted && quizResults) {
+              closeQuizModal();
             }
           } catch (err) {
             // User denied or error - continue normally
@@ -650,48 +897,104 @@ export default function PublicQuiz() {
         }
       };
 
-      // Mobile screenshot detection (iOS/Android)
-      // Detect when page becomes visible again (might indicate screenshot was taken)
+      // Enhanced Mobile screenshot detection (iOS/Android)
       let lastVisibilityChange = Date.now();
+      let visibilityChangeCount = 0;
+      let lastBlurTime = Date.now();
+      let blurCount = 0;
+      
       const handleVisibilityChange = () => {
+        const now = Date.now();
         if (!document.hidden) {
-          const timeSinceHidden = Date.now() - lastVisibilityChange;
-          // If page was hidden for a very short time (less than 500ms), might be screenshot
-          if (timeSinceHidden < 500 && timeSinceHidden > 50) {
+          const timeSinceHidden = now - lastVisibilityChange;
+          // Mobile screenshots cause rapid visibility changes
+          if (timeSinceHidden < 800 && timeSinceHidden > 30) {
+            visibilityChangeCount += 1;
             screenshotAttemptsRef.current += 1;
-            if (screenshotAttemptsRef.current >= 2) {
+            // Trigger on FIRST suspicious visibility change
+            if (screenshotAttemptsRef.current >= 1) {
               message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
               setTimeout(() => {
-                if (handleQuizSubmitRef.current) {
+                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                   handleQuizSubmitRef.current();
+                } else if (quizSubmitted && quizResults) {
+                  closeQuizModal();
                 }
               }, 500);
-            } else {
-              message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
             }
           }
-          lastVisibilityChange = Date.now();
+          lastVisibilityChange = now;
         } else {
-          lastVisibilityChange = Date.now();
+          lastVisibilityChange = now;
         }
       };
 
-      // Monitor window focus/blur for screenshot attempts
-      let lastBlurTime = Date.now();
+      // Monitor window focus/blur for screenshot attempts (Mobile)
       const handleBlur = () => {
         lastBlurTime = Date.now();
+        blurCount += 1;
       };
 
       const handleFocus = () => {
         const timeSinceBlur = Date.now() - lastBlurTime;
-        // If window was blurred for a very short time, might indicate screenshot
-        if (timeSinceBlur < 500 && timeSinceBlur > 50) {
+        // Mobile screenshots cause rapid blur/focus cycles
+        if (timeSinceBlur < 800 && timeSinceBlur > 30) {
           screenshotAttemptsRef.current += 1;
-          if (screenshotAttemptsRef.current >= 3) {
+          // Trigger on FIRST suspicious blur/focus
+          if (screenshotAttemptsRef.current >= 1) {
             message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
             setTimeout(() => {
-              if (handleQuizSubmitRef.current) {
+              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
                 handleQuizSubmitRef.current();
+              } else if (quizSubmitted && quizResults) {
+                closeQuizModal();
+              }
+            }, 500);
+          }
+        }
+      };
+
+      // Detect page resize (common during mobile screenshots)
+      let lastResizeTime = Date.now();
+      const handleResize = () => {
+        const now = Date.now();
+        const timeSinceLastResize = now - lastResizeTime;
+        // Rapid resize might indicate screenshot
+        if (timeSinceLastResize < 500) {
+          screenshotAttemptsRef.current += 1;
+          if (screenshotAttemptsRef.current >= 1) {
+            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            setTimeout(() => {
+              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                handleQuizSubmitRef.current();
+              } else if (quizSubmitted && quizResults) {
+                closeQuizModal();
+              }
+            }, 500);
+          }
+        }
+        lastResizeTime = now;
+      };
+
+      // Monitor touch events for mobile screenshot gestures
+      let touchStartTime = 0;
+      const handleTouchStart = (e) => {
+        touchStartTime = Date.now();
+        // iPhone screenshot: Volume Up + Power button (can't detect directly, but monitor for rapid touches)
+      };
+
+      const handleTouchEnd = (e) => {
+        const touchDuration = Date.now() - touchStartTime;
+        // Very short touches might indicate screenshot gesture
+        if (touchDuration < 100 && e.touches.length === 0) {
+          screenshotAttemptsRef.current += 1;
+          if (screenshotAttemptsRef.current >= 1) {
+            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            setTimeout(() => {
+              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
+                handleQuizSubmitRef.current();
+              } else if (quizSubmitted && quizResults) {
+                closeQuizModal();
               }
             }, 500);
           }
@@ -701,14 +1004,20 @@ export default function PublicQuiz() {
       document.addEventListener("visibilitychange", handleVisibilityChange);
       window.addEventListener("blur", handleBlur);
       window.addEventListener("focus", handleFocus);
+      window.addEventListener("resize", handleResize);
+      document.addEventListener("touchstart", handleTouchStart, { passive: true });
+      document.addEventListener("touchend", handleTouchEnd, { passive: true });
 
       return () => {
         document.removeEventListener("visibilitychange", handleVisibilityChange);
         window.removeEventListener("blur", handleBlur);
         window.removeEventListener("focus", handleFocus);
+        window.removeEventListener("resize", handleResize);
+        document.removeEventListener("touchstart", handleTouchStart);
+        document.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [quizStarted, quizSubmitted]);
+  }, [quizStarted, quizSubmitted, quizResults]);
 
   const startQuiz = () => {
     if (!selectedQuiz) return;
@@ -868,8 +1177,8 @@ export default function PublicQuiz() {
 
   return (
     <>
-      {/* Anti-Screenshot Styles - Applied during active quiz */}
-      {quizStarted && !quizSubmitted && (
+      {/* Anti-Screenshot Styles - Applied during active quiz and results */}
+      {((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) && (
         <style>{`
           * {
             -webkit-touch-callout: none !important;
@@ -924,8 +1233,8 @@ export default function PublicQuiz() {
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
           <h2 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl py-6 lg:py-10 text-center drop-shadow-lg">
-            ইসলামিক কুইজ
-          </h2>
+          ইসলামিক কুইজ
+        </h2>
           <p className="text-emerald-100 text-center text-sm md:text-base pb-4 md:pb-6">
             আপনার ইসলামিক জ্ঞান পরীক্ষা করুন এবং পুরস্কার জয় করুন
           </p>
@@ -939,20 +1248,20 @@ export default function PublicQuiz() {
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-extrabold text-white flex items-center">
                 <FaTrophy className="text-yellow-200 mr-2 text-xl" />
-                {currentLeaderboardView === "allTime"
-                  ? "সর্বকালের লিডারবোর্ড"
-                  : `${selectedQuiz?.quizName?.substring(0, 20)}${
-                      selectedQuiz?.quizName?.length > 20 ? "..." : ""
-                    } লিডারবোর্ড`}
-              </h3>
-              <Button
-                size="small"
-                onClick={() => showLeaderboard("allTime")}
-                disabled={currentLeaderboardView === "allTime"}
+              {currentLeaderboardView === "allTime"
+                ? "সর্বকালের লিডারবোর্ড"
+                : `${selectedQuiz?.quizName?.substring(0, 20)}${
+                    selectedQuiz?.quizName?.length > 20 ? "..." : ""
+                  } লিডারবোর্ড`}
+            </h3>
+            <Button
+              size="small"
+              onClick={() => showLeaderboard("allTime")}
+              disabled={currentLeaderboardView === "allTime"}
                 className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-              >
-                সর্বকালের
-              </Button>
+            >
+              সর্বকালের
+            </Button>
             </div>
           </div>
 
@@ -1003,11 +1312,11 @@ export default function PublicQuiz() {
               <div className="absolute inset-0 bg-black/10"></div>
               <div className="relative z-10">
                 <h3 className="text-2xl md:text-3xl font-extrabold mb-3 text-center drop-shadow-lg">
-                  বর্তমান কুইজসমূহ
-                </h3>
+                বর্তমান কুইজসমূহ
+              </h3>
                 <p className="text-emerald-50 text-center text-base md:text-lg">
-                  নিচের কুইজগুলোতে অংশগ্রহণ করে আপনার ইসলামিক জ্ঞান পরীক্ষা করুন
-                </p>
+                নিচের কুইজগুলোতে অংশগ্রহণ করে আপনার ইসলামিক জ্ঞান পরীক্ষা করুন
+              </p>
               </div>
             </div>
 
@@ -1039,8 +1348,8 @@ export default function PublicQuiz() {
                               <div className="absolute inset-0 bg-black/10"></div>
                               <div className="relative z-10">
                                 <h3 className="text-lg md:text-xl font-extrabold text-center drop-shadow-lg">
-                                  {quiz.quizName}
-                                </h3>
+                                {quiz.quizName}
+                              </h3>
                               </div>
                             </div>
                           }
@@ -1052,13 +1361,13 @@ export default function PublicQuiz() {
                               <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
                                 <div className="bg-emerald-100 p-2 rounded-lg mr-3">
                                   <FaClock className="text-emerald-600" />
-                                </div>
+                              </div>
                                 <span className="font-medium">শুরু: {formatDate(quiz.startDate)}</span>
                               </div>
                               <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
                                 <div className="bg-red-100 p-2 rounded-lg mr-3">
                                   <FaClock className="text-red-600" />
-                                </div>
+                              </div>
                                 <span className="font-medium">শেষ: {formatDate(quiz.endDate)}</span>
                               </div>
                               <div className="flex items-center text-gray-700 bg-gray-50 p-2 rounded-lg">
@@ -1129,20 +1438,20 @@ export default function PublicQuiz() {
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-extrabold text-white flex items-center">
                     <FaTrophy className="text-yellow-200 mr-2 text-xl" />
-                    {currentLeaderboardView === "allTime"
-                      ? "সর্বকালের লিডারবোর্ড"
-                      : `${selectedQuiz?.quizName?.substring(0, 20)}${
-                          selectedQuiz?.quizName?.length > 20 ? "..." : ""
-                        } লিডারবোর্ড`}
-                  </h3>
-                  <Button
-                    size="small"
-                    onClick={() => showLeaderboard("allTime")}
-                    disabled={currentLeaderboardView === "allTime"}
+                  {currentLeaderboardView === "allTime"
+                    ? "সর্বকালের লিডারবোর্ড"
+                    : `${selectedQuiz?.quizName?.substring(0, 20)}${
+                        selectedQuiz?.quizName?.length > 20 ? "..." : ""
+                      } লিডারবোর্ড`}
+                </h3>
+                <Button
+                  size="small"
+                  onClick={() => showLeaderboard("allTime")}
+                  disabled={currentLeaderboardView === "allTime"}
                     className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-                  >
-                    সর্বকালের
-                  </Button>
+                >
+                  সর্বকালের
+                </Button>
                 </div>
               </div>
 
@@ -1202,8 +1511,8 @@ export default function PublicQuiz() {
           <div className="p-4 md:p-6">
             <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-4 mb-6 border-2 border-emerald-200">
               <p className="text-gray-700 font-medium text-center">
-                কুইজে অংশগ্রহণের জন্য আপনার নাম ও ফোন নম্বর প্রদান করুন
-              </p>
+              কুইজে অংশগ্রহণের জন্য আপনার নাম ও ফোন নম্বর প্রদান করুন
+            </p>
             </div>
 
             <Form form={form} layout="vertical" onFinish={onUserInfoSubmit}>
@@ -1295,8 +1604,8 @@ export default function PublicQuiz() {
             <div  className="p-8 md:p-8">
               <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 mb-6 border-2 border-emerald-200">
                 <h3 className="text-xl md:text-2xl font-extrabold mb-4 text-gray-800 text-center">
-                  কুইজটি শুরু করতে প্রস্তুত?
-                </h3>
+                কুইজটি শুরু করতে প্রস্তুত?
+              </h3>
                 <div className="space-y-4 mb-6">
                   <div className="bg-white p-4 rounded-xl shadow-sm">
                     <p className="text-gray-700">
@@ -1315,19 +1624,19 @@ export default function PublicQuiz() {
                       <strong className="text-emerald-600">নিয়ম:</strong>
                     </p>
                     <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                      <li>আপনি শুধুমাত্র একবার কুইজে অংশগ্রহণ করতে পারবেন</li>
-                      <li>
-                        সময় শেষ হয়ে গেলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
-                      </li>
+                  <li>আপনি শুধুমাত্র একবার কুইজে অংশগ্রহণ করতে পারবেন</li>
+                  <li>
+                    সময় শেষ হয়ে গেলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                  </li>
                       <li>মডাল বন্ধ করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে</li>
                       <li className="text-red-600 font-semibold">
                         ⚠️ অন্য ট্যাবে যাওয়া বা ট্যাব পরিবর্তন করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
                       </li>
                       <li className="text-red-600 font-semibold">
                         🚫 স্ক্রিনশট বা স্ক্রিন রেকর্ডিং চেষ্টা করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
-                      </li>
-                      <li>পৃষ্ঠা রিফ্রেশ করলে আপনার অগ্রগতি হারিয়ে যাবে</li>
-                    </ul>
+                  </li>
+                  <li>পৃষ্ঠা রিফ্রেশ করলে আপনার অগ্রগতি হারিয়ে যাবে</li>
+                </ul>
                   </div>
                 </div>
               </div>
@@ -1503,19 +1812,19 @@ export default function PublicQuiz() {
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
                     <div className="text-white text-sm font-medium mb-1">অগ্রগতি</div>
                     <div className="text-white text-xl md:text-2xl font-extrabold">
-                      প্রশ্ন{" "}
-                      {
-                        Object.keys(userAnswers).filter(
-                          (k) => userAnswers[k] !== ""
-                        ).length
-                      }
-                      /{selectedQuiz?.quizQuestions.length}
-                    </div>
+                  প্রশ্ন{" "}
+                  {
+                    Object.keys(userAnswers).filter(
+                      (k) => userAnswers[k] !== ""
+                    ).length
+                  }
+                  /{selectedQuiz?.quizQuestions.length}
+                </div>
                   </div>
                   <div className="bg-white/20 backdrop-blur-sm px-6 py-3 rounded-xl">
                     <div className="text-white text-sm font-medium mb-1">সময়</div>
                     <div className="text-white text-2xl md:text-3xl font-extrabold animate-pulse">
-                      {timerDisplay()}
+                  {timerDisplay()}
                     </div>
                   </div>
                 </div>
@@ -1562,7 +1871,7 @@ export default function PublicQuiz() {
                             style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                           >
                             <span style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
-                              {option}
+                            {option}
                             </span>
                           </Radio>
                         ))}
@@ -1586,11 +1895,128 @@ export default function PublicQuiz() {
               </div>
             </div>
           ) : (
-            <div className="quiz-results p-6 md:p-8">
+            <div 
+              className="quiz-results p-6 md:p-8 relative" 
+              style={{ 
+                userSelect: 'none', 
+                WebkitUserSelect: 'none', 
+                MozUserSelect: 'none', 
+                msUserSelect: 'none' 
+              }}
+            >
+              {/* Watermark Overlay for Results Screen */}
+              <div
+                className="fixed inset-0 pointer-events-none"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 9999,
+                  pointerEvents: 'none',
+                }}
+              >
+                {/* Watermark Layer 1 - User ID */}
+                <div
+                  className="absolute text-red-600 font-extrabold text-5xl md:text-7xl opacity-25 select-none"
+                  style={{
+                    left: `${watermarkPosition.x}%`,
+                    top: `${watermarkPosition.y}%`,
+                    transform: 'translate(-50%, -50%) rotate(-45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {userInfo?.phone || userInfo?.uniqueId || 'USER-' + Date.now()}
+                </div>
+                
+                {/* Watermark Layer 2 - Date/Time */}
+                <div
+                  className="absolute text-red-600 font-extrabold text-4xl md:text-6xl opacity-20 select-none"
+                  style={{
+                    left: `${100 - watermarkPosition.x}%`,
+                    top: `${100 - watermarkPosition.y}%`,
+                    transform: 'translate(-50%, -50%) rotate(45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {new Date().toLocaleString('en-US')}
+                </div>
+                
+                {/* Watermark Layer 3 - Security Text */}
+                <div
+                  className="absolute text-red-500 font-extrabold text-3xl md:text-5xl opacity-15 select-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-30deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  RESULTS PROTECTED
+                </div>
+                
+                {/* Watermark Layer 4 - Top Left */}
+                <div
+                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  style={{
+                    left: '10%',
+                    top: '10%',
+                    transform: 'rotate(-20deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  DO NOT SCREENSHOT
+                </div>
+                
+                {/* Watermark Layer 5 - Bottom Right */}
+                <div
+                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  style={{
+                    right: '10%',
+                    bottom: '10%',
+                    transform: 'rotate(20deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  SECURITY MONITORED
+                </div>
+              </div>
+              
               <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 md:p-8 mb-6 text-white text-center shadow-xl">
                 <h3 className="text-2xl md:text-3xl font-extrabold mb-2 drop-shadow-lg">
-                  আপনার কুইজ ফলাফল
-                </h3>
+                আপনার কুইজ ফলাফল
+              </h3>
                 <p className="text-emerald-100 text-base md:text-lg">অভিনন্দন! কুইজ সম্পন্ন হয়েছে</p>
               </div>
 
@@ -1639,12 +2065,20 @@ export default function PublicQuiz() {
                 </Tooltip>
               </div>
 
-              <h4 className="text-lg md:text-xl font-semibold mb-4 px-2">
+              <h4 
+                className="text-lg md:text-xl font-semibold mb-4 px-2"
+                style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+              >
                 প্রশ্ন অনুযায়ী ফলাফল:
               </h4>
               <div
                 className="space-y-4 px-2"
-                style={{ maxHeight: "40vh", overflowY: "auto" }}
+                style={{ 
+                  maxHeight: "40vh", 
+                  overflowY: "auto",
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                }}
               >
                 {quizResults.questionsWithAnswers.map((qa, index) => (
                   <div
@@ -1654,9 +2088,13 @@ export default function PublicQuiz() {
                         ? "bg-green-50 border-green-200"
                         : "bg-red-50 border-red-200"
                     }`}
+                    style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h5 className="font-medium">
+                      <h5 
+                        className="font-medium"
+                        style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                      >
                         {index + 1}. {qa.question}
                       </h5>
                       {qa.result === "correct" ? (
@@ -1666,11 +2104,17 @@ export default function PublicQuiz() {
                       )}
                     </div>
                     <div className="space-y-2">
-                      <p className="text-gray-700">
+                      <p 
+                        className="text-gray-700"
+                        style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                      >
                         আপনার উত্তর: {qa.userAnswer || "উত্তর দেওয়া হয়নি"}
                       </p>
                       {qa.result === "wrong" && (
-                        <p className="text-green-700">
+                        <p 
+                          className="text-green-700"
+                          style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                        >
                           সঠিক উত্তর: {qa.correctAnswer}
                         </p>
                       )}
