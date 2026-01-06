@@ -68,6 +68,11 @@ export default function PublicQuiz() {
     useState("allTime");
   const history = useHistory();
   const handleQuizSubmitRef = useRef(null);
+  const [watermarkPosition, setWatermarkPosition] = useState({ x: 50, y: 50 });
+  const watermarkIntervalRef = useRef(null);
+  const [blurActive, setBlurActive] = useState(false);
+  const screenshotAttemptsRef = useRef(0);
+  const canvasDetectionRef = useRef(null);
 
   // Fetch quizzes from API
   useEffect(() => {
@@ -129,18 +134,86 @@ export default function PublicQuiz() {
     return () => clearTimeout(timer);
   }, [quizStarted, secondsLeft, timerExpired, quizSubmitted]);
 
-  // Prevent context menu (right click)
+  // Prevent context menu (right click) and text selection during quiz
   useEffect(() => {
     const handleContextMenu = (e) => {
-      e.preventDefault();
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        e.stopPropagation();
+        message.warning("কুইজ চলাকালীন এই কাজটি অনুমোদিত নয়");
+        return false;
+      }
     };
 
-    document.addEventListener("contextmenu", handleContextMenu);
+    const handleSelectStart = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const handleDragStart = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const handleCopy = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        message.warning("কুইজ চলাকালীন কপি করা অনুমোদিত নয়");
+        return false;
+      }
+    };
+
+    const handleCut = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    const handlePaste = (e) => {
+      if (quizStarted && !quizSubmitted) {
+        e.preventDefault();
+        return false;
+      }
+    };
+
+    if (quizStarted && !quizSubmitted) {
+      document.addEventListener("contextmenu", handleContextMenu, true);
+      document.addEventListener("selectstart", handleSelectStart, true);
+      document.addEventListener("dragstart", handleDragStart, true);
+      document.addEventListener("copy", handleCopy, true);
+      document.addEventListener("cut", handleCut, true);
+      document.addEventListener("paste", handlePaste, true);
+      
+      // Disable text selection via CSS
+      document.body.style.userSelect = "none";
+      document.body.style.webkitUserSelect = "none";
+      document.body.style.mozUserSelect = "none";
+      document.body.style.msUserSelect = "none";
+    } else {
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+      document.body.style.mozUserSelect = "";
+      document.body.style.msUserSelect = "";
+    }
 
     return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("contextmenu", handleContextMenu, true);
+      document.removeEventListener("selectstart", handleSelectStart, true);
+      document.removeEventListener("dragstart", handleDragStart, true);
+      document.removeEventListener("copy", handleCopy, true);
+      document.removeEventListener("cut", handleCut, true);
+      document.removeEventListener("paste", handlePaste, true);
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+      document.body.style.mozUserSelect = "";
+      document.body.style.msUserSelect = "";
     };
-  }, []);
+  }, [quizStarted, quizSubmitted]);
 
   // Prevent page reload or close before the quiz is submitted or time runs out
   useEffect(() => {
@@ -166,6 +239,12 @@ export default function PublicQuiz() {
         // User switched to another tab - auto-submit
         message.warning("আপনি অন্য ট্যাবে গেছেন। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
         await handleQuizSubmitRef.current();
+      } else if (!document.hidden && quizStarted && !quizSubmitted) {
+        // Tab became visible again - might indicate screenshot attempt
+        setBlurActive(false);
+      } else if (document.hidden && quizStarted && !quizSubmitted) {
+        // Tab hidden - blur content
+        setBlurActive(true);
       }
     };
 
@@ -176,30 +255,115 @@ export default function PublicQuiz() {
     };
   }, [quizStarted, quizSubmitted, submitting]);
 
+  // Canvas-based screenshot detection
+  useEffect(() => {
+    if (quizStarted && !quizSubmitted) {
+      // Monitor for canvas read attempts (common in screenshot tools)
+      const originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
+      const originalGetImageData = CanvasRenderingContext2D.prototype.getImageData;
+      
+      HTMLCanvasElement.prototype.toDataURL = function(...args) {
+        if (quizStarted && !quizSubmitted) {
+          screenshotAttemptsRef.current += 1;
+          if (screenshotAttemptsRef.current >= 2) {
+            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            setTimeout(() => {
+              if (handleQuizSubmitRef.current) {
+                handleQuizSubmitRef.current();
+              }
+            }, 500);
+          } else {
+            message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
+          }
+        }
+        return originalToDataURL.apply(this, args);
+      };
+
+      CanvasRenderingContext2D.prototype.getImageData = function(...args) {
+        if (quizStarted && !quizSubmitted) {
+          screenshotAttemptsRef.current += 1;
+          if (screenshotAttemptsRef.current >= 2) {
+            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            setTimeout(() => {
+              if (handleQuizSubmitRef.current) {
+                handleQuizSubmitRef.current();
+              }
+            }, 500);
+          } else {
+            message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
+          }
+        }
+        return originalGetImageData.apply(this, args);
+      };
+
+      return () => {
+        HTMLCanvasElement.prototype.toDataURL = originalToDataURL;
+        CanvasRenderingContext2D.prototype.getImageData = originalGetImageData;
+      };
+    }
+  }, [quizStarted, quizSubmitted]);
+
   // Prevent keyboard shortcuts that might help cheating
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (quizStarted && !quizSubmitted) {
         // Prevent F12 (DevTools), Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U (View Source)
-        if (
-          e.key === "F12" ||
-          (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
-          (e.ctrlKey && e.key === "U") ||
-          (e.ctrlKey && e.key === "S") ||
-          (e.ctrlKey && e.shiftKey && e.key === "C")
-        ) {
-          e.preventDefault();
-          message.warning("এই কাজটি কুইজ চলাকালীন অনুমোদিত নয়");
-        }
+          // Prevent Print Screen (Windows) and Cmd+Shift+3/4/5 (Mac) and other screenshot shortcuts
+          const isMacScreenshot = e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4" || e.key === "5");
+          const isWindowsScreenshot = e.key === "PrintScreen" || (e.ctrlKey && e.key === "PrintScreen");
+          const isAndroidScreenshot = e.ctrlKey && e.shiftKey && e.key === "P";
+          
+          if (
+            e.key === "F12" ||
+            isWindowsScreenshot ||
+            isMacScreenshot ||
+            isAndroidScreenshot ||
+            (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+            (e.ctrlKey && e.key === "U") ||
+            (e.ctrlKey && e.key === "S") ||
+            (e.ctrlKey && e.shiftKey && e.key === "C") ||
+            (e.ctrlKey && e.shiftKey && e.key === "P")
+          ) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            // Auto-submit if screenshot attempt detected
+            if (isMacScreenshot || isWindowsScreenshot || isAndroidScreenshot) {
+              screenshotAttemptsRef.current += 1;
+              message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+              setTimeout(() => {
+                if (handleQuizSubmitRef.current) {
+                  handleQuizSubmitRef.current();
+                }
+              }, 500);
+            } else {
+              message.warning("এই কাজটি কুইজ চলাকালীন অনুমোদিত নয়");
+            }
+            return false;
+          }
+          
+          // Detect Mac screenshot via Cmd+Shift combinations
+          if (e.metaKey && e.shiftKey) {
+            screenshotAttemptsRef.current += 1;
+            if (screenshotAttemptsRef.current >= 2) {
+              message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+              setTimeout(() => {
+                if (handleQuizSubmitRef.current) {
+                  handleQuizSubmitRef.current();
+                }
+              }, 500);
+            }
+          }
       }
     };
 
     if (quizStarted && !quizSubmitted) {
-      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("keydown", handleKeyDown, true);
     }
 
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [quizStarted, quizSubmitted]);
 
@@ -441,6 +605,111 @@ export default function PublicQuiz() {
     );
   };
 
+  // Dynamic watermark movement during quiz - More frequent changes
+  useEffect(() => {
+    if (quizStarted && !quizSubmitted) {
+      // Change watermark position more frequently to make screenshots less useful
+      watermarkIntervalRef.current = setInterval(() => {
+        setWatermarkPosition({
+          x: Math.random() * 80 + 10, // 10% to 90%
+          y: Math.random() * 80 + 10,
+        });
+      }, 800); // Change position every 800ms for more dynamic movement
+    } else {
+      if (watermarkIntervalRef.current) {
+        clearInterval(watermarkIntervalRef.current);
+        watermarkIntervalRef.current = null;
+      }
+      screenshotAttemptsRef.current = 0;
+    }
+
+    return () => {
+      if (watermarkIntervalRef.current) {
+        clearInterval(watermarkIntervalRef.current);
+      }
+    };
+  }, [quizStarted, quizSubmitted]);
+
+  // Detect screen capture attempts and mobile screenshot gestures
+  useEffect(() => {
+    if (quizStarted && !quizSubmitted) {
+      // Monitor for screen sharing attempts
+      const checkScreenCapture = async () => {
+        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+          try {
+            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            // If user grants screen capture, auto-submit quiz
+            message.error("স্ক্রিন শেয়ার সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            stream.getTracks().forEach(track => track.stop());
+            if (handleQuizSubmitRef.current) {
+              await handleQuizSubmitRef.current();
+            }
+          } catch (err) {
+            // User denied or error - continue normally
+          }
+        }
+      };
+
+      // Mobile screenshot detection (iOS/Android)
+      // Detect when page becomes visible again (might indicate screenshot was taken)
+      let lastVisibilityChange = Date.now();
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          const timeSinceHidden = Date.now() - lastVisibilityChange;
+          // If page was hidden for a very short time (less than 500ms), might be screenshot
+          if (timeSinceHidden < 500 && timeSinceHidden > 50) {
+            screenshotAttemptsRef.current += 1;
+            if (screenshotAttemptsRef.current >= 2) {
+              message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+              setTimeout(() => {
+                if (handleQuizSubmitRef.current) {
+                  handleQuizSubmitRef.current();
+                }
+              }, 500);
+            } else {
+              message.warning("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে!");
+            }
+          }
+          lastVisibilityChange = Date.now();
+        } else {
+          lastVisibilityChange = Date.now();
+        }
+      };
+
+      // Monitor window focus/blur for screenshot attempts
+      let lastBlurTime = Date.now();
+      const handleBlur = () => {
+        lastBlurTime = Date.now();
+      };
+
+      const handleFocus = () => {
+        const timeSinceBlur = Date.now() - lastBlurTime;
+        // If window was blurred for a very short time, might indicate screenshot
+        if (timeSinceBlur < 500 && timeSinceBlur > 50) {
+          screenshotAttemptsRef.current += 1;
+          if (screenshotAttemptsRef.current >= 3) {
+            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
+            setTimeout(() => {
+              if (handleQuizSubmitRef.current) {
+                handleQuizSubmitRef.current();
+              }
+            }, 500);
+          }
+        }
+      };
+
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      window.addEventListener("blur", handleBlur);
+      window.addEventListener("focus", handleFocus);
+
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        window.removeEventListener("blur", handleBlur);
+        window.removeEventListener("focus", handleFocus);
+      };
+    }
+  }, [quizStarted, quizSubmitted]);
+
   const startQuiz = () => {
     if (!selectedQuiz) return;
     setQuizStarted(true);
@@ -598,7 +867,59 @@ export default function PublicQuiz() {
   // The JSX part of your component doesn't need changes as we've only modified the logic
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
+    <>
+      {/* Anti-Screenshot Styles - Applied during active quiz */}
+      {quizStarted && !quizSubmitted && (
+        <style>{`
+          * {
+            -webkit-touch-callout: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+          }
+          img, svg, canvas {
+            -webkit-user-drag: none !important;
+            -khtml-user-drag: none !important;
+            -moz-user-drag: none !important;
+            -o-user-drag: none !important;
+            user-drag: none !important;
+            pointer-events: none !important;
+            -webkit-user-select: none !important;
+          }
+          body, html {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+            overflow-x: hidden !important;
+          }
+          input, textarea {
+            -webkit-user-select: text !important;
+            -moz-user-select: text !important;
+            user-select: text !important;
+          }
+          @media print {
+            * {
+              display: none !important;
+              visibility: hidden !important;
+            }
+          }
+          /* Prevent screenshot via CSS */
+          .ant-modal-content {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            user-select: none !important;
+          }
+          /* Make content harder to screenshot */
+          .quiz-questions {
+            position: relative;
+            z-index: 1;
+          }
+        `}</style>
+      )}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
       <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
@@ -1002,6 +1323,9 @@ export default function PublicQuiz() {
                       <li className="text-red-600 font-semibold">
                         ⚠️ অন্য ট্যাবে যাওয়া বা ট্যাব পরিবর্তন করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
                       </li>
+                      <li className="text-red-600 font-semibold">
+                        🚫 স্ক্রিনশট বা স্ক্রিন রেকর্ডিং চেষ্টা করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                      </li>
                       <li>পৃষ্ঠা রিফ্রেশ করলে আপনার অগ্রগতি হারিয়ে যাবে</li>
                     </ul>
                   </div>
@@ -1020,7 +1344,160 @@ export default function PublicQuiz() {
               </div>
             </div>
           ) : !quizSubmitted ? (
-            <div className="p-6 md:p-8">
+            <div 
+              className="p-6 md:p-8 relative" 
+              style={{ 
+                userSelect: 'none', 
+                WebkitUserSelect: 'none', 
+                MozUserSelect: 'none', 
+                msUserSelect: 'none',
+                filter: blurActive ? 'blur(3px)' : 'none',
+                transition: 'filter 0.3s ease',
+              }}
+            >
+              {/* Blur Overlay when tab inactive */}
+              {blurActive && (
+                <div 
+                  className="absolute inset-0 bg-red-500/20 backdrop-blur-md z-[9998] pointer-events-none"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 9998,
+                  }}
+                />
+              )}
+              
+              {/* Dynamic Watermark Overlay - Multiple Layers for Screenshot Prevention */}
+              <div
+                className="fixed inset-0 pointer-events-none"
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 9999,
+                  pointerEvents: 'none',
+                }}
+              >
+                {/* Watermark Layer 1 - User ID (Large, Rotated) */}
+                <div
+                  className="absolute text-red-600 font-extrabold text-5xl md:text-7xl opacity-25 select-none"
+                  style={{
+                    left: `${watermarkPosition.x}%`,
+                    top: `${watermarkPosition.y}%`,
+                    transform: 'translate(-50%, -50%) rotate(-45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {userInfo?.phone || userInfo?.uniqueId || 'USER-' + Date.now()}
+                </div>
+                
+                {/* Watermark Layer 2 - Date/Time (Opposite Corner) */}
+                <div
+                  className="absolute text-red-600 font-extrabold text-4xl md:text-6xl opacity-20 select-none"
+                  style={{
+                    left: `${100 - watermarkPosition.x}%`,
+                    top: `${100 - watermarkPosition.y}%`,
+                    transform: 'translate(-50%, -50%) rotate(45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {new Date().toLocaleString('en-US')}
+                </div>
+                
+                {/* Watermark Layer 3 - Security Text (Center) */}
+                <div
+                  className="absolute text-red-500 font-extrabold text-3xl md:text-5xl opacity-15 select-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    transform: 'translate(-50%, -50%) rotate(-30deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  QUIZ SECURITY PROTECTED
+                </div>
+                
+                {/* Watermark Layer 4 - Top Left Corner */}
+                <div
+                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  style={{
+                    left: '10%',
+                    top: '10%',
+                    transform: 'rotate(-20deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  DO NOT SCREENSHOT
+                </div>
+                
+                {/* Watermark Layer 5 - Bottom Right Corner */}
+                <div
+                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  style={{
+                    right: '10%',
+                    bottom: '10%',
+                    transform: 'rotate(20deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  SECURITY MONITORED
+                </div>
+                
+                {/* Additional diagonal watermarks */}
+                <div
+                  className="absolute text-red-400 font-bold text-xl md:text-3xl opacity-15 select-none"
+                  style={{
+                    left: `${watermarkPosition.x * 0.7}%`,
+                    top: `${watermarkPosition.y * 1.3}%`,
+                    transform: 'translate(-50%, -50%) rotate(60deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {selectedQuiz?.quizName?.substring(0, 15) || 'QUIZ'}
+                </div>
+              </div>
+              
               <div className="bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-4 md:p-6 mb-6 shadow-xl">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl">
@@ -1044,18 +1521,29 @@ export default function PublicQuiz() {
                 </div>
                 <div className="mt-4 bg-yellow-500/30 backdrop-blur-sm px-4 py-2 rounded-xl border-2 border-yellow-300/50">
                   <p className="text-white text-xs md:text-sm font-semibold text-center">
-                    ⚠️ সতর্কতা: অন্য ট্যাবে যাওয়া বা ট্যাব পরিবর্তন করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
+                    ⚠️ সতর্কতা: অন্য ট্যাবে যাওয়া, ট্যাব পরিবর্তন, বা স্ক্রিনশট চেষ্টা করলে কুইজ স্বয়ংক্রিয়ভাবে জমা হয়ে যাবে
                   </p>
                 </div>
               </div>
 
               <div
-                className="quiz-questions space-y-4 px-2 md:px-4"
-                style={{ maxHeight: "60vh", overflowY: "auto" }}
+                className="quiz-questions space-y-4 px-2 md:px-4 relative"
+                style={{ 
+                  maxHeight: "60vh", 
+                  overflowY: "auto",
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  MozUserSelect: 'none',
+                  msUserSelect: 'none',
+                  WebkitTouchCallout: 'none',
+                }}
               >
                 {selectedQuiz?.quizQuestions.map((question, index) => (
                   <div key={index} className="bg-gradient-to-r from-gray-50 to-blue-50 p-6 md:p-8 rounded-xl border-2 border-gray-200 hover:border-emerald-300 transition-all duration-300">
-                    <h4 className="text-lg md:text-xl font-bold mb-5 md:mb-6 text-gray-800">
+                    <h4 
+                      className="text-lg md:text-xl font-bold mb-5 md:mb-6 text-gray-800"
+                      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                    >
                       {index + 1}. {question.question}
                     </h4>
                     <Radio.Group
@@ -1071,8 +1559,11 @@ export default function PublicQuiz() {
                             key={optIndex}
                             value={option}
                             className="text-base md:text-lg p-4 md:p-5 bg-white rounded-lg border-2 border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-300 w-full"
+                            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                           >
-                            {option}
+                            <span style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+                              {option}
+                            </span>
                           </Radio>
                         ))}
                       </Space>
@@ -1203,5 +1694,6 @@ export default function PublicQuiz() {
         </Modal>
       </div>
     </div>
+    </>
   );
 }
