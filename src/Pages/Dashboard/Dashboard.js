@@ -252,6 +252,7 @@ export default function Dashboard() {
               "oldScholarshipData",
               'ldScholarshipDataV25',
               "seatPlan",
+              
             ].includes(item.route)
         );
       case "System-Admin":
@@ -300,6 +301,7 @@ export default function Dashboard() {
             "withdraw",
             "result",
             "suggestionBox",
+            "myTask",
           ].includes(item.route)
         );
       case "Member":
@@ -312,6 +314,7 @@ export default function Dashboard() {
             "suggestionBox",
             "withdraw",
             "result",
+
           ].includes(item.route)
         );
       case "Junior-Member":
@@ -323,6 +326,7 @@ export default function Dashboard() {
             "depositInfo",
             "suggestionBox",
             "withdraw",
+            "myTask",
           ].includes(item.route)
         );
       default:
