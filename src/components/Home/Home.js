@@ -96,36 +96,36 @@ const CountdownTimer = ({ targetDate, onComplete, language }) => {
   }
 
   return (
-    <div className="flex flex-wrap justify-center gap-3 md:gap-5">
-      <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/20">
-        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1 drop-shadow-lg">
+      <div className="flex flex-wrap justify-center gap-3 md:gap-5">
+      <div className="bg-green-100 text-green-800 rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-lg transform hover:scale-110 transition-all duration-300">
+        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1">
           {String(timeLeft.days).padStart(2, '0')}
         </div>
-        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide opacity-90">
+        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">
           {language === "bangla" ? "দিন" : "Days"}
         </div>
       </div>
-      <div className="bg-gradient-to-br from-green-500 via-green-600 to-green-700 text-white rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/20">
-        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1 drop-shadow-lg">
+      <div className="bg-green-100 text-green-800 rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-lg transform hover:scale-110 transition-all duration-300">
+        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1">
           {String(timeLeft.hours).padStart(2, '0')}
         </div>
-        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide opacity-90">
+        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">
           {language === "bangla" ? "ঘণ্টা" : "Hours"}
         </div>
       </div>
-      <div className="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 text-white rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/20">
-        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1 drop-shadow-lg">
+      <div className="bg-green-100 text-green-800 rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-lg transform hover:scale-110 transition-all duration-300">
+        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1">
           {String(timeLeft.minutes).padStart(2, '0')}
         </div>
-        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide opacity-90">
+        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">
           {language === "bangla" ? "মিনিট" : "Minutes"}
         </div>
       </div>
-      <div className="bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-2xl transform hover:scale-110 transition-all duration-300 border-2 border-white/20 animate-pulse">
-        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1 drop-shadow-lg">
+      <div className="bg-green-100 text-green-800 rounded-2xl p-4 md:p-6 min-w-[80px] md:min-w-[100px] text-center shadow-lg transform hover:scale-110 transition-all duration-300">
+        <div className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-1">
           {String(timeLeft.seconds).padStart(2, '0')}
         </div>
-        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide opacity-90">
+        <div className="text-xs md:text-sm font-semibold uppercase tracking-wide">
           {language === "bangla" ? "সেকেন্ড" : "Seconds"}
         </div>
       </div>
@@ -175,15 +175,15 @@ const Counter = ({ end, duration, label, icon }) => {
   return (
     <div
       ref={countRef}
-      className="text-center p-5 md:p-7 bg-white/10 backdrop-blur-md rounded-2xl border-2 border-white/30 shadow-2xl transform hover:scale-105 transition-all duration-300 hover:bg-white/20"
+      className="text-center p-5 md:p-7 bg-white/95 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 hover:shadow-xl"
     >
-      <div className="text-3xl md:text-4xl font-bold mb-3 text-white drop-shadow-lg">
+      <div className="text-3xl md:text-4xl font-bold mb-3 text-green-600">
         {icon}
       </div>
-      <div className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2 drop-shadow-2xl">
+      <div className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-green-800 mb-2">
         {count}+
       </div>
-      <div className="text-base md:text-lg font-semibold text-white/95 uppercase tracking-wide">
+      <div className="text-base md:text-lg font-semibold text-gray-700 uppercase tracking-wide">
         {label}
       </div>
     </div>
@@ -198,10 +198,10 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       subtitle: "বিস্তারিত তথ্য ও নির্দেশিকা",
       organizer: "আয়োজনে: দারুল মুত্তাক্বীন ফাউন্ডেশন",
       examCenter: "পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা উচ্চ বিদ্যালয়",
-      writtenExamDate: "লিখিত পরীক্ষার তারিখ: ২৩ জানুয়ারি ২০২৫ (শুক্রবার)",
-      vivaExamDate: "ভাইবা পরীক্ষার তারিখ: ৩০ জানুয়ারী ২০২৫ (শুক্রবার)",
+      writtenExamDate: "লিখিত পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
+      vivaExamDate: "ভাইবা পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
       applicationPeriod:
-        "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ১৩ জানুয়ারি ২০২৬",
+        "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ৩১ জানুয়ারি ২০২৬",
       participants: "অংশগ্রহণকারী: ৩য় থেকে ১২শ শ্রেণির সকল শিক্ষার্থী",
 
       importantDates: [
@@ -209,14 +209,14 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
           icon: <CalendarOutlined />,
           text: "আবেদন শুরু: ২৭ ডিসেম্বর ২০২৫ (দুপুর ২টা)",
         },
-        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ১৩ জানুয়ারি ২০২৬" },
+        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ৩১ জানুয়ারি ২০২৬" },
         {
           icon: <ClockCircleOutlined />,
-          text: "লিখিত পরীক্ষা: ২৩ জানুয়ারি ২০২৫",
+          text: "লিখিত পরীক্ষা: এখনও নির্ধারিত হয়নি",
         },
         {
           icon: <ClockCircleOutlined />,
-          text: "ভাইবা পরীক্ষা: ৩০ জানুয়ারি ২০২৫",
+          text: "ভাইবা পরীক্ষা: এখনও নির্ধারিত হয়নি",
         },
       ],
 
@@ -323,10 +323,10 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       subtitle: "Detailed Information & Guidelines",
       organizer: "Organized by: Darul Muttaqine Foundation",
       examCenter: "Exam Center: Taktarchala Sobuj Bangla High School",
-      writtenExamDate: "Written Exam Date: January 23, 2025 (Friday)",
-      vivaExamDate: "Viva Exam Date: January 30, 2025 (Friday)",
+      writtenExamDate: "Written Exam Date: Not fixed yet",
+      vivaExamDate: "Viva Exam Date: Not fixed yet",
       applicationPeriod:
-        "Application Period: December 27, 2025 - January 13, 2026",
+        "Application Period: December 27, 2025 - January 31, 2026",
       participants: "Participants: Students from 3rd to 12th Grade",
 
       importantDates: [
@@ -336,13 +336,13 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
         },
         {
           icon: <CalendarOutlined />,
-          text: "Application Ends: January 13, 2026",
+          text: "Application Ends: January 31, 2026",
         },
         {
           icon: <ClockCircleOutlined />,
-          text: "Written Exam: January 23, 2025",
+          text: "Written Exam: Not fixed yet",
         },
-        { icon: <ClockCircleOutlined />, text: "Viva Exam: January 30, 2025" },
+        { icon: <ClockCircleOutlined />, text: "Viva Exam: Not fixed yet" },
       ],
 
       groups: [
@@ -899,13 +899,13 @@ const ImageGallery = ({ language }) => {
   ];
 
   return (
-    <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-gray-50 to-white">
+    <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
             {language === "bangla" ? "আমাদের কার্যক্রম" : "Our Activities"}
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
+          <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -956,10 +956,10 @@ const DonationSection = ({ language }) => {
     <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-white via-green-50/30 to-white">
       <div className="mx-auto max-w-7xl">
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 text-green-800">
             {language === "bangla" ? "দান করুন" : "Make Your Donation"}
           </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full mb-6"></div>
+          <div className="w-24 h-1 bg-green-600 mx-auto rounded-full mb-6"></div>
           <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
             {language === "bangla"
               ? "আপনার দান অসহায় মানুষদের সাহায্য করতে এবং শিক্ষা প্রসারে গুরুত্বপূর্ণ ভূমিকা পালন করে"
@@ -967,7 +967,7 @@ const DonationSection = ({ language }) => {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 rounded-3xl p-8 md:p-12 shadow-2xl border-2 border-green-200/50">
+        <div className="bg-green-50 rounded-3xl p-8 md:p-12 shadow-lg border-2 border-green-200">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
             {/* Left side content */}
             <div className="flex flex-col justify-center">
@@ -1111,7 +1111,7 @@ const DonationSection = ({ language }) => {
                     type="primary"
                     htmlType="submit"
                     size="large"
-                    className="w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 h-14 md:h-16 text-base md:text-xl font-bold rounded-xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
+                    className="w-full bg-green-600 hover:bg-green-700 h-14 md:h-16 text-base md:text-xl font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
                     icon={<HeartOutlined className="text-xl" />}
                   >
                     {language === "bangla" ? "দান করুন" : "Donate Now"}
@@ -1244,7 +1244,7 @@ const BlogSection = ({ language }) => {
         </div>
 
         <div className="text-center mt-8 md:mt-12">
-          <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 md:py-4 md:px-8 rounded-lg text-base md:text-lg transition-all duration-300 shadow-lg hover:shadow-xl">
+          <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 md:py-4 md:px-8 rounded-2xl text-base md:text-lg transition-all duration-300 shadow-lg hover:shadow-xl">
             {language === "bangla" ? "সমস্ত ব্লগ দেখুন" : "View All Blogs"}
           </button>
         </div>
@@ -1288,7 +1288,7 @@ const JoinUsSection = ({ language }) => {
                 ? "আপনার সময় এবং দক্ষতা দান করুন আমাদের বিভিন্ন কার্যক্রমে সাহায্য করার জন্য"
                 : "Donate your time and skills to help with our various activities"}
             </p>
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
+            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "যোগ দিন" : "Join Now"}
             </button>
           </div>
@@ -1305,7 +1305,7 @@ const JoinUsSection = ({ language }) => {
                 ? "আর্থিকভাবে আমাদের মিশন সমর্থন করুন এবং একটি পার্থক্য তৈরি করুন"
                 : "Support our mission financially and make a difference"}
             </p>
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
+            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "দান করুন" : "Donate Now"}
             </button>
           </div>
@@ -1322,7 +1322,7 @@ const JoinUsSection = ({ language }) => {
                 ? "আমাদের সাথে অংশীদারিত্ব করুন এবং আমাদের প্রভাব বৃদ্ধি করুন"
                 : "Partner with us and amplify our impact"}
             </p>
-            <button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
+            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
               {language === "bangla" ? "যোগাযোগ করুন" : "Contact Us"}
             </button>
           </div>
@@ -1338,9 +1338,9 @@ export default function Home() {
   const [isApplicationOpen, setIsApplicationOpen] = useState(true);
   const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  // Application period: Dec 27, 2025 2:00 PM to Jan 13, 2026 12:00 AM
+  // Application period: Dec 27, 2025 2:00 PM to Jan 31, 2026 12:00 AM
   const applicationStart = new Date('2025-12-27T14:00:00');
-  const applicationEnd = new Date('2026-01-13T00:00:00');
+  const applicationEnd = new Date('2026-01-31T00:00:00');
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -1372,9 +1372,9 @@ export default function Home() {
       title: "দারুল মুত্তাক্বীন ফাউন্ডেশন",
       description:
         "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। 'শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা'",
-      scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন স্কলারশিপ ২০২৬",
+      scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন শিক্ষাবৃত্তি ২০২৬",
       scholarshipText:
-        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ১৩ জানুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
+        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ৩১ জানুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
       scholarshipSubtext: "বাকি সময়ঃ",
       registerButton: "রেজিস্ট্রেশন করুন",
       languageButton: "English",
@@ -1421,12 +1421,12 @@ export default function Home() {
           color: "green",
         },
         {
-          label: "১৩ জানুয়ারি, ২০২৬",
+          label: "৩১ জানুয়ারি, ২০২৬",
           children: "প্রাথমিক আবেদন শেষ তারিখ",
           color: "blue",
         },
         {
-          label: "২৩ জানুয়ারি, ২০২৬",
+          label: "নির্ধারিত হয়নি",
           children: "স্কলারশিপ পরীক্ষা",
           color: "purple",
         },
@@ -1444,7 +1444,7 @@ export default function Home() {
         "Darul Muttakin Foundation is a non-political, non-profit educational, Dawah and welfare service organization dedicated to human welfare. 'To engage ourselves in religious education, propagation and welfare work solely for the pleasure of Allah'",
       scholarshipTitle: "Upcoming DMF Scholarship 2026",
       scholarshipText:
-        "Registration starts from December 27, 2:00 PM to January 13, 2026. Interested students can register now.",
+        "Registration starts from December 27, 2:00 PM to January 31, 2026. Interested students can register now.",
       scholarshipSubtext: "Time remaining:",
       registerButton: "Register Now",
       languageButton: "বাংলা",
@@ -1491,12 +1491,12 @@ export default function Home() {
           color: "green",
         },
         {
-          label: "January 13, 2026",
+          label: "January 31, 2026",
           children: "Initial application deadline",
           color: "blue",
         },
         {
-          label: "January 23, 2026",
+          label: "Not fixed yet",
           children: "Scholarship test",
           color: "purple",
         },
@@ -1523,7 +1523,7 @@ export default function Home() {
   return (
     <div className="home-container">
       {/* Scholarship Announcement Banner */}
-      <div className="w-full relative bg-gradient-to-br from-green-600 via-emerald-700 to-teal-800 text-white py-12 md:py-20 px-4 md:px-6 overflow-hidden">
+      <div className="w-full relative bg-gradient-to-b from-green-700 via-green-600 to-green-500 text-white py-12 md:py-20 px-4 md:px-6 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
@@ -1534,7 +1534,7 @@ export default function Home() {
           <div className="mb-6 md:mb-8 animate-fade-in">
             <span className="inline-flex items-center bg-yellow-400 text-green-900 text-sm md:text-lg font-bold px-5 md:px-7 py-2 md:py-3 rounded-full shadow-xl transform hover:scale-105 transition-transform duration-300">
               <RocketOutlined className="mr-2 text-xl" />
-              {language === "bangla" ? "নতুন ঘোষণা" : "New Announcement"}
+              {language === "bangla" ? "শিক্ষাবৃত্তি ২০২৬ এর আবেদন চলছে" : "Scholarship 2026 Application is Ongoing"}
             </span>
           </div>
 
@@ -1548,8 +1548,8 @@ export default function Home() {
 
           {/* Countdown Timer Section */}
           <div className="mb-8 md:mb-12">
-            <div className="inline-flex items-center bg-black/40 backdrop-blur-md rounded-full px-5 md:px-7 py-3 md:py-4 mb-6 border-2 border-yellow-400/30 shadow-xl">
-              <FireOutlined className="text-yellow-400 mr-3 text-xl md:text-2xl animate-pulse" />
+            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-5 md:px-7 py-3 md:py-4 mb-6 shadow-lg">
+              <ClockCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
               <Text strong className="text-white text-base md:text-xl font-semibold">
                 {currentContent.scholarshipSubtext}
               </Text>
@@ -1581,21 +1581,21 @@ export default function Home() {
             <button
               onClick={handleRegistrationClick}
               disabled={!isApplicationOpen}
-              className={`font-bold border-0 px-8 md:px-12 py-4 md:py-5 text-base md:text-xl rounded-xl transition-all duration-300 flex items-center shadow-2xl w-full md:w-auto justify-center transform hover:scale-105 active:scale-95 ${
+              className={`font-bold border-0 px-8 md:px-12 py-4 md:py-5 text-base md:text-xl rounded-2xl transition-all duration-300 flex items-center shadow-lg w-full md:w-auto justify-center transform hover:scale-105 active:scale-95 ${
                 isApplicationOpen 
-                  ? 'bg-white text-green-800 hover:bg-gray-50 hover:shadow-3xl' 
+                  ? 'bg-green-100 text-green-800 hover:bg-green-200 hover:shadow-xl' 
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
               }`}
             >
-              <CalendarOutlined className="mr-2 md:mr-3 text-xl" />
               {isApplicationOpen 
                 ? currentContent.registerButton 
                 : (language === "bangla" ? "আবেদন বন্ধ" : "Application Closed")}
+              <ArrowRightOutlined className="ml-2 md:ml-3 text-xl" />
             </button>
 
             <button
               onClick={toggleLanguage}
-              className="bg-white/10 backdrop-blur-md text-white border-2 border-white/50 px-6 md:px-10 py-3 md:py-4 text-base md:text-lg rounded-xl hover:bg-white hover:text-green-800 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-xl hover:shadow-2xl transform hover:scale-105"
+              className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 px-6 md:px-10 py-3 md:py-4 text-base md:text-lg rounded-2xl hover:bg-white/30 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-lg hover:shadow-xl transform hover:scale-105"
             >
               <GlobalOutlined className="mr-2 md:mr-3" />
               {currentContent.languageButton}
@@ -1618,19 +1618,15 @@ export default function Home() {
       </div>
 
       {/* Scholarship Notice Section */}
-      <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 text-white py-10 md:py-14 px-4 md:px-6 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-        
+      <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-white py-10 md:py-14 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
             <div className="flex items-center flex-1">
-              <div className="bg-white/20 backdrop-blur-md p-4 md:p-5 rounded-2xl mr-4 md:mr-6 shadow-xl border-2 border-white/30">
+              <div className="bg-white/20 backdrop-blur-sm p-4 md:p-5 rounded-2xl mr-4 md:mr-6 shadow-lg">
                 <NotificationOutlined className="text-3xl md:text-4xl" />
               </div>
               <div>
-                <h3 className="text-xl md:text-3xl font-extrabold mb-2 md:mb-3 drop-shadow-lg">
+                <h3 className="text-xl md:text-3xl font-extrabold mb-2 md:mb-3">
                   {language === "bangla"
                     ? "শিক্ষাবৃত্তি নোটিস"
                     : "Scholarship Notice"}
@@ -1649,7 +1645,7 @@ export default function Home() {
                 icon={<EyeOutlined />}
                 size="large"
                 onClick={() => setNoticeModalVisible(true)}
-                className="bg-white text-blue-700 hover:bg-gray-50 border-0 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="bg-green-100 text-green-800 hover:bg-green-200 border-0 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 <span className="hidden md:inline">
                   {language === "bangla" ? "নোটিস দেখুন" : "View Notice"}
@@ -1669,7 +1665,7 @@ export default function Home() {
                     "_blank"
                   )
                 }
-                className="bg-white/10 backdrop-blur-md text-white border-2 border-white/50 hover:bg-white hover:text-blue-700 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-xl shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/30 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
               >
                 <span className="hidden md:inline">
                   {language === "bangla" ? "PDF ডাউনলোড" : "Download PDF"}
@@ -1687,14 +1683,14 @@ export default function Home() {
       <ImageGallery language={language} />
 
       {/* Features Section */}
-      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-white">
+      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-green-50 to-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
               {language === "bangla" ? "আমাদের সেবাসমূহ" : "Our Services"}
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-green-500 to-emerald-500 mx-auto rounded-full"></div>
-            <p className="text-gray-600 text-lg md:text-xl mt-6 max-w-2xl mx-auto">
+            <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
+            <p className="text-gray-700 text-lg md:text-xl mt-6 max-w-2xl mx-auto">
               {language === "bangla" 
                 ? "মানবকল্যাণে আমাদের নিবেদিত সেবাসমূহ" 
                 : "Our dedicated services for human welfare"}
@@ -1705,39 +1701,18 @@ export default function Home() {
             {currentContent.features.map((feature, index) => (
               <div
                 key={index}
-                className="group bg-white p-8 md:p-10 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 text-center border-2 border-gray-100 hover:border-green-200 relative overflow-hidden"
+                className="group bg-white p-6 md:p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center"
               >
-                {/* Decorative gradient overlay on hover */}
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
-                  feature.color === "green"
-                    ? "bg-gradient-to-br from-green-50 to-emerald-50"
-                    : feature.color === "blue"
-                    ? "bg-gradient-to-br from-blue-50 to-cyan-50"
-                    : feature.color === "orange"
-                    ? "bg-gradient-to-br from-orange-50 to-amber-50"
-                    : "bg-gradient-to-br from-purple-50 to-pink-50"
-                }`}></div>
-                
                 <div className="relative z-10">
-                  <div
-                    className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center mx-auto mb-6 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg ${
-                      feature.color === "green"
-                        ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                        : feature.color === "blue"
-                        ? "bg-gradient-to-br from-blue-500 to-cyan-600"
-                        : feature.color === "orange"
-                        ? "bg-gradient-to-br from-orange-500 to-amber-600"
-                        : "bg-gradient-to-br from-purple-500 to-pink-600"
-                    }`}
-                  >
-                    <div className="text-white">
+                  <div className="w-16 h-16 md:w-20 md:h-24 rounded-xl flex items-center justify-center mx-auto mb-4 bg-green-100">
+                    <div className="text-green-600 text-2xl md:text-3xl">
                       {feature.icon}
                     </div>
                   </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-800 group-hover:text-green-700 transition-colors">
+                  <h3 className="text-lg md:text-xl font-bold mb-3 text-gray-800">
                     {feature.title}
                   </h3>
-                  <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                  <p className="text-gray-600 text-sm md:text-base leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -1748,18 +1723,18 @@ export default function Home() {
       </div>
 
       {/* Timeline Section */}
-      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-white via-gray-50 to-white">
+      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
               {language === "bangla"
                 ? "স্কলারশিপ সময়সূচী ২০২৬"
                 : "Scholarship Timeline"}
             </h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto rounded-full"></div>
+            <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
           </div>
 
-          <div className="px-2 md:px-0 bg-white rounded-3xl p-8 md:p-12 shadow-2xl border border-gray-100">
+          <div className="px-2 md:px-0 bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200">
             <Timeline
               items={currentContent.timeline}
               mode="alternate"
@@ -1793,7 +1768,7 @@ export default function Home() {
 
       {/* Mobile Alert */}
       <div className="fixed bottom-6 right-6 z-50 md:hidden animate-bounce">
-        <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white p-5 rounded-2xl shadow-2xl max-w-xs border-2 border-white/20 backdrop-blur-md">
+        <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-white p-5 rounded-2xl shadow-xl max-w-xs border-2 border-white/20 backdrop-blur-sm">
           <div className="flex items-start gap-3">
             <div className="bg-white/20 p-2 rounded-lg">
               <NotificationOutlined className="text-xl flex-shrink-0" />
@@ -1806,7 +1781,7 @@ export default function Home() {
               </p>
               <button
                 onClick={() => setNoticeModalVisible(true)}
-                className="text-blue-100 hover:text-white text-sm font-semibold underline decoration-2"
+                className="text-green-100 hover:text-white text-sm font-semibold underline decoration-2"
               >
                 {language === "bangla" ? "এখানে ক্লিক করুন" : "Click here"}
               </button>

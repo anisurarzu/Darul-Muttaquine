@@ -10,6 +10,7 @@ import {
   Badge,
   Spin,
   theme,
+  Tooltip,
 } from "antd";
 import {
   DashboardOutlined,
@@ -71,6 +72,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [activeUsers, setActiveUsers] = useState([]);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -78,6 +80,22 @@ export default function Dashboard() {
   useEffect(() => {
     getUserInfo();
   }, []);
+
+  useEffect(() => {
+    if (userData?._id) {
+      fetchActiveUsers();
+      
+      // Set up interval to fetch active users every 10 seconds
+      const activeUsersInterval = setInterval(() => {
+        fetchActiveUsers();
+      }, 10000); // 10 seconds
+
+      // Cleanup interval on unmount
+      return () => {
+        clearInterval(activeUsersInterval);
+      };
+    }
+  }, [userData?._id]);
 
   const getUserInfo = async () => {
     try {
@@ -89,6 +107,36 @@ export default function Dashboard() {
       console.error("Failed to fetch user info:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchActiveUsers = async () => {
+    try {
+      const response = await coreAxios.get("/active-users");
+      let usersArray = [];
+      if (response.data?.users && Array.isArray(response.data.users)) {
+        usersArray = response.data.users;
+      } else if (Array.isArray(response.data)) {
+        usersArray = response.data;
+      } else if (response.data?.data?.users && Array.isArray(response.data.data.users)) {
+        usersArray = response.data.data.users;
+      }
+      
+      // Sort: current user first, then others
+      const currentUserId = userData?._id;
+      const currentUserEmail = userData?.email;
+      const sortedUsers = usersArray.sort((a, b) => {
+        const aIsCurrent = a.id === currentUserId || a.email === currentUserEmail;
+        const bIsCurrent = b.id === currentUserId || b.email === currentUserEmail;
+        if (aIsCurrent && !bIsCurrent) return -1;
+        if (!aIsCurrent && bIsCurrent) return 1;
+        return 0;
+      });
+      
+      setActiveUsers(sortedUsers);
+    } catch (error) {
+      console.error("Failed to fetch active users:", error);
+      setActiveUsers([]);
     }
   };
 
@@ -397,11 +445,61 @@ export default function Dashboard() {
             className="lg:hidden h-16 w-16"
           />
           <div className="flex-1 flex justify-between items-center px-4">
-            <Text strong className="text-2xl">
-              {userData?.firstName} {userData?.lastName}
-            </Text>
-            <div className="flex items-center">
-              <Button type="text" icon={<UserOutlined />} />
+            {/* Left Side - Active Users Avatar Group */}
+            <div className="flex items-center gap-2">
+              {activeUsers.length > 0 && (
+                <Avatar.Group
+                  maxCount={5}
+                  maxStyle={{ 
+                    color: '#fff', 
+                    backgroundColor: '#10b981',
+                    border: '2px solid white',
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                  size={32}
+                >
+                  {activeUsers.map((user) => {
+                    const isCurrentUser = user.id === userData?._id || user.email === userData?.email;
+                    return (
+                      <Tooltip 
+                        key={user.id} 
+                        title={
+                          <span>
+                            {user.name}
+                            {isCurrentUser && <span className="text-green-300 ml-1">(self)</span>}
+                          </span>
+                        }
+                        placement="bottom"
+                      >
+                        <Avatar
+                          src={user.image}
+                          icon={<UserOutlined />}
+                          size={32}
+                          style={{
+                            border: isCurrentUser ? '2px solid #10b981' : '2px solid white',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {user.name?.charAt(0)}
+                        </Avatar>
+                      </Tooltip>
+                    );
+                  })}
+                </Avatar.Group>
+              )}
+            </div>
+            
+            {/* Right Side - Active Users Count */}
+            <div className="flex items-center gap-2">
+              {activeUsers.length > 0 && (
+                <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
+                  <UserOutlined className="text-green-600 text-sm" />
+                  <span className="text-green-700 font-semibold text-sm">
+                    {activeUsers.length}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </Header>

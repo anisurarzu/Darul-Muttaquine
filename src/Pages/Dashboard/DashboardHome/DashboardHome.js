@@ -15,6 +15,7 @@ import {
   Modal,
   List,
   Tag,
+  Tooltip,
 } from "antd";
 import {
   UserOutlined,
@@ -28,6 +29,7 @@ import {
   IdcardOutlined,
   ExclamationCircleOutlined,
   CalendarOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { motion } from "framer-motion";
 import ProjectCard from "../Project/ProjectCard";
@@ -289,43 +291,43 @@ const DashboardHome = () => {
     return (
       <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="max-w-2xl w-full">
-          <Result
-            icon={
+        <Result
+          icon={
               <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-6 rounded-full inline-block shadow-2xl">
                 <ExclamationCircleOutlined className="text-white text-6xl" />
               </div>
-            }
+          }
             title={
               <h2 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
                 অ্যাকাউন্ট ভেরিফিকেশন প্রয়োজন
               </h2>
             }
-            subTitle={
+          subTitle={
               <div className="text-base md:text-lg space-y-3 mt-4">
                 <p className="text-gray-700 leading-relaxed">
-                  ড্যাশবোর্ড এক্সেস করার জন্য আপনাকে প্রথমে আপনার প্রোফাইল ভেরিফাই
-                  করতে হবে
-                </p>
+                ড্যাশবোর্ড এক্সেস করার জন্য আপনাকে প্রথমে আপনার প্রোফাইল ভেরিফাই
+                করতে হবে
+              </p>
                 <p className="text-gray-600 leading-relaxed">
-                  নিচের বাটনে ক্লিক করে আপনার প্রোফাইলে যান এবং আইডি ভেরিফিকেশন
-                  সম্পন্ন করুন
-                </p>
-              </div>
-            }
-            extra={
-              <Link to="/dashboard/profile">
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<IdcardOutlined />}
+                নিচের বাটনে ক্লিক করে আপনার প্রোফাইলে যান এবং আইডি ভেরিফিকেশন
+                সম্পন্ন করুন
+              </p>
+            </div>
+          }
+          extra={
+            <Link to="/dashboard/profile">
+              <Button
+                type="primary"
+                size="large"
+                icon={<IdcardOutlined />}
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 h-12 md:h-14 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 px-8"
-                >
-                  প্রোফাইলে যান
-                </Button>
-              </Link>
-            }
+              >
+                প্রোফাইলে যান
+              </Button>
+            </Link>
+          }
             className="text-center"
-          />
+        />
         </div>
       </div>
     );
@@ -347,19 +349,19 @@ const DashboardHome = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-indigo-50/20">
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
         className="p-4 sm:p-6 lg:p-8"
-      >
+    >
         {/* Header Section */}
         <motion.div variants={itemVariants} className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Financial Dashboard
-              </h1>
+          Financial Dashboard
+        </h1>
               <p className="text-sm md:text-base text-gray-600">
                 আপনার আর্থিক তথ্য এবং পরিসংখ্যান দেখুন
               </p>
@@ -377,7 +379,7 @@ const DashboardHome = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+      </motion.div>
 
       {/* Key Metrics */}
       <motion.div
@@ -393,23 +395,23 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-blue-100 text-sm md:text-base font-medium mb-1">মোট ব্যবহারকারী</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    {users?.length || 0}
-                  </h3>
+                  {users?.length || 0}
+                </h3>
                   <p className="text-blue-100 text-xs md:text-sm">সকল নিবন্ধিত সদস্য</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                   <UserOutlined className="text-white text-2xl md:text-3xl" />
-                </div>
               </div>
-              {userInfo?.userRole === "Super-Admin" && (
-                <Link
-                  to="/dashboard/users"
+              </div>
+            {userInfo?.userRole === "Super-Admin" && (
+              <Link
+                to="/dashboard/users"
                   className="inline-flex items-center gap-2 text-white hover:text-blue-100 text-sm md:text-base font-semibold mt-4 p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-                >
+              >
                   <span>সকল ব্যবহারকারী দেখুন</span>
                   <ArrowUpOutlined className="rotate-45" />
-                </Link>
-              )}
+              </Link>
+            )}
             </div>
           </Card>
         </motion.div>
@@ -423,21 +425,21 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-emerald-100 text-sm md:text-base font-medium mb-1">কুইজ ব্যালেন্স</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    ৳{(totalQuizAmount || 0).toLocaleString()}
-                  </h3>
+                  ৳{(totalQuizAmount || 0).toLocaleString()}
+                </h3>
                   <p className="text-emerald-100 text-xs md:text-sm">অনুল্লিখিত পুরস্কার</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                   <LineChartOutlined className="text-white text-2xl md:text-3xl" />
-                </div>
               </div>
-              <Link
-                to="/dashboard/scholarship"
+              </div>
+            <Link
+              to="/dashboard/scholarship"
                 className="inline-flex items-center gap-2 text-white hover:text-emerald-100 text-sm md:text-base font-semibold mt-4 p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-              >
+            >
                 <span>বিস্তারিত দেখুন</span>
                 <ArrowUpOutlined className="rotate-45" />
-              </Link>
+            </Link>
             </div>
           </Card>
         </motion.div>
@@ -451,21 +453,21 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-purple-100 text-sm md:text-base font-medium mb-1">আমার জমা</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    ৳{(depositAmount || 0).toLocaleString()}
-                  </h3>
+                  ৳{(depositAmount || 0).toLocaleString()}
+                </h3>
                   <p className="text-purple-100 text-xs md:text-sm">অনুমোদিত জমা</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                   <WalletOutlined className="text-white text-2xl md:text-3xl" />
-                </div>
               </div>
-              <Link
-                to="/dashboard/depositInfo"
+              </div>
+            <Link
+              to="/dashboard/depositInfo"
                 className="inline-flex items-center gap-2 text-white hover:text-purple-100 text-sm md:text-base font-semibold mt-4 p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-              >
+            >
                 <span>ইতিহাস দেখুন</span>
                 <ArrowUpOutlined className="rotate-45" />
-              </Link>
+            </Link>
             </div>
           </Card>
         </motion.div>
@@ -479,21 +481,21 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-indigo-100 text-sm md:text-base font-medium mb-1">মোট জমা</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    ৳{(totalDepositAmount || 0).toLocaleString()}
-                  </h3>
+                  ৳{(totalDepositAmount || 0).toLocaleString()}
+                </h3>
                   <p className="text-indigo-100 text-xs md:text-sm">সকল অনুমোদিত জমা</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                   <ArrowUpOutlined className="text-white text-2xl md:text-3xl" />
-                </div>
               </div>
-              <Link
-                to="/dashboard/depositInfo"
+              </div>
+            <Link
+              to="/dashboard/depositInfo"
                 className="inline-flex items-center gap-2 text-white hover:text-indigo-100 text-sm md:text-base font-semibold mt-4 p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-              >
+            >
                 <span>সকল দেখুন</span>
                 <ArrowUpOutlined className="rotate-45" />
-              </Link>
+            </Link>
             </div>
           </Card>
         </motion.div>
@@ -507,21 +509,21 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-orange-100 text-sm md:text-base font-medium mb-1">উত্তোলন</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    {costData?.length || 0}
-                  </h3>
+                  {costData?.length || 0}
+                </h3>
                   <p className="text-orange-100 text-xs md:text-sm">অনুমোদিত অনুরোধ</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
                   <ProjectOutlined className="text-white text-2xl md:text-3xl" />
-                </div>
               </div>
-              <Link
-                to="/dashboard/withdraw"
+              </div>
+            <Link
+              to="/dashboard/withdraw"
                 className="inline-flex items-center gap-2 text-white hover:text-orange-100 text-sm md:text-base font-semibold mt-4 p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-              >
+            >
                 <span>অনুরোধ দেখুন</span>
                 <ArrowUpOutlined className="rotate-45" />
-              </Link>
+            </Link>
             </div>
           </Card>
         </motion.div>
@@ -539,8 +541,8 @@ const DashboardHome = () => {
                 <div className="flex-1">
                   <p className="text-white/90 text-sm md:text-base font-medium mb-1">বর্তমান ব্যালেন্স</p>
                   <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2">
-                    ৳{(currentBalance || 0).toLocaleString()}
-                  </h3>
+                  ৳{(currentBalance || 0).toLocaleString()}
+                </h3>
                   <p className="text-white/80 text-xs md:text-sm">নেট ব্যালেন্স</p>
                 </div>
                 <div className="p-4 md:p-5 rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
@@ -576,71 +578,71 @@ const DashboardHome = () => {
               <div>
                 <h3 className="text-xl md:text-2xl font-extrabold text-white mb-1">
                   আপনার জমার সময়সূচী
-                </h3>
+            </h3>
                 <p className="text-blue-100 text-sm md:text-base">
                   মাস অনুযায়ী জমার পরিসংখ্যান
                 </p>
               </div>
-              <Link
-                to="/dashboard/depositInfo"
+            <Link
+              to="/dashboard/depositInfo"
                 className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 px-4 py-2 rounded-xl font-semibold text-sm md:text-base transition-all duration-300 transform hover:scale-105"
-              >
+            >
                 <span>বিস্তারিত দেখুন</span>
                 <ArrowUpOutlined className="rotate-45" />
-              </Link>
+            </Link>
             </div>
           </div>
           <div className="px-2 md:px-4 pb-4">
             <div className="flex overflow-x-auto pb-4 scrollbar-hide gap-3 md:gap-4">
-              {months.map((month, index) => {
-                const hasDeposits = (monthData[month]?.amount || 0) > 0;
-                const currentMonth = new Date().getMonth();
-                const isCurrentMonth = index === currentMonth;
+            {months.map((month, index) => {
+              const hasDeposits = (monthData[month]?.amount || 0) > 0;
+              const currentMonth = new Date().getMonth();
+              const isCurrentMonth = index === currentMonth;
 
-                return (
-                  <motion.div
-                    key={index}
+              return (
+                <motion.div
+                  key={index}
                     whileHover={{ scale: 1.08, y: -5 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => handleMonthClick(month)}
+                  onClick={() => handleMonthClick(month)}
                     className={`flex flex-col items-center px-4 md:px-6 py-4 md:py-5 rounded-2xl min-w-[100px] md:min-w-[120px] cursor-pointer transition-all duration-300 ${
-                      hasDeposits
+                    hasDeposits
                         ? "bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 shadow-xl shadow-emerald-500/30 border-2 border-emerald-300/50"
-                        : isCurrentMonth
+                      : isCurrentMonth
                         ? "bg-gradient-to-br from-blue-100 to-indigo-100 border-2 border-blue-300/50 shadow-lg"
                         : "bg-gray-100 border-2 border-gray-200 hover:bg-gray-200"
+                  }`}
+                >
+                  <span
+                      className={`font-bold text-base md:text-lg mb-2 ${
+                      hasDeposits
+                          ? "text-white"
+                        : isCurrentMonth
+                        ? "text-blue-700"
+                        : "text-gray-500"
                     }`}
                   >
-                    <span
-                      className={`font-bold text-base md:text-lg mb-2 ${
-                        hasDeposits
-                          ? "text-white"
-                          : isCurrentMonth
-                          ? "text-blue-700"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {month}
-                    </span>
-                    {hasDeposits ? (
-                      <>
+                    {month}
+                  </span>
+                  {hasDeposits ? (
+                    <>
                         <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg mb-2">
                           <DollarOutlined className="text-white text-xl md:text-2xl" />
                         </div>
                         <span className="text-white font-extrabold text-sm md:text-base">
-                          ৳{(monthData[month]?.amount || 0).toLocaleString()}
-                        </span>
-                      </>
-                    ) : (
-                      isCurrentMonth && (
+                        ৳{(monthData[month]?.amount || 0).toLocaleString()}
+                      </span>
+                    </>
+                  ) : (
+                    isCurrentMonth && (
                         <div className="bg-blue-200 p-2 rounded-lg">
                           <CalendarOutlined className="text-blue-600 text-xl md:text-2xl" />
                         </div>
-                      )
-                    )}
-                  </motion.div>
-                );
-              })}
+                    )
+                  )}
+                </motion.div>
+              );
+            })}
             </div>
           </div>
         </Card>
@@ -668,12 +670,12 @@ const DashboardHome = () => {
       >
         {selectedMonthDeposits?.length > 0 ? (
           <div className="p-4 md:p-6">
-            <List
-              itemLayout="horizontal"
-              dataSource={selectedMonthDeposits}
+          <List
+            itemLayout="horizontal"
+            dataSource={selectedMonthDeposits}
               renderItem={(deposit, index) => (
                 <List.Item className="mb-4 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl border-2 border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
-                  <List.Item.Meta
+                <List.Item.Meta
                     avatar={
                       <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-3 rounded-xl shadow-lg">
                         <Avatar 
@@ -693,7 +695,7 @@ const DashboardHome = () => {
                         </Tag>
                       </div>
                     }
-                    description={
+                  description={
                       <div className="mt-3 space-y-2 text-sm md:text-base">
                         <div className="flex items-center gap-2">
                           <span className="font-semibold text-gray-700">পেমেন্ট পদ্ধতি:</span>
@@ -716,11 +718,11 @@ const DashboardHome = () => {
                           </div>
                         )}
                       </div>
-                    }
-                  />
-                </List.Item>
-              )}
-            />
+                  }
+                />
+              </List.Item>
+            )}
+          />
           </div>
         ) : (
           <div className="p-8 md:p-12">
@@ -734,7 +736,7 @@ const DashboardHome = () => {
           </div>
         )}
       </Modal>
-      </motion.div>
+    </motion.div>
     </div>
   );
 };

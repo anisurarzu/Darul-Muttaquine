@@ -17,6 +17,7 @@ import {
   Upload,
   message,
   Grid,
+  Tooltip,
 } from "antd";
 import {
   CheckOutlined,
@@ -33,6 +34,9 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { coreAxios } from "../../../utilities/axios";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -126,8 +130,20 @@ const TaskManagement = () => {
       });
     }
 
+    // For non-super-admin, filter by assigned tasks
+    if (!isSuperAdmin) {
+      result = result.filter((task) => {
+        const assignedTo = task.assignedTo;
+        // Handle both array (legacy) and string formats
+        if (Array.isArray(assignedTo)) {
+          return assignedTo.includes(currentUserId);
+        }
+        return assignedTo === currentUserId;
+      });
+    }
+
     setFilteredTasks(result);
-  }, [tasks, filters]);
+  }, [tasks, filters, isSuperAdmin, currentUserId]);
 
   const handleUpload = async (file) => {
     const formData = new FormData();
@@ -337,9 +353,14 @@ const TaskManagement = () => {
     if (taskId) {
       const taskToEdit = tasks.find((task) => task._id === taskId);
       if (taskToEdit) {
+        // Handle both single user (string) and multiple users (array) - convert array to single
+        const assignedToValue = Array.isArray(taskToEdit.assignedTo) 
+          ? taskToEdit.assignedTo[0] 
+          : taskToEdit.assignedTo;
+        
         taskFormik.setValues({
           title: taskToEdit.title,
-          assignedTo: taskToEdit.assignedTo,
+          assignedTo: assignedToValue,
           notes: taskToEdit.notes,
           dueDate: dayjs(taskToEdit.dueDate),
           mark: taskToEdit.mark,
@@ -493,9 +514,12 @@ const TaskManagement = () => {
               onClick={() => completeTask(record._id)}
               disabled={
                 record.status === "completed" ||
-                record.assignedTo !== currentUserId
+                (Array.isArray(record.assignedTo) 
+                  ? !record.assignedTo.includes(currentUserId)
+                  : record.assignedTo !== currentUserId)
               }
               size={screens.md ? "default" : "small"}
+              className="bg-green-600 hover:bg-green-700 border-green-600"
             >
               {screens.md ? "Complete Task" : "Complete"}
             </Button>
@@ -530,7 +554,7 @@ const TaskManagement = () => {
 
   const expandedRowRender = (record) => {
     return (
-      <div className="p-4 bg-gray-50">
+      <div className="p-3 md:p-4 bg-gradient-to-br from-gray-50 to-white rounded-lg border border-gray-200">
         <div className="mb-2">
           <span className="font-semibold">Notes:</span>
           <p className="mt-1">{record.notes || "No notes provided"}</p>
@@ -612,18 +636,26 @@ const TaskManagement = () => {
   };
 
   return (
-    <div className="p-4">
-      {/* <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Task Management</h1>
-      
-      </div> */}
+    <div className="py-3 md:py-4 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+      {/* Header Section */}
+      <div className="mb-4">
+        <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800 mb-1">
+          Task Management
+        </h1>
+        <p className="text-gray-600 text-sm md:text-base">
+          Manage and track tasks efficiently
+        </p>
+      </div>
 
       {/* Filter Section */}
-      <Card className="mb-4">
+      <Card 
+        className="mb-4 shadow-lg border-0 rounded-2xl"
+        bodyStyle={{ padding: "16px" }}
+      >
         <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center gap-2">
-            <FilterOutlined />
-            <span className="font-medium">Filters:</span>
+          <div className="flex items-center gap-2 text-green-600">
+            <FilterOutlined className="text-lg" />
+            <span className="font-semibold text-base">Filters:</span>
           </div>
 
           <Select
@@ -633,6 +665,7 @@ const TaskManagement = () => {
             value={filters.status}
             style={{ width: screens.md ? 200 : 150 }}
             size={screens.md ? "default" : "middle"}
+            className="rounded-lg"
           >
             <Option value="pending">Pending</Option>
             <Option value="in-progress">In Progress</Option>
@@ -645,11 +678,13 @@ const TaskManagement = () => {
             value={filters.dateRange}
             style={{ width: screens.md ? 300 : 200 }}
             size={screens.md ? "default" : "middle"}
+            className="rounded-lg"
           />
 
           <Button
             onClick={resetFilters}
             size={screens.md ? "default" : "middle"}
+            className="rounded-lg"
           >
             Reset Filters
           </Button>
@@ -659,6 +694,7 @@ const TaskManagement = () => {
               icon={<PlusOutlined />}
               onClick={() => showModal()}
               size={screens.md ? "default" : "small"}
+              className="bg-green-600 hover:bg-green-700 border-green-600 rounded-lg shadow-md"
             >
               {screens.md ? "Create Task" : "Create"}
             </Button>
@@ -673,7 +709,10 @@ const TaskManagement = () => {
           <Skeleton active paragraph={{ rows: 4 }} />
         </>
       ) : (
-        <Card bodyStyle={{ padding: "12px" }}>
+        <Card 
+          className="shadow-lg border-0 rounded-2xl"
+          bodyStyle={{ padding: "16px" }}
+        >
           <Table
             columns={columns}
             dataSource={filteredTasks}
@@ -683,27 +722,39 @@ const TaskManagement = () => {
               expandedRowRender,
             }}
             scroll={{ x: 800 }}
-            size="small"
+            size="middle"
             pagination={{
               pageSize: 10,
-              showSizeChanger: false,
-              simple: true,
+              showSizeChanger: true,
+              showTotal: (total) => `Total ${total} tasks`,
+              className: "mt-4",
             }}
+            className="rounded-lg"
           />
         </Card>
       )}
 
       <Modal
-        title={modalState.mode === "edit" ? "Edit Task" : "Create New Task"}
+        title={
+          <div className="text-xl md:text-2xl font-bold text-gray-800">
+            {modalState.mode === "edit" ? "Edit Task" : "Create New Task"}
+          </div>
+        }
         open={modalState.visible && !modalState.isSubmission}
         onCancel={handleCloseModal}
         footer={null}
-        width={screens.md ? 700 : "90%"}
+        width={screens.md ? 800 : "95%"}
         destroyOnClose
+        className="rounded-2xl"
+        styles={{
+          content: {
+            borderRadius: '1rem',
+          }
+        }}
       >
-        <Form layout="vertical" onFinish={taskFormik.handleSubmit}>
+        <Form layout="vertical" onFinish={taskFormik.handleSubmit} className="mt-2">
           <Form.Item
-            label="Task Title"
+            label={<span className="font-semibold text-base">Task Title</span>}
             required
             validateStatus={taskFormik.errors.title ? "error" : ""}
             help={taskFormik.errors.title}
@@ -714,11 +765,12 @@ const TaskManagement = () => {
               onChange={taskFormik.handleChange}
               placeholder="Enter task title"
               size={screens.md ? "default" : "large"}
+              className="rounded-lg"
             />
           </Form.Item>
 
           <Form.Item
-            label="Assign To"
+            label={<span className="font-semibold text-base">Assign To</span>}
             required
             validateStatus={taskFormik.errors.assignedTo ? "error" : ""}
             help={taskFormik.errors.assignedTo}
@@ -731,6 +783,7 @@ const TaskManagement = () => {
                 const searchText = input.toLowerCase();
                 return (
                   userData.fullName?.toLowerCase().includes(searchText) ||
+                  userData.name?.toLowerCase().includes(searchText) ||
                   userData.uniqueId?.toLowerCase().includes(searchText) ||
                   userData.email?.toLowerCase().includes(searchText)
                 );
@@ -743,42 +796,57 @@ const TaskManagement = () => {
               placeholder="Select user"
               className="w-full"
               size={screens.md ? "default" : "large"}
+              optionLabelProp="label"
             >
               {users.map((user) => (
-                <Option
-                  key={user._id}
-                  value={user._id}
-                  user={user}
-                  label={user.fullName}
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      src={user.image}
-                      icon={<UserOutlined />}
-                      className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium truncate">
-                        {user.fullName}
+                  <Option
+                    key={user._id}
+                    value={user._id}
+                    user={user}
+                    label={
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          src={user.image}
+                          icon={<UserOutlined />}
+                          size="small"
+                          className="w-6 h-6"
+                        />
+                        <span>{user.fullName}</span>
                       </div>
-                      {screens.md && (
-                        <div className="text-xs text-gray-500 truncate">
-                          {user.uniqueId} • {user.email}
+                    }
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        src={user.image}
+                        icon={<UserOutlined />}
+                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium truncate">
+                          {user.fullName}
                         </div>
-                      )}
+                        {screens.md && (
+                          <div className="text-xs text-gray-500 truncate">
+                            {user.uniqueId} • {user.email}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Option>
-              ))}
+                  </Option>
+                ))}
             </Select>
           </Form.Item>
 
-          <Form.Item label="Status" required>
+          <Form.Item 
+            label={<span className="font-semibold text-base">Status</span>} 
+            required
+          >
             <Select
               name="status"
               value={taskFormik.values.status}
               onChange={(value) => taskFormik.setFieldValue("status", value)}
               size={screens.md ? "default" : "large"}
+              className="rounded-lg"
             >
               <Option value="pending">Pending</Option>
               <Option value="in-progress">In Progress</Option>
@@ -787,7 +855,7 @@ const TaskManagement = () => {
           </Form.Item>
 
           <Form.Item
-            label="Due Date"
+            label={<span className="font-semibold text-base">Due Date</span>}
             required
             validateStatus={taskFormik.errors.dueDate ? "error" : ""}
             help={taskFormik.errors.dueDate}
@@ -798,12 +866,13 @@ const TaskManagement = () => {
               onChange={(date) => taskFormik.setFieldValue("dueDate", date)}
               style={{ width: "100%" }}
               size={screens.md ? "default" : "large"}
+              className="rounded-lg w-full"
             />
           </Form.Item>
 
           {isSuperAdmin && (
             <Form.Item
-              label="Mark (0-5)"
+              label={<span className="font-semibold text-base">Mark (0-5)</span>}
               validateStatus={taskFormik.errors.mark ? "error" : ""}
               help={taskFormik.errors.mark}
             >
@@ -812,11 +881,12 @@ const TaskManagement = () => {
                 value={taskFormik.values.mark}
                 onChange={(value) => taskFormik.setFieldValue("mark", value)}
                 count={5}
+                className="text-green-600"
               />
             </Form.Item>
           )}
 
-          <Form.Item label="Notes">
+          <Form.Item label={<span className="font-semibold text-base">Notes</span>}>
             <TextArea
               name="notes"
               value={taskFormik.values.notes}
@@ -824,10 +894,11 @@ const TaskManagement = () => {
               rows={4}
               placeholder="Additional instructions..."
               size={screens.md ? "default" : "large"}
+              className="rounded-lg"
             />
           </Form.Item>
 
-          <Form.Item label="Attachments">
+          <Form.Item label={<span className="font-semibold text-base">Attachments</span>}>
             <Upload
               customRequest={customRequest}
               fileList={fileList}
@@ -854,10 +925,10 @@ const TaskManagement = () => {
             </Upload>
           </Form.Item>
 
-          <Form.Item className="text-right">
+          <Form.Item className="text-right mt-4">
             <Button
               onClick={handleCloseModal}
-              className="mr-2"
+              className="mr-3 rounded-lg"
               size={screens.md ? "default" : "large"}
             >
               Cancel
@@ -867,6 +938,7 @@ const TaskManagement = () => {
               htmlType="submit"
               loading={submitting}
               size={screens.md ? "default" : "large"}
+              className="bg-green-600 hover:bg-green-700 border-green-600 rounded-lg shadow-md"
             >
               {modalState.mode === "edit" ? "Update Task" : "Create Task"}
             </Button>

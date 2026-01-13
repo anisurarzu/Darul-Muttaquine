@@ -616,16 +616,16 @@ export default function PublicQuiz() {
     );
   };
 
-  // Dynamic watermark movement during quiz and results - More frequent changes
+  // Dynamic watermark movement during quiz and results - Very frequent changes to prevent screenshots
   useEffect(() => {
     if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
-      // Change watermark position more frequently to make screenshots less useful
+      // Change watermark position VERY frequently to make screenshots completely useless
       watermarkIntervalRef.current = setInterval(() => {
         setWatermarkPosition({
           x: Math.random() * 80 + 10, // 10% to 90%
           y: Math.random() * 80 + 10,
         });
-      }, 800); // Change position every 800ms for more dynamic movement
+      }, 400); // Change position every 400ms for very dynamic movement (faster = harder to screenshot)
     } else {
       if (watermarkIntervalRef.current) {
         clearInterval(watermarkIntervalRef.current);
@@ -713,87 +713,21 @@ export default function PublicQuiz() {
       brightnessCheckInterval = setInterval(checkScreenBrightness, 100);
       brightnessMonitorRef.current = brightnessCheckInterval;
 
-      // Method 3: Monitor for rapid visibility changes (flash can cause this)
-      let visibilityFlashCount = 0;
-      let lastVisibilityTime = Date.now();
-      
-      const handleVisibilityForFlash = () => {
-        const now = Date.now();
-        const timeSinceLastChange = now - lastVisibilityTime;
-        
-        // Rapid visibility changes might indicate flash
-        if (timeSinceLastChange < 200) {
-          visibilityFlashCount += 1;
-          
-          if (visibilityFlashCount >= 3) {
-            screenshotAttemptsRef.current += 1;
-            if (screenshotAttemptsRef.current >= 1) {
-              message.error("স্ক্রিন ক্যাপচার চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-              setTimeout(() => {
-                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                  handleQuizSubmitRef.current();
-                } else if (quizSubmitted && quizResults) {
-                  closeQuizModal();
-                }
-              }, 500);
-            }
-          }
-        } else {
-          visibilityFlashCount = 0;
-        }
-        
-        lastVisibilityTime = now;
-      };
+      // Method 3: Flash detection - DISABLED auto-submit on mobile, just monitor
+      // Watermarks make screenshots useless anyway, no need to auto-submit
 
-      // Method 4: Monitor screen orientation and device motion (camera movement detection)
-      let deviceMotionCount = 0;
-      const handleDeviceMotion = (e) => {
-        if (e.acceleration && e.acceleration.x !== null) {
-          const acceleration = Math.sqrt(
-            Math.pow(e.acceleration.x || 0, 2) +
-            Math.pow(e.acceleration.y || 0, 2) +
-            Math.pow(e.acceleration.z || 0, 2)
-          );
-          
-          // Sudden device movement might indicate camera positioning
-          if (acceleration > 15) {
-            deviceMotionCount += 1;
-            if (deviceMotionCount >= 5) {
-              screenshotAttemptsRef.current += 1;
-              if (screenshotAttemptsRef.current >= 1) {
-                message.error("ডিভাইস চলাচল সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-                setTimeout(() => {
-                  if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                    handleQuizSubmitRef.current();
-                  } else if (quizSubmitted && quizResults) {
-                    closeQuizModal();
-                  }
-                }, 500);
-              }
-            }
-          }
-        }
-      };
+      // Method 4: Device motion detection - DISABLED auto-submit on mobile
+      // Watermarks make screenshots useless anyway, no need to auto-submit
 
-      // Method 5: Monitor camera/media device access attempts
+      // Method 5: Camera access blocking - Just block, don't auto-submit on mobile
       let originalGetUserMedia = null;
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         originalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
         const getUserMediaWrapper = function(constraints) {
-          // If camera is requested during quiz, it might be for taking photos
+          // Block camera access during quiz, but don't auto-submit
           if (constraints && constraints.video) {
-            screenshotAttemptsRef.current += 1;
-            if (screenshotAttemptsRef.current >= 1) {
-              message.error("ক্যামেরা অ্যাক্সেস চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-              setTimeout(() => {
-                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                  handleQuizSubmitRef.current();
-                } else if (quizSubmitted && quizResults) {
-                  closeQuizModal();
-                }
-              }, 500);
-              return Promise.reject(new Error('Camera access blocked during quiz'));
-            }
+            message.warning("কুইজ চলাকালীন ক্যামেরা অ্যাক্সেস অনুমোদিত নয়");
+            return Promise.reject(new Error('Camera access blocked during quiz'));
           }
           return originalGetUserMedia(constraints);
         };
@@ -826,20 +760,8 @@ export default function PublicQuiz() {
         }, 50);
       }, 2000);
 
-      document.addEventListener('visibilitychange', handleVisibilityForFlash);
-      
-      // Request device motion permission if available
-      if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-        DeviceMotionEvent.requestPermission()
-          .then(response => {
-            if (response === 'granted') {
-              window.addEventListener('devicemotion', handleDeviceMotion);
-            }
-          })
-          .catch(console.error);
-      } else {
-        window.addEventListener('devicemotion', handleDeviceMotion);
-      }
+      // Removed visibility change and device motion listeners - no auto-submit on mobile
+      // Watermarks provide sufficient protection
 
       return () => {
         if (ambientLightSensor) {
@@ -855,8 +777,7 @@ export default function PublicQuiz() {
         if (flashInterval) {
           clearInterval(flashInterval);
         }
-        document.removeEventListener('visibilitychange', handleVisibilityForFlash);
-        window.removeEventListener('devicemotion', handleDeviceMotion);
+        // Removed event listeners - no auto-submit on mobile
         
         // Restore original getUserMedia
         if (navigator.mediaDevices && originalGetUserMedia) {
@@ -875,149 +796,9 @@ export default function PublicQuiz() {
     }
   }, [quizStarted, quizSubmitted, quizResults]);
 
-  // Detect screen capture attempts and mobile screenshot gestures - Improved detection
-  useEffect(() => {
-    if ((quizStarted && !quizSubmitted) || (quizSubmitted && quizResults)) {
-      // Monitor for screen sharing attempts
-      const checkScreenCapture = async () => {
-        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-          try {
-            const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-            // If user grants screen capture, auto-submit quiz
-            message.error("স্ক্রিন শেয়ার সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-            stream.getTracks().forEach(track => track.stop());
-            if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-              await handleQuizSubmitRef.current();
-            } else if (quizSubmitted && quizResults) {
-              closeQuizModal();
-            }
-          } catch (err) {
-            // User denied or error - continue normally
-          }
-        }
-      };
-
-      // Enhanced Mobile screenshot detection (iOS/Android)
-      let lastVisibilityChange = Date.now();
-      let visibilityChangeCount = 0;
-      let lastBlurTime = Date.now();
-      let blurCount = 0;
-      
-      const handleVisibilityChange = () => {
-        const now = Date.now();
-        if (!document.hidden) {
-          const timeSinceHidden = now - lastVisibilityChange;
-          // Mobile screenshots cause rapid visibility changes
-          if (timeSinceHidden < 800 && timeSinceHidden > 30) {
-            visibilityChangeCount += 1;
-            screenshotAttemptsRef.current += 1;
-            // Trigger on FIRST suspicious visibility change
-            if (screenshotAttemptsRef.current >= 1) {
-              message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-              setTimeout(() => {
-                if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                  handleQuizSubmitRef.current();
-                } else if (quizSubmitted && quizResults) {
-                  closeQuizModal();
-                }
-              }, 500);
-            }
-          }
-          lastVisibilityChange = now;
-        } else {
-          lastVisibilityChange = now;
-        }
-      };
-
-      // Monitor window focus/blur for screenshot attempts (Mobile)
-      const handleBlur = () => {
-        lastBlurTime = Date.now();
-        blurCount += 1;
-      };
-
-      const handleFocus = () => {
-        const timeSinceBlur = Date.now() - lastBlurTime;
-        // Mobile screenshots cause rapid blur/focus cycles
-        if (timeSinceBlur < 800 && timeSinceBlur > 30) {
-          screenshotAttemptsRef.current += 1;
-          // Trigger on FIRST suspicious blur/focus
-          if (screenshotAttemptsRef.current >= 1) {
-            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-            setTimeout(() => {
-              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                handleQuizSubmitRef.current();
-              } else if (quizSubmitted && quizResults) {
-                closeQuizModal();
-              }
-            }, 500);
-          }
-        }
-      };
-
-      // Detect page resize (common during mobile screenshots)
-      let lastResizeTime = Date.now();
-      const handleResize = () => {
-        const now = Date.now();
-        const timeSinceLastResize = now - lastResizeTime;
-        // Rapid resize might indicate screenshot
-        if (timeSinceLastResize < 500) {
-          screenshotAttemptsRef.current += 1;
-          if (screenshotAttemptsRef.current >= 1) {
-            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-            setTimeout(() => {
-              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                handleQuizSubmitRef.current();
-              } else if (quizSubmitted && quizResults) {
-                closeQuizModal();
-              }
-            }, 500);
-          }
-        }
-        lastResizeTime = now;
-      };
-
-      // Monitor touch events for mobile screenshot gestures
-      let touchStartTime = 0;
-      const handleTouchStart = (e) => {
-        touchStartTime = Date.now();
-        // iPhone screenshot: Volume Up + Power button (can't detect directly, but monitor for rapid touches)
-      };
-
-      const handleTouchEnd = (e) => {
-        const touchDuration = Date.now() - touchStartTime;
-        // Very short touches might indicate screenshot gesture
-        if (touchDuration < 100 && e.touches.length === 0) {
-          screenshotAttemptsRef.current += 1;
-          if (screenshotAttemptsRef.current >= 1) {
-            message.error("স্ক্রিনশট চেষ্টা সনাক্ত করা হয়েছে। কুইজ স্বয়ংক্রিয়ভাবে জমা দেওয়া হচ্ছে...");
-            setTimeout(() => {
-              if (quizStarted && !quizSubmitted && handleQuizSubmitRef.current) {
-                handleQuizSubmitRef.current();
-              } else if (quizSubmitted && quizResults) {
-                closeQuizModal();
-              }
-            }, 500);
-          }
-        }
-      };
-
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-      window.addEventListener("blur", handleBlur);
-      window.addEventListener("focus", handleFocus);
-      window.addEventListener("resize", handleResize);
-      document.addEventListener("touchstart", handleTouchStart, { passive: true });
-      document.addEventListener("touchend", handleTouchEnd, { passive: true });
-
-      return () => {
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-        window.removeEventListener("blur", handleBlur);
-        window.removeEventListener("focus", handleFocus);
-        window.removeEventListener("resize", handleResize);
-        document.removeEventListener("touchstart", handleTouchStart);
-        document.removeEventListener("touchend", handleTouchEnd);
-      };
-    }
-  }, [quizStarted, quizSubmitted, quizResults]);
+  // Mobile screenshot prevention - NO auto-submit, just prevention measures
+  // Watermarks and text selection blocking are handled in other useEffects
+  // This section is intentionally minimal - just focus on making screenshots useless
 
   const startQuiz = () => {
     if (!selectedQuiz) return;
@@ -1611,18 +1392,18 @@ export default function PublicQuiz() {
                     <p className="text-gray-700">
                       <strong className="text-emerald-600">মোট প্রশ্ন:</strong>{" "}
                       <span className="font-semibold">{selectedQuiz?.quizQuestions.length}</span>
-                    </p>
+                </p>
                   </div>
                   <div className="bg-white p-4 rounded-xl shadow-sm">
                     <p className="text-gray-700">
                       <strong className="text-emerald-600">সময়:</strong>{" "}
                       <span className="font-semibold">{selectedQuiz?.duration} মিনিট</span>
-                    </p>
+                </p>
                   </div>
                   <div className="bg-white p-4 rounded-xl shadow-sm">
                     <p className="text-gray-700 mb-3">
                       <strong className="text-emerald-600">নিয়ম:</strong>
-                    </p>
+                </p>
                     <ul className="list-disc pl-5 space-y-2 text-gray-600">
                   <li>আপনি শুধুমাত্র একবার কুইজে অংশগ্রহণ করতে পারবেন</li>
                   <li>
@@ -1692,9 +1473,9 @@ export default function PublicQuiz() {
                   pointerEvents: 'none',
                 }}
               >
-                {/* Watermark Layer 1 - User ID (Large, Rotated) */}
+                {/* Watermark Layer 1 - User ID (Large, Rotated) - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-600 font-extrabold text-5xl md:text-7xl opacity-25 select-none"
+                  className="absolute text-red-600 font-extrabold text-6xl md:text-7xl opacity-35 md:opacity-25 select-none"
                   style={{
                     left: `${watermarkPosition.x}%`,
                     top: `${watermarkPosition.y}%`,
@@ -1703,17 +1484,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    textShadow: '4px 4px 8px rgba(0,0,0,0.6)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   {userInfo?.phone || userInfo?.uniqueId || 'USER-' + Date.now()}
                 </div>
                 
-                {/* Watermark Layer 2 - Date/Time (Opposite Corner) */}
+                {/* Watermark Layer 2 - Date/Time (Opposite Corner) - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-600 font-extrabold text-4xl md:text-6xl opacity-20 select-none"
+                  className="absolute text-red-600 font-extrabold text-5xl md:text-6xl opacity-30 md:opacity-20 select-none"
                   style={{
                     left: `${100 - watermarkPosition.x}%`,
                     top: `${100 - watermarkPosition.y}%`,
@@ -1722,17 +1504,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    textShadow: '4px 4px 8px rgba(0,0,0,0.6)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   {new Date().toLocaleString('en-US')}
                 </div>
                 
-                {/* Watermark Layer 3 - Security Text (Center) */}
+                {/* Watermark Layer 3 - Security Text (Center) - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-extrabold text-3xl md:text-5xl opacity-15 select-none"
+                  className="absolute text-red-500 font-extrabold text-4xl md:text-5xl opacity-25 md:opacity-15 select-none"
                   style={{
                     left: '50%',
                     top: '50%',
@@ -1741,17 +1524,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   QUIZ SECURITY PROTECTED
                 </div>
                 
-                {/* Watermark Layer 4 - Top Left Corner */}
+                {/* Watermark Layer 4 - Top Left Corner - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  className="absolute text-red-500 font-bold text-3xl md:text-4xl opacity-30 md:opacity-20 select-none"
                   style={{
                     left: '10%',
                     top: '10%',
@@ -1760,17 +1544,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.4)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   DO NOT SCREENSHOT
                 </div>
                 
-                {/* Watermark Layer 5 - Bottom Right Corner */}
+                {/* Watermark Layer 5 - Bottom Right Corner - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  className="absolute text-red-500 font-bold text-3xl md:text-4xl opacity-30 md:opacity-20 select-none"
                   style={{
                     right: '10%',
                     bottom: '10%',
@@ -1779,17 +1564,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.4)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   SECURITY MONITORED
                 </div>
                 
-                {/* Additional diagonal watermarks */}
+                {/* Additional diagonal watermarks - More visible for mobile */}
                 <div
-                  className="absolute text-red-400 font-bold text-xl md:text-3xl opacity-15 select-none"
+                  className="absolute text-red-400 font-bold text-2xl md:text-3xl opacity-25 md:opacity-15 select-none"
                   style={{
                     left: `${watermarkPosition.x * 0.7}%`,
                     top: `${watermarkPosition.y * 1.3}%`,
@@ -1798,12 +1584,53 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   {selectedQuiz?.quizName?.substring(0, 15) || 'QUIZ'}
+                </div>
+                
+                {/* Additional watermark - Top Right */}
+                <div
+                  className="absolute text-red-400 font-bold text-2xl md:text-3xl opacity-25 md:opacity-15 select-none"
+                  style={{
+                    right: '15%',
+                    top: '20%',
+                    transform: 'rotate(45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                    fontWeight: 900,
+                  }}
+                >
+                  NO SCREENSHOT
+                </div>
+                
+                {/* Additional watermark - Bottom Left */}
+                <div
+                  className="absolute text-red-400 font-bold text-2xl md:text-3xl opacity-25 md:opacity-15 select-none"
+                  style={{
+                    left: '15%',
+                    bottom: '20%',
+                    transform: 'rotate(-45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                    fontWeight: 900,
+                  }}
+                >
+                  PROTECTED
                 </div>
               </div>
               
@@ -1917,9 +1744,9 @@ export default function PublicQuiz() {
                   pointerEvents: 'none',
                 }}
               >
-                {/* Watermark Layer 1 - User ID */}
+                {/* Watermark Layer 1 - User ID - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-600 font-extrabold text-5xl md:text-7xl opacity-25 select-none"
+                  className="absolute text-red-600 font-extrabold text-6xl md:text-7xl opacity-35 md:opacity-25 select-none"
                   style={{
                     left: `${watermarkPosition.x}%`,
                     top: `${watermarkPosition.y}%`,
@@ -1928,17 +1755,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    textShadow: '4px 4px 8px rgba(0,0,0,0.6)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   {userInfo?.phone || userInfo?.uniqueId || 'USER-' + Date.now()}
                 </div>
                 
-                {/* Watermark Layer 2 - Date/Time */}
+                {/* Watermark Layer 2 - Date/Time - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-600 font-extrabold text-4xl md:text-6xl opacity-20 select-none"
+                  className="absolute text-red-600 font-extrabold text-5xl md:text-6xl opacity-30 md:opacity-20 select-none"
                   style={{
                     left: `${100 - watermarkPosition.x}%`,
                     top: `${100 - watermarkPosition.y}%`,
@@ -1947,17 +1775,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
+                    textShadow: '4px 4px 8px rgba(0,0,0,0.6)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   {new Date().toLocaleString('en-US')}
                 </div>
                 
-                {/* Watermark Layer 3 - Security Text */}
+                {/* Watermark Layer 3 - Security Text - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-extrabold text-3xl md:text-5xl opacity-15 select-none"
+                  className="absolute text-red-500 font-extrabold text-4xl md:text-5xl opacity-25 md:opacity-15 select-none"
                   style={{
                     left: '50%',
                     top: '50%',
@@ -1966,17 +1795,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.5)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   RESULTS PROTECTED
                 </div>
                 
-                {/* Watermark Layer 4 - Top Left */}
+                {/* Watermark Layer 4 - Top Left - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  className="absolute text-red-500 font-bold text-3xl md:text-4xl opacity-30 md:opacity-20 select-none"
                   style={{
                     left: '10%',
                     top: '10%',
@@ -1985,17 +1815,18 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.4)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   DO NOT SCREENSHOT
                 </div>
                 
-                {/* Watermark Layer 5 - Bottom Right */}
+                {/* Watermark Layer 5 - Bottom Right - Higher opacity for mobile */}
                 <div
-                  className="absolute text-red-500 font-bold text-2xl md:text-4xl opacity-20 select-none"
+                  className="absolute text-red-500 font-bold text-3xl md:text-4xl opacity-30 md:opacity-20 select-none"
                   style={{
                     right: '10%',
                     bottom: '10%',
@@ -2004,12 +1835,52 @@ export default function PublicQuiz() {
                     WebkitUserSelect: 'none',
                     pointerEvents: 'none',
                     whiteSpace: 'nowrap',
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+                    textShadow: '3px 3px 6px rgba(0,0,0,0.4)',
                     zIndex: 10000,
                     fontFamily: 'monospace',
+                    fontWeight: 900,
                   }}
                 >
                   SECURITY MONITORED
+                </div>
+                
+                {/* Additional watermarks for results screen */}
+                <div
+                  className="absolute text-red-400 font-bold text-2xl md:text-3xl opacity-25 md:opacity-15 select-none"
+                  style={{
+                    right: '15%',
+                    top: '20%',
+                    transform: 'rotate(45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                    fontWeight: 900,
+                  }}
+                >
+                  NO SCREENSHOT
+                </div>
+                
+                <div
+                  className="absolute text-red-400 font-bold text-2xl md:text-3xl opacity-25 md:opacity-15 select-none"
+                  style={{
+                    left: '15%',
+                    bottom: '20%',
+                    transform: 'rotate(-45deg)',
+                    userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    pointerEvents: 'none',
+                    whiteSpace: 'nowrap',
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.4)',
+                    zIndex: 10000,
+                    fontFamily: 'monospace',
+                    fontWeight: 900,
+                  }}
+                >
+                  PROTECTED
                 </div>
               </div>
               

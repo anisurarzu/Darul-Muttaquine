@@ -235,8 +235,8 @@ export default function Quize() {
         </div>
         <div className="relative z-10">
           <h2 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl py-6 lg:py-10 text-center bangla-text drop-shadow-2xl">
-            ইসলামিক কুইজ
-          </h2>
+          ইসলামিক কুইজ
+        </h2>
         </div>
       </div>
 
@@ -263,8 +263,8 @@ export default function Quize() {
                 <div>
                   <p className="text-xs opacity-90 font-medium mb-1">Total Balance</p>
                   <span className="text-3xl font-extrabold drop-shadow-lg">
-                    ৳{totalQuizAmount}
-                  </span>
+                  ৳{totalQuizAmount}
+                </span>
                 </div>
               </div>
               <Button
@@ -282,24 +282,24 @@ export default function Quize() {
             <div className="prose max-w-none text-center mb-8">
               <div className="space-y-5 text-[15px] md:text-base">
                 <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500">
-                  এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন
-                  এটিতে অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং
-                  সময় দিয়ে এখানে পরীক্ষা করবো।
-                </p>
+                এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন
+                এটিতে অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং
+                সময় দিয়ে এখানে পরীক্ষা করবো।
+              </p>
                 <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl border-l-4 border-emerald-500">
-                  প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
-                  সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
-                  ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব।
-                </p>
+                প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
+                সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
+                ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব।
+              </p>
                 <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border-l-4 border-amber-500">
-                  ৫০০ টাকা থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে
-                  নেওয়া হবে। আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন।
-                  তবে, বিকাশের মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে।
-                </p>
+                ৫০০ টাকা থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে
+                নেওয়া হবে। আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন।
+                তবে, বিকাশের মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে।
+              </p>
                 <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-l-4 border-purple-500">
-                  ধন্যবাদ। আপনি মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই
-                  ক্ষেত্রে একই সেবা চার্জ প্রযোজ্য হবে।
-                </p>
+                ধন্যবাদ। আপনি মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই
+                ক্ষেত্রে একই সেবা চার্জ প্রযোজ্য হবে।
+              </p>
               </div>
             </div>
 
