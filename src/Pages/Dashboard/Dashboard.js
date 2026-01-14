@@ -387,7 +387,7 @@ export default function Dashboard() {
         closable
         onClose={handleDrawerClose}
         open={drawerVisible}
-        width={250}
+        width={200}
         bodyStyle={{ padding: 0 }}
       >
         <Menu
@@ -405,7 +405,7 @@ export default function Dashboard() {
         collapsible
         collapsed={collapsed}
         onCollapse={toggleCollapse}
-        width={250}
+        width={200}
         theme="light"
         className="hidden lg:block shadow-md"
         breakpoint="lg"
@@ -510,8 +510,8 @@ export default function Dashboard() {
 
         <Content
           style={{
-            margin: "16px",
-            padding: 24,
+            margin: "8px",
+            padding: "8px",
             minHeight: 280,
             background: colorBgContainer,
             borderRadius: borderRadiusLG,

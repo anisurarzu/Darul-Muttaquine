@@ -40,6 +40,9 @@ const Scholarship = () => {
   const history = useHistory();
   const [searchQuery, setSearchQuery] = useState("");
   const [rollData, setRollData] = useState([]);
+  const [imageModalVisible, setImageModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [selectedImageName, setSelectedImageName] = useState("");
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -117,8 +120,9 @@ const Scholarship = () => {
   };
 
   const previewStyle = {
-    height: 240,
-    width: 320,
+    height: "auto",
+    width: "100%",
+    maxHeight: "400px",
   };
 
   const handleBackClick = () => {
@@ -190,7 +194,7 @@ const Scholarship = () => {
 
   const constraints = {
     video: {
-      facingMode: { exact: "environment" },
+      facingMode: "environment", // Use back camera (remove exact to allow fallback)
     },
   };
 
@@ -468,182 +472,229 @@ const Scholarship = () => {
 
   const classGroups = groupStudentsByClass();
 
+  if (loading) {
+    return (
+      <Spin tip="Loading...">
+        <Alert
+          message="Loading Data"
+          description="Further details about the context of this alert."
+          type="info"
+        />
+      </Spin>
+    );
+  }
+
   return (
     <>
-      {loading ? (
-        <Spin tip="Loading...">
-          <Alert
-            message="Alert message title"
-            description="Further details about the context of this alert."
-            type="info"
-          />
-        </Spin>
-      ) : (
-        <div className="text-sm mx-8 my-6">
-          <h3 className="text-lg font-bold">
-            DMF Scholarship 2025, Senior Category: {countClass6to10}, Junior
-            Category: {countOtherClasses}
-          </h3>
-          <div className="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-2 border border-tableBorder bg-white px-4 py-5">
-            <div className="ml-1">
+      <div className="px-0 py-0 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+          {/* Action Bar */}
+          <div className="bg-white rounded-xl shadow-lg border-2 border-green-100  md:p-4 mb-4 md:mb-6 mx-0">
+            {/* All Buttons - 2 rows on mobile, 1 row on desktop */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3">
               <button
-                className="font-semibold inline-flex items-center justify-center gap-2.5 rounded-lg text-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 "
-                onClick={() => showModal()}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}>
-                <span>
-                  <i className="pi pi-plus font-semibold"></i>
-                </span>
-                NEW
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg text-xs md:text-sm lg:text-base bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
+                onClick={() => showModal()}>
+                <i className="pi pi-plus font-semibold text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">NEW</span>
               </button>
 
               <button
-                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-editbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-4"
-                onClick={handleBackClick}
-                style={{
-                  outline: "none",
-                  borderColor: "transparent !important",
-                }}>
-                <span>
-                  <i className="pi pi-arrow-left font-semibold"></i>
-                </span>
-                BACK
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg text-xs md:text-sm lg:text-base bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
+                onClick={handleBackClick}>
+                <i className="pi pi-arrow-left font-semibold text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">BACK</span>
               </button>
-              <Button
-                className="font-semibold inline-flex items-center text-lg justify-center gap-2.5 rounded-lg bg-newbuttonColor py-2 px-10 text-center text-white hover:bg-opacity-90 lg:px-8 xl:px-4 ml-12 mt-4 mb-2 lg:ml-4 lg:mt-0 xl:mb-0 xl:mt-0"
+
+              <button
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg text-xs md:text-sm lg:text-base bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
                 onClick={() => setShowQrScanner(!showQrScanner)}>
-                Scan Now
-              </Button>
-            </div>
-            <div className="flex justify-end mb-4 gap-4">
+                <i className="pi pi-qrcode font-semibold text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">Scan QR</span>
+              </button>
+
               <button
-                className="font-semibold gap-2.5 rounded-lg bg-blue-500 text-white py-2 px-4 text-xl"
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-xs md:text-sm lg:text-base shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
                 onClick={exportToPDF}>
-                Generate PDF
+                <i className="pi pi-file-pdf text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">PDF</span>
               </button>
+
               <button
-                className="font-semibold gap-2.5 rounded-lg bg-green-500 text-white py-2 px-4 text-xl"
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-xs md:text-sm lg:text-base shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
                 onClick={exportToExcel}>
-                Generate Excel
+                <i className="pi pi-file-excel text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">Excel</span>
               </button>
+
               <button
-                className="font-semibold gap-2.5 rounded-lg bg-green-600 text-white py-2 px-4 text-xl"
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-xs md:text-sm lg:text-base shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
                 onClick={exportClassWisePDF}>
-                <i className="pi pi-file-pdf mr-2"></i>
-                Class-wise PDF
+                <i className="pi pi-file-pdf text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">Class PDF</span>
               </button>
             </div>
-            <div>
-              <h3 className="text-[17px]">
-                Applications ({rollData?.length}) Present (
-                {countAttendanceComplete}) Results ({totalResultDetailsCount})
-                ScholarShipped ({isScholarshipedCount}) T-Grade (
-                {talentpoolGradeCount}) G-Grade ({generalGradeCount})
-              </h3>
-            </div>
 
-            <div className="relative mx-8 mr-4">
-              <input
-                type="text"
-                id="table-search-users"
-                className="block py-2 ps-10 text-md text-gray-900 border border-gray-300 rounded-full w-56 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+            {/* Stats Bar */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-2 md:p-4 mb-4 md:mb-6 border-2 border-green-100 mt-2 md:mt-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4">
+                <div className="flex flex-wrap items-center gap-2 md:gap-4">
+                  {/* Header Title and Categories */}
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4">
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-extrabold text-gray-800">
+                      DMF Scholarship 2026
+                    </h3>
+                    <div className="flex flex-wrap gap-2 text-xs md:text-sm">
+                      <span className="bg-green-100 text-green-700 px-2 md:px-3 py-1 rounded-full font-semibold">
+                        Senior Category: {countClass6to10}
+                      </span>
+                      <span className="bg-blue-100 text-blue-700 px-2 md:px-3 py-1 rounded-full font-semibold">
+                        Junior Category: {countOtherClasses}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Stats */}
+                  <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm lg:text-base">
+                    <span className="font-semibold text-gray-700">
+                      Applications: <span className="text-green-600">{rollData?.length}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      Present: <span className="text-green-600">{countAttendanceComplete}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      Results: <span className="text-blue-600">{totalResultDetailsCount}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      Scholarship: <span className="text-purple-600">{isScholarshipedCount}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      T-Grade: <span className="text-green-600">{talentpoolGradeCount}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      G-Grade: <span className="text-blue-600">{generalGradeCount}</span>
+                    </span>
+                  </div>
+                </div>
 
-              <div className="absolute inset-y-0 flex items-center p-3">
-                <svg
-                  className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20">
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                {/* Search Bar */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="table-search-users"
+                    className="block py-2 ps-10 pe-4 text-sm md:text-base text-gray-900 border-2 border-green-200 rounded-lg w-full md:w-64 bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
-                </svg>
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 20 20">
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
           {showQrScanner && (
-            <div className="my-4">
-              <QrReader
-                delay={100}
-                style={previewStyle}
-                onError={handleError}
-                onScan={handleScan}
-                facingMode={facingMode}
-              />
-              <button
-                onClick={() =>
-                  setFacingMode(
-                    facingMode === "environment" ? "user" : "environment"
-                  )
-                }>
-                Switch Camera
-              </button>
+            <div className="mb-4 md:mb-6 bg-white rounded-xl shadow-lg border-2 border-green-100 p-2 md:p-4 lg:p-6 mx-0">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg md:text-xl font-bold text-gray-800">
+                  QR Code Scanner
+                </h3>
+                <button
+                  onClick={() => setShowQrScanner(false)}
+                  className="text-gray-500 hover:text-gray-700 text-xl">
+                  <i className="pi pi-times"></i>
+                </button>
+              </div>
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-full max-w-md rounded-lg overflow-hidden border-2 border-green-200">
+                  <QrReader
+                    delay={300}
+                    style={{ width: "100%", height: "auto" }}
+                    onError={handleError}
+                    onScan={handleScan}
+                    facingMode="environment"
+                    constraints={constraints}
+                  />
+                </div>
+                <button
+                  onClick={() =>
+                    setFacingMode(
+                      facingMode === "environment" ? "user" : "environment"
+                    )
+                  }
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md hover:shadow-lg transition-all">
+                  <i className="pi pi-refresh mr-2"></i>
+                  Switch Camera
+                </button>
+              </div>
             </div>
           )}
 
-          <div className="relative overflow-x-auto shadow-md">
-            <table className="w-full text-xl text-left rtl:text-right text-gray-500 dark:text-gray-400">
-              <thead className="text-xl text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                  <th className="border border-tableBorder text-center p-2">
+          {/* Table Container */}
+          <div className="bg-white rounded-xl shadow-lg border-2 border-green-100 overflow-hidden mb-4 md:mb-6 mx-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm md:text-base text-left text-gray-700">
+                <thead className="text-xs md:text-sm text-gray-700 uppercase bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                  <tr>
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Image
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    Scholarship Roll
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
+                    Roll
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    Seat Planed
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden md:table-cell">
+                    Seat Plan
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Name
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
                     Gender
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
                     Institute
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Class
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden md:table-cell">
                     Date
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
                     Phone
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    SMS Send
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden md:table-cell">
+                    SMS
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    Attendance
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
+                    Attend
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Marks
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Grade
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
                     Created By
                   </th>
-                  <th className="border border-tableBorder text-center p-2">
-                    Admit Card
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
+                    Admit
                   </th>
-
-                  <th className="border border-tableBorder text-center p-2">
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Actions
                   </th>
                 </tr>
@@ -655,102 +706,129 @@ const Scholarship = () => {
                   return (
                     <tr
                       key={roll?.scholarshipRollNumber}
-                      className={` ${
+                      className={`hover:bg-green-50 transition-colors ${
                         roll?.isAttendanceComplete &&
-                        "bg-purple-100 text-purple-600"
+                        "bg-green-50"
                       } ${
                         scholarshipGrade === "Talentpool Grade"
                           ? "bg-green-50"
                           : scholarshipGrade === "General Grade"
                           ? "bg-blue-50"
-                          : ""
+                          : "bg-white"
                       }`}>
-                      <td className="border border-tableBorder pl-1 text-center flex justify-center ">
-                        <img
-                          className="w-[40px] lg:w-[60px] xl:w-[60px] h-[40px] lg:h-[60px] xl:h-[60px] rounded-[100px] mt-2 lg:mt-0 xl:mt-0   lg:rounded-[100px] xl:rounded-[100px] object-cover "
-                          src={roll?.image}
-                          alt=""
-                        />
+                      <td className="border border-green-200 p-2 text-center">
+                        <div className="flex justify-center">
+                          <img
+                            className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border-2 border-green-200 cursor-pointer hover:scale-110 transition-transform duration-200"
+                            src={roll?.image}
+                            alt={roll?.name}
+                            onClick={() => {
+                              setSelectedImage(roll?.image);
+                              setSelectedImageName(roll?.name);
+                              setImageModalVisible(true);
+                            }}
+                          />
+                        </div>
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center font-medium">
                         {roll?.scholarshipRollNumber}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
-                        {roll?.isSeatPlaned ? "Send" : "Not Send"}
+                      <td className="border border-green-200 p-2 text-center hidden md:table-cell">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          roll?.isSeatPlaned 
+                            ? "bg-green-100 text-green-700" 
+                            : "bg-gray-100 text-gray-600"
+                        }`}>
+                          {roll?.isSeatPlaned ? "Send" : "Not Send"}
+                        </span>
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center font-medium">
                         {roll.name}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center hidden lg:table-cell">
                         {roll.gender}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center hidden lg:table-cell truncate max-w-xs">
                         {roll.institute}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center font-semibold">
                         {roll.instituteClass}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center hidden md:table-cell text-xs">
                         {formatDate(roll.submittedAt)}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center hidden lg:table-cell text-xs">
                         {typeof roll?.phone === "string" &&
                         roll?.phone?.startsWith("0")
                           ? roll?.phone
                           : `0${roll?.phone}`}
                       </td>
-
-                      <td className="border border-tableBorder pl-1 text-center">
-                        {roll?.isSmsSend ? "Send" : "Not Send"}
+                      <td className="border border-green-200 p-2 text-center hidden md:table-cell">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          roll?.isSmsSend 
+                            ? "bg-green-100 text-green-700" 
+                            : "bg-gray-100 text-gray-600"
+                        }`}>
+                          {roll?.isSmsSend ? "Send" : "Not Send"}
+                        </span>
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
-                        {roll?.isAttendanceComplete ? "Present" : "Not Present"}
+                      <td className="border border-green-200 p-2 text-center">
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          roll?.isAttendanceComplete 
+                            ? "bg-green-100 text-green-700" 
+                            : "bg-red-100 text-red-700"
+                        }`}>
+                          {roll?.isAttendanceComplete ? "Present" : "Absent"}
+                        </span>
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center font-semibold">
                         {roll?.resultDetails?.[0]?.totalMarks || "N/A"}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center font-semibold">
-                        {scholarshipGrade || "N/A"}
+                      <td className="border border-green-200 p-2 text-center font-semibold">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          scholarshipGrade === "Talentpool Grade"
+                            ? "bg-green-200 text-green-800"
+                            : scholarshipGrade === "General Grade"
+                            ? "bg-blue-200 text-blue-800"
+                            : "bg-gray-200 text-gray-600"
+                        }`}>
+                          {scholarshipGrade || "N/A"}
+                        </span>
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center hidden lg:table-cell text-xs">
                         {roll?.createdByName}
                       </td>
-                      <td className="border border-tableBorder pl-1 text-center">
+                      <td className="border border-green-200 p-2 text-center">
                         <button
-                          className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all"
                           onClick={() => {
                             history.push(`/admitCard/${roll?._id}`);
                           }}>
-                          <span>Download</span>
+                          Download
                         </button>
                       </td>
-
-                      <td className="border border-tableBorder pl-1">
-                        <div className="flex justify-center items-center py-2 gap-1">
+                      <td className="border border-green-200 p-2">
+                        <div className="flex justify-center items-center gap-1 md:gap-2">
                           <button
-                            className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
+                            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all"
                             onClick={() => {
                               setRowData(roll);
                               handleEditClick(roll._id);
                             }}>
-                            <span>
-                              <i className="pi pi-pencil font-semibold"></i>
-                            </span>
+                          Edit
                           </button>
                           {!roll?.isSmsSend && (
                             <Popconfirm
-                              title="Delete the task"
-                              description="Are you sure to delete this task?"
+                              title="Delete Application"
+                              description="Are you sure to delete this application?"
                               onConfirm={() => {
                                 handleDelete(roll?._id);
                               }}
                               onCancel={cancel}
                               okText="Yes"
                               cancelText="No">
-                              <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
-                                <span>
-                                  <i className="pi pi-trash font-semibold"></i>
-                                </span>
+                              <button className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all">
+                               Delete
                               </button>
                             </Popconfirm>
                           )}
@@ -761,40 +839,51 @@ const Scholarship = () => {
                 })}
               </tbody>
             </table>
-            <div className="flex justify-center p-2">
+            </div>
+            <div className="flex justify-center p-4 bg-gray-50 border-t border-green-200">
               <Pagination
                 showQuickJumper
                 current={currentPage}
                 total={filteredRolls.length}
                 pageSize={itemsPerPage}
                 onChange={onChange}
+                showSizeChanger={false}
+                showTotal={(total) => `Total ${total} applications`}
+                className="text-sm md:text-base"
               />
             </div>
           </div>
 
           {/* Class-wise Student List Section */}
-          <div className="mt-8 bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-lg font-bold mb-4">Class-wise Student List</h3>
-            <Collapse accordion>
+          <div className="bg-white rounded-xl shadow-lg border-2 border-green-100 mx-0">
+            <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-800">
+              Class-wise Student List
+            </h3>
+            <Collapse accordion className="bg-transparent">
               {Object.keys(classGroups)
                 .sort((a, b) => parseInt(a) - parseInt(b))
                 .map((className) => (
                   <Panel
-                    header={`Class ${className} (${classGroups[className].length} students)`}
-                    key={className}>
+                    header={
+                      <span className="font-bold text-base md:text-lg">
+                        Class {className} ({classGroups[className].length} students)
+                      </span>
+                    }
+                    key={className}
+                    className="mb-2 border-2 border-green-200 rounded-lg">
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left text-gray-500">
-                        <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                      <table className="w-full text-sm text-left text-gray-700">
+                        <thead className="text-xs text-gray-700 uppercase bg-gradient-to-r from-green-600 to-emerald-600 text-white">
                           <tr>
-                            <th className="px-4 py-2">#</th>
-                            <th className="px-4 py-2">Roll No.</th>
-                            <th className="px-4 py-2">Name</th>
-                            <th className="px-4 py-2">Institute</th>
-                            <th className="px-4 py-2">Gender</th>
-                            <th className="px-4 py-2">Phone</th>
-                            <th className="px-4 py-2">Marks</th>
-                            <th className="px-4 py-2">Grade</th>
-                            <th className="px-4 py-2">Attendance</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">#</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">Roll No.</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">Name</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold hidden md:table-cell">Institute</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold hidden lg:table-cell">Gender</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold hidden lg:table-cell">Phone</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">Marks</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">Grade</th>
+                            <th className="px-3 py-2 md:px-4 md:py-3 font-semibold">Attendance</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -804,46 +893,54 @@ const Scholarship = () => {
                             return (
                               <tr
                                 key={student._id}
-                                className={`border-b ${
+                                className={`border-b hover:bg-green-50 transition-colors ${
                                   student.isAttendanceComplete
                                     ? "bg-green-50"
-                                    : ""
+                                    : "bg-white"
                                 } ${
                                   scholarshipGrade === "Talentpool Grade"
-                                    ? "bg-green-100"
+                                    ? "bg-green-50"
                                     : scholarshipGrade === "General Grade"
-                                    ? "bg-blue-100"
+                                    ? "bg-blue-50"
                                     : ""
                                 }`}>
-                                <td className="px-4 py-2">{index + 1}</td>
-                                <td className="px-4 py-2">
+                                <td className="px-3 py-2 md:px-4 md:py-3 font-medium">{index + 1}</td>
+                                <td className="px-3 py-2 md:px-4 md:py-3 font-medium">
                                   {student.scholarshipRollNumber}
                                 </td>
-                                <td className="px-4 py-2">{student.name}</td>
-                                <td className="px-4 py-2">
+                                <td className="px-3 py-2 md:px-4 md:py-3 font-medium">{student.name}</td>
+                                <td className="px-3 py-2 md:px-4 md:py-3 hidden md:table-cell">
                                   {student.institute}
                                 </td>
-                                <td className="px-4 py-2">{student.gender}</td>
-                                <td className="px-4 py-2">
+                                <td className="px-3 py-2 md:px-4 md:py-3 hidden lg:table-cell">{student.gender}</td>
+                                <td className="px-3 py-2 md:px-4 md:py-3 hidden lg:table-cell text-xs">
                                   {typeof student?.phone === "string" &&
                                   student?.phone?.startsWith("0")
                                     ? student?.phone
                                     : `0${student?.phone}`}
                                 </td>
-                                <td className="px-4 py-2">
+                                <td className="px-3 py-2 md:px-4 md:py-3 font-semibold">
                                   {student.resultDetails?.[0]?.totalMarks ||
                                     "N/A"}
                                 </td>
-                                <td className="px-4 py-2 font-semibold">
-                                  {scholarshipGrade || "N/A"}
+                                <td className="px-3 py-2 md:px-4 md:py-3">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                                    scholarshipGrade === "Talentpool Grade"
+                                      ? "bg-green-200 text-green-800"
+                                      : scholarshipGrade === "General Grade"
+                                      ? "bg-blue-200 text-blue-800"
+                                      : "bg-gray-200 text-gray-600"
+                                  }`}>
+                                    {scholarshipGrade || "N/A"}
+                                  </span>
                                 </td>
-                                <td className="px-4 py-2">
+                                <td className="px-3 py-2 md:px-4 md:py-3">
                                   {student.isAttendanceComplete ? (
-                                    <span className="text-green-600 font-semibold">
+                                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
                                       Present
                                     </span>
                                   ) : (
-                                    <span className="text-red-600 font-semibold">
+                                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
                                       Absent
                                     </span>
                                   )}
@@ -859,25 +956,81 @@ const Scholarship = () => {
             </Collapse>
           </div>
         </div>
-      )}
+      </div>
 
       <Modal
-        title="Please Provided Valid Information"
+        title={
+          <span className="text-xl md:text-2xl font-bold text-gray-800">
+            Please Provide Valid Information
+          </span>
+        }
         open={isModalOpen}
         onCancel={handleCancel}
-        width={800}>
+        width="95%"
+        style={{ maxWidth: 800 }}>
         <ScholarshipInsert handleCancel={handleCancel} isUpdate={false} />
       </Modal>
       <Modal
-        title="Please Provided Valid Information"
+        title={
+          <span className="text-xl md:text-2xl font-bold text-gray-800">
+            Update Scholarship Information
+          </span>
+        }
         open={isModalOpen2}
         onCancel={handleCancel}
-        width={800}>
+        width="95%"
+        style={{ maxWidth: 800 }}>
         <ScholarshipUpdate
           handleCancel={handleCancel}
           scholarshipData={rowData}
           isUpdate={true}
         />
+      </Modal>
+      
+      {/* Image Preview Modal */}
+      <Modal
+        title={
+          <span className="text-lg md:text-xl font-bold text-gray-800">
+            {selectedImageName}
+          </span>
+        }
+        open={imageModalVisible}
+        onCancel={() => setImageModalVisible(false)}
+        footer={null}
+        centered
+        width="auto"
+        style={{ maxWidth: "90vw" }}
+        styles={{
+          body: {
+            padding: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+        }}
+      >
+        <div className="flex justify-center items-center">
+          <img
+            src={selectedImage}
+            alt={selectedImageName}
+            className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-lg animate-in fade-in zoom-in duration-300"
+            style={{
+              animation: "zoomIn 0.3s ease-out",
+            }}
+          />
+        </div>
+        <style>{`
+          @keyframes zoomIn {
+            from {
+              transform: scale(0.8);
+              opacity: 0;
+            }
+            to {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </Modal>
     </>
   );

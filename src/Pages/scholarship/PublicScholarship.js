@@ -83,19 +83,19 @@ const CountdownTimer = ({ targetDate, onComplete }) => {
 
   return (
     <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-      <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg">
+      <div className="bg-gradient-to-br from-green-600 to-green-500 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg hover:shadow-xl transition-shadow">
         <div className="text-3xl md:text-4xl font-bold">{timeLeft.days}</div>
         <div className="text-sm">Days / দিন</div>
       </div>
-      <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg">
+      <div className="bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg hover:shadow-xl transition-shadow">
         <div className="text-3xl md:text-4xl font-bold">{timeLeft.hours}</div>
         <div className="text-sm">Hours / ঘণ্টা</div>
       </div>
-      <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg">
+      <div className="bg-gradient-to-br from-emerald-500 to-green-400 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg hover:shadow-xl transition-shadow">
         <div className="text-3xl md:text-4xl font-bold">{timeLeft.minutes}</div>
         <div className="text-sm">Minutes / মিনিট</div>
       </div>
-      <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg">
+      <div className="bg-gradient-to-br from-green-400 to-emerald-400 text-white rounded-xl p-4 min-w-[80px] text-center shadow-lg hover:shadow-xl transition-shadow">
         <div className="text-3xl md:text-4xl font-bold">{timeLeft.seconds}</div>
         <div className="text-sm">Seconds / সেকেন্ড</div>
       </div>
@@ -112,9 +112,9 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const [isApplicationOpen, setIsApplicationOpen] = useState(true);
   const userInfo = useUserInfo();
 
-  // Application period: Dec 27, 2025 2:00 PM to Jan 13, 2026 12:00 AM
+  // Application period: Dec 27, 2025 2:00 PM to Jan 31, 2026 12:00 PM
   const applicationStart = new Date('2025-12-27T14:00:00');
-  const applicationEnd = new Date('2026-01-13T00:00:00');
+  const applicationEnd = new Date('2026-01-31T12:00:00');
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -178,6 +178,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             formik.resetForm();
             setFileList([]);
             handleCancel();
+            return; // Return after successful submission
           }
         } else {
           const formData = new FormData();
@@ -210,12 +211,16 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
               formik.resetForm();
               setFileList([]);
               handleCancel();
+              return; // Return after successful submission
             }
           }
         }
       } catch (err) {
         setLoading(false);
-        toast.error(err?.response?.data?.message || "An error occurred / একটি ত্রুটি ঘটেছে");
+        // Only show error if it's actually an error (not a successful response)
+        if (err?.response?.status !== 201 && err?.response?.status !== 200) {
+          toast.error(err?.response?.data?.message || "An error occurred / একটি ত্রুটি ঘটেছে");
+        }
       }
     },
     enableReinitialize: true,
@@ -384,9 +389,9 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 via-white to-green-50">
       {/* Application Status Banner */}
-      <div className={`${isApplicationOpen ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-orange-600'} shadow-lg`}>
+      <div className={`${isApplicationOpen ? 'bg-gradient-to-r from-green-600 via-green-500 to-emerald-600' : 'bg-gradient-to-r from-red-500 to-orange-600'} shadow-lg`}>
         <div className="container mx-auto px-4 py-3">
           <Row gutter={[16, 16]} align="middle" justify="center">
             <Col xs={24} md={8}>
@@ -411,7 +416,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                   Application Period / আবেদনের সময়সীমা
                 </Text>
                 <Text className="text-green-100 text-xl">
-                  ২৭ ডিসেম্বর (দুপুর ২টা) - ১৩ জানুয়ারি (রাত ১২টা)
+                  ২৭ ডিসেম্বর (দুপুর ২টা) - ৩১ জানুয়ারি (দুপুর ১২টা)
                 </Text>
               </div>
             </Col>
@@ -428,12 +433,12 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       </div>
 
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg">
+      <div className="bg-gradient-to-r from-green-600 via-green-500 to-emerald-600 shadow-lg">
         <div className="container mx-auto px-4 py-6 md:py-8 lg:py-12">
-          <Title level={2} className="text-center !text-white mb-2 !text-2xl md:!text-3xl lg:!text-4xl">
+          <Title level={2} className="text-center !text-white mb-2 !text-2xl md:!text-3xl lg:!text-4xl font-extrabold">
             DMF শিক্ষাবৃত্তি ২০২৬ / DMF Scholarship 2026
           </Title>
-          <Text className="block text-center text-blue-100 text-lg">
+          <Text className="block text-center text-green-50 text-lg font-medium">
             Empowering Future Leaders Through Education / শিক্ষার মাধ্যমে ভবিষ্যত নেতৃত্ব গড়ে তোলা
           </Text>
         </div>
@@ -445,7 +450,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
         
 
         {/* Mode Selection */}
-        <Card className="mb-8 shadow-lg border-0 rounded-xl">
+        <Card className="mb-8 shadow-lg border-2 border-green-100 rounded-xl bg-white">
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Button
               type={!isApplicationShow ? "primary" : "default"}
@@ -465,7 +470,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
               icon={<EyeOutlined />}
               size="large"
               onClick={() => setIsApplicationShow(true)}
-              className={`flex-1 max-w-md ${isApplicationShow ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0" : ""}`}
+              className={`flex-1 max-w-md ${isApplicationShow ? "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0" : ""}`}
             >
               <div className="flex flex-col items-center">
                 <span className="text-lg font-semibold">View Application / আবেদন দেখুন</span>
@@ -488,12 +493,12 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
         {/* Content Based on Selection */}
         {isApplicationShow ? (
           // View Application Section
-          <Card className="shadow-xl border-0 rounded-xl">
+          <Card className="shadow-xl border-2 border-green-100 rounded-xl bg-white">
             <Row gutter={[24, 24]}>
               <Col xs={24} lg={12}>
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-lg h-full">
-                  <Title level={3} className="text-blue-800 mb-4">
-                    <InfoCircleOutlined className="mr-2" />
+                <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-lg h-full border-2 border-green-100 shadow-md">
+                  <Title level={3} className="text-green-700 mb-4">
+                    <InfoCircleOutlined className="mr-2 text-green-600" />
                     Download Admit Card / এডমিট কার্ড ডাউনলোড করুন
                   </Title>
                   <Paragraph className="text-gray-700 mb-6">
@@ -524,7 +529,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                       icon={<EyeOutlined />}
                       loading={loading}
                       onClick={handleFetchData}
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 border-0 shadow-md"
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0 shadow-md"
                     >
                       {loading ? "Loading... / লোড হচ্ছে..." : "Fetch Details / বিস্তারিত দেখুন"}
                     </Button>
@@ -587,7 +592,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                   </Row>
 
                   <div className="text-center mb-8">
-                    <Title level={2} className="!text-2xl md:!text-3xl text-blue-800">
+                    <Title level={2} className="!text-2xl md:!text-3xl text-green-700 font-extrabold">
                       DMF Scholarship 2026
                     </Title>
                     <Title level={4} className="!text-lg md:!text-xl text-gray-700 mt-2">
@@ -649,7 +654,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        <div className="bg-blue-600 text-white px-6 py-2 rounded-lg text-center">
+                        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg text-center shadow-md">
                           <Text strong className="text-white">ADMIT CARD</Text>
                         </div>
                       </div>
@@ -672,11 +677,11 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
           </Card>
         ) : (
           // Application Form Section
-          <Card className="shadow-xl border-0 rounded-xl">
+          <Card className="shadow-xl border-2 border-green-100 rounded-xl bg-white">
             {!isApplicationOpen && (
               <Alert
                 message="Application Period Ended / আবেদনের সময়সীমা শেষ"
-                description="The application period for DMF Scholarship 2026 has ended on January 13, 2026 at 12:00 AM. You can no longer submit new applications. / ডিএমএফ শিক্ষাবৃত্তি ২০২৬-এর আবেদনের সময়সীমা ১৩ জানুয়ারি, ২০২৬ রাত ১২টায় শেষ হয়েছে। আপনি আর নতুন আবেদন জমা দিতে পারবেন না।"
+                description="The application period for DMF Scholarship 2026 has ended on January 31, 2026 at 12:00 PM. You can no longer submit new applications. / ডিএমএফ শিক্ষাবৃত্তি ২০২৬-এর আবেদনের সময়সীমা ৩১ জানুয়ারি, ২০২৬ দুপুর ১২টায় শেষ হয়েছে। আপনি আর নতুন আবেদন জমা দিতে পারবেন না।"
                 type="error"
                 showIcon
                 className="mb-6"
@@ -701,7 +706,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                 description={
                   <div>
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Application Period: Dec 27, 2025 (2:00 PM) - Jan 13, 2026 (12:00 AM) / আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) - ১৩ জানুয়ারি, ২০২৬ (রাত ১২টা)</li>
+                      <li>Application Period: Dec 27, 2025 (2:00 PM) - Jan 31, 2026 (12:00 PM) / আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) - ৩১ জানুয়ারি, ২০২৬ (দুপুর ১২টা)</li>
                       <li>Fill all information accurately / সব তথ্য সঠিকভাবে পূরণ করুন</li>
                       <li>Upload recent passport size photo / সাম্প্রতিক পাসপোর্ট সাইজের ছবি আপলোড করুন</li>
                       <li>Keep your scholarship roll number safe for future reference / ভবিষ্যত রেফারেন্সের জন্য আপনার শিক্ষাবৃত্তি রোল নম্বর সংরক্ষণ করুন</li>
@@ -826,8 +831,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
 
       {/* Application Timeline */}
       <div className="container mx-auto px-4 py-8">
-        <Card className="shadow-lg border-0 rounded-xl">
-          <Title level={3} className="text-center mb-6">
+        <Card className="shadow-lg border-2 border-green-100 rounded-xl bg-white">
+          <Title level={3} className="text-center mb-6 text-green-700">
             <CalendarOutlined className="mr-2" />
             Scholarship Timeline / শিক্ষাবৃত্তি সময়সূচী
           </Title>
@@ -841,9 +846,9 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Card className="text-center bg-gradient-to-br from-green-50 to-green-100 border-0">
-                <div className="text-2xl font-bold text-green-600 mb-2">Jan 13</div>
+                <div className="text-2xl font-bold text-green-600 mb-2">Jan 31</div>
                 <Text strong className="block">Application Ends / আবেদন শেষ</Text>
-                <Text className="text-sm">12:00 AM / রাত ১২টা</Text>
+                <Text className="text-sm">12:00 PM / দুপুর ১২টা</Text>
               </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
@@ -855,7 +860,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Card className="text-center bg-gradient-to-br from-purple-50 to-purple-100 border-0">
-                <div className="text-2xl font-bold text-purple-600 mb-2">Jan 23 & 30</div>
+                <div className="text-2xl font-bold text-purple-600 mb-2">TBA</div>
                 <Text strong className="block">Exam Date / পরীক্ষার তারিখ</Text>
                 <Text className="text-sm">To be announced / পরে ঘোষণা</Text>
               </Card>
@@ -865,7 +870,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       </div>
 
       {/* Footer */}
-      <div className="mt-12 pt-8 pb-6 bg-gray-800 text-white">
+      <div className="mt-12 pt-8 pb-6 bg-gradient-to-r from-green-700 via-green-600 to-emerald-700 text-white">
         <div className="container mx-auto px-4 text-center">
           <Text className="text-gray-400">
             © 2025-2026 DMF Scholarship Program. All rights reserved.
@@ -875,8 +880,8 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
           </Text>
           <div className="mt-4">
             <Text className="text-gray-500 text-xs">
-              Application Period: December 27, 2025 (2:00 PM) to January 13, 2026 (12:00 AM) / 
-              আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) থেকে ১৩ জানুয়ারি, ২০২৬ (রাত ১২টা)
+              Application Period: December 27, 2025 (2:00 PM) to January 31, 2026 (12:00 PM) / 
+              আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) থেকে ৩১ জানুয়ারি, ২০২৬ (দুপুর ১২টা)
             </Text>
           </div>
         </div>
