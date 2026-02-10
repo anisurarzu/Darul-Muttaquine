@@ -4,19 +4,21 @@ import {
   PrinterOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
-import DMFLogo from "../../images/New-Main-2.png";
 import React, { useEffect, useState } from "react";
 import { coreAxios } from "../../utilities/axios";
-import { Button, QRCode, Watermark } from "antd";
+import { Button, QRCode } from "antd";
 import { formatDate } from "../../utilities/dateFormate";
 import html2pdf from "html2pdf.js";
 import Loader from "../../components/Loader/Loader";
+import PreviousDMFLogo from "../../images/New-Main-2.png";
 
-const AdmitCard = () => {
+const DMFLogo = "https://i.ibb.co/F4XV8dKL/1.png";
+
+const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
   const history = useHistory();
   const { id } = useParams();
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
 
   const fetchScholarshipInfo = async () => {
     try {
@@ -33,19 +35,29 @@ const AdmitCard = () => {
   };
 
   useEffect(() => {
-    fetchScholarshipInfo();
-  }, []);
+    if (scholarshipData) {
+      // If data is passed as prop, use it directly
+      setData({ scholarship: scholarshipData });
+    } else if (id) {
+      // Otherwise fetch using id from params
+      fetchScholarshipInfo();
+    }
+  }, [id, scholarshipData]);
 
   const print = () => {
     window.print();
   };
 
   const instructions = [
-    "পরীক্ষার কেন্দ্রে ৩০ মিনিট আগে উপস্থিত হতে হবে।",
-    "প্রশ্নপত্রের প্রতিটি প্রশ্ন পড়ুন এবং উত্তর দেওয়ার আগে ভালোভাবে বুঝে নিন।",
-    "পরীক্ষার সময় মোবাইল ফোন এবং অন্যান্য বৈদ্যুতিন ডিভাইস ব্যবহার করা নিষেধ।",
-    "পরীক্ষার নিয়ম এবং নির্দেশাবলী অনুসরণ করুন।",
-    "আপনার পরীক্ষা সনদ এবং প্রয়োজনীয় ডকুমেন্ট সঙ্গে রাখুন।",
+    "লিখিত ও মৌখিক পরীক্ষায় অংশগ্রহণের জন্য এই প্রবেশপত্র অবশ্যই সঙ্গে আনতে হবে।",
+    "সকাল ৯:৩০ টায় প্রার্থীর নির্ধারিত আসন গ্রহণ করতে হবে এবং পরীক্ষা সময় শেষ না হওয়া পর্যন্ত কক্ষ ত্যাগ করতে পারবেন না।",
+    "পরীক্ষার কক্ষে কোন প্রকার মোবাইল ফোন, স্মার্ট ওয়াচ, বই, খাতা, নোট, কাগজপত্র, ক্যালকুলেটর, ব্যাগ, মানিব্যাগ, পার্স ইত্যাদি আনা নিষিদ্ধ।",
+    "পরীক্ষার্থীকে উত্তরপত্রে অবশ্যই কালো বলপয়েন্ট কলম ব্যবহার করতে হবে।",
+    "রোল এর পূরণে কোনো ভুল হলে উত্তরপত্রটি বাতিল বলে গণ্য হবে।",
+    "ওএমআর ফরমের উপরের অংশের নির্ধারিত সকল তথ্য যথাযথভাবে পূরণ করতে হবে। অন্যথায় উত্তরপত্রটি বাতিল বলে গণ্য হবে।",
+    "পরীক্ষার কেন্দ্রের ভিতরে প্রার্থী আসন কোন কক্ষে তার তালিকা টানিয়ে দেওয়া হবে।",
+    "লিখিত পরীক্ষায় বা মৌখিক পরীক্ষায় অংশগ্রহণ বৃত্তির নিশ্চয়তা প্রদান করে না।",
+    "পরীক্ষা সংক্রান্ত সকল তথ্যাদি ফাউন্ডেশনের ওয়েবসাইটে (ourdmf.com) পাওয়া যাবে।",
   ];
 
   const downloadPDF = () => {
@@ -61,243 +73,224 @@ const AdmitCard = () => {
   };
 
   return (
-    <Watermark content="DMF SCHOLARSHIP 2026">
+    <>
       {loading ? (
         <Loader />
       ) : (
         <div className="bg-gray-50 min-h-screen">
           {/* Action Buttons - Hidden on Print */}
-          <div className="max-w-5xl mx-auto px-4 py-6 print:hidden">
-            <div className="flex gap-3">
-              <Button
-                onClick={() => history.goBack()}
-                type="default"
-                icon={<ArrowLeftOutlined />}
-                size="large">
-                Back
-              </Button>
-              <Button
-                type="primary"
-                onClick={downloadPDF}
-                icon={<DownloadOutlined />}
-                size="large">
-                Download PDF
-              </Button>
+          {showActions && (
+            <div className="max-w-5xl mx-auto px-4 py-6 print:hidden">
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => history.goBack()}
+                  type="default"
+                  icon={<ArrowLeftOutlined />}
+                  size="large">
+                  Back
+                </Button>
+                <Button
+                  type="primary"
+                  onClick={downloadPDF}
+                  icon={<DownloadOutlined />}
+                  size="large">
+                  Download PDF
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Main Admit Card */}
           <div
             id="admit-card"
-            className="max-w-5xl mx-auto bg-white shadow-lg print:shadow-none print:max-w-full">
-            <div className="p-8">
+            className="max-w-7xl mx-auto bg-white shadow-lg print:shadow-none print:max-w-full">
+            <div className="p-8 print:p-6">
               {/* Header Section */}
-              <div className="border-b-4 border-blue-600 pb-6 mb-6">
-                <div className="flex items-start justify-between mb-4">
-                  <img 
-                    src={DMFLogo} 
-                    alt="DMF Logo" 
-                    className="h-20 object-contain" 
-                  />
+              <div className="border-b-2 border-green-600 pb-5 mb-5">
+                <div className="flex items-center justify-between mb-4">
+                  {/* Logo - Left */}
+                  <div className="flex-1">
+                    <img 
+                      src={DMFLogo} 
+                      alt="DMF Logo" 
+                      className="h-[100px] object-contain" 
+                    />
+                  </div>
                   
-                  <div className="text-center flex-1 px-4">
-                    <h1 className="text-3xl font-bold text-blue-900 mb-2">
-                      DMF SCHOLARSHIP 2026
+                  {/* Title - Center */}
+                  <div className="flex-1 text-center">
+                    <p className="text-2xl md:text-3xl font-bold text-green-800 mb-2 bangla-text">
+                      দারুল মুত্তাক্বীন ফাউন্ডেশন
+                    </p>
+                    <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-2 bangla-text whitespace-nowrap">
+                      প্রবেশপত্র  
                     </h1>
-                    <div className="inline-block bg-blue-100 px-6 py-2 rounded-lg">
-                      <p className="text-lg font-semibold text-blue-800">
-                        WRITTEN EXAM ADMIT CARD
-                      </p>
-                    </div>
+                      <h1 className="text-3xl md:text-4xl font-bold text-green-800 mb-2 bangla-text whitespace-nowrap">
+                        শিক্ষাবৃত্তি পরীক্ষা-২০২৬
+                      </h1>
                   </div>
-                  
-                  <QRCode
-                    type="svg"
-                    value={data?.scholarship?.scholarshipRollNumber || "DMF2026"}
-                    size={80}
-                    className="border-2 border-gray-300 p-1"
-                  />
-                </div>
 
-                {/* Exam Details Box */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mt-4">
-                  <p className="text-center text-lg font-semibold text-gray-800 mb-2">
-                    📅 Exam Date: 23 January 2026 (Friday)
-                  </p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-700">
-                    <p className="text-center">
-                      <span className="font-semibold">Class (3rd-5th):</span> ⏰ Duration: 40 minutes | 🕘 Start: 9:00 AM
-                    </p>
-                    <p className="text-center">
-                      <span className="font-semibold">Class (6th-10th):</span> ⏰ Duration: 70 minutes | 🕙 Start: 10:20 AM
-                    </p>
-                  </div>
-                  <div className="mt-2 text-center">
-                    <p className="text-sm font-medium text-red-600">
-                      📝 Written Examination
-                    </p>
+                  {/* QR Code - Right */}
+                  <div className="flex-1 flex justify-end">
+                    <QRCode
+                      type="svg"
+                      value={data?.scholarship?.scholarshipRollNumber || "DMF2026"}
+                      size={100}
+                      className="border-2 border-green-600 p-1"
+                    />
                   </div>
                 </div>
               </div>
 
+              {/* Roll Number - Large Display */}
+              <div className="text-center mb-8">
+                <div className="flex justify-center items-center gap-3 mb-4">
+                  <p className="text-base font-semibold bangla-text text-green-700">রোলনং-</p>
+                  {String(data?.scholarship?.scholarshipRollNumber || "").split("").map((digit, idx) => (
+                    <span key={idx} className="text-4xl font-bold text-green-800 border-2 border-green-600 px-4 py-3 bg-green-50">
+                      {digit}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               {/* Main Content Grid */}
-              <div className="grid grid-cols-12 gap-6 mb-6">
+              <div className="grid grid-cols-12 gap-5 mb-8">
                 {/* Left Side - Student Information */}
                 <div className="col-span-8">
-                  <div className="border-2 border-gray-300 rounded-lg overflow-hidden">
-                    <div className="bg-blue-600 text-white px-4 py-2 font-semibold">
-                      Candidate Information
-                    </div>
-                    <table className="w-full text-sm">
-                      <tbody>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50 w-1/3">
-                            Roll Number
-                          </td>
-                          <td className="py-3 px-4 font-bold text-blue-700 text-lg">
-                            {data?.scholarship?.scholarshipRollNumber}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Candidate Name
-                          </td>
-                          <td className="py-3 px-4 font-semibold uppercase">
-                            {data?.scholarship?.name}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Parent Name
-                          </td>
-                          <td className="py-3 px-4 uppercase">
-                            {data?.scholarship?.parentName}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Class
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded font-semibold">
-                              {data?.scholarship?.instituteClass}
-                            </span>
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Gender
-                          </td>
-                          <td className="py-3 px-4 uppercase">
-                            {data?.scholarship?.gender}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Blood Group
-                          </td>
-                          <td className="py-3 px-4 uppercase font-semibold text-red-600">
-                            {data?.scholarship?.bloodGroup}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Phone Number
-                          </td>
-                          <td className="py-3 px-4">
-                            {typeof data?.scholarship?.phone === "string" &&
-                            data?.scholarship?.phone?.startsWith("0")
-                              ? data?.scholarship?.phone
-                              : `0${data?.scholarship?.phone}`}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Address
-                          </td>
-                          <td className="py-3 px-4 uppercase">
-                            {data?.scholarship?.presentAddress}
-                          </td>
-                        </tr>
-                        <tr className="border-b border-gray-200">
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Institute
-                          </td>
-                          <td className="py-3 px-4 uppercase">
-                            {data?.scholarship?.institute}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="py-3 px-4 font-semibold bg-gray-50">
-                            Institute Roll No.
-                          </td>
-                          <td className="py-3 px-4 uppercase">
-                            {data?.scholarship?.instituteRollNumber}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                  <table className="w-full text-lg border-2 border-green-600">
+                    <tbody>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 w-1/3 border-r border-green-600 bangla-text text-green-800">
+                          নাম:
+                        </td>
+                        <td className="py-3 px-4 font-semibold uppercase">
+                          {data?.scholarship?.name}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          পিতার নাম:
+                        </td>
+                        <td className="py-3 px-4 uppercase">
+                          {data?.scholarship?.parentName}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          মাতার নাম:
+                        </td>
+                        <td className="py-3 px-4 uppercase">
+                          {data?.scholarship?.parentName || "N/A"}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          উপজেলা:
+                        </td>
+                        <td className="py-3 px-4 uppercase">
+                          {data?.scholarship?.presentAddress?.split(",")[0] || "N/A"}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          জেলা:
+                        </td>
+                        <td className="py-3 px-4 uppercase">
+                          {data?.scholarship?.presentAddress?.split(",")[1] || "N/A"}
+                        </td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          পরীক্ষার তারিখ ও সময়:
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="font-semibold text-green-700">23 January 2026, 10:00 AM - 11:30 AM</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
+                          পরীক্ষার কেন্দ্র:
+                        </td>
+                        <td className="py-3 px-4 font-semibold text-green-700">
+                          Takter Chala Sabuj Bangla High School, Takter chala, Sakhipur, Tangail
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Right Side - Photo & Signature */}
+                {/* Right Side - Photo & Signature - Smaller */}
                 <div className="col-span-4">
-                  <div className="border-2 border-gray-300 rounded-lg p-4 h-full flex flex-col items-center">
-                    <div className="w-full aspect-[3/4] border-2 border-dashed border-gray-400 rounded-lg overflow-hidden mb-3 flex items-center justify-center bg-gray-50">
+                  <div className="border-2 border-green-600 p-3 h-full flex flex-col">
+                    <div className="w-36 h-44 mx-auto border-2 border-green-600 overflow-hidden mb-4 flex items-center justify-center bg-green-50">
                       <img
                         src={data?.scholarship?.image || DMFLogo}
                         alt="Candidate"
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="mt-2 text-center w-full">
-                      <p className="text-xs text-gray-600 font-semibold mb-1">
-                        Candidate Signature
-                      </p>
-                      <div className="border-t-2 border-gray-400 mt-8 pt-1 w-32 mx-auto"></div>
+                    <div className="mt-auto text-center">
+                      <p className="text-sm font-semibold mb-2 bangla-text text-green-700">পরীক্ষার্থীর স্বাক্ষরঃ</p>
+                      <div className="border-t-2 border-green-600 mt-4 h-12"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Exam Center Highlight */}
-              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
-                <p className="font-bold text-gray-800 mb-1">📍 Exam Center:</p>
-                <p className="text-gray-700 font-semibold">
-                  Takter Chala Sabuj Bangla High School, Takter chala, Sakhipur, Tangail
-                </p>
-              </div>
-
               {/* Instructions Section */}
-              <div className="border-2 border-gray-300 rounded-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-2 font-bold">
-                  ⚠️ Important Instructions (গুরুত্বপূর্ণ নির্দেশাবলী)
+              <div className="border-2 border-green-600 mb-6">
+                <div className="bg-green-700 text-white px-5 py-4 font-bold text-center bangla-text text-xl">
+                  পরীক্ষার্থীর জন্য সাধারণ নির্দেশনাবলী:
                 </div>
-                <div className="p-4">
-                  <ol className="space-y-2 text-sm">
-                    {instructions?.map((instruction, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="inline-block w-6 h-6 bg-blue-600 text-white rounded-full text-center font-semibold mr-3 flex-shrink-0">
-                          {index + 1}
-                        </span>
-                        <span className="pt-0.5">{instruction}</span>
-                      </li>
-                    ))}
+                <div className="p-5 bg-green-50">
+                  <ol className="space-y-3 text-lg bangla-text">
+                    {instructions?.map((instruction, index) => {
+                      const bengaliNumbers = ['১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+                      return (
+                        <li key={index} className="flex items-start">
+                          <span className="inline-block w-8 h-8 bg-green-700 text-white rounded-full text-center font-semibold mr-4 flex-shrink-0 text-base leading-8">
+                            {bengaliNumbers[index]}
+                          </span>
+                          <span className="pt-0.5 leading-relaxed">{instruction}</span>
+                        </li>
+                      );
+                    })}
                   </ol>
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="mt-6 pt-4 border-t-2 border-gray-300 flex justify-between items-center text-xs text-gray-600">
-                <p>📧 Contact: ourdmf@gmail.com</p>
-                <p>🌐 www.dmfscholarship.org</p>
-                <p className="font-semibold">Best of Luck! ✨</p>
+              {/* Footer with QR Code and Signature */}
+              <div className="grid grid-cols-12 gap-4 mt-6 pt-4 border-t-2 border-green-600">
+                {/* Logo - Bottom Left */}
+                <div className="col-span-6">
+                  <div className="flex items-center gap-3">
+                    <img 
+                      src={PreviousDMFLogo} 
+                      alt="DMF Logo" 
+                      className="h-[80px] object-contain border-2 border-green-600 p-1" 
+                    />
+                    <div>
+                      <p className="text-sm font-semibold mb-1">User Id:</p>
+                      <p className="text-sm">{data?.scholarship?.scholarshipRollNumber || "N/A"}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Director Signature - Bottom Right */}
+                <div className="col-span-6 text-right">
+                  <div className="inline-block text-center mt-8 mr-8 pl-6">
+                    <div className="border-t-2 border-green-600 w-48 mb-4"></div>
+                    <p className="text-sm font-semibold bangla-text text-green-700 mb-3">পরিচালক</p>
+                    <p className="text-sm bangla-text text-green-700">দারুল মুত্তাক্বীন ফাউন্ডেশন</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
-    </Watermark>
+    </>
   );
 };
 

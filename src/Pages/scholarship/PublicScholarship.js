@@ -20,7 +20,8 @@ import {
   Steps,
   Divider,
   Statistic,
-  Badge
+  Badge,
+  Modal
 } from "antd";
 import "antd/dist/reset.css";
 import html2pdf from "html2pdf.js";
@@ -34,11 +35,14 @@ import {
   InfoCircleOutlined,
   ClockCircleOutlined,
   CalendarOutlined,
-  FireOutlined
+  FireOutlined,
+  CheckCircleOutlined,
+  CopyOutlined
 } from "@ant-design/icons";
 import DMFLogo from "../../images/New-Main-2.png";
 import { formatDate } from "../../utilities/dateFormate";
 import useUserInfo from "../../hooks/useUserInfo";
+import AdmitCard from "../Dashboard/AdmitCard";
 
 const { Title, Text, Paragraph } = Typography;
 const { Step } = Steps;
@@ -110,11 +114,13 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [isApplicationOpen, setIsApplicationOpen] = useState(true);
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+  const [submittedRollNumber, setSubmittedRollNumber] = useState("");
   const userInfo = useUserInfo();
 
-  // Application period: Dec 27, 2025 2:00 PM to Jan 31, 2026 12:00 PM
+  // Application period: Dec 27, 2025 2:00 PM to Feb 25, 2026 12:00 PM
   const applicationStart = new Date('2025-12-27T14:00:00');
-  const applicationEnd = new Date('2026-01-31T12:00:00');
+  const applicationEnd = new Date('2026-02-25T12:00:00');
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -149,82 +155,94 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
       instituteClass: "",
       instituteRollNumber: "",
       gender: "",
-      phone: 0,
+      phone: "",
       bloodGroup: "",
       presentAddress: "",
       dateOfBirth: "2025-04-18",
       createdBy: userInfo?.uniqueId || "",
       createdByName: userInfo?.firstName || "",
     },
-    onSubmit: async (values) => {
-      if (!isApplicationOpen) {
-        toast.error("Application period has ended! / আবেদনের সময়সীমা শেষ হয়ে গেছে!");
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        if (!fileList.length) {
-          const allData = {
-            ...values,
-            image:
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU",
-          };
-
-          const res = await coreAxios.post(`/scholarship-info`, allData);
-          if (res?.status === 201) {
-            setLoading(false);
-            toast.success("Successfully Saved! / সফলভাবে সংরক্ষিত!");
-            formik.resetForm();
-            setFileList([]);
-            handleCancel();
-            return; // Return after successful submission
-          }
-        } else {
-          const formData = new FormData();
-          fileList.forEach((file) => {
-            formData.append("image", file.originFileObj);
-          });
-
-          const response = await axios.post(
-            "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
-            formData
-          );
-          if (response?.status === 200) {
-            const allData = {
-              ...values,
-              image: response?.data?.data?.display_url,
-              dateOfBirth: "2025-04-18",
-            };
-
-            const res = await coreAxios.post(`/scholarship-info`, allData);
-            if (res?.status === 201) {
-              setLoading(false);
-              toast.success(
-                `Successfully Saved! Your Scholarship Roll No is ${res.data?.scholarshipRollNumber}. Please note this for future use. / সফলভাবে সংরক্ষিত! আপনার শিক্ষাবৃত্তি রোল নম্বর: ${res.data?.scholarshipRollNumber}. ভবিষ্যতে ব্যবহারের জন্য এটি সংরক্ষণ করুন।`,
-                {
-                  autoClose: 30000,
-                  draggable: false,
-                  closeOnClick: false,
-                }
-              );
-              formik.resetForm();
-              setFileList([]);
-              handleCancel();
-              return; // Return after successful submission
-            }
-          }
-        }
-      } catch (err) {
-        setLoading(false);
-        // Only show error if it's actually an error (not a successful response)
-        if (err?.response?.status !== 201 && err?.response?.status !== 200) {
-          toast.error(err?.response?.data?.message || "An error occurred / একটি ত্রুটি ঘটেছে");
-        }
-      }
+    onSubmit: () => {
+      // Empty function - we handle submission manually
     },
     enableReinitialize: true,
   });
+
+  // Custom submit handler to prevent page reload
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!isApplicationOpen) {
+      toast.error("Application period has ended! / আবেদনের সময়সীমা শেষ হয়ে গেছে!");
+      return;
+    }
+
+    // Validate required fields
+    const values = formik.values;
+    const requiredFields = ['name', 'parentName', 'institute', 'instituteClass', 'instituteRollNumber', 'gender', 'presentAddress'];
+    const missingFields = requiredFields.filter(field => !values[field] || values[field].trim() === '');
+    
+    if (missingFields.length > 0) {
+      toast.error("Please fill all required fields / অনুগ্রহ করে সব আবশ্যক ক্ষেত্র পূরণ করুন");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      let imageUrl = null;
+      
+      // Handle image upload if exists
+      if (fileList.length > 0 && fileList[0]?.originFileObj) {
+        const formData = new FormData();
+        formData.append("image", fileList[0].originFileObj);
+
+        const response = await axios.post(
+          "https://api.imgbb.com/1/upload?key=5bdcb96655462459d117ee1361223929",
+          formData
+        );
+        
+        if (response?.status === 200 && response?.data?.data?.display_url) {
+          imageUrl = response.data.data.display_url;
+        } else {
+          throw new Error("Failed to upload image");
+        }
+      } else {
+        // Use default image if no image uploaded
+        imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSw_JmAXuH2Myq0ah2g_5ioG6Ku7aR02-mcvimzwFXuD25p2bjx7zhaL34oJ7H9khuFx50&usqp=CAU";
+      }
+
+      // Prepare data for submission
+      const submissionData = {
+        ...values,
+        image: imageUrl,
+        dateOfBirth: values.dateOfBirth || "2025-04-18",
+      };
+
+      const res = await coreAxios.post(`/scholarship-info`, submissionData);
+      
+      if (res?.status === 201 || res?.status === 200) {
+        const rollNumber = res.data?.scholarshipRollNumber || "N/A";
+        
+        // Set roll number and show success modal
+        setSubmittedRollNumber(rollNumber);
+        setSuccessModalVisible(true);
+        
+        // Reset form
+        formik.resetForm();
+        setFileList([]);
+      } else {
+        throw new Error("Failed to save data");
+      }
+    } catch (err) {
+      console.error('Submission error:', err);
+      const errorMessage = err?.response?.data?.message || err?.message || "An error occurred. Please try again. / একটি ত্রুটি ঘটেছে। আবার চেষ্টা করুন।";
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onChange = ({ fileList: newFileList }) => {
     setFileList(newFileList);
@@ -292,10 +310,10 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
     {
       id: "phone",
       name: "phone",
-      type: "number",
+      type: "text",
       label: "Phone Number / ফোন নম্বর",
       placeholder: "Enter phone number / ফোন নম্বর লিখুন",
-      component: InputNumber,
+      component: Input,
       required: false,
     },
     {
@@ -342,10 +360,10 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
     setError("");
     try {
       const response = await coreAxios.get(
-        `/scholarship-roll-info/${scholarshipRollNumber}`
+        `/scholarship-info-roll/${scholarshipRollNumber}`
       );
       if (response?.status === 200) {
-        setData(response.data);
+        setData(response.data?.scholarship);
         setScholarshipRollNumber("");
         toast.success("Data fetched successfully! / তথ্য সফলভাবে আহরণ করা হয়েছে!");
       }
@@ -416,7 +434,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                   Application Period / আবেদনের সময়সীমা
                 </Text>
                 <Text className="text-green-100 text-xl">
-                  ২৭ ডিসেম্বর (দুপুর ২টা) - ৩১ জানুয়ারি (দুপুর ১২টা)
+                  ২৭ ডিসেম্বর (দুপুর ২টা) - ২৫ ফেব্রুয়ারি (দুপুর ১২টা)
                 </Text>
               </div>
             </Col>
@@ -546,25 +564,38 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                     </Title>
                     <div className="space-y-4">
                       <Alert
-                        message="Admit card is ready for download"
-                        description="Click the button below to download your admit card in PDF format."
+                        message="Admit Card Available / এডমিট কার্ড পাওয়া যাচ্ছে"
+                        description={
+                          <div>
+                            <Text className="block mb-2">
+                              Your admit card is ready! You can download it in PDF format by clicking the button below.
+                            </Text>
+                            <Text className="block text-gray-600">
+                              আপনার এডমিট কার্ড প্রস্তুত! নিচের বাটনে ক্লিক করে PDF ফরম্যাটে ডাউনলোড করতে পারেন।
+                            </Text>
+                          </div>
+                        }
                         type="success"
                         showIcon
+                        className="mb-4"
                       />
                       <div className="bg-white p-4 rounded-lg border border-green-200">
-                        <Text strong className="block">Roll Number: {data?.scholarshipRollNumber}</Text>
-                        <Text className="block">Name: {data?.name}</Text>
-                        <Text className="block">Class: {data?.instituteClass}</Text>
+                        <Text strong className="block mb-2">Roll Number / রোল নম্বর: {data?.scholarshipRollNumber}</Text>
+                        <Text className="block mb-1">Name / নাম: {data?.name}</Text>
+                        <Text className="block">Class / শ্রেণী: {data?.instituteClass}</Text>
                       </div>
                       <Button
                         type="primary"
                         size="large"
                         icon={<DownloadOutlined />}
                         onClick={downloadPDF}
-                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0 shadow-md"
+                        className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0 shadow-md text-lg h-12"
                       >
                         Download Admit Card / এডমিট কার্ড ডাউনলোড করুন
                       </Button>
+                      <Text type="secondary" className="block text-center text-sm mt-2">
+                        Scroll down to preview your admit card / আপনার এডমিট কার্ড দেখতে নিচে স্ক্রল করুন
+                      </Text>
                     </div>
                   </div>
                 )}
@@ -577,100 +608,24 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                 <Divider orientation="left">
                   <Title level={4} className="!mb-0">Admit Card Preview / এডমিট কার্ড প্রদর্শন</Title>
                 </Divider>
-                <div id="admit-card" className="bg-white p-8 rounded-lg border-2 border-dashed border-gray-300">
-                  <Row gutter={[24, 24]} className="mb-6">
-                    <Col xs={24} md={12}>
-                      <img src={DMFLogo} alt="DMF Logo" className="h-16 md:h-20" />
-                    </Col>
-                    <Col xs={24} md={12} className="text-right">
-                      <QRCode
-                        value={data?.scholarshipRollNumber || "DMF Scholarship"}
-                        size={100}
-                        className="mx-auto md:mx-0 md:ml-auto"
-                      />
-                    </Col>
-                  </Row>
-
-                  <div className="text-center mb-8">
-                    <Title level={2} className="!text-2xl md:!text-3xl text-green-700 font-extrabold">
-                      DMF Scholarship 2026
-                    </Title>
-                    <Title level={4} className="!text-lg md:!text-xl text-gray-700 mt-2">
-                      Exam Date: To be announced / পরীক্ষার তারিখ: পরে ঘোষণা করা হবে
-                    </Title>
-                  </div>
-
-                  <Row gutter={[24, 24]}>
-                    <Col xs={24} md={16}>
-                      <Card className="shadow-sm">
-                        <Row gutter={[16, 16]}>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Roll Number:</Text>
-                            <Text className="block text-lg">{data?.scholarshipRollNumber}</Text>
-                          </Col>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Name:</Text>
-                            <Text className="block text-lg">{data?.name}</Text>
-                          </Col>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Parent Name:</Text>
-                            <Text className="block">{data?.parentName}</Text>
-                          </Col>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Class:</Text>
-                            <Text className="block">{data?.instituteClass}</Text>
-                          </Col>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Phone:</Text>
-                            <Text className="block">
-                              {typeof data?.phone === "string" && data?.phone?.startsWith("0")
-                                ? data?.phone
-                                : `0${data?.phone}`}
-                            </Text>
-                          </Col>
-                          <Col xs={24} sm={12}>
-                            <Text strong>Gender:</Text>
-                            <Text className="block">{data?.gender}</Text>
-                          </Col>
-                          <Col xs={24}>
-                            <Text strong>Address:</Text>
-                            <Text className="block">{data?.presentAddress}</Text>
-                          </Col>
-                          <Col xs={24}>
-                            <Text strong>Exam Center:</Text>
-                            <Text className="block text-green-600">
-                              To be announced / পরে ঘোষণা করা হবে
-                            </Text>
-                          </Col>
-                        </Row>
-                      </Card>
-                    </Col>
-                    <Col xs={24} md={8}>
-                      <div className="flex flex-col items-center">
-                        <div className="w-48 h-48 border-4 border-green-200 rounded-lg overflow-hidden mb-4">
-                          <img
-                            src={data?.image || DMFLogo}
-                            alt="Student"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-lg text-center shadow-md">
-                          <Text strong className="text-white">ADMIT CARD</Text>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <Divider orientation="left">Exam Instructions / পরীক্ষার নির্দেশনা</Divider>
-                  <Card className="bg-gray-50">
-                    <ol className="list-decimal pl-5 space-y-2">
-                      {instructions.map((instruction, index) => (
-                        <li key={index} className="text-gray-700">
-                          {instruction}
-                        </li>
-                      ))}
-                    </ol>
-                  </Card>
+                <Alert
+                  message="Download Your Admit Card / আপনার এডমিট কার্ড ডাউনলোড করুন"
+                  description={
+                    <div>
+                      <Text className="block mb-1">
+                        Your admit card is displayed below. Use the "Download Admit Card" button above to download it as a PDF file.
+                      </Text>
+                      <Text className="block text-gray-600">
+                        আপনার এডমিট কার্ড নিচে প্রদর্শিত হচ্ছে। PDF ফাইল হিসাবে ডাউনলোড করতে উপরের "এডমিট কার্ড ডাউনলোড করুন" বাটন ব্যবহার করুন।
+                      </Text>
+                    </div>
+                  }
+                  type="info"
+                  showIcon
+                  className="mb-4"
+                />
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <AdmitCard scholarshipData={data} showActions={false} />
                 </div>
               </div>
             )}
@@ -681,7 +636,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             {!isApplicationOpen && (
               <Alert
                 message="Application Period Ended / আবেদনের সময়সীমা শেষ"
-                description="The application period for DMF Scholarship 2026 has ended on January 31, 2026 at 12:00 PM. You can no longer submit new applications. / ডিএমএফ শিক্ষাবৃত্তি ২০২৬-এর আবেদনের সময়সীমা ৩১ জানুয়ারি, ২০২৬ দুপুর ১২টায় শেষ হয়েছে। আপনি আর নতুন আবেদন জমা দিতে পারবেন না।"
+                description="The application period for DMF Scholarship 2026 has ended on February 25, 2026 at 12:00 PM. You can no longer submit new applications. / ডিএমএফ শিক্ষাবৃত্তি ২০২৬-এর আবেদনের সময়সীমা ২৫ ফেব্রুয়ারি, ২০২৬ দুপুর ১২টায় শেষ হয়েছে। আপনি আর নতুন আবেদন জমা দিতে পারবেন না।"
                 type="error"
                 showIcon
                 className="mb-6"
@@ -706,7 +661,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                 description={
                   <div>
                     <ul className="list-disc pl-5 space-y-1">
-                      <li>Application Period: Dec 27, 2025 (2:00 PM) - Jan 31, 2026 (12:00 PM) / আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) - ৩১ জানুয়ারি, ২০২৬ (দুপুর ১২টা)</li>
+                      <li>Application Period: Dec 27, 2025 (2:00 PM) - Feb 25, 2026 (12:00 PM) / আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) - ২৫ ফেব্রুয়ারি, ২০২৬ (দুপুর ১২টা)</li>
                       <li>Fill all information accurately / সব তথ্য সঠিকভাবে পূরণ করুন</li>
                       <li>Upload recent passport size photo / সাম্প্রতিক পাসপোর্ট সাইজের ছবি আপলোড করুন</li>
                       <li>Keep your scholarship roll number safe for future reference / ভবিষ্যত রেফারেন্সের জন্য আপনার শিক্ষাবৃত্তি রোল নম্বর সংরক্ষণ করুন</li>
@@ -719,7 +674,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
               />
             </div>
 
-            <form onSubmit={formik.handleSubmit}>
+            <form onSubmit={handleFormSubmit} noValidate>
               <Row gutter={[24, 16]}>
                 {inputData.map(({ id, name, type, label, placeholder, required }) => (
                   <Col xs={24} md={12} lg={8} key={id}>
@@ -727,18 +682,35 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         {label} {required && <span className="text-red-500">*</span>}
                       </label>
-                      <Input
-                        id={id}
-                        name={name}
-                        type={type}
-                        size="large"
-                        placeholder={placeholder}
-                        required={required}
-                        onChange={formik.handleChange}
-                        value={formik.values[id]}
-                        disabled={!isApplicationOpen}
-                        className="w-full"
-                      />
+                      {id === "phone" ? (
+                        <Input
+                          id={id}
+                          name={name}
+                          type="text"
+                          size="large"
+                          placeholder={placeholder}
+                          required={required}
+                          onChange={formik.handleChange}
+                          value={formik.values[id] || ""}
+                          disabled={!isApplicationOpen}
+                          className="w-full"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                        />
+                      ) : (
+                        <Input
+                          id={id}
+                          name={name}
+                          type={type}
+                          size="large"
+                          placeholder={placeholder}
+                          required={required}
+                          onChange={formik.handleChange}
+                          value={formik.values[id] || ""}
+                          disabled={!isApplicationOpen}
+                          className="w-full"
+                        />
+                      )}
                     </div>
                   </Col>
                 ))}
@@ -797,8 +769,12 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                 <Button
                   type="default"
                   size="large"
+                  htmlType="button"
                   icon={<ArrowLeftOutlined />}
-                  onClick={() => setIsApplicationShow(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsApplicationShow(true);
+                  }}
                   className="flex-1 max-w-md"
                 >
                   Back / ফিরে যান
@@ -809,7 +785,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                   htmlType="submit"
                   loading={loading}
                   icon={<FormOutlined />}
-                  disabled={!isApplicationOpen}
+                  disabled={!isApplicationOpen || loading}
                   className={`flex-1 max-w-lg ${!isApplicationOpen ? 'opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700'} border-0 shadow-md`}
                 >
                   {loading ? "Submitting... / জমা হচ্ছে..." : "Submit Application / আবেদন জমা দিন"}
@@ -846,16 +822,16 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Card className="text-center bg-gradient-to-br from-green-50 to-green-100 border-0">
-                <div className="text-2xl font-bold text-green-600 mb-2">Jan 31</div>
+                <div className="text-2xl font-bold text-green-600 mb-2">Feb 25</div>
                 <Text strong className="block">Application Ends / আবেদন শেষ</Text>
                 <Text className="text-sm">12:00 PM / দুপুর ১২টা</Text>
               </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Card className="text-center bg-gradient-to-br from-orange-50 to-orange-100 border-0">
-                <div className="text-2xl font-bold text-orange-600 mb-2">TBA</div>
+                <div className="text-2xl font-bold text-orange-600 mb-2">Available</div>
                 <Text strong className="block">Admit Card / এডমিট কার্ড</Text>
-                <Text className="text-sm">To be announced / পরে ঘোষণা</Text>
+                <Text className="text-sm">Download Now / এখনই ডাউনলোড করুন</Text>
               </Card>
             </Col>
             <Col xs={24} sm={12} md={6}>
@@ -880,12 +856,113 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
           </Text>
           <div className="mt-4">
             <Text className="text-gray-500 text-xs">
-              Application Period: December 27, 2025 (2:00 PM) to January 31, 2026 (12:00 PM) / 
-              আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) থেকে ৩১ জানুয়ারি, ২০২৬ (দুপুর ১২টা)
+              Application Period: December 27, 2025 (2:00 PM) to February 25, 2026 (12:00 PM) / 
+              আবেদনের সময়সীমা: ২৭ ডিসেম্বর, ২০২৫ (দুপুর ২টা) থেকে ২৫ ফেব্রুয়ারি, ২০২৬ (দুপুর ১২টা)
             </Text>
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      <Modal
+        open={successModalVisible}
+        onCancel={() => {
+          setSuccessModalVisible(false);
+          setIsApplicationShow(true);
+        }}
+        footer={null}
+        centered
+        closable={true}
+        maskClosable={false}
+        width={600}
+        className="success-modal"
+      >
+        <div className="text-center py-6">
+          {/* Success Icon */}
+          <div className="mb-6">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
+              <CheckCircleOutlined className="text-6xl text-white" />
+            </div>
+          </div>
+
+          {/* Title */}
+          <Title level={2} className="!text-3xl !mb-4 text-green-700 font-extrabold">
+            Application Submitted Successfully! / আবেদন সফলভাবে জমা দেওয়া হয়েছে!
+          </Title>
+
+          {/* Roll Number Card */}
+          <Card className="mt-6 mb-6 border-2 border-green-200 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+            <div className="py-4">
+              <Text className="text-lg text-gray-600 block mb-3">
+                Your Scholarship Roll Number / আপনার শিক্ষাবৃত্তি রোল নম্বর:
+              </Text>
+              <div className="flex items-center justify-center gap-3">
+                <div className="bg-white px-6 py-4 rounded-lg border-2 border-green-300 shadow-md">
+                  <Text className="text-4xl font-bold text-green-700 tracking-wider">
+                    {submittedRollNumber}
+                  </Text>
+                </div>
+                <Button
+                  type="default"
+                  icon={<CopyOutlined />}
+                  onClick={() => {
+                    navigator.clipboard.writeText(submittedRollNumber);
+                    toast.success("Roll number copied! / রোল নম্বর কপি করা হয়েছে!");
+                  }}
+                  className="border-green-300 text-green-700 hover:bg-green-50"
+                >
+                  Copy
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          {/* Important Message */}
+          <Alert
+            message="Important Notice / গুরুত্বপূর্ণ বিজ্ঞপ্তি"
+            description={
+              <div className="text-left mt-2">
+                <Text className="block mb-2">
+                  Please save your roll number for future reference. You will need it to download your admit card and check your application status.
+                </Text>
+                <Text className="block text-gray-600">
+                  অনুগ্রহ করে ভবিষ্যত রেফারেন্সের জন্য আপনার রোল নম্বর সংরক্ষণ করুন। আপনার এডমিট কার্ড ডাউনলোড করতে এবং আবেদনের অবস্থা পরীক্ষা করতে আপনার এটি প্রয়োজন হবে।
+                </Text>
+              </div>
+            }
+            type="info"
+            showIcon
+            className="mb-6 text-left"
+          />
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+            <Button
+              type="primary"
+              size="large"
+              icon={<EyeOutlined />}
+              onClick={() => {
+                setSuccessModalVisible(false);
+                setIsApplicationShow(true);
+              }}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 border-0 shadow-md px-8"
+            >
+              View Application / আবেদন দেখুন
+            </Button>
+            <Button
+              type="default"
+              size="large"
+              onClick={() => {
+                setSuccessModalVisible(false);
+                setIsApplicationShow(true);
+              }}
+              className="border-green-300 text-green-700 hover:bg-green-50 px-8"
+            >
+              Close / বন্ধ করুন
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -12,6 +12,10 @@ import {
   MailOutlined,
   PhoneOutlined,
   GlobalOutlined,
+  TrophyOutlined,
+  ArrowRightOutlined,
+  DollarOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 
 const { Option } = Select;
@@ -535,6 +539,227 @@ export default function About() {
             <h2 className="text-white font-semibold text-2xl md:text-3xl py-8 lg:py-12 xl:py-12 text-center bangla-text">
               {t.aboutUs}
             </h2>
+          </div>
+
+          {/* Announcement Section */}
+          <div className="bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 py-8 md:py-12 px-4 md:px-8">
+            <div className="max-w-7xl mx-auto">
+              {/* Scholarship Program Announcement */}
+              <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-8 border-2 border-green-200">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-gradient-to-br from-green-500 to-emerald-600 p-4 rounded-xl">
+                    <TrophyOutlined className="text-white text-3xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-bold text-green-800 bangla-text">
+                      {language === "bengali" 
+                        ? "২০২৬ শিক্ষাবৃত্তি প্রোগ্রাম" 
+                        : "2026 Scholarship Program"}
+                    </h3>
+                    <p className="text-gray-600 text-sm md:text-base mt-1">
+                      {language === "bengali" 
+                        ? "আবেদন চলছে" 
+                        : "Applications Open"}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-gray-700 text-base md:text-lg leading-relaxed bangla-text">
+                  {language === "bengali"
+                    ? "দারুল মুত্তাক্বীন ফাউন্ডেশন ২০২৬ শিক্ষাবৃত্তি প্রোগ্রামের জন্য আবেদন গ্রহণ করা হচ্ছে। আগ্রহী শিক্ষার্থীরা ১০ ফেব্রুয়ারি, ২০২৬ পর্যন্ত আবেদন করতে পারবেন।"
+                    : "Darul Muttaqine Foundation is accepting applications for the 2026 Scholarship Program. Interested students can apply until February 10, 2026."}
+                </p>
+                <div className="mt-4">
+                  <a
+                    href="/scholarship-public"
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    {language === "bengali" ? "আবেদন করুন" : "Apply Now"}
+                    <ArrowRightOutlined />
+                  </a>
+                </div>
+              </div>
+
+              {/* Awards Section */}
+              <div className="space-y-8">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl md:text-4xl font-bold text-emerald-800 mb-4 bangla-text">
+                    {language === "bengali" 
+                      ? "বর্ষসেরা পুরস্কার" 
+                      : "Awards of the Year"}
+                  </h3>
+                  <p className="text-lg text-gray-700 bangla-text">
+                    {language === "bengali"
+                      ? "প্রতিটি ক্যাটাগরিতে ১ জন করে ৩,০০০ টাকা পুরস্কার পাবেন"
+                      : "1 person from each category will receive 3,000 Taka prize"}
+                  </p>
+                </div>
+
+                {/* Ayat-ul-'Ilm Excellence Award */}
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-2 border-emerald-200">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-xl">
+                      <TrophyOutlined className="text-white text-3xl" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl md:text-2xl font-bold text-emerald-800 bangla-text">
+                        Ayat-ul-'Ilm Excellence Award
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        {language === "bengali" 
+                          ? "পুরস্কার: ৩,০০০ টাকা" 
+                          : "Prize: 3,000 Taka"}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 mb-6 text-center bangla-text">
+                    {language === "bengali"
+                      ? "সকল প্রার্থী এই পুরস্কারের জন্য মনোনীত"
+                      : "All nominees are nominated for this award"}
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((index) => (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border-2 border-gray-200 hover:border-blue-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <div className="relative mb-4">
+                          <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <span className="text-gray-400 text-sm">
+                              {language === "bengali" ? "ছবি" : "Image"}
+                            </span>
+                          </div>
+                          <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            #{index}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <h5 className="font-bold text-gray-800 text-lg mb-1">
+                            {language === "bengali" 
+                              ? `প্রার্থী ${index}` 
+                              : `Nominee ${index}`}
+                          </h5>
+                          <p className="text-gray-600 text-sm">
+                            {language === "bengali" 
+                              ? "মনোনীত" 
+                              : "Nominated"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ayat-ul-Amānah Membership Award */}
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-2 border-emerald-200">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-xl">
+                      <UserOutlined className="text-white text-3xl" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl md:text-2xl font-bold text-emerald-800 bangla-text">
+                        Ayat-ul-Amānah Membership Award
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        {language === "bengali" 
+                          ? "পুরস্কার: ৩,০০০ টাকা" 
+                          : "Prize: 3,000 Taka"}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 mb-6 text-center bangla-text">
+                    {language === "bengali"
+                      ? "সকল প্রার্থী এই পুরস্কারের জন্য মনোনীত"
+                      : "All nominees are nominated for this award"}
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((index) => (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border-2 border-gray-200 hover:border-green-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <div className="relative mb-4">
+                          <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <span className="text-gray-400 text-sm">
+                              {language === "bengali" ? "ছবি" : "Image"}
+                            </span>
+                          </div>
+                          <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            #{index}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <h5 className="font-bold text-gray-800 text-lg mb-1">
+                            {language === "bengali" 
+                              ? `প্রার্থী ${index}` 
+                              : `Nominee ${index}`}
+                          </h5>
+                          <p className="text-gray-600 text-sm">
+                            {language === "bengali" 
+                              ? "মনোনীত" 
+                              : "Nominated"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Ayat-ul-Amānah Business Award */}
+                <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border-2 border-emerald-200">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-xl">
+                      <DollarOutlined className="text-white text-3xl" />
+                    </div>
+                    <div>
+                      <h4 className="text-xl md:text-2xl font-bold text-emerald-800 bangla-text">
+                        Ayat-ul-Amānah Business Award
+                      </h4>
+                      <p className="text-gray-600 text-sm">
+                        {language === "bengali" 
+                          ? "পুরস্কার: ৩,০০০ টাকা" 
+                          : "Prize: 3,000 Taka"}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 mb-6 text-center bangla-text">
+                    {language === "bengali"
+                      ? "সকল প্রার্থী এই পুরস্কারের জন্য মনোনীত"
+                      : "All nominees are nominated for this award"}
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((index) => (
+                      <div
+                        key={index}
+                        className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border-2 border-gray-200 hover:border-purple-400 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                      >
+                        <div className="relative mb-4">
+                          <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                            <span className="text-gray-400 text-sm">
+                              {language === "bengali" ? "ছবি" : "Image"}
+                            </span>
+                          </div>
+                          <div className="absolute top-2 right-2 bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold">
+                            #{index}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <h5 className="font-bold text-gray-800 text-lg mb-1">
+                            {language === "bengali" 
+                              ? `প্রার্থী ${index}` 
+                              : `Nominee ${index}`}
+                          </h5>
+                          <p className="text-gray-600 text-sm">
+                            {language === "bengali" 
+                              ? "মনোনীত" 
+                              : "Nominated"}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div>

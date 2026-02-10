@@ -72,7 +72,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [activeUsers, setActiveUsers] = useState([]);
+  // const [activeUsers, setActiveUsers] = useState([]);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -81,21 +81,21 @@ export default function Dashboard() {
     getUserInfo();
   }, []);
 
-  useEffect(() => {
-    if (userData?._id) {
-      fetchActiveUsers();
-      
-      // Set up interval to fetch active users every 10 seconds
-      const activeUsersInterval = setInterval(() => {
-        fetchActiveUsers();
-      }, 10000); // 10 seconds
+  // useEffect(() => {
+  //   if (userData?._id) {
+  //     fetchActiveUsers();
+  //     
+  //     // Set up interval to fetch active users every 10 seconds
+  //     const activeUsersInterval = setInterval(() => {
+  //       fetchActiveUsers();
+  //     }, 10000); // 10 seconds
 
-      // Cleanup interval on unmount
-      return () => {
-        clearInterval(activeUsersInterval);
-      };
-    }
-  }, [userData?._id]);
+  //     // Cleanup interval on unmount
+  //     return () => {
+  //       clearInterval(activeUsersInterval);
+  //     };
+  //   }
+  // }, [userData?._id]);
 
   const getUserInfo = async () => {
     try {
@@ -110,35 +110,35 @@ export default function Dashboard() {
     }
   };
 
-  const fetchActiveUsers = async () => {
-    try {
-      const response = await coreAxios.get("/active-users");
-      let usersArray = [];
-      if (response.data?.users && Array.isArray(response.data.users)) {
-        usersArray = response.data.users;
-      } else if (Array.isArray(response.data)) {
-        usersArray = response.data;
-      } else if (response.data?.data?.users && Array.isArray(response.data.data.users)) {
-        usersArray = response.data.data.users;
-      }
-      
-      // Sort: current user first, then others
-      const currentUserId = userData?._id;
-      const currentUserEmail = userData?.email;
-      const sortedUsers = usersArray.sort((a, b) => {
-        const aIsCurrent = a.id === currentUserId || a.email === currentUserEmail;
-        const bIsCurrent = b.id === currentUserId || b.email === currentUserEmail;
-        if (aIsCurrent && !bIsCurrent) return -1;
-        if (!aIsCurrent && bIsCurrent) return 1;
-        return 0;
-      });
-      
-      setActiveUsers(sortedUsers);
-    } catch (error) {
-      console.error("Failed to fetch active users:", error);
-      setActiveUsers([]);
-    }
-  };
+  // const fetchActiveUsers = async () => {
+  //   try {
+  //     const response = await coreAxios.get("/active-users");
+  //     let usersArray = [];
+  //     if (response.data?.users && Array.isArray(response.data.users)) {
+  //       usersArray = response.data.users;
+  //     } else if (Array.isArray(response.data)) {
+  //       usersArray = response.data;
+  //     } else if (response.data?.data?.users && Array.isArray(response.data.data.users)) {
+  //       usersArray = response.data.data.users;
+  //     }
+  //     
+  //     // Sort: current user first, then others
+  //     const currentUserId = userData?._id;
+  //     const currentUserEmail = userData?.email;
+  //     const sortedUsers = usersArray.sort((a, b) => {
+  //       const aIsCurrent = a.id === currentUserId || a.email === currentUserEmail;
+  //       const bIsCurrent = b.id === currentUserId || b.email === currentUserEmail;
+  //       if (aIsCurrent && !bIsCurrent) return -1;
+  //       if (!aIsCurrent && bIsCurrent) return 1;
+  //       return 0;
+  //     });
+  //     
+  //     setActiveUsers(sortedUsers);
+  //   } catch (error) {
+  //     console.error("Failed to fetch active users:", error);
+  //     setActiveUsers([]);
+  //   }
+  // };
 
   const menuItems = [
     { route: "dashboard", label: "Dashboard", icon: <DashboardOutlined /> },
@@ -450,7 +450,7 @@ export default function Dashboard() {
           />
           <div className="flex-1 flex justify-between items-center px-4">
             {/* Left Side - Active Users Avatar Group */}
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               {activeUsers.length > 0 && (
                 <Avatar.Group
                   maxCount={5}
@@ -492,19 +492,19 @@ export default function Dashboard() {
                   })}
                 </Avatar.Group>
               )}
-            </div>
+            </div> */}
             
             {/* Right Side - Active Users Count */}
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               {activeUsers.length > 0 && (
                 <div className="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full">
                   <UserOutlined className="text-green-600 text-sm" />
                   <span className="text-green-700 font-semibold text-sm">
                     {activeUsers.length}
                   </span>
-                </div>
-              )}
             </div>
+              )}
+            </div> */}
           </div>
         </Header>
 

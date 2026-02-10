@@ -159,8 +159,8 @@ export default function Login() {
               <svg className="w-20 h-20 xl:w-24 xl:h-24 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
               </svg>
-            </div>
-            
+        </div>
+
             {/* Foundation Mission Statement */}
             <div className="text-center space-y-3">
               <div className="text-4xl xl:text-5xl text-green-600 mb-1">❝</div>

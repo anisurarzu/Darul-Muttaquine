@@ -48,6 +48,7 @@ import {
 } from "@ant-design/icons";
 import ReviewsSection from "./ReviewsSection";
 import CommitteeMembersSection from "./CommitteeMembersSection";
+import { coreAxios } from "../../utilities/axios";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -134,7 +135,7 @@ const CountdownTimer = ({ targetDate, onComplete, language }) => {
 };
 
 // Counter Component
-const Counter = ({ end, duration, label, icon }) => {
+const Counter = ({ end, duration, label, icon, showPlus = true }) => {
   const [count, setCount] = useState(0);
   const countRef = useRef(null);
 
@@ -181,7 +182,7 @@ const Counter = ({ end, duration, label, icon }) => {
         {icon}
       </div>
       <div className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-green-800 mb-2">
-        {count}+
+        {count}{showPlus ? '+' : ''}
       </div>
       <div className="text-base md:text-lg font-semibold text-gray-700 uppercase tracking-wide">
         {label}
@@ -201,7 +202,7 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       writtenExamDate: "লিখিত পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
       vivaExamDate: "ভাইবা পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
       applicationPeriod:
-        "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ৩১ জানুয়ারি ২০২৬",
+        "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ২৫ ফেব্রুয়ারি ২০২৬",
       participants: "অংশগ্রহণকারী: ৩য় থেকে ১২শ শ্রেণির সকল শিক্ষার্থী",
 
       importantDates: [
@@ -209,7 +210,7 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
           icon: <CalendarOutlined />,
           text: "আবেদন শুরু: ২৭ ডিসেম্বর ২০২৫ (দুপুর ২টা)",
         },
-        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ৩১ জানুয়ারি ২০২৬" },
+        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ২৫ ফেব্রুয়ারি ২০২৬" },
         {
           icon: <ClockCircleOutlined />,
           text: "লিখিত পরীক্ষা: এখনও নির্ধারিত হয়নি",
@@ -326,7 +327,7 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       writtenExamDate: "Written Exam Date: Not fixed yet",
       vivaExamDate: "Viva Exam Date: Not fixed yet",
       applicationPeriod:
-        "Application Period: December 27, 2025 - January 31, 2026",
+        "Application Period: December 27, 2025 - February 25, 2026",
       participants: "Participants: Students from 3rd to 12th Grade",
 
       importantDates: [
@@ -336,7 +337,7 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
         },
         {
           icon: <CalendarOutlined />,
-          text: "Application Ends: January 31, 2026",
+          text: "Application Ends: February 25, 2026",
         },
         {
           icon: <ClockCircleOutlined />,
@@ -1337,10 +1338,40 @@ export default function Home() {
   const [noticeModalVisible, setNoticeModalVisible] = useState(false);
   const [isApplicationOpen, setIsApplicationOpen] = useState(true);
   const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [totalApplicants, setTotalApplicants] = useState(0);
+  const [totalInstitutions, setTotalInstitutions] = useState(0);
 
-  // Application period: Dec 27, 2025 2:00 PM to Jan 31, 2026 12:00 AM
+  // Application period: Dec 27, 2025 2:00 PM to Feb 25, 2026 12:00 PM
   const applicationStart = new Date('2025-12-27T14:00:00');
-  const applicationEnd = new Date('2026-01-31T00:00:00');
+  const applicationEnd = new Date('2026-02-25T12:00:00');
+
+  // Fetch real scholarship data
+  useEffect(() => {
+    const fetchScholarshipData = async () => {
+      try {
+        const response = await coreAxios.get('/scholarship-info');
+        if (response?.status === 200 && Array.isArray(response.data)) {
+          const applicants = response.data;
+          setTotalApplicants(applicants.length);
+          
+          // Count unique institutions
+          const uniqueInstitutions = new Set(
+            applicants
+              .map(app => app.institute)
+              .filter(inst => inst && inst.trim() !== '')
+          );
+          setTotalInstitutions(uniqueInstitutions.size);
+        }
+      } catch (error) {
+        console.error("Error fetching scholarship data:", error);
+        // Set default values on error
+        setTotalApplicants(0);
+        setTotalInstitutions(0);
+      }
+    };
+
+    fetchScholarshipData();
+  }, []);
 
   useEffect(() => {
     const calculateTimeLeft = () => {
@@ -1374,7 +1405,7 @@ export default function Home() {
         "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। 'শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা'",
       scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন শিক্ষাবৃত্তি ২০২৬",
       scholarshipText:
-        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ৩১ জানুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
+        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ২৫ ফেব্রুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
       scholarshipSubtext: "বাকি সময়ঃ",
       registerButton: "রেজিস্ট্রেশন করুন",
       languageButton: "English",
@@ -1421,7 +1452,7 @@ export default function Home() {
           color: "green",
         },
         {
-          label: "৩১ জানুয়ারি, ২০২৬",
+          label: "২৫ ফেব্রুয়ারি, ২০২৬",
           children: "প্রাথমিক আবেদন শেষ তারিখ",
           color: "blue",
         },
@@ -1431,12 +1462,6 @@ export default function Home() {
           color: "purple",
         },
       ],
-      stats: [
-        { value: 500, label: "শিক্ষার্থী", icon: <TeamOutlined /> },
-        { value: 50, label: "শিক্ষক", icon: <UserSwitchOutlined /> },
-        { value: 30, label: "শিক্ষা প্রতিষ্ঠান", icon: <BankOutlined /> },
-        { value: 5, label: "বছর", icon: <CalendarOutlined /> },
-      ],
     },
     english: {
       title: "Darul Muttakin Foundation",
@@ -1444,7 +1469,7 @@ export default function Home() {
         "Darul Muttakin Foundation is a non-political, non-profit educational, Dawah and welfare service organization dedicated to human welfare. 'To engage ourselves in religious education, propagation and welfare work solely for the pleasure of Allah'",
       scholarshipTitle: "Upcoming DMF Scholarship 2026",
       scholarshipText:
-        "Registration starts from December 27, 2:00 PM to January 31, 2026. Interested students can register now.",
+        "Registration starts from December 27, 2:00 PM to February 25, 2026. Interested students can register now.",
       scholarshipSubtext: "Time remaining:",
       registerButton: "Register Now",
       languageButton: "বাংলা",
@@ -1491,7 +1516,7 @@ export default function Home() {
           color: "green",
         },
         {
-          label: "January 31, 2026",
+          label: "February 25, 2026",
           children: "Initial application deadline",
           color: "blue",
         },
@@ -1500,12 +1525,6 @@ export default function Home() {
           children: "Scholarship test",
           color: "purple",
         },
-      ],
-      stats: [
-        { value: 500, label: "Students", icon: <TeamOutlined /> },
-        { value: 50, label: "Teachers", icon: <UserSwitchOutlined /> },
-        { value: 30, label: "Institutions", icon: <BankOutlined /> },
-        { value: 5, label: "Years", icon: <CalendarOutlined /> },
       ],
     },
   };
@@ -1519,9 +1538,51 @@ export default function Home() {
   };
 
   const currentContent = content[language];
+  
+  // Update stats with real data
+  const updatedStats = [
+    { value: totalApplicants, label: language === "bangla" ? "শিক্ষার্থী" : "Students", icon: <TeamOutlined />, showPlus: true },
+    { value: totalInstitutions, label: language === "bangla" ? "শিক্ষা প্রতিষ্ঠান" : "Institutions", icon: <BankOutlined />, showPlus: true },
+    { value: 2026, label: language === "bangla" ? "সাল" : "Year", icon: <CalendarOutlined />, showPlus: false },
+  ];
 
   return (
     <div className="home-container">
+      {/* Ayat-ul-'Ilm Excellence Award Announcement - Top Banner */}
+      <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-8 md:py-10 px-4 md:px-6 relative overflow-hidden shadow-lg">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8">
+            {/* Trophy Icon */}
+            <div className="bg-white/20 backdrop-blur-sm p-4 md:p-5 rounded-xl shadow-lg">
+              <TrophyOutlined className="text-4xl md:text-5xl lg:text-6xl text-yellow-300" />
+            </div>
+            
+            {/* Award Info */}
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-2 bangla-text">
+                Ayat-ul-'Ilm Excellence Award
+              </h3>
+              <p className="text-base md:text-lg lg:text-xl text-blue-100 bangla-text">
+                {language === "bangla"
+                  ? "শিক্ষাবৃত্তি প্রোগ্রামের সেরা শিক্ষার্থীকে এই পুরস্কার প্রদান করা হবে"
+                  : "This award will be given to the best student from the scholarship program"}
+              </p>
+            </div>
+
+            {/* Prize Badge */}
+            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xl md:text-2xl lg:text-3xl shadow-xl transform hover:scale-105 transition-transform duration-300 whitespace-nowrap">
+              {language === "bangla" ? "পুরস্কার:" : "Prize:"} 10,000 Tk
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Scholarship Announcement Banner */}
       <div className="w-full relative bg-gradient-to-b from-green-700 via-green-600 to-green-500 text-white py-12 md:py-20 px-4 md:px-6 overflow-hidden">
         {/* Animated Background Elements */}
@@ -1546,35 +1607,71 @@ export default function Home() {
             {currentContent.scholarshipText}
           </p>
 
-          {/* Countdown Timer Section */}
+          {/* Countdown Timer and Video Section - Side by Side */}
           <div className="mb-8 md:mb-12">
-            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-5 md:px-7 py-3 md:py-4 mb-6 shadow-lg">
-              <ClockCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
-              <Text strong className="text-white text-base md:text-xl font-semibold">
-                {currentContent.scholarshipSubtext}
-              </Text>
-            </div>
-            
-            <div className="flex justify-center mb-8">
-              <CountdownTimer 
-                targetDate={applicationEnd}
-                onComplete={() => setIsApplicationOpen(false)}
-                language={language}
-              />
-            </div>
-
-            {/* <div className="flex justify-center">
-              <div className="bg-white bg-opacity-20 backdrop-blur-sm rounded-lg p-3 md:p-4 inline-block">
-                <Text className="text-white text-sm md:text-base">
-                  <CalendarOutlined className="mr-2" />
-                  {language === "bangla" ? "আবেদনের সময়সীমা" : "Application Period"}: 
-                  <br className="md:hidden" />
-                  <span className="font-bold ml-1 md:ml-2">
-                    ২৭ ডিসেম্বর - ১৩ জানুয়ারি
-                  </span>
-                </Text>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
+              {/* Left Side - Countdown Timer */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
+                <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 mb-6 shadow-lg w-full justify-center">
+                  <ClockCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
+                  <Text strong className="text-white text-base md:text-xl font-semibold">
+                    {currentContent.scholarshipSubtext}
+                  </Text>
+                </div>
+                
+                <div className="flex justify-center">
+                  <CountdownTimer 
+                    targetDate={applicationEnd}
+                    onComplete={() => setIsApplicationOpen(false)}
+                    language={language}
+                  />
+                </div>
               </div>
-            </div> */}
+
+              {/* Right Side - Video */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
+                <div className="text-center mb-4 md:mb-6">
+                  <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 mb-4 shadow-lg">
+                    <InfoCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
+                    <Text strong className="text-white text-base md:text-xl font-semibold">
+                      {language === "bangla"
+                        ? "আবেদন প্রক্রিয়া ভিডিও"
+                        : "Application Process Video"}
+                    </Text>
+                  </div>
+                </div>
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <div className="absolute top-0 left-0 w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/30">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      src="https://www.youtube-nocookie.com/embed/eO0FsJM996g?rel=0&modestbranding=1&enablejsapi=1"
+                      title="DMF Scholarship Application Process"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                      loading="lazy"
+                      className="absolute top-0 left-0 w-full h-full"
+                      style={{ borderRadius: '12px' }}
+                    ></iframe>
+                  </div>
+                </div>
+                <div className="mt-4 text-center">
+                  <Button
+                    type="link"
+                    href="https://youtu.be/eO0FsJM996g"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-white hover:text-green-100 font-semibold text-sm md:text-base"
+                    icon={<EyeOutlined />}
+                  >
+                    {language === "bangla"
+                      ? "YouTube এ দেখুন"
+                      : "Watch on YouTube"}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-10 md:mb-16">
@@ -1603,16 +1700,66 @@ export default function Home() {
           </div>
 
           {/* Stats Section with Animated Counters */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-8 md:mt-12">
-            {currentContent.stats.map((stat, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-12">
+            {updatedStats.map((stat, index) => (
               <Counter
                 key={index}
                 end={stat.value}
                 duration={2000}
                 label={stat.label}
                 icon={stat.icon}
+                showPlus={stat.showPlus}
               />
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Ayat-ul-'Ilm Excellence Award - Detailed Banner */}
+      <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-10 md:py-14 px-4 md:px-6 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Left Side - Award Info */}
+            <div className="flex items-center gap-5 md:gap-6 flex-1">
+              <div className="bg-white/20 backdrop-blur-sm p-5 md:p-6 rounded-2xl shadow-xl">
+                <TrophyOutlined className="text-5xl md:text-6xl text-yellow-300" />
+              </div>
+              <div>
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 bangla-text">
+                  Ayat-ul-'Ilm Excellence Award
+                </h3>
+                <p className="text-lg md:text-xl lg:text-2xl text-blue-100 mb-3 bangla-text">
+                  {language === "bangla"
+                    ? "শিক্ষাবৃত্তি প্রোগ্রামের সেরা শিক্ষার্থীকে এই পুরস্কার প্রদান করা হবে"
+                    : "This award will be given to the best student from the scholarship program"}
+                </p>
+                <div className="flex items-center gap-3 mt-4">
+                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xl md:text-2xl lg:text-3xl shadow-xl">
+                    {language === "bangla" ? "পুরস্কার:" : "Prize:"} 10,000 Tk
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Side - Decorative Element */}
+            <div className="hidden md:flex items-center justify-center">
+              <div className="relative">
+                <div className="w-40 h-40 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/20">
+                  <div className="text-center">
+                    <div className="text-5xl font-bold text-yellow-300">10,000</div>
+                    <div className="text-lg text-blue-100 mt-2 font-semibold">Tk</div>
+                  </div>
+                </div>
+                <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full animate-ping"></div>
+                <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

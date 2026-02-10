@@ -799,10 +799,10 @@ const TaskManagement = () => {
               optionLabelProp="label"
             >
               {users.map((user) => (
-                  <Option
-                    key={user._id}
-                    value={user._id}
-                    user={user}
+                <Option
+                  key={user._id}
+                  value={user._id}
+                  user={user}
                     label={
                       <div className="flex items-center gap-2">
                         <Avatar
@@ -814,26 +814,26 @@ const TaskManagement = () => {
                         <span>{user.fullName}</span>
                       </div>
                     }
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar
-                        src={user.image}
-                        icon={<UserOutlined />}
-                        className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium truncate">
-                          {user.fullName}
-                        </div>
-                        {screens.md && (
-                          <div className="text-xs text-gray-500 truncate">
-                            {user.uniqueId} • {user.email}
-                          </div>
-                        )}
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      src={user.image}
+                      icon={<UserOutlined />}
+                      className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">
+                        {user.fullName}
                       </div>
+                      {screens.md && (
+                        <div className="text-xs text-gray-500 truncate">
+                          {user.uniqueId} • {user.email}
+                        </div>
+                      )}
                     </div>
-                  </Option>
-                ))}
+                  </div>
+                </Option>
+              ))}
             </Select>
           </Form.Item>
 
