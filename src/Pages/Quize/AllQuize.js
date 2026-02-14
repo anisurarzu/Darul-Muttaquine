@@ -260,7 +260,7 @@ const AllQuize = () => {
                                 setIsModalOpen2(true);
                               }}>
                               <span>
-                                <i className="pi pi-pencil font-semibold"></i>
+                              Edit
                               </span>
                             </button>
                           )}
@@ -283,7 +283,7 @@ const AllQuize = () => {
                             cancelText="No">
                             <button className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl">
                               <span>
-                                <i className="pi pi-trash font-semibold"></i>
+                               Delete
                               </span>
                             </button>
                           </Popconfirm>

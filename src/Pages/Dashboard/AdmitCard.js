@@ -60,6 +60,35 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
     "পরীক্ষা সংক্রান্ত সকল তথ্যাদি ফাউন্ডেশনের ওয়েবসাইটে (ourdmf.com) পাওয়া যাবে।",
   ];
 
+  const getExamTime = () => {
+    const instituteClass = data?.scholarship?.instituteClass?.toString().toLowerCase().trim();
+    
+    // Classes: Six, Seven, Eight, Nine, Ten, Eleven, Twelve
+    const higherClasses = ['six', '7', 'seven', '8', 'eight', '9', 'nine', '10', 'ten', '11', 'eleven', '12', 'twelve'];
+    
+    // Classes: Two, Three, Four, Five
+    const lowerClasses = ['two', '2', 'three', '3', 'four', '4', 'five', '5'];
+    
+    if (higherClasses.includes(instituteClass)) {
+      return "10:45 AM - 11:45 AM";
+    } else if (lowerClasses.includes(instituteClass)) {
+      return "10:00 AM - 10:30 AM";
+    }
+    
+    // Default time if class doesn't match
+    return "10:00 AM - 11:30 AM";
+  };
+
+  const getGenderPrefix = () => {
+    const gender = data?.scholarship?.gender?.toLowerCase();
+    if (gender === 'male') {
+      return 'M';
+    } else if (gender === 'female') {
+      return 'F';
+    }
+    return ''; // Return empty if gender is not specified or is 'other'
+  };
+
   const downloadPDF = () => {
     const element = document.getElementById("admit-card");
     const options = {
@@ -144,13 +173,18 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
 
               {/* Roll Number - Large Display */}
               <div className="text-center mb-8">
-                <div className="flex justify-center items-center gap-3 mb-4">
-                  <p className="text-base font-semibold bangla-text text-green-700">রোলনং-</p>
+                <div className="flex justify-center items-baseline gap-3 mb-4">
+                  <p className="text-base font-semibold bangla-text text-green-700" style={{ lineHeight: '1', paddingTop: '12px' }}>রোলনং-</p>
                   {String(data?.scholarship?.scholarshipRollNumber || "").split("").map((digit, idx) => (
-                    <span key={idx} className="text-4xl font-bold text-green-800 border-2 border-green-600 px-4 py-3 bg-green-50">
+                    <span key={idx} className="text-4xl font-bold text-green-800 border-2 border-green-600 px-4 py-3 bg-green-50 inline-flex items-center justify-center" style={{ lineHeight: '1', verticalAlign: 'middle' }}>
                       {digit}
                     </span>
                   ))}
+                  {getGenderPrefix() && (
+                    <span className="text-4xl font-bold text-green-800 border-2 border-green-600 px-4 py-3 bg-green-50 inline-flex items-center justify-center" style={{ lineHeight: '1', verticalAlign: 'middle' }}>
+                      {getGenderPrefix()}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -186,18 +220,18 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
                       </tr>
                       <tr className="border-b border-green-600">
                         <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
-                          উপজেলা:
+                          শ্রেণী:
                         </td>
                         <td className="py-3 px-4 uppercase">
-                          {data?.scholarship?.presentAddress?.split(",")[0] || "N/A"}
+                          {data?.scholarship?.instituteClass || "N/A"}
                         </td>
                       </tr>
                       <tr className="border-b border-green-600">
                         <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
-                          জেলা:
+                          শিক্ষা প্রতিষ্ঠানের নাম:
                         </td>
                         <td className="py-3 px-4 uppercase">
-                          {data?.scholarship?.presentAddress?.split(",")[1] || "N/A"}
+                          {data?.scholarship?.institute || "N/A"}
                         </td>
                       </tr>
                       <tr className="border-b border-green-600">
@@ -205,7 +239,7 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
                           পরীক্ষার তারিখ ও সময়:
                         </td>
                         <td className="py-3 px-4">
-                          <span className="font-semibold text-green-700">23 January 2026, 10:00 AM - 11:30 AM</span>
+                          <span className="font-semibold text-green-700">23 January 2026, {getExamTime()}</span>
                         </td>
                       </tr>
                       <tr>

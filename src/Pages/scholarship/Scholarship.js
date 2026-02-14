@@ -329,6 +329,21 @@ const Scholarship = () => {
     XLSX.writeFile(workbook, "ScholarshipData.xlsx");
   };
 
+  // Helper function to get gender prefix
+  const getGenderPrefix = (gender) => {
+    if (!gender) return "";
+    const genderLower = gender.toLowerCase();
+    if (genderLower === "male") return "M";
+    if (genderLower === "female") return "F";
+    return "";
+  };
+
+  // Helper function to format roll number with gender prefix
+  const formatRollNumberWithGender = (rollNumber, gender) => {
+    const prefix = getGenderPrefix(gender);
+    return prefix ? `${rollNumber}${prefix}` : rollNumber;
+  };
+
   const exportClassWisePDF = () => {
     const doc = new jsPDF({
       orientation: "landscape",
@@ -337,63 +352,154 @@ const Scholarship = () => {
     // Design Constants
     const PRIMARY_COLOR = [46, 125, 50]; // Dark green
     const TEXT_COLOR = [0, 0, 0]; // Black
-    const HEADER_FONT_SIZE = 14; // Increased header size
-    const BODY_FONT_SIZE = 10; // Optimal readable size
-    const LINE_HEIGHT = 7; // Comfortable line spacing
-    const CELL_PADDING = 2.5; // Better spacing
+    const HEADER_FONT_SIZE = 16; // Header size
+    const BODY_FONT_SIZE = 10; // Body font size
+    const LINE_HEIGHT = 7; // Line spacing
+    const CELL_PADDING = 3; // Cell padding
 
-    // Group students by class
+    // Helper function to normalize class name to number
+    const normalizeClassToNumber = (className) => {
+      if (!className) return null;
+      const classStr = className.toString().toLowerCase().trim();
+      
+      // Handle numeric classes
+      const numMatch = classStr.match(/^(\d+)/);
+      if (numMatch) {
+        return parseInt(numMatch[1]);
+      }
+      
+      // Handle text class names
+      const classMap = {
+        'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+      };
+      
+      return classMap[classStr] || null;
+    };
+
+    // Filter and group students by class (only classes 1-10)
     const classGroups = rollData.reduce((groups, student) => {
       const className = student.instituteClass;
-      if (!groups[className]) groups[className] = [];
-      groups[className].push(student);
+      const classNum = normalizeClassToNumber(className);
+      
+      // Only include classes 1-10
+      if (classNum !== null && classNum >= 1 && classNum <= 10) {
+        // Use normalized class number as key for consistent grouping
+        const classKey = classNum.toString();
+        if (!groups[classKey]) groups[classKey] = [];
+        groups[classKey].push(student);
+      }
       return groups;
     }, {});
 
-    // Sort classes numerically
-    const sortedClasses = Object.keys(classGroups).sort(
-      (a, b) => parseInt(a) - parseInt(b)
-    );
+    // Sort classes numerically (1 to 10)
+    const sortedClasses = Object.keys(classGroups)
+      .filter(className => {
+        const classNum = parseInt(className);
+        return !isNaN(classNum) && classNum >= 1 && classNum <= 10;
+      })
+      .sort((a, b) => parseInt(a) - parseInt(b));
 
-    // Column Widths (total width = 280mm in landscape)
+    // Check if there are any classes to process
+    if (sortedClasses.length === 0) {
+      toast.error("No students found in classes 1-10");
+      return;
+    }
+
+    // Get page dimensions for landscape
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 10; // Margin on each side
+    const availableWidth = pageWidth - (margin * 2);
+    
+    // Column Widths (as percentages of available width)
     const COLUMN_WIDTHS = {
-      serial: 12, // Serial No
-      roll: 28, // Roll Number
-      name: 75, // Name
-      institute: 115, // Institute (max width)
-      gender: 22, // Gender
-      phone: 28, // Phone
-      marks: 20, // Total Marks
-      grade: 30, // Scholarship Grade
+      serial: availableWidth * 0.05, // 5% - Serial No
+      roll: availableWidth * 0.12, // 12% - Roll Number (with M/F suffix)
+      name: availableWidth * 0.20, // 20% - Name
+      institute: availableWidth * 0.30, // 30% - Institute
+      phone: availableWidth * 0.12, // 12% - Phone
+      marks: availableWidth * 0.08, // 8% - Total Marks
+      grade: availableWidth * 0.13, // 13% - Scholarship Grade
     };
 
-    // Add page for each class
-    sortedClasses.forEach((className) => {
-      doc.addPage("landscape");
+    // Process each class (1-10)
+    sortedClasses.forEach((className, classIndex) => {
+      // Add new page for classes after the first one
+      if (classIndex > 0) {
+        doc.addPage("landscape");
+      }
 
-      // Header with larger text
+      // Header (landscape: 792 x 612 points)
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      
       doc.setFillColor(...PRIMARY_COLOR);
-      doc.rect(0, 0, 280, 12, "F");
+      doc.rect(0, 0, pageWidth, 14, "F");
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(HEADER_FONT_SIZE);
-      doc.text(`DMF-Scholarship-2025 - Class ${className}`, 140, 8, {
+      doc.setFont("helvetica", "bold");
+      doc.text(`DMF Scholarship 2026 - Class ${className}`, pageWidth / 2, 9, {
         align: "center",
         baseline: "middle",
       });
 
-      // Prepare table data
-      const tableData = classGroups[className].map((student, index) => [
+      // Sort students: first by gender (M first, then F), then by roll number
+      const sortedStudents = classGroups[className].sort((a, b) => {
+        // Get gender prefix for sorting
+        const genderA = getGenderPrefix(a.gender);
+        const genderB = getGenderPrefix(b.gender);
+        
+        // Sort by gender first: M comes before F, F comes before empty
+        if (genderA !== genderB) {
+          if (genderA === "M") return -1; // M comes first
+          if (genderB === "M") return 1; // M comes first
+          if (genderA === "F") return -1; // F comes before empty
+          if (genderB === "F") return 1; // F comes before empty
+        }
+        
+        // If same gender, sort by roll number
+        const rollA = a.scholarshipRollNumber || "";
+        const rollB = b.scholarshipRollNumber || "";
+        return rollA.localeCompare(rollB, undefined, { numeric: true });
+      });
+
+      // Check if there are students in this class
+      if (sortedStudents.length === 0) {
+        // Still show header even if no students
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(BODY_FONT_SIZE);
+        doc.setFont("helvetica", "normal");
+        doc.text("No students found in this class.", pageWidth / 2, 30, {
+          align: "center",
+        });
+        return;
+      }
+
+      // Prepare table data with formatted roll number (with M/F) and store gender info
+      const tableData = sortedStudents.map((student, index) => [
         index + 1,
-        student.scholarshipRollNumber,
-        student.name,
-        student.institute,
-        student.gender,
-        student.phone?.toString().replace(/^(\d)/, "0$1"), // Format phone
+        formatRollNumberWithGender(
+          student.scholarshipRollNumber || "N/A",
+          student.gender
+        ),
+        student.name || "N/A",
+        student.institute || "N/A",
+        student.phone
+          ? student.phone.toString().replace(/^(\d)/, "0$1")
+          : "N/A",
         student.resultDetails?.[0]?.totalMarks || "N/A",
         getScholarshipGrade(student) || "N/A",
       ]);
 
-      // Create perfectly balanced table
+      // Store gender information for row styling
+      const studentGenders = sortedStudents.map(student => getGenderPrefix(student.gender));
+
+      // Color definitions
+      const MALE_BG_COLOR = [230, 242, 255]; // Light blue for males
+      const FEMALE_BG_COLOR = [255, 230, 242]; // Light pink for females
+      const DEFAULT_BG_COLOR = [245, 245, 245]; // Light gray for others
+
+      // Create table
       doc.autoTable({
         head: [
           [
@@ -401,50 +507,58 @@ const Scholarship = () => {
             "Roll No",
             "Name",
             "Institute",
-            "Gender",
             "Phone",
             "Marks",
             "Grade",
           ],
         ],
         body: tableData,
-        startY: 16, // Below header
-        margin: { horizontal: 5 }, // Minimal side margins
+        startY: 18, // Below header
+        margin: { left: margin, right: margin, top: 18 },
         styles: {
           fontSize: BODY_FONT_SIZE,
           cellPadding: CELL_PADDING,
           lineHeight: LINE_HEIGHT,
           textColor: TEXT_COLOR,
           lineWidth: 0.25,
-          lineColor: [220, 220, 220], // Light gray lines
+          lineColor: [200, 200, 200],
+          font: "helvetica",
         },
         columnStyles: {
           0: { cellWidth: COLUMN_WIDTHS.serial, halign: "center" },
-          1: { cellWidth: COLUMN_WIDTHS.roll },
+          1: { cellWidth: COLUMN_WIDTHS.roll, halign: "center", fontStyle: "bold" },
           2: { cellWidth: COLUMN_WIDTHS.name },
           3: { cellWidth: COLUMN_WIDTHS.institute },
-          4: { cellWidth: COLUMN_WIDTHS.gender, halign: "center" },
-          5: { cellWidth: COLUMN_WIDTHS.phone },
-          6: { cellWidth: COLUMN_WIDTHS.marks, halign: "center" },
-          7: { cellWidth: COLUMN_WIDTHS.grade, halign: "center" },
+          4: { cellWidth: COLUMN_WIDTHS.phone },
+          5: { cellWidth: COLUMN_WIDTHS.marks, halign: "center" },
+          6: { cellWidth: COLUMN_WIDTHS.grade, halign: "center" },
         },
         headStyles: {
           fillColor: PRIMARY_COLOR,
           textColor: 255,
-          fontSize: BODY_FONT_SIZE + 1, // Slightly larger header
+          fontSize: BODY_FONT_SIZE + 1,
           cellPadding: CELL_PADDING + 0.5,
+          fontStyle: "bold",
         },
         bodyStyles: {
-          valign: "middle", // Better vertical alignment
+          valign: "middle",
         },
-        theme: "grid", // Clean grid style
+        didParseCell: function (data) {
+          // Apply background color based on gender for body rows
+          if (data.section === 'body' && data.row.index < studentGenders.length) {
+            const gender = studentGenders[data.row.index];
+            if (gender === "M") {
+              data.cell.styles.fillColor = MALE_BG_COLOR;
+            } else if (gender === "F") {
+              data.cell.styles.fillColor = FEMALE_BG_COLOR;
+            } else {
+              data.cell.styles.fillColor = DEFAULT_BG_COLOR;
+            }
+          }
+        },
+        theme: "grid",
       });
     });
-
-    // Remove initial blank page
-    if (doc.getNumberOfPages() > 1) {
-      doc.deletePage(1);
-    }
 
     // Save with timestamp
     const timestamp = new Date().toISOString().slice(0, 10);

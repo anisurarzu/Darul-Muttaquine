@@ -520,6 +520,64 @@ export default function PublicQuiz() {
     }
   };
 
+  const fetchUserQuizResult = async (quiz) => {
+    try {
+      setLoading(true);
+      const response = await coreAxios.get(`/quizzes-results/${quiz._id}`);
+      
+      if (response?.status === 200) {
+        const userInfoData = JSON.parse(localStorage.getItem("userInfo") || "null");
+        const tempUserInfo = JSON.parse(localStorage.getItem("tempUserInfo") || "null");
+        
+        // Find user's result - check multiple identifiers
+        const userResult = response.data.find(
+          (result) => {
+            if (userInfoData) {
+              return (
+                result.userId === userInfoData._id ||
+                result.userId === userInfoData.uniqueId ||
+                result.userPhone === userInfoData.phone
+              );
+            }
+            if (tempUserInfo) {
+              return result.userPhone === tempUserInfo.phone;
+            }
+            return false;
+          }
+        );
+
+        if (userResult && userResult.answers) {
+          // Format the result similar to quiz submission
+          const submissionData = userResult.answers.map((answer) => ({
+            question: answer.question,
+            userAnswer: answer.userAnswer,
+            correctAnswer: answer.correctAnswer,
+            result: answer.result,
+            mark: answer.mark,
+          }));
+
+          setQuizResults({
+            totalQuestions: submissionData.length,
+            correctAnswers: submissionData.filter((item) => item.result === "correct").length,
+            wrongAnswers: submissionData.filter((item) => item.result === "wrong").length,
+            questionsWithAnswers: submissionData,
+          });
+
+          setSelectedQuiz(quiz);
+          setQuizSubmitted(true);
+          setIsQuizModalOpen(true);
+        } else {
+          message.error("আপনার ফলাফল পাওয়া যায়নি। আপনি এই কুইজে অংশগ্রহণ করেননি।");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user result:", error);
+      message.error("ফলাফল লোড করতে সমস্যা হয়েছে");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const showLeaderboard = (type, quiz = null) => {
     setCurrentLeaderboardView(type);
     if (type === "quiz" && quiz) {
@@ -1189,6 +1247,18 @@ export default function PublicQuiz() {
                                   {isAttempted
                                     ? "ইতিমধ্যে অংশগ্রহণ করেছেন"
                                     : "কুইজ শুরু করুন"}
+                                </Button>
+                              )}
+                              {quiz?.status === "closed" && (
+                                <Button
+                                  type="primary"
+                                  block
+                                  size="large"
+                                  className="flex items-center justify-center rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transform hover:scale-105"
+                                  icon={<FaTrophy className="mr-2" />}
+                                  onClick={() => fetchUserQuizResult(quiz)}
+                                >
+                                  ফলাফল দেখুন
                                 </Button>
                               )}
                               <Button
@@ -1981,9 +2051,10 @@ export default function PublicQuiz() {
                       >
                         আপনার উত্তর: {qa.userAnswer || "উত্তর দেওয়া হয়নি"}
                       </p>
-                      {qa.result === "wrong" && (
+                      {/* Show correct answer ONLY when quiz status is closed */}
+                      {selectedQuiz?.status === "closed" && (
                         <p 
-                          className="text-green-700"
+                          className="text-green-700 font-semibold"
                           style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
                         >
                           সঠিক উত্তর: {qa.correctAnswer}
