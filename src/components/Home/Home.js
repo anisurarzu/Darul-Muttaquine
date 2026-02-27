@@ -53,6 +53,135 @@ import { coreAxios } from "../../utilities/axios";
 const { Option } = Select;
 const { Text } = Typography;
 
+// Helper function to normalize institute names (combine similar ones)
+const normalizeInstituteName = (instituteName) => {
+  if (!instituteName) return "";
+  
+  // Convert to lowercase and trim
+  let normalized = instituteName.toString().toLowerCase().trim();
+  
+  // Remove extra spaces
+  normalized = normalized.replace(/\s+/g, " ");
+  
+  // Remove common suffixes/prefixes that might cause duplicates (both English and Bengali)
+  const commonWords = [
+    'school', 'high school', 'college', 'institute', 'academy', 
+    'madrasah', 'madrasha', 'madrasa', 'madrasah', 'madrasa',
+    'বিদ্যালয়', 'মাদ্রাসা', 'কলেজ', 'স্কুল', 'একাডেমী', 'একাডেমি'
+  ];
+  
+  commonWords.forEach(word => {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    normalized = normalized.replace(regex, "");
+  });
+  
+  // Remove special characters except spaces and Bengali characters
+  normalized = normalized.replace(/[^\w\s\u0980-\u09FF]/g, "");
+  
+  // Remove numbers at the end (like "School 1", "School 2")
+  normalized = normalized.replace(/\s+\d+$/, "");
+  
+  // Trim again
+  normalized = normalized.trim();
+  
+  return normalized;
+};
+
+// Improved Levenshtein distance calculation
+const levenshteinDistance = (str1, str2) => {
+  const matrix = [];
+  const len1 = str1.length;
+  const len2 = str2.length;
+
+  if (len1 === 0) return len2;
+  if (len2 === 0) return len1;
+
+  // Initialize matrix
+  for (let i = 0; i <= len1; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= len2; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill matrix
+  for (let i = 1; i <= len1; i++) {
+    for (let j = 1; j <= len2; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j] + 1,     // deletion
+          matrix[i][j - 1] + 1,     // insertion
+          matrix[i - 1][j - 1] + 1  // substitution
+        );
+      }
+    }
+  }
+
+  return matrix[len1][len2];
+};
+
+// Calculate similarity using Levenshtein distance
+const calculateSimilarity = (str1, str2) => {
+  if (str1 === str2) return 1;
+  if (str1.length === 0 || str2.length === 0) return 0;
+  
+  const maxLen = Math.max(str1.length, str2.length);
+  if (maxLen === 0) return 1;
+  
+  const distance = levenshteinDistance(str1, str2);
+  const similarity = 1 - (distance / maxLen);
+  
+  // Also check if one contains the other (for partial matches)
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  
+  if (longer.includes(shorter) && shorter.length >= 3) {
+    const containmentScore = shorter.length / longer.length;
+    return Math.max(similarity, containmentScore * 0.9); // Weight containment slightly less
+  }
+  
+  return similarity;
+};
+
+// Helper function to find similar institute names
+const findSimilarInstitute = (instituteName, existingInstitutes) => {
+  const normalized = normalizeInstituteName(instituteName);
+  
+  if (!normalized || normalized.length < 3) return null;
+  
+  // Check for exact match after normalization
+  for (const existing of existingInstitutes) {
+    const existingNormalized = normalizeInstituteName(existing);
+    if (existingNormalized === normalized && existingNormalized.length > 0) {
+      return existing;
+    }
+  }
+  
+  // Check for similarity (fuzzy matching) with lower threshold for better matching
+  let bestMatch = null;
+  let bestSimilarity = 0;
+  
+  for (const existing of existingInstitutes) {
+    const existingNormalized = normalizeInstituteName(existing);
+    if (existingNormalized.length < 3) continue;
+    
+    const similarity = calculateSimilarity(normalized, existingNormalized);
+    
+    // Use dynamic threshold based on string length
+    // Shorter strings need higher similarity, longer strings can be more flexible
+    const threshold = normalized.length < 10 ? 0.75 : 0.70;
+    
+    if (similarity > threshold && similarity > bestSimilarity) {
+      bestSimilarity = similarity;
+      bestMatch = existing;
+    }
+  }
+  
+  return bestMatch;
+};
+
 // CountdownTimer Component
 const CountdownTimer = ({ targetDate, onComplete, language }) => {
   const [timeLeft, setTimeLeft] = useState({
@@ -198,26 +327,30 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       title: "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৬",
       subtitle: "বিস্তারিত তথ্য ও নির্দেশিকা",
       organizer: "আয়োজনে: দারুল মুত্তাক্বীন ফাউন্ডেশন",
-      examCenter: "পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা উচ্চ বিদ্যালয়",
-      writtenExamDate: "লিখিত পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
-      vivaExamDate: "ভাইবা পরীক্ষার তারিখ: এখনও নির্ধারিত হয়নি",
+      examCenter: "পরীক্ষার কেন্দ্র: তক্তারচালা সবুজ বাংলা উচ্চ বিদ্যালয়, তক্তারচালা, সখীপুর, টাঙ্গাইল",
+      writtenExamDate: "লিখিত পরীক্ষার তারিখ: ২৭ ফেব্রুয়ারি ২০২৬",
+      vivaExamDate: "ভাইবা পরীক্ষা: পরবর্তী শুক্রবার। ভাইবার জন্য নির্বাচিতদের তালিকা ওয়েবসাইটে প্রকাশ করা হবে।",
       applicationPeriod:
         "আবেদনের সময়সীমা: ২৭ ডিসেম্বর ২০২৫ - ২৫ ফেব্রুয়ারি ২০২৬",
       participants: "অংশগ্রহণকারী: ৩য় থেকে ১২শ শ্রেণির সকল শিক্ষার্থী",
 
+      examSchedule: {
+        date: "২৭ ফেব্রুয়ারি ২০২৬",
+        center: "Takter Chala Sabuj Bangla High School, Takter chala, Sakhipur, Tangail",
+        slots: [
+          { group: "চ ও ঙ গ্রুপ (৩য়–৫ম শ্রেণি)", time: "১০:০০ AM - ১০:৩০ AM" },
+          { group: "৬ষ্ঠ–১২ শ্রেণি", time: "১০:৪৫ AM - ১১:৪৫ AM" },
+        ],
+      },
+
       importantDates: [
         {
           icon: <CalendarOutlined />,
-          text: "আবেদন শুরু: ২৭ ডিসেম্বর ২০২৫ (দুপুর ২টা)",
-        },
-        { icon: <CalendarOutlined />, text: "আবেদন শেষ: ২৫ ফেব্রুয়ারি ২০২৬" },
-        {
-          icon: <ClockCircleOutlined />,
-          text: "লিখিত পরীক্ষা: এখনও নির্ধারিত হয়নি",
+          text: "লিখিত পরীক্ষা: ২৭ ফেব্রুয়ারি ২০২৬",
         },
         {
           icon: <ClockCircleOutlined />,
-          text: "ভাইবা পরীক্ষা: এখনও নির্ধারিত হয়নি",
+          text: "ভাইবা: পরবর্তী শুক্রবার (নির্বাচিতদের তালিকা ওয়েবসাইটে)",
         },
       ],
 
@@ -323,27 +456,31 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
       title: "Darul Muttaqine Scholarship 2026",
       subtitle: "Detailed Information & Guidelines",
       organizer: "Organized by: Darul Muttaqine Foundation",
-      examCenter: "Exam Center: Taktarchala Sobuj Bangla High School",
-      writtenExamDate: "Written Exam Date: Not fixed yet",
-      vivaExamDate: "Viva Exam Date: Not fixed yet",
+      examCenter: "Exam Center: Taktarchala Sobuj Bangla High School, Taktarchala, Sakhipur, Tangail",
+      writtenExamDate: "Written Exam Date: 27 February 2026",
+      vivaExamDate: "Viva Exam: Next Friday. List of selected candidates for viva will be published on the website.",
       applicationPeriod:
         "Application Period: December 27, 2025 - February 25, 2026",
       participants: "Participants: Students from 3rd to 12th Grade",
 
+      examSchedule: {
+        date: "27 February 2026",
+        center: "Takter Chala Sabuj Bangla High School, Takter chala, Sakhipur, Tangail",
+        slots: [
+          { group: "Cha & U Group (3rd–5th Grade)", time: "10:00 AM - 10:30 AM" },
+          { group: "6th–12th Grade", time: "10:45 AM - 11:45 AM" },
+        ],
+      },
+
       importantDates: [
         {
           icon: <CalendarOutlined />,
-          text: "Application Starts: December 27, 2025 (2:00 PM)",
-        },
-        {
-          icon: <CalendarOutlined />,
-          text: "Application Ends: February 25, 2026",
+          text: "Written Exam: 27 February 2026",
         },
         {
           icon: <ClockCircleOutlined />,
-          text: "Written Exam: Not fixed yet",
+          text: "Viva: Next Friday (Selected list will be on website)",
         },
-        { icon: <ClockCircleOutlined />, text: "Viva Exam: Not fixed yet" },
       ],
 
       groups: [
@@ -588,6 +725,32 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
               </div>
             </div>
           </div>
+
+          {/* Exam Schedule - AdmitCard style */}
+          {content.examSchedule && (
+            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-8">
+              <h2 className="text-xl font-bold text-green-800 mb-4 flex items-center gap-2">
+                <ClockCircleOutlined />
+                {language === "bangla" ? "পরীক্ষার সময়সূচী" : "Exam Schedule"}
+              </h2>
+              <p className="font-semibold text-gray-800 mb-2">
+                {language === "bangla" ? "তারিখ:" : "Date:"} {content.examSchedule.date}
+              </p>
+              <div className="space-y-3">
+                {content.examSchedule.slots.map((slot, idx) => (
+                  <div key={idx} className="flex flex-wrap items-center gap-2 bg-white border border-green-200 rounded-lg px-4 py-3">
+                    <span className="font-medium text-gray-800">{slot.group}</span>
+                    <span className="text-green-700 font-semibold">{slot.time}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
+                {language === "bangla"
+                  ? "ভাইবা পরীক্ষা পরবর্তী শুক্রবার। ভাইবার জন্য নির্বাচিতদের তালিকা ওয়েবসাইটে (ourdmf.com) প্রকাশ করা হবে — খেয়াল রাখুন।"
+                  : "Viva exam on next Friday. List of selected candidates for viva will be published on the website (ourdmf.com) — stay tuned."}
+              </p>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Groups & Important Info */}
@@ -1351,16 +1514,30 @@ export default function Home() {
       try {
         const response = await coreAxios.get('/scholarship-info');
         if (response?.status === 200 && Array.isArray(response.data)) {
-          const applicants = response.data;
-          setTotalApplicants(applicants.length);
+          // Sort data the same way as Scholarship.js to ensure consistent processing order
+          const sortedData = response.data.sort((a, b) => {
+            return new Date(b?.submittedAt) - new Date(a?.submittedAt);
+          });
           
-          // Count unique institutions
-          const uniqueInstitutions = new Set(
-            applicants
-              .map(app => app.institute)
-              .filter(inst => inst && inst.trim() !== '')
-          );
-          setTotalInstitutions(uniqueInstitutions.size);
+          setTotalApplicants(sortedData.length);
+          
+          // Count unique institutions using smart matching
+          const uniqueInstitutesList = []; // List of unique institute names (after similarity matching)
+          
+          sortedData.forEach((student) => {
+            if (student.institute && student.institute.trim()) {
+              // Try to find a similar institute in the existing list
+              const similarInstitute = findSimilarInstitute(student.institute, uniqueInstitutesList);
+              
+              if (!similarInstitute) {
+                // No similar institute found, add this as a new unique institute
+                uniqueInstitutesList.push(student.institute);
+              }
+              // If similar institute found, we don't add it (it's already counted)
+            }
+          });
+          
+          setTotalInstitutions(uniqueInstitutesList.length);
         }
       } catch (error) {
         console.error("Error fetching scholarship data:", error);
@@ -1403,11 +1580,13 @@ export default function Home() {
       title: "দারুল মুত্তাক্বীন ফাউন্ডেশন",
       description:
         "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক শিক্ষা, দাওয়াহ ও পূর্ণত মানবকল্যাণে নিবেদিত সেবামূলক প্রতিষ্ঠান। 'শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজের মধ্যে নিজেদের নিয়োজিত রাখা'",
-      scholarshipTitle: "আসন্ন দারুল মুত্তাক্বীন ফাউন্ডেশন শিক্ষাবৃত্তি ২০২৬",
+      scholarshipTitle: "শিক্ষাবৃত্তি লিখিত পরীক্ষা ২৭ ফেব্রুয়ারি ২০২৬",
       scholarshipText:
-        "রেজিস্ট্রেশন শুরু হবে ২৭ ডিসেম্বর ২০২৫ দুপুর ২.০০ টা থেকে ২৫ ফেব্রুয়ারি ২০২৬। আগ্রহী শিক্ষার্থীরা এখনই রেজিস্ট্রেশন করুন।",
-      scholarshipSubtext: "বাকি সময়ঃ",
-      registerButton: "রেজিস্ট্রেশন করুন",
+        "লিখিত পরীক্ষা ২৭ ফেব্রুয়ারি। ৩য়–৫ম: সকাল ১০:০০–১০:৩০। ৬ষ্ঠ–১২: সকাল ১০:৪৫–১১:৪৫।",
+      examScheduleLabel: "পরীক্ষার সময়সূচী",
+      vivaNotice: "ভাইবা পরীক্ষা পরবর্তী শুক্রবার। ভাইবার জন্য নির্বাচিতদের তালিকা ওয়েবসাইটে প্রকাশ করা হবে — খেয়াল রাখুন।",
+      viewSeatPlan: "সিট প্ল্যান",
+      viewAdmitCard: "প্রবেশপত্র",
       languageButton: "English",
       features: [
         {
@@ -1447,18 +1626,18 @@ export default function Home() {
       ],
       timeline: [
         {
-          label: "২৭ ডিসেম্বর, ২০২৫ (২:০০ PM)",
-          children: "রেজিস্ট্রেশন শুরু",
-          color: "green",
-        },
-        {
           label: "২৫ ফেব্রুয়ারি, ২০২৬",
-          children: "প্রাথমিক আবেদন শেষ তারিখ",
+          children: "আবেদন শেষ",
           color: "blue",
         },
         {
-          label: "নির্ধারিত হয়নি",
-          children: "স্কলারশিপ পরীক্ষা",
+          label: "২৭ ফেব্রুয়ারি, ২০২৬",
+          children: "লিখিত পরীক্ষা (সময়সূচী নোটিসে)",
+          color: "green",
+        },
+        {
+          label: "পরবর্তী শুক্রবার",
+          children: "ভাইবা পরীক্ষা — নির্বাচিতদের তালিকা ওয়েবসাইটে প্রকাশ",
           color: "purple",
         },
       ],
@@ -1467,11 +1646,13 @@ export default function Home() {
       title: "Darul Muttakin Foundation",
       description:
         "Darul Muttakin Foundation is a non-political, non-profit educational, Dawah and welfare service organization dedicated to human welfare. 'To engage ourselves in religious education, propagation and welfare work solely for the pleasure of Allah'",
-      scholarshipTitle: "Upcoming DMF Scholarship 2026",
+      scholarshipTitle: "Scholarship Written Exam 27 February 2026",
       scholarshipText:
-        "Registration starts from December 27, 2:00 PM to February 25, 2026. Interested students can register now.",
-      scholarshipSubtext: "Time remaining:",
-      registerButton: "Register Now",
+        "Written exam on 27 February. 3rd–5th: 10:00–10:30 AM. 6th–12th: 10:45–11:45 AM.",
+      examScheduleLabel: "Exam Schedule",
+      vivaNotice: "Viva exam next Friday. List of selected candidates for viva will be published on the website — stay tuned.",
+      viewSeatPlan: "Seat Plan",
+      viewAdmitCard: "Admit Card",
       languageButton: "বাংলা",
       features: [
         {
@@ -1511,18 +1692,18 @@ export default function Home() {
       ],
       timeline: [
         {
-          label: "December 27, 2025 (2:00 PM)",
-          children: "Registration begins",
-          color: "green",
-        },
-        {
           label: "February 25, 2026",
-          children: "Initial application deadline",
+          children: "Application closed",
           color: "blue",
         },
         {
-          label: "Not fixed yet",
-          children: "Scholarship test",
+          label: "February 27, 2026",
+          children: "Written exam (see notice for schedule)",
+          color: "green",
+        },
+        {
+          label: "Next Friday",
+          children: "Viva exam — selected list published on website",
           color: "purple",
         },
       ],
@@ -1594,8 +1775,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto text-center relative z-10">
           <div className="mb-6 md:mb-8 animate-fade-in">
             <span className="inline-flex items-center bg-yellow-400 text-green-900 text-sm md:text-lg font-bold px-5 md:px-7 py-2 md:py-3 rounded-full shadow-xl transform hover:scale-105 transition-transform duration-300">
-              <RocketOutlined className="mr-2 text-xl" />
-              {language === "bangla" ? "শিক্ষাবৃত্তি ২০২৬ এর আবেদন চলছে" : "Scholarship 2026 Application is Ongoing"}
+              <ClockCircleOutlined className="mr-2 text-xl" />
+              {language === "bangla" ? "লিখিত পরীক্ষা ২৭ ফেব্রুয়ারি ২০২৬" : "Written Exam 27 February 2026"}
             </span>
           </div>
 
@@ -1603,93 +1784,34 @@ export default function Home() {
             {currentContent.scholarshipTitle}
           </h2>
 
-          <p className="text-lg md:text-xl lg:text-2xl mb-8 md:mb-12 max-w-4xl mx-auto leading-relaxed opacity-95">
+          <p className="text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed opacity-95">
             {currentContent.scholarshipText}
           </p>
 
-          {/* Countdown Timer and Video Section - Side by Side */}
-          <div className="mb-8 md:mb-12">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
-              {/* Left Side - Countdown Timer */}
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
-                <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 mb-6 shadow-lg w-full justify-center">
-                  <ClockCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
-                  <Text strong className="text-white text-base md:text-xl font-semibold">
-                    {currentContent.scholarshipSubtext}
-                  </Text>
-                </div>
-                
-                <div className="flex justify-center">
-                  <CountdownTimer 
-                    targetDate={applicationEnd}
-                    onComplete={() => setIsApplicationOpen(false)}
-                    language={language}
-                  />
-                </div>
-              </div>
-
-              {/* Right Side - Video */}
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/20 shadow-xl">
-                <div className="text-center mb-4 md:mb-6">
-                  <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-4 md:px-6 py-2 md:py-3 mb-4 shadow-lg">
-                    <InfoCircleOutlined className="text-white mr-3 text-xl md:text-2xl" />
-                    <Text strong className="text-white text-base md:text-xl font-semibold">
-                      {language === "bangla"
-                        ? "আবেদন প্রক্রিয়া ভিডিও"
-                        : "Application Process Video"}
-                    </Text>
-                  </div>
-                </div>
-                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                  <div className="absolute top-0 left-0 w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/30">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      src="https://www.youtube-nocookie.com/embed/eO0FsJM996g?rel=0&modestbranding=1&enablejsapi=1"
-                      title="DMF Scholarship Application Process"
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      loading="lazy"
-                      className="absolute top-0 left-0 w-full h-full"
-                      style={{ borderRadius: '12px' }}
-                    ></iframe>
-                  </div>
-                </div>
-                <div className="mt-4 text-center">
-                  <Button
-                    type="link"
-                    href="https://youtu.be/eO0FsJM996g"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white hover:text-green-100 font-semibold text-sm md:text-base"
-                    icon={<EyeOutlined />}
-                  >
-                    {language === "bangla"
-                      ? "YouTube এ দেখুন"
-                      : "Watch on YouTube"}
-                  </Button>
-                </div>
-              </div>
+          <div className="mb-8 md:mb-10 max-w-2xl mx-auto">
+            <div className="bg-amber-400/30 border border-amber-300/50 rounded-xl px-4 py-3 text-amber-100 text-sm md:text-base backdrop-blur-md">
+              {currentContent.vivaNotice}
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-10 md:mb-16">
-            <button
-              onClick={handleRegistrationClick}
-              disabled={!isApplicationOpen}
-              className={`font-bold border-0 px-8 md:px-12 py-4 md:py-5 text-base md:text-xl rounded-2xl transition-all duration-300 flex items-center shadow-lg w-full md:w-auto justify-center transform hover:scale-105 active:scale-95 ${
-                isApplicationOpen 
-                  ? 'bg-green-100 text-green-800 hover:bg-green-200 hover:shadow-xl' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              }`}
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => setNoticeModalVisible(true)}
+              className="bg-green-100 text-green-800 hover:bg-green-200 border-0 font-bold px-8 py-4 text-base md:text-lg h-auto rounded-2xl shadow-lg"
             >
-              {isApplicationOpen 
-                ? currentContent.registerButton 
-                : (language === "bangla" ? "আবেদন বন্ধ" : "Application Closed")}
-              <ArrowRightOutlined className="ml-2 md:ml-3 text-xl" />
-            </button>
-
+              {language === "bangla" ? "নোটিস ও সময়সূচী" : "Notice & Schedule"}
+              <ArrowRightOutlined className="ml-2" />
+            </Button>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => window.location.href = "/scholarship-public"}
+              className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 hover:bg-white/30 font-bold px-8 py-4 text-base md:text-lg h-auto rounded-2xl"
+            >
+              {currentContent.viewAdmitCard}
+            </Button>
             <button
               onClick={toggleLanguage}
               className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 px-6 md:px-10 py-3 md:py-4 text-base md:text-lg rounded-2xl hover:bg-white/30 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-lg hover:shadow-xl transform hover:scale-105"

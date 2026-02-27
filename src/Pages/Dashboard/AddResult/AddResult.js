@@ -1,169 +1,293 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { useFormik } from "formik";
+import {
+  Button,
+  Card,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Col,
+  Table,
+  Typography,
+  Popconfirm,
+  Space,
+  Tag,
+} from "antd";
+import {
+  SearchOutlined,
+  SaveOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
 
+const { Title } = Typography;
+
+// Normalize roll: DMS26580F / DMS26580M → DMS26580; DMS26580 stays as is
+const normalizeRollNumber = (roll) => {
+  if (!roll || typeof roll !== "string") return roll?.trim() ?? "";
+  const trimmed = roll.trim();
+  if (trimmed.length < 2) return trimmed;
+  const last = trimmed.slice(-1).toUpperCase();
+  if (last === "F" || last === "M") return trimmed.slice(0, -1).trim();
+  return trimmed;
+};
+
 const AddResult = () => {
-  const formik = useFormik({
-    initialValues: {
-      scholarshipRollNumber: "",
-      totalCorrectAns: "",
-      totalWrongAns: "",
-      totalGivenAns: "",
-      totalMarks: "",
-      courseFund: "",
-      prizeMoney: "",
-    },
-    onSubmit: async (values) => {
-      try {
-        const payload = {
-          scholarshipRollNumber: values.scholarshipRollNumber,
-          resultDetails: { ...values },
-        };
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [searchResult, setSearchResult] = useState(null); // last searched/loaded record for display
+  const [isEditMode, setIsEditMode] = useState(false);
 
-        const res = await coreAxios.post(`/add-result`, payload);
-        if (res?.status === 200) {
-          toast.success("Successfully Saved!");
-          formik.resetForm();
-        }
-      } catch (err) {
-        toast.error(err?.response?.data?.message || "Something went wrong!");
-      }
-    },
-    enableReinitialize: true,
-  });
-
-  // Fetch on scholarshipRollNumber input change
-  useEffect(() => {
-    const roll = formik.values.scholarshipRollNumber;
-    if (roll && roll.length >= 4) {
-      const fetchData = async () => {
-        try {
-          const res = await coreAxios.get(`/search-result/${roll}`);
-          const data = res?.data;
-
-          if (data?.resultDetails?.length > 0) {
-            const result = data.resultDetails[0];
-
-            // Set result fields
-            formik.setFieldValue(
-              "totalCorrectAns",
-              result.totalCorrectAns || ""
-            );
-            formik.setFieldValue("totalWrongAns", result.totalWrongAns || "");
-            formik.setFieldValue("totalGivenAns", result.totalGivenAns || "");
-            formik.setFieldValue("totalMarks", result.totalMarks || "");
-            formik.setFieldValue("courseFund", result.courseFund || "");
-            formik.setFieldValue("prizeMoney", result.prizeMoney || "");
-          } else {
-            toast.info("No previous result data found for this Roll Number.");
-          }
-        } catch (err) {
-          toast.error("Result fetch failed or Roll Number not found.");
-        }
-      };
-
-      fetchData();
+  // Search by roll number
+  const handleSearch = async () => {
+    const roll = form.getFieldValue("scholarshipRollNumber");
+    if (!roll || !roll.trim()) {
+      toast.warning("রোল নম্বর দিন");
+      return;
     }
-  }, [formik.values.scholarshipRollNumber]);
+    const normalizedRoll = normalizeRollNumber(roll);
+    try {
+      setSearching(true);
+      setSearchResult(null);
+      const res = await coreAxios.get(`/search-result/${normalizedRoll}`);
+      if (res?.status === 200 && res?.data) {
+        const data = res.data;
+        const correctAnswer = data.correctAnswer;
+        form.setFieldsValue({
+          scholarshipRollNumber: data.scholarshipRollNumber || normalizedRoll,
+          correctAnswer:
+            correctAnswer !== undefined && correctAnswer !== null
+              ? correctAnswer
+              : undefined,
+        });
+        setSearchResult(data);
+        setIsEditMode(true);
+        toast.success("রেকর্ড পাওয়া গেছে। এডিট করে আপডেট করুন অথবা ডিলিট করুন।");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "রোল নম্বর পাওয়া যায়নি");
+      setSearchResult(null);
+      form.setFieldsValue({ correctAnswer: undefined });
+      setIsEditMode(false);
+    } finally {
+      setSearching(false);
+    }
+  };
 
-  const inputData = [
+  // Insert or Update
+  const onFinish = async (values) => {
+    const { scholarshipRollNumber, correctAnswer } = values;
+    if (
+      correctAnswer === undefined ||
+      correctAnswer === null ||
+      String(correctAnswer).trim() === ""
+    ) {
+      toast.warning("সঠিক উত্তর দিন");
+      return;
+    }
+    const normalizedRoll = normalizeRollNumber(scholarshipRollNumber);
+    try {
+      setLoading(true);
+      const res = await coreAxios.post("/add-result", {
+        scholarshipRollNumber: normalizedRoll,
+        correctAnswer: Number(correctAnswer),
+      });
+      if (res?.status === 200) {
+        toast.success(res?.data?.message || "সফলভাবে সংরক্ষণ হয়েছে");
+        setSearchResult((prev) =>
+          prev && prev.scholarshipRollNumber === normalizedRoll
+            ? { ...prev, correctAnswer: Number(correctAnswer) }
+            : prev
+        );
+        setIsEditMode(true);
+        // Don't reset if we were editing – only reset for fresh insert
+        if (!searchResult) form.resetFields();
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "সংরক্ষণ করা যায়নি");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete result (calls backend – add DELETE route if not present)
+  const handleDelete = async () => {
+    const roll = form.getFieldValue("scholarshipRollNumber");
+    if (!roll || !roll.trim()) {
+      toast.warning("রোল নম্বর দিন");
+      return;
+    }
+    const normalizedRoll = normalizeRollNumber(roll);
+    try {
+      setDeleting(true);
+      await coreAxios.delete(`/result/${normalizedRoll}`);
+      toast.success("রেজাল্ট ডিলিট হয়েছে");
+      form.resetFields();
+      setSearchResult(null);
+      setIsEditMode(false);
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "ডিলিট করা যায়নি");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleClear = () => {
+    form.resetFields();
+    setSearchResult(null);
+    setIsEditMode(false);
+  };
+
+  const tableColumns = [
     {
-      id: "scholarshipRollNumber",
-      name: "scholarshipRollNumber",
-      type: "text",
-      label: "Scholarship Roll Number",
-      required: true,
+      title: "রোল নম্বর",
+      dataIndex: "scholarshipRollNumber",
+      key: "scholarshipRollNumber",
+      render: (val) => val || "-",
     },
     {
-      id: "totalCorrectAns",
-      name: "totalCorrectAns",
-      type: "number",
-      label: "Total Correct Answer",
-      required: true,
-    },
-    {
-      id: "totalWrongAns",
-      name: "totalWrongAns",
-      type: "number",
-      label: "Total Wrong Answer",
-      required: true,
-    },
-    {
-      id: "totalGivenAns",
-      name: "totalGivenAns",
-      type: "number",
-      label: "Total Given Answer",
-      required: true,
-    },
-    {
-      id: "totalMarks",
-      name: "totalMarks",
-      type: "number",
-      label: "Total Marks",
-      required: true,
-    },
-    {
-      id: "courseFund",
-      name: "courseFund",
-      type: "number",
-      label: "Course Fund",
-      required: true,
-    },
-    {
-      id: "prizeMoney",
-      name: "prizeMoney",
-      type: "number",
-      label: "Prize Money",
-      required: true,
+      title: "সঠিক উত্তর",
+      dataIndex: "correctAnswer",
+      key: "correctAnswer",
+      render: (val) => (val !== undefined && val !== null ? val : "-"),
     },
   ];
 
   return (
-    <div className="">
-      <div className="bg-white p-4 shadow rounded">
-        <div className="flex justify-center pt-2">
-          <div>
-            <h2 className="text-[18px] font-bold py-2 text-green-600">
-              Darul Muttaquine Scholarship
-            </h2>
-            <p className="text-[14px] font-semibold text-center pb-4 text-orange-600">
-              Check Your Result From Here!
-            </p>
-          </div>
+    <div className="min-h-screen bg-gray-50 p-4 md:p-6">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-6">
+          <Title level={4} className="!mb-0 !text-gray-800">
+            রেজাল্ট ম্যানেজমেন্ট
+          </Title>
         </div>
 
-        <form
-          className="p-6.5 pt-1 px-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2"
-          onSubmit={formik.handleSubmit}
-        >
-          {inputData.map(({ id, name, type, label, required }) => (
-            <div key={id} className="w-full mb-4">
-              <label className="block text-black text-[12px] py-1">
-                {label} <span className="text-meta-1">*</span>
-              </label>
-              <input
-                id={id}
-                name={name}
-                type={type}
-                required={required}
-                onChange={formik.handleChange}
-                value={formik.values[id] || ""}
-                className="w-[400px] h-[45px] rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary"
-              />
-            </div>
-          ))}
+        <Card className="shadow-sm border border-gray-200 mb-6">
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            initialValues={{ scholarshipRollNumber: "", correctAnswer: undefined }}
+          >
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={24} md={14}>
+                <Form.Item
+                  name="scholarshipRollNumber"
+                  label="শিক্ষাবৃত্তি রোল নম্বর"
+                  rules={[{ required: true, message: "রোল নম্বর দিন" }]}
+                >
+                  <Input
+                    placeholder="রোল নম্বর লিখুন"
+                    size="large"
+                    allowClear
+                    className="w-full"
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={24} md={10} className="flex items-end gap-2 flex-wrap">
+                <Button
+                  type="default"
+                  icon={<SearchOutlined />}
+                  size="large"
+                  loading={searching}
+                  onClick={handleSearch}
+                  className="flex-1 min-w-[120px]"
+                >
+                  খুঁজুন
+                </Button>
+                <Button
+                  type="default"
+                  icon={<ReloadOutlined />}
+                  size="large"
+                  onClick={handleClear}
+                  className="flex-1 min-w-[100px]"
+                >
+                  ক্লিয়ার
+                </Button>
+              </Col>
+            </Row>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-1">
-            <div></div>
-            <button
-              type="submit"
-              className="justify-center rounded bg-primary p-4 font-medium text-gray border border-green-600 m-8 hover:bg-green-600 hover:text-white hover:shadow-md"
+            <Form.Item
+              name="correctAnswer"
+              label="সঠিক উত্তর (Correct Answer)"
+              rules={[{ required: true, message: "সঠিক উত্তর দিন" }]}
             >
-              Submit
-            </button>
-          </div>
-        </form>
+              <InputNumber
+                placeholder="সঠিক উত্তরের সংখ্যা"
+                min={0}
+                max={1000}
+                size="large"
+                className="w-full"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
+
+            <Form.Item className="!mb-0">
+              <Space wrap size="middle">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<SaveOutlined />}
+                  loading={loading}
+                  size="large"
+                  className="bg-green-600 hover:!bg-green-700"
+                >
+                  {isEditMode ? "আপডেট করুন" : "যোগ করুন"}
+                </Button>
+                {isEditMode && searchResult && (
+                  <Popconfirm
+                    title="রেজাল্ট ডিলিট করবেন?"
+                    description="এই রোলের সঠিক উত্তর ডিলিট হবে।"
+                    onConfirm={handleDelete}
+                    okText="হ্যাঁ"
+                    cancelText="না"
+                  >
+                    <Button
+                      type="primary"
+                      danger
+                      icon={<DeleteOutlined />}
+                      loading={deleting}
+                      size="large"
+                    >
+                      ডিলিট
+                    </Button>
+                  </Popconfirm>
+                )}
+              </Space>
+            </Form.Item>
+          </Form>
+        </Card>
+
+        {searchResult && (
+          <Card
+            title={
+              <span>
+                বর্তমান রেকর্ড{" "}
+                <Tag color="blue">{searchResult.scholarshipRollNumber}</Tag>
+              </span>
+            }
+            className="shadow-sm border border-gray-200"
+          >
+            <Table
+              columns={tableColumns}
+              dataSource={[
+                {
+                  key: "1",
+                  scholarshipRollNumber: searchResult.scholarshipRollNumber,
+                  correctAnswer: searchResult.correctAnswer,
+                },
+              ]}
+              pagination={false}
+              size="small"
+              bordered
+            />
+          </Card>
+        )}
       </div>
     </div>
   );

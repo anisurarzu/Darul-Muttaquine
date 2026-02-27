@@ -13,6 +13,7 @@ import Loader from "../../components/Loader/Loader";
 import PreviousDMFLogo from "../../images/New-Main-2.png";
 
 const DMFLogo = "https://i.ibb.co/F4XV8dKL/1.png";
+const DefaultFemaleImage = "https://cdn-icons-png.flaticon.com/512/2922/2922568.png"; // Default female avatar image
 
 const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
   const history = useHistory();
@@ -43,6 +44,18 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
       fetchScholarshipInfo();
     }
   }, [id, scholarshipData]);
+
+  // Auto-print when opened with ?print=1 (e.g. from Scholarship table row "Print")
+  useEffect(() => {
+    if (!data?.scholarship) return;
+    const search = window.location.search || "";
+    if (search.includes("print=1")) {
+      const timer = setTimeout(() => {
+        window.print();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [data]);
 
   const print = () => {
     window.print();
@@ -87,6 +100,30 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
       return 'F';
     }
     return ''; // Return empty if gender is not specified or is 'other'
+  };
+
+  const getStudentImage = () => {
+    const image = data?.scholarship?.image;
+    const gender = data?.scholarship?.gender?.toLowerCase();
+    
+    // Check if image is a default/placeholder image
+    const isDefaultImage = !image || 
+      image.includes('encrypted-tbn0') || 
+      image.includes('DMF') ||
+      image === DMFLogo;
+    
+    // If image exists and is not a default image, use it
+    if (image && !isDefaultImage) {
+      return image;
+    }
+    
+    // If female and no proper image, use default female image
+    if (gender === 'female') {
+      return DefaultFemaleImage;
+    }
+    
+    // Default fallback for male or unknown gender
+    return DMFLogo;
   };
 
   const downloadPDF = () => {
@@ -204,15 +241,7 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
                       </tr>
                       <tr className="border-b border-green-600">
                         <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
-                          পিতার নাম:
-                        </td>
-                        <td className="py-3 px-4 uppercase">
-                          {data?.scholarship?.parentName}
-                        </td>
-                      </tr>
-                      <tr className="border-b border-green-600">
-                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 bangla-text text-green-800">
-                          মাতার নাম:
+                          অভিভাবকের নাম:
                         </td>
                         <td className="py-3 px-4 uppercase">
                           {data?.scholarship?.parentName || "N/A"}
@@ -239,7 +268,7 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
                           পরীক্ষার তারিখ ও সময়:
                         </td>
                         <td className="py-3 px-4">
-                          <span className="font-semibold text-green-700">23 January 2026, {getExamTime()}</span>
+                          <span className="font-semibold text-green-700">27 February 2026, {getExamTime()}</span>
                         </td>
                       </tr>
                       <tr>
@@ -259,7 +288,7 @@ const AdmitCard = ({ scholarshipData = null, showActions = true }) => {
                   <div className="border-2 border-green-600 p-3 h-full flex flex-col">
                     <div className="w-36 h-44 mx-auto border-2 border-green-600 overflow-hidden mb-4 flex items-center justify-center bg-green-50">
                       <img
-                        src={data?.scholarship?.image || DMFLogo}
+                        src={getStudentImage()}
                         alt="Candidate"
                         className="w-full h-full object-cover"
                       />

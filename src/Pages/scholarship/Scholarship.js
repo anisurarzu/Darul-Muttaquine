@@ -71,11 +71,9 @@ const Scholarship = () => {
     }
   };
 
-  const uniqueInstitutes = [
-    ...new Set(rollData.map((item) => item.institute.trim())),
-  ];
-
-  const instituteCount = uniqueInstitutes.length;
+  // This will be updated after groupStudentsByClass is called
+  let uniqueInstitutes = [];
+  let instituteCount = 0;
 
   const class6to10 = rollData.filter((item) => {
     const classNumber = parseInt(item.instituteClass);
@@ -570,21 +568,297 @@ const Scholarship = () => {
   )?.length;
 
   // Group students by class
+  // Helper function to normalize class name to number
+  const normalizeClassToNumber = (className) => {
+    if (!className) return null;
+    const classStr = className.toString().toLowerCase().trim();
+    
+    // Handle numeric classes
+    const numMatch = classStr.match(/^(\d+)/);
+    if (numMatch) {
+      return parseInt(numMatch[1]);
+    }
+    
+    // Handle text class names
+    const classMap = {
+      'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+      'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+    };
+    
+    return classMap[classStr] || null;
+  };
+
+  // Helper function to normalize institute names (combine similar ones)
+  const normalizeInstituteName = (instituteName) => {
+    if (!instituteName) return "";
+    
+    // Convert to lowercase and trim
+    let normalized = instituteName.toString().toLowerCase().trim();
+    
+    // Remove extra spaces
+    normalized = normalized.replace(/\s+/g, " ");
+    
+    // Remove common suffixes/prefixes that might cause duplicates (both English and Bengali)
+    const commonWords = [
+      'school', 'high school', 'college', 'institute', 'academy', 
+      'madrasah', 'madrasha', 'madrasa', 'madrasah', 'madrasa',
+      'বিদ্যালয়', 'মাদ্রাসা', 'কলেজ', 'স্কুল', 'একাডেমী', 'একাডেমি'
+    ];
+    
+    commonWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      normalized = normalized.replace(regex, "");
+    });
+    
+    // Remove special characters except spaces and Bengali characters
+    normalized = normalized.replace(/[^\w\s\u0980-\u09FF]/g, "");
+    
+    // Remove numbers at the end (like "School 1", "School 2")
+    normalized = normalized.replace(/\s+\d+$/, "");
+    
+    // Trim again
+    normalized = normalized.trim();
+    
+    return normalized;
+  };
+
+  // Improved Levenshtein distance calculation
+  const levenshteinDistance = (str1, str2) => {
+    const matrix = [];
+    const len1 = str1.length;
+    const len2 = str2.length;
+
+    if (len1 === 0) return len2;
+    if (len2 === 0) return len1;
+
+    // Initialize matrix
+    for (let i = 0; i <= len1; i++) {
+      matrix[i] = [i];
+    }
+    for (let j = 0; j <= len2; j++) {
+      matrix[0][j] = j;
+    }
+
+    // Fill matrix
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        if (str1[i - 1] === str2[j - 1]) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j] + 1,     // deletion
+            matrix[i][j - 1] + 1,     // insertion
+            matrix[i - 1][j - 1] + 1  // substitution
+          );
+        }
+      }
+    }
+
+    return matrix[len1][len2];
+  };
+
+  // Calculate similarity using Levenshtein distance
+  const calculateSimilarity = (str1, str2) => {
+    if (str1 === str2) return 1;
+    if (str1.length === 0 || str2.length === 0) return 0;
+    
+    const maxLen = Math.max(str1.length, str2.length);
+    if (maxLen === 0) return 1;
+    
+    const distance = levenshteinDistance(str1, str2);
+    const similarity = 1 - (distance / maxLen);
+    
+    // Also check if one contains the other (for partial matches)
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.includes(shorter) && shorter.length >= 3) {
+      const containmentScore = shorter.length / longer.length;
+      return Math.max(similarity, containmentScore * 0.9); // Weight containment slightly less
+    }
+    
+    return similarity;
+  };
+
+  // Helper function to find similar institute names
+  const findSimilarInstitute = (instituteName, existingInstitutes) => {
+    const normalized = normalizeInstituteName(instituteName);
+    
+    if (!normalized || normalized.length < 3) return null;
+    
+    // Check for exact match after normalization
+    for (const existing of existingInstitutes) {
+      const existingNormalized = normalizeInstituteName(existing);
+      if (existingNormalized === normalized && existingNormalized.length > 0) {
+        return existing;
+      }
+    }
+    
+    // Check for similarity (fuzzy matching) with lower threshold for better matching
+    let bestMatch = null;
+    let bestSimilarity = 0;
+    
+    for (const existing of existingInstitutes) {
+      const existingNormalized = normalizeInstituteName(existing);
+      if (existingNormalized.length < 3) continue;
+      
+      const similarity = calculateSimilarity(normalized, existingNormalized);
+      
+      // Use dynamic threshold based on string length
+      // Shorter strings need higher similarity, longer strings can be more flexible
+      const threshold = normalized.length < 10 ? 0.75 : 0.70;
+      
+      if (similarity > threshold && similarity > bestSimilarity) {
+        bestSimilarity = similarity;
+        bestMatch = existing;
+      }
+    }
+    
+    return bestMatch;
+  };
+
   const groupStudentsByClass = () => {
     const classGroups = {};
+    const uniqueInstitutesList = []; // List of unique institute names (after similarity matching)
 
     rollData.forEach((student) => {
       const className = student.instituteClass;
-      if (!classGroups[className]) {
-        classGroups[className] = [];
+      const classNum = normalizeClassToNumber(className);
+      
+      // Use normalized class number as key to avoid duplicates
+      const classKey = classNum !== null ? classNum.toString() : className;
+      
+      if (!classGroups[classKey]) {
+        classGroups[classKey] = [];
       }
-      classGroups[className].push(student);
+      classGroups[classKey].push(student);
+      
+      // Normalize and group similar institute names
+      if (student.institute && student.institute.trim()) {
+        // First, try to find a similar institute in the existing list
+        const similarInstitute = findSimilarInstitute(student.institute, uniqueInstitutesList);
+        
+        if (!similarInstitute) {
+          // No similar institute found, add this as a new unique institute
+          uniqueInstitutesList.push(student.institute);
+        }
+        // If similar institute found, we don't add it (it's already counted)
+      }
     });
 
-    return classGroups;
+    return { classGroups, uniqueInstitutes: uniqueInstitutesList };
   };
 
-  const classGroups = groupStudentsByClass();
+  const { classGroups, uniqueInstitutes: normalizedInstitutes } = groupStudentsByClass();
+  
+  // Update uniqueInstitutes and count
+  uniqueInstitutes = normalizedInstitutes;
+  instituteCount = normalizedInstitutes.length;
+
+  // PDF: Institute-wise student count (class-wise per institute), two columns to use page width
+  const exportInstituteWiseCountPDF = () => {
+    const doc = new jsPDF({ orientation: "portrait" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const PRIMARY_COLOR = [46, 125, 50];
+    const HEADER_FONT_SIZE = 14;
+    const BODY_FONT_SIZE = 9;
+    const margin = 12;
+    const colGap = 8;
+    const colWidth = (pageWidth - margin * 2 - colGap) / 2;
+    const leftColX = margin;
+    const rightColX = margin + colWidth + colGap;
+    const tableCellWidths = [colWidth * 0.5, colWidth * 0.5]; // Class, Count
+    let startY = 20;
+
+    // Build institute -> { classKey -> count } using same grouping as rest of page
+    const instituteToClassCount = {};
+    const canonicalOrder = []; // preserve order: first occurrence of each institute
+
+    rollData.forEach((student) => {
+      const inst = student.institute?.trim() || "N/A";
+      const similar = findSimilarInstitute(inst, canonicalOrder);
+      const canonicalName = similar || inst;
+      if (!similar) canonicalOrder.push(inst);
+
+      if (!instituteToClassCount[canonicalName]) instituteToClassCount[canonicalName] = {};
+      const classNum = normalizeClassToNumber(student.instituteClass);
+      const classKey = classNum != null ? String(classNum) : (student.instituteClass || "Other");
+      instituteToClassCount[canonicalName][classKey] = (instituteToClassCount[canonicalName][classKey] || 0) + 1;
+    });
+
+    // Sort classes for display (numeric then "Other")
+    const sortClassKeys = (keys) => {
+      const numKeys = keys.filter((k) => /^\d+$/.test(k)).sort((a, b) => parseInt(a) - parseInt(b));
+      const other = keys.filter((k) => !/^\d+$/.test(k));
+      return [...numKeys, ...other];
+    };
+
+    const drawInstituteBlock = (instituteName, startX, y) => {
+      const classCounts = instituteToClassCount[instituteName] || {};
+      const classKeys = sortClassKeys(Object.keys(classCounts));
+      if (classKeys.length === 0) return y;
+
+      let total = 0;
+      const tableData = classKeys.map((classKey) => {
+        const count = classCounts[classKey];
+        total += count;
+        return [classKey, String(count)];
+      });
+      tableData.push(["Total", String(total)]);
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text(instituteName.substring(0, 38), startX, y); // truncate long names
+      const tableStartY = y + 5;
+
+      doc.autoTable({
+        head: [["Class", "Count"]],
+        body: tableData,
+        startY: tableStartY,
+        margin: { left: startX },
+        tableWidth: colWidth,
+        styles: { fontSize: BODY_FONT_SIZE },
+        columnStyles: { 0: { cellWidth: tableCellWidths[0] }, 1: { cellWidth: tableCellWidths[1], halign: "center" } },
+        headStyles: { fillColor: PRIMARY_COLOR, textColor: 255, fontStyle: "bold" },
+        theme: "grid",
+      });
+      return doc.lastAutoTable.finalY;
+    };
+
+    doc.setFillColor(...PRIMARY_COLOR);
+    doc.rect(0, 0, pageWidth, 12, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(HEADER_FONT_SIZE);
+    doc.setFont("helvetica", "bold");
+    doc.text("DMF Scholarship 2026 - Institute Wise Student Count", pageWidth / 2, 7, {
+      align: "center",
+      baseline: "middle",
+    });
+    doc.setTextColor(0, 0, 0);
+    startY = 18;
+
+    // Process institutions in pairs: left and right column
+    for (let i = 0; i < canonicalOrder.length; i += 2) {
+      const leftName = canonicalOrder[i];
+      const rightName = canonicalOrder[i + 1];
+
+      // New page if not enough vertical space for at least one block
+      if (startY > pageHeight - 45) {
+        doc.addPage();
+        startY = 15;
+      }
+
+      const leftFinalY = drawInstituteBlock(leftName, leftColX, startY);
+      let rightFinalY = startY;
+      if (rightName) rightFinalY = drawInstituteBlock(rightName, rightColX, startY);
+
+      startY = Math.max(leftFinalY, rightFinalY) + 10;
+    }
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+    doc.save(`DMF-Scholarship-Institute-Wise-Count-${timestamp}.pdf`);
+  };
 
   if (loading) {
     return (
@@ -646,6 +920,13 @@ const Scholarship = () => {
                 <i className="pi pi-file-pdf text-xs md:text-sm"></i>
                 <span className="text-xs md:text-sm lg:text-base">Class PDF</span>
               </button>
+
+              <button
+                className="font-semibold inline-flex items-center justify-center gap-1 md:gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-1.5 md:py-2 px-2 md:px-3 lg:px-4 text-xs md:text-sm lg:text-base shadow-md hover:shadow-lg transition-all whitespace-nowrap w-full"
+                onClick={exportInstituteWiseCountPDF}>
+                <i className="pi pi-file-pdf text-xs md:text-sm"></i>
+                <span className="text-xs md:text-sm lg:text-base">Institute Count PDF</span>
+              </button>
             </div>
 
             {/* Stats Bar */}
@@ -671,6 +952,9 @@ const Scholarship = () => {
                   <div className="flex flex-wrap gap-2 md:gap-4 text-xs md:text-sm lg:text-base">
                     <span className="font-semibold text-gray-700">
                       Applications: <span className="text-green-600">{rollData?.length}</span>
+                    </span>
+                    <span className="font-semibold text-gray-700">
+                      Institutes: <span className="text-green-600">{instituteCount}</span>
                     </span>
                     <span className="font-semibold text-gray-700">
                       Present: <span className="text-green-600">{countAttendanceComplete}</span>
@@ -845,7 +1129,7 @@ const Scholarship = () => {
                         </div>
                       </td>
                       <td className="border border-green-200 p-2 text-center font-medium">
-                        {roll?.scholarshipRollNumber}
+                        {formatRollNumberWithGender(roll?.scholarshipRollNumber || "", roll?.gender)}
                       </td>
                       <td className="border border-green-200 p-2 text-center hidden md:table-cell">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
@@ -913,13 +1197,23 @@ const Scholarship = () => {
                         {roll?.createdByName}
                       </td>
                       <td className="border border-green-200 p-2 text-center">
-                        <button
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all"
-                          onClick={() => {
-                            history.push(`/admitCard/${roll?._id}`);
-                          }}>
-                          Download
-                        </button>
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-1">
+                          <button
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all whitespace-nowrap"
+                            onClick={() => {
+                              window.open(`/admitCard/${roll?._id}`, "_blank");
+                            }}>
+                            Download
+                          </button>
+                          <button
+                            className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-1 px-2 md:px-3 rounded-lg text-xs md:text-sm shadow-sm hover:shadow-md transition-all whitespace-nowrap flex items-center justify-center gap-1"
+                            onClick={() => {
+                              window.open(`/admitCard/${roll?._id}?print=1`, "_blank", "noopener,noreferrer");
+                            }}>
+                            <i className="pi pi-print text-xs"></i>
+                            Print
+                          </button>
+                        </div>
                       </td>
                       <td className="border border-green-200 p-2">
                         <div className="flex justify-center items-center gap-1 md:gap-2">
@@ -975,12 +1269,41 @@ const Scholarship = () => {
             </h3>
             <Collapse accordion className="bg-transparent">
               {Object.keys(classGroups)
-                .sort((a, b) => parseInt(a) - parseInt(b))
-                .map((className) => (
+                .sort((a, b) => {
+                  const numA = normalizeClassToNumber(a);
+                  const numB = normalizeClassToNumber(b);
+                  // If both are numeric, sort numerically
+                  if (numA !== null && numB !== null) {
+                    return numA - numB;
+                  }
+                  // If only one is numeric, numeric comes first
+                  if (numA !== null) return -1;
+                  if (numB !== null) return 1;
+                  // Both are non-numeric, sort alphabetically
+                  return a.localeCompare(b);
+                })
+                .map((className) => {
+                  // Get unique institutes count for this class (using similarity matching)
+                  const classInstitutesList = []; // List of unique institute names
+                  
+                  classGroups[className].forEach((student) => {
+                    if (student.institute && student.institute.trim()) {
+                      // Try to find a similar institute in the existing list
+                      const similarInstitute = findSimilarInstitute(student.institute, classInstitutesList);
+                      
+                      if (!similarInstitute) {
+                        // No similar institute found, add this as a new unique institute
+                        classInstitutesList.push(student.institute);
+                      }
+                      // If similar institute found, we don't add it (it's already counted)
+                    }
+                  });
+                  
+                  return (
                   <Panel
                     header={
                       <span className="font-bold text-base md:text-lg">
-                        Class {className} ({classGroups[className].length} students)
+                        Class {className} ({classGroups[className].length} students, {classInstitutesList.length} institutes)
                       </span>
                     }
                     key={className}
@@ -1020,7 +1343,7 @@ const Scholarship = () => {
                                 }`}>
                                 <td className="px-3 py-2 md:px-4 md:py-3 font-medium">{index + 1}</td>
                                 <td className="px-3 py-2 md:px-4 md:py-3 font-medium">
-                                  {student.scholarshipRollNumber}
+                                  {formatRollNumberWithGender(student.scholarshipRollNumber || "", student.gender)}
                                 </td>
                                 <td className="px-3 py-2 md:px-4 md:py-3 font-medium">{student.name}</td>
                                 <td className="px-3 py-2 md:px-4 md:py-3 hidden md:table-cell">
@@ -1066,7 +1389,8 @@ const Scholarship = () => {
                       </table>
                     </div>
                   </Panel>
-                ))}
+                  );
+                })}
             </Collapse>
           </div>
         </div>

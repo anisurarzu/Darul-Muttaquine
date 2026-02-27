@@ -1074,9 +1074,6 @@ export default function PublicQuiz() {
           <h2 className="text-white font-extrabold text-3xl md:text-4xl lg:text-5xl py-6 lg:py-10 text-center drop-shadow-lg">
           ইসলামিক কুইজ
         </h2>
-          <p className="text-emerald-100 text-center text-sm md:text-base pb-4 md:pb-6">
-            আপনার ইসলামিক জ্ঞান পরীক্ষা করুন এবং পুরস্কার জয় করুন
-          </p>
         </div>
       </div>
 
@@ -1135,14 +1132,17 @@ export default function PublicQuiz() {
           )}
         </div>
 
-        {userInfo && (
-          <Alert
-            message={`স্বাগতম, ${userInfo.firstName}! এখন আপনি কুইজে অংশগ্রহণ করতে পারেন।`}
-            type="success"
-            showIcon
-            className="mb-6 rounded-xl border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50"
-          />
-        )}
+        {/* Info Section */}
+        <div className="mb-6 bg-gradient-to-br from-white via-blue-50/50 to-purple-50/30 rounded-2xl shadow-2xl p-6 md:p-8 border-2 border-indigo-100/50">
+          <div className="text-center">
+            <Alert
+              message="সারা বছরে নিয়মিত কুইজে অংশ নিয়ে অলটাইম লিডারবোর্ড এ টপারদের বিশেষ পুরস্কার দেওয়া হবে। এছাড়াও প্রতি কুইজের টপ ৫ জনের জন্য রয়েছে বিশেষ পুরস্কার।"
+              type="info"
+              className="text-center font-bold bangla-text max-w-full rounded-xl shadow-lg border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50"
+              showIcon
+            />
+          </div>
+        </div>
 
         <Row gutter={[16, 16]}>
           {/* Main Content */}

@@ -350,6 +350,21 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
+  // Helper function to get gender prefix
+  const getGenderPrefix = (gender) => {
+    if (!gender) return "";
+    const genderLower = gender.toLowerCase();
+    if (genderLower === "male") return "M";
+    if (genderLower === "female") return "F";
+    return "";
+  };
+
+  // Helper function to format roll number with gender prefix
+  const formatRollNumberWithGender = (rollNumber, gender) => {
+    const prefix = getGenderPrefix(gender);
+    return prefix ? `${rollNumber}${prefix}` : rollNumber;
+  };
+
   const handleFetchData = async () => {
     if (!scholarshipRollNumber.trim()) {
       toast.error("Please enter scholarship roll number / অনুগ্রহ করে শিক্ষাবৃত্তি রোল নম্বর লিখুন");
@@ -359,8 +374,15 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
     setLoading(true);
     setError("");
     try {
+      // Remove M/F suffix from the end if present before sending to backend
+      let rollNumberForBackend = scholarshipRollNumber.trim();
+      const lastChar = rollNumberForBackend.slice(-1).toUpperCase();
+      if (lastChar === 'M' || lastChar === 'F') {
+        rollNumberForBackend = rollNumberForBackend.slice(0, -1);
+      }
+      
       const response = await coreAxios.get(
-        `/scholarship-info-roll/${scholarshipRollNumber}`
+        `/scholarship-info-roll/${rollNumberForBackend}`
       );
       if (response?.status === 200) {
         setData(response.data?.scholarship);
@@ -580,7 +602,7 @@ const PublicScholarship = ({ onHide, fetchRolls, handleCancel }) => {
                         className="mb-4"
                       />
                       <div className="bg-white p-4 rounded-lg border border-green-200">
-                        <Text strong className="block mb-2">Roll Number / রোল নম্বর: {data?.scholarshipRollNumber}</Text>
+                        <Text strong className="block mb-2">Roll Number / রোল নম্বর: {formatRollNumberWithGender(data?.scholarshipRollNumber || "", data?.gender)}</Text>
                         <Text className="block mb-1">Name / নাম: {data?.name}</Text>
                         <Text className="block">Class / শ্রেণী: {data?.instituteClass}</Text>
                       </div>

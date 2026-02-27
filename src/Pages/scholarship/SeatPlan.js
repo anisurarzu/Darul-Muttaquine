@@ -48,6 +48,34 @@ export default function SeatPlan() {
     return prefix ? `${rollNumber}${prefix}` : rollNumber;
   };
 
+  // Helper to normalize class name to number for sorting
+  const normalizeClassToNumber = (className) => {
+    if (!className) return null;
+    const classStr = String(className).toLowerCase().trim();
+    const numMatch = classStr.match(/^(\d+)/);
+    if (numMatch) return parseInt(numMatch[1], 10);
+    const classMap = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+    return classMap[classStr] ?? null;
+  };
+
+  // Group students by class and sort classes
+  const dataByClass = React.useMemo(() => {
+    const groups = {};
+    (data || []).forEach((student) => {
+      const raw = student.instituteClass;
+      const num = normalizeClassToNumber(raw);
+      const key = num != null ? String(num) : (raw || "other");
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(student);
+    });
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      const na = normalizeClassToNumber(a) ?? 999;
+      const nb = normalizeClassToNumber(b) ?? 999;
+      return na - nb;
+    });
+    return sortedKeys.map((key) => ({ classKey: key, students: groups[key] }));
+  }, [data]);
+
   const downloadPDF = async () => {
     setPdfLoading(true);
     
@@ -206,8 +234,12 @@ export default function SeatPlan() {
               </h3>
             </div>
 
-            {/* Empty space for balance */}
-            <div className="flex-shrink-0 w-[45px]"></div>
+            {/* Class - Top Right, Bold */}
+            <div className="flex-shrink-0 min-w-[32px] flex items-start justify-end">
+              <span className={`text-xl font-bold ${textColor}`} style={{ fontWeight: 700 }}>
+                {student?.instituteClass ?? "—"}
+              </span>
+            </div>
           </div>
 
           {/* Roll Number Display - Full number with M/F */}
@@ -261,23 +293,15 @@ export default function SeatPlan() {
       </Button>
       </div>
 
-      {/* Seat Plan Cards Grid - 3 cards per row, 7 rows per page (21 cards per page) */}
+      {/* Seat Plan Cards - Class-wise sections, 3 cards per row */}
       <style>{`
         @media print {
           .seat-plan-card {
             page-break-inside: avoid;
             break-inside: avoid;
           }
-          /* Break after every 21 cards (7 rows × 3 cards = 21 cards) */
-          .seat-plan-card:nth-child(21n) {
-            page-break-after: always;
-            break-after: page;
-            margin-bottom: 0;
-          }
-          /* Ensure no break before the first card of a new page */
-          .seat-plan-card:nth-child(21n + 1) {
-            page-break-before: auto;
-            break-before: auto;
+          .seat-plan-class-section {
+            page-break-inside: avoid;
           }
         }
         .seat-plan-card {
@@ -285,23 +309,27 @@ export default function SeatPlan() {
           break-inside: avoid;
         }
       `}</style>
-      <div 
-        id="seat-plan-cards"
-        className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 print:grid-cols-3 bg-white p-4"
-        style={{ 
-          display: "grid",
-          visibility: "visible",
-          opacity: "1",
-          gridTemplateColumns: "repeat(3, 1fr)"
-        }}>
+      <div id="seat-plan-cards" className="max-w-7xl mx-auto bg-white p-4" style={{ visibility: "visible", opacity: "1" }}>
         {data?.length > 0 ? (
-          data.map((student, index) => (
-            <div key={student._id} className="seat-plan-card">
-              {renderSeatPlanCard(student)}
+          dataByClass.map(({ classKey, students }) => (
+            <div key={classKey} className="seat-plan-class-section mb-8">
+              <h3 className="text-lg font-bold text-green-800 mb-4 pb-2 border-b-2 border-green-600 print:mb-3">
+                Class {classKey} ({students.length} students)
+              </h3>
+              <div
+                className="grid grid-cols-1 md:grid-cols-3 gap-3 print:grid-cols-3"
+                style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
+              >
+                {students.map((student) => (
+                  <div key={student._id} className="seat-plan-card">
+                    {renderSeatPlanCard(student)}
+                  </div>
+                ))}
+              </div>
             </div>
           ))
         ) : (
-          <div className="col-span-full text-center py-8">
+          <div className="text-center py-8">
             <p className="text-gray-500">No data available</p>
           </div>
         )}
