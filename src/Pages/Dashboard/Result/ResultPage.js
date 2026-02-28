@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
@@ -12,8 +12,9 @@ import {
   Row,
   Col,
   Alert,
+  Spin,
 } from "antd";
-import { DownloadOutlined, SearchOutlined } from "@ant-design/icons";
+import { DownloadOutlined, SearchOutlined, TrophyOutlined, CrownOutlined, ReloadOutlined } from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -149,6 +150,71 @@ const resultPageStyles = `
   .sparkle-dot:nth-child(3) { animation-delay: 0.4s; }
   .sparkle-dot:nth-child(4) { animation-delay: 0.6s; }
   .sparkle-dot:nth-child(5) { animation-delay: 0.8s; }
+  /* Institute Leaderboard — কয়েকটা সফট রঙের সিকোন বর্ডার */
+  .leaderboard-row {
+    padding: 1.5px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+  .leaderboard-row:last-child { margin-bottom: 0; }
+  .leaderboard-row.lb-soft-0 { background: linear-gradient(135deg, rgba(167, 243, 208, 0.55) 0%, rgba(187, 247, 208, 0.45) 100%); }
+  .leaderboard-row.lb-soft-0:hover { box-shadow: 0 1px 6px rgba(34, 197, 94, 0.08); }
+  .leaderboard-row.lb-soft-1 { background: linear-gradient(135deg, rgba(165, 243, 252, 0.5) 0%, rgba(207, 250, 254, 0.45) 100%); }
+  .leaderboard-row.lb-soft-1:hover { box-shadow: 0 1px 6px rgba(6, 182, 212, 0.08); }
+  .leaderboard-row.lb-soft-2 { background: linear-gradient(135deg, rgba(196, 181, 253, 0.45) 0%, rgba(221, 214, 254, 0.4) 100%); }
+  .leaderboard-row.lb-soft-2:hover { box-shadow: 0 1px 6px rgba(129, 140, 248, 0.08); }
+  .leaderboard-row.lb-soft-3 { background: linear-gradient(135deg, rgba(253, 186, 116, 0.4) 0%, rgba(254, 215, 170, 0.35) 100%); }
+  .leaderboard-row.lb-soft-3:hover { box-shadow: 0 1px 6px rgba(251, 146, 60, 0.08); }
+  .leaderboard-row.lb-soft-4 { background: linear-gradient(135deg, rgba(167, 243, 208, 0.4) 0%, rgba(204, 251, 241, 0.4) 100%); }
+  .leaderboard-row.lb-soft-4:hover { box-shadow: 0 1px 6px rgba(20, 184, 166, 0.08); }
+  .leaderboard-row-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fff;
+  }
+  .leaderboard-detail-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .leaderboard-detail-stats { display: flex; flex-wrap: wrap; gap: 6px 8px; font-size: 11px; }
+  .leaderboard-detail-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+  }
+  .leaderboard-detail-stat .label { font-size: 10px; opacity: 0.95; }
+  .leaderboard-detail-stat .value { font-weight: 700; font-size: 11px; }
+  .leaderboard-detail-stat.s-0 { background: #059669; }
+  .leaderboard-detail-stat.s-1 { background: #0891b2; }
+  .leaderboard-detail-stat.s-2 { background: #7c3aed; }
+  .leaderboard-detail-stat.s-3 { background: #d97706; }
+  .leaderboard-detail-stat.s-4 { background: #0d9488; }
+  .leaderboard-rank-badge {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    background: #94a3b8;
+  }
+  .leaderboard-rank-badge.top { background: #059669; }
 `;
 
 // Written result: published 2 March 2 PM; search allowed from 2 March 12 PM
@@ -161,6 +227,37 @@ const ResultPage = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const resultCardRef = useRef(null);
   const [form] = Form.useForm();
+  const [leaderboard, setLeaderboard] = useState({
+    class3To5: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+    others: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+  });
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+
+  const fetchLeaderboard = useCallback(async () => {
+    try {
+      setLeaderboardLoading(true);
+      const res = await coreAxios.get("/institute-wise-stats");
+      if (res?.status === 200 && res?.data?.success && res?.data?.data) {
+        const d = res.data.data;
+        setLeaderboard({
+          class3To5: d.class3To5 ?? { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+          others: d.others ?? { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+        });
+      }
+    } catch (err) {
+      console.error("Institute leaderboard fetch error:", err);
+      setLeaderboard({
+        class3To5: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+        others: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+      });
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   const isSearchAllowed = () => new Date() >= SEARCH_AVAILABLE_FROM;
 
@@ -336,20 +433,18 @@ const ResultPage = () => {
         </p>
       </div>
 
-      {/* Challenge Notice */}
+      {/* Objection / Recheck Notice */}
       <Alert
         message={
-          <span className="tt" style={{ fontSize: "16px" }}>
-            আপনার ফলাফল নিয়ে আপত্তি থাকলে এই{" "}
-            <a
-              href="https://ourdmf.xyz/contact"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: "#1890ff", fontWeight: "bold" }}>
-              লিংক
-            </a>{" "}
-            এ ক্লিক করে আপনার রোল নম্বর সহ মেসেজ পাঠান।
-          </span>
+          <div className="tt" style={{ fontSize: "16px" }}>
+            <div className="mb-1">
+              আপনার ফলাফল নিয়ে আপত্তি থাকলে আমাদের ইমেইল করুন{" "}
+              <strong style={{ color: "#0ea5e9" }}>ourdmf@gmail.com</strong>-এ আপনার রোল নম্বর সহ লিখে পাঠান।
+            </div>
+            <div style={{ fontSize: "14px", color: "#475569", marginTop: "6px" }}>
+              ফলাফল প্রকাশের পর রিচেক আবেদনের সময় থাকবে ২ (দুই) দিন। এর পর আবেদন বিবেচনা করা হবে না।
+            </div>
+          </div>
         }
         type="info"
         showIcon
@@ -530,6 +625,110 @@ const ResultPage = () => {
           </div>
         </Card>
       )}
+
+      {/* Institute Leaderboard — ভাইভা পরীক্ষার জন্য, ভাইভার পর অটো আপডেট */}
+      <Card
+        className="mb-6 overflow-hidden"
+        style={{
+          borderRadius: 16,
+          border: "1px solid rgba(5, 150, 105, 0.25)",
+          background: "linear-gradient(145deg, #ffffff 0%, #f0fdf4 50%, #ecfdf5 100%)",
+          boxShadow: "0 2px 12px rgba(5, 150, 105, 0.06)",
+        }}
+        title={
+          <div className="tt w-full">
+            <div className="flex items-center justify-center gap-2" style={{ fontSize: "17px" }}>
+              <TrophyOutlined style={{ color: "#059669" }} />
+              প্রতিষ্ঠানভিত্তিক লিডারবোর্ড
+              <Button
+                type="text"
+                size="small"
+                icon={<ReloadOutlined spin={leaderboardLoading} />}
+                onClick={() => fetchLeaderboard()}
+                disabled={leaderboardLoading}
+                style={{ marginLeft: 4 }}
+              >
+                রিফ্রেশ
+              </Button>
+            </div>
+            <p className="tt text-center mb-0 mt-1.5 text-gray-500" style={{ fontSize: "12px" }}>
+              কেবল ভাইভা পরীক্ষার জন্য। ভাইভা পরীক্ষার পর এটি স্বয়ংক্রিয়ভাবে আপডেট হবে।
+            </p>
+          </div>
+        }>
+        <Spin spinning={leaderboardLoading} tip="লোড হচ্ছে...">
+          {!leaderboardLoading && (
+            <Row gutter={[16, 16]}>
+              <Col xs={24} md={12}>
+                <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 260 }}>
+                  <div className="tt flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>৩য়–৫ম শ্রেণী</span>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.class3To5?.totalApplications ?? 0} আবেদন · {leaderboard.class3To5?.totalNumberOfInstitutions ?? 0} প্রতিষ্ঠান</Text>
+                  </div>
+                  {leaderboard.class3To5?.institutes?.length > 0 ? (
+                    <div className="max-h-[380px] overflow-y-auto -mx-1 px-1">
+                      {leaderboard.class3To5.institutes.map((inst, idx) => (
+                        <div key={`c35-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
+                          <div className="leaderboard-row-inner">
+                            <div className="flex-1 min-w-0">
+                              <div className="leaderboard-detail-name">{inst.institute || "—"}</div>
+                              <div className="leaderboard-detail-stats">
+                                <span className="leaderboard-detail-stat s-0"><span className="label">আবেদন</span><span className="value">{inst.applicationCount}</span></span>
+                                <span className="leaderboard-detail-stat s-1"><span className="label">উপস্থিত</span><span className="value">{inst.presentCount} ({inst.presentPercentOfOwn}%)</span></span>
+                                <span className="leaderboard-detail-stat s-2"><span className="label">রেজাল্ট</span><span className="value">{inst.resultAddedRatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-3"><span className="label">পাস</span><span className="value">{inst.passRatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-4"><span className="label">৭০%+</span><span className="value">{inst.got70RatioPercent}%</span></span>
+                              </div>
+                            </div>
+                            <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
+                              {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-12 text-gray-500 tt">কোন ডেটা নেই</div>
+                  )}
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 260 }}>
+                  <div className="tt flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
+                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>অন্যান্য (৬ষ্ঠ–১২শ)</span>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.others?.totalApplications ?? 0} আবেদন · {leaderboard.others?.totalNumberOfInstitutions ?? 0} প্রতিষ্ঠান</Text>
+                  </div>
+                  {leaderboard.others?.institutes?.length > 0 ? (
+                    <div className="max-h-[380px] overflow-y-auto -mx-1 px-1">
+                      {leaderboard.others.institutes.map((inst, idx) => (
+                        <div key={`oth-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
+                          <div className="leaderboard-row-inner">
+                            <div className="flex-1 min-w-0">
+                              <div className="leaderboard-detail-name">{inst.institute || "—"}</div>
+                              <div className="leaderboard-detail-stats">
+                                <span className="leaderboard-detail-stat s-0"><span className="label">আবেদন</span><span className="value">{inst.applicationCount}</span></span>
+                                <span className="leaderboard-detail-stat s-1"><span className="label">উপস্থিত</span><span className="value">{inst.presentCount} ({inst.presentPercentOfOwn}%)</span></span>
+                                <span className="leaderboard-detail-stat s-2"><span className="label">রেজাল্ট</span><span className="value">{inst.resultAddedRatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-3"><span className="label">পাস</span><span className="value">{inst.passRatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-4"><span className="label">৭০%+</span><span className="value">{inst.got70RatioPercent}%</span></span>
+                              </div>
+                            </div>
+                            <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
+                              {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center py-12 text-gray-500 tt">কোন ডেটা নেই</div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+          )}
+        </Spin>
+      </Card>
     </div>
   );
 };
