@@ -174,7 +174,7 @@ const resultPageStyles = `
   }
 `;
 
-// Written result: published 2 March 2 PM; search allowed from 2 March 12 PM
+// Written result: published 2 March 2 PM (search always open)
 const RESULT_PUBLISH_LABEL = "লিখিত পরীক্ষার ফলাফল প্রকাশ — ২ মার্চ দুপুর ২টায়";
 const DMF_LOGO = "https://i.ibb.co/F4XV8dKL/1.png";
 // ভাইভা স্থান (শুধু ভাইভায় সিলেক্টদের জন্য দেখানো হয়)
@@ -247,7 +247,7 @@ const ResultPage = () => {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
 
-  const isSearchAllowed = () => true; // Result search always open
+  const isSearchAllowed = () => true;
 
   const onFinish = async (values) => {
     try {
@@ -599,7 +599,7 @@ const ResultPage = () => {
               <Col xs={24} md={12}>
                 <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 260 }}>
                   <div className="tt flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>অন্যান্য (৬ষ্ঠ–১২শ)</span>
+                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>অন্যান্য (৬ষ্ঠ–১২)</span>
                     <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.others?.totalApplications ?? 0} আবেদন · {leaderboard.others?.totalNumberOfInstitutions ?? 0} প্রতিষ্ঠান</Text>
                   </div>
                   {leaderboard.others?.institutes?.length > 0 ? (
