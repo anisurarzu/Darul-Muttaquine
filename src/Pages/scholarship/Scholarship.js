@@ -150,9 +150,22 @@ const Scholarship = () => {
       : true
   );
 
+  // Show rows with isAttendanceComplete=true and no correctAnswer at the top
+  const sortedRolls = [...filteredRolls].sort((a, b) => {
+    const aTop =
+      a?.isAttendanceComplete &&
+      (a?.correctAnswer == null || a?.correctAnswer === "");
+    const bTop =
+      b?.isAttendanceComplete &&
+      (b?.correctAnswer == null || b?.correctAnswer === "");
+    if (aTop && !bTop) return -1;
+    if (!aTop && bTop) return 1;
+    return 0;
+  });
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredRolls.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = sortedRolls.slice(indexOfFirstItem, indexOfLastItem);
 
   const handleScan = (data) => {
     if (data) {
@@ -1084,6 +1097,9 @@ const Scholarship = () => {
                     Marks
                   </th>
                   <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
+                    Correct Answer
+                  </th>
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Grade
                   </th>
                   <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
@@ -1105,10 +1121,11 @@ const Scholarship = () => {
                     <tr
                       key={roll?.scholarshipRollNumber}
                       className={`hover:bg-green-50 transition-colors ${
-                        roll?.isAttendanceComplete &&
-                        "bg-green-50"
-                      } ${
-                        scholarshipGrade === "Talentpool Grade"
+                        roll?.correctAnswer != null && roll?.correctAnswer !== ""
+                          ? "bg-amber-50 hover:bg-amber-100"
+                          : roll?.isAttendanceComplete
+                          ? "bg-green-50"
+                          : scholarshipGrade === "Talentpool Grade"
                           ? "bg-green-50"
                           : scholarshipGrade === "General Grade"
                           ? "bg-blue-50"
@@ -1181,6 +1198,9 @@ const Scholarship = () => {
                       </td>
                       <td className="border border-green-200 p-2 text-center font-semibold">
                         {roll?.resultDetails?.[0]?.totalMarks || "N/A"}
+                      </td>
+                      <td className="border border-green-200 p-2 text-center font-medium">
+                        {roll?.correctAnswer != null && roll?.correctAnswer !== "" ? roll.correctAnswer : "—"}
                       </td>
                       <td className="border border-green-200 p-2 text-center font-semibold">
                         <span className={`px-2 py-1 rounded-full text-xs ${

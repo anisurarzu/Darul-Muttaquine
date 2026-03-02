@@ -88,6 +88,28 @@ const InstituteSummaryTable = ({ dataSource }) => (
   />
 );
 
+// Map API class names (e.g. "Six", "Ten") to numbers for sorting and grade logic
+const CLASS_NAME_TO_NUMBER = {
+  Two: 2,
+  Three: 3,
+  Four: 4,
+  Five: 5,
+  Six: 6,
+  Seven: 7,
+  Eight: 8,
+  Nine: 9,
+  Ten: 10,
+  Eleven: 11,
+  Twelve: 12,
+};
+const getClassNumber = (instituteClass) => {
+  if (instituteClass == null) return NaN;
+  const s = String(instituteClass).trim();
+  const n = parseInt(s, 10);
+  if (!Number.isNaN(n)) return n;
+  return CLASS_NAME_TO_NUMBER[s] ?? NaN;
+};
+
 // Helper function to calculate positions within a class
 const calculateClassPositions = (students) => {
   if (!students || students.length === 0) return [];
@@ -154,11 +176,11 @@ const ResultDetails = () => {
 
   // Function to determine scholarship grade based on class and marks
   const getScholarshipGrade = (student) => {
-    if (!student.resultDetails || student.resultDetails.length === 0)
-      return null;
+    const totalMarks =
+      student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer;
+    if (totalMarks == null) return null;
 
-    const classNumber = parseInt(student.instituteClass);
-    const totalMarks = student.resultDetails[0].totalMarks;
+    const classNumber = getClassNumber(student.instituteClass);
 
     // For classes 3 to 5
     if (classNumber >= 3 && classNumber <= 5) {
@@ -192,8 +214,12 @@ const ResultDetails = () => {
     const groups = {};
 
     data.forEach((student) => {
-      if (student.resultDetails && student.resultDetails.length > 0) {
-        const className = student.instituteClass;
+      const totalMarks =
+        student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer;
+      const hasResult = (student.resultDetails && student.resultDetails.length > 0) || totalMarks != null;
+      if (hasResult) {
+        const className =
+          String(student.instituteClass || "").trim() || "Unknown";
         if (!groups[className]) {
           groups[className] = [];
         }
@@ -209,7 +235,10 @@ const ResultDetails = () => {
     const instituteMap = {};
 
     data.forEach((student) => {
-      if (student.resultDetails && student.resultDetails.length > 0) {
+      const hasResult =
+        (student.resultDetails && student.resultDetails.length > 0) ||
+        student.correctAnswer != null;
+      if (hasResult) {
         const grade = getScholarshipGrade(student);
         if (!grade) return;
 
@@ -268,7 +297,7 @@ const ResultDetails = () => {
               rollNumber: student.scholarshipRollNumber,
               name: student.name,
               institute: student.institute,
-              totalMarks: student.resultDetails[0].totalMarks,
+              totalMarks: student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer,
               grade: grade,
               phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
             };
@@ -379,7 +408,7 @@ const ResultDetails = () => {
               rollNumber: student.scholarshipRollNumber,
               name: student.name,
               institute: student.institute,
-              totalMarks: student.resultDetails[0].totalMarks,
+              totalMarks: student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer,
               grade: grade,
               phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
             };
@@ -449,7 +478,7 @@ const ResultDetails = () => {
               institute: student.institute,
               gender: student.gender,
               phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
-              totalMarks: student.resultDetails[0].totalMarks,
+              totalMarks: student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer,
               grade: grade,
             };
           }
@@ -581,7 +610,7 @@ const ResultDetails = () => {
             institute: student.institute,
             gender: student.gender,
             phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
-            totalMarks: student.resultDetails[0].totalMarks,
+            totalMarks: student.resultDetails?.[0]?.totalMarks ?? student.correctAnswer,
             grade: grade || "Not Qualified",
             status: grade ? "Qualified" : "Not Qualified",
           };
@@ -911,17 +940,20 @@ const ResultDetails = () => {
       {/* Class-wise Results Section */}
       <Collapse accordion className="mb-6">
         {Object.keys(classGroups)
-          .sort((a, b) => parseInt(a) - parseInt(b))
+          .sort((a, b) => getClassNumber(a) - getClassNumber(b))
           .map((className) => {
             const qualifiedStudents = classGroups[className]
               .filter((student) => getScholarshipGrade(student) !== null)
               .map((student) => {
                 const grade = getScholarshipGrade(student);
+                const totalMarks =
+                  student.resultDetails?.[0]?.totalMarks ??
+                  student.correctAnswer;
                 return {
                   rollNumber: student.scholarshipRollNumber,
                   name: student.name,
                   institute: student.institute,
-                  totalMarks: student.resultDetails[0].totalMarks,
+                  totalMarks,
                   grade: grade,
                   phone: student.phone?.toString().replace(/^(\d)/, "0$1"),
                 };

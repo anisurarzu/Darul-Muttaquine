@@ -4,8 +4,6 @@ import { toast } from "react-toastify";
 import {
   Button,
   Card,
-  Divider,
-  Table,
   Typography,
   Input,
   Form,
@@ -13,6 +11,7 @@ import {
   Col,
   Alert,
   Spin,
+  QRCode,
 } from "antd";
 import { DownloadOutlined, SearchOutlined, TrophyOutlined, CrownOutlined, ReloadOutlined } from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
@@ -67,70 +66,8 @@ const normalizeClassToNumber = (className) => {
   return classMap[classStr] ?? null;
 };
 
-// CSS for status highlight and result joy animation
+// CSS for result badge and leaderboard (no animations)
 const resultPageStyles = `
-  @keyframes statusGlow {
-    0%, 100% { filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.6)); }
-    50% { filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.9)); }
-  }
-  @keyframes resultPop {
-    0% { opacity: 0; transform: scale(0.96); }
-    100% { opacity: 1; transform: scale(1); }
-  }
-  @keyframes sparkle {
-    0%, 100% { opacity: 0.4; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-  }
-  @keyframes fireworkBurst {
-    0% { opacity: 0; transform: scale(0) rotate(0deg); }
-    30% { opacity: 1; transform: scale(1.1) rotate(0deg); }
-    70% { opacity: 0.9; transform: scale(1) rotate(0deg); }
-    100% { opacity: 0; transform: scale(1.3) rotate(0deg); }
-  }
-  @keyframes fireworkRay {
-    0% { opacity: 0; transform: scale(0.5); }
-    40% { opacity: 0.9; transform: scale(1); }
-    100% { opacity: 0; transform: scale(1.2); }
-  }
-  .result-card-enter { animation: resultPop 0.5s ease-out forwards; }
-  .atos-left, .atos-right {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 56px;
-    height: 56px;
-    pointer-events: none;
-    z-index: 1;
-  }
-  .atos-left { left: -28px; }
-  .atos-right { right: -28px; transform: translateY(-50%) scaleX(-1); }
-  .atos-dot {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    animation: fireworkBurst 2s ease-out infinite;
-  }
-  .atos-dot:nth-child(1) { left: 50%; top: 50%; margin: -4px 0 0 -4px; background: #f59e0b; animation-delay: 0s; }
-  .atos-dot:nth-child(2) { left: 20%; top: 15%; background: #10b981; animation-delay: 0.15s; }
-  .atos-dot:nth-child(3) { left: 75%; top: 20%; background: #ef4444; animation-delay: 0.3s; }
-  .atos-dot:nth-child(4) { left: 15%; top: 70%; background: #8b5cf6; animation-delay: 0.45s; }
-  .atos-dot:nth-child(5) { left: 80%; top: 75%; background: #ec4899; animation-delay: 0.6s; }
-  .atos-dot:nth-child(6) { left: 50%; top: 5%; background: #06b6d4; animation-delay: 0.2s; }
-  .atos-dot:nth-child(7) { left: 50%; top: 90%; background: #eab308; animation-delay: 0.35s; }
-  .atos-dot:nth-child(8) { left: 5%; top: 50%; background: #f97316; animation-delay: 0.5s; }
-  .atos-dot:nth-child(9) { left: 92%; top: 50%; background: #14b8a6; animation-delay: 0.25s; }
-  .atos-emoji {
-    position: absolute;
-    font-size: 22px;
-    animation: fireworkBurst 2.2s ease-out infinite;
-  }
-  .atos-left .atos-emoji:nth-child(10) { left: 50%; top: 50%; transform: translate(-50%, -50%); animation-delay: 0.1s; }
-  .atos-left .atos-emoji:nth-child(11) { left: 10%; top: 25%; animation-delay: 0.4s; }
-  .atos-left .atos-emoji:nth-child(12) { left: 25%; top: 80%; animation-delay: 0.7s; }
-  .atos-right .atos-emoji:nth-child(10) { left: 50%; top: 50%; transform: translate(-50%, -50%); animation-delay: 0.1s; }
-  .atos-right .atos-emoji:nth-child(11) { right: 10%; left: auto; top: 25%; animation-delay: 0.4s; }
-  .atos-right .atos-emoji:nth-child(12) { right: 25%; left: auto; top: 80%; animation-delay: 0.7s; }
   .result-selected-viva-badge {
     display: inline-flex;
     align-items: center;
@@ -142,15 +79,9 @@ const resultPageStyles = `
     padding: 4px 12px;
     border-radius: 8px;
     border: 1px solid rgba(16, 185, 129, 0.4);
-    animation: statusGlow 2s ease-in-out infinite;
     box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
   }
-  .sparkle-dot { animation: sparkle 1.2s ease-in-out infinite; }
-  .sparkle-dot:nth-child(2) { animation-delay: 0.2s; }
-  .sparkle-dot:nth-child(3) { animation-delay: 0.4s; }
-  .sparkle-dot:nth-child(4) { animation-delay: 0.6s; }
-  .sparkle-dot:nth-child(5) { animation-delay: 0.8s; }
-  /* Institute Leaderboard — কয়েকটা সফট রঙের সিকোন বর্ডার */
+  /* Institute Leaderboard */
   .leaderboard-row {
     padding: 1.5px;
     border-radius: 10px;
@@ -215,11 +146,67 @@ const resultPageStyles = `
     background: #94a3b8;
   }
   .leaderboard-rank-badge.top { background: #059669; }
+  /* PDF export: smaller standard text so download fits and looks clean */
+  .pdf-export .result-pdf-header-org { font-size: 14px !important; }
+  .pdf-export .result-pdf-header-title { font-size: 16px !important; }
+  .pdf-export .result-pdf-header-sub { font-size: 13px !important; }
+  .pdf-export .result-pdf-roll-label { font-size: 12px !important; }
+  .pdf-export .result-pdf-roll-digit { font-size: 18px !important; }
+  .pdf-export .result-pdf-table { font-size: 12px !important; }
+  .pdf-export .result-pdf-table td { font-size: 12px !important; padding: 6px 10px !important; }
+  .pdf-export .result-pdf-msg-title { font-size: 14px !important; }
+  .pdf-export .result-pdf-msg-body { font-size: 11px !important; }
+  .pdf-export .result-pdf-footer { font-size: 10px !important; }
+  .pdf-export .result-pdf-logo { height: 48px !important; max-height: 48px !important; }
+  .pdf-export .result-pdf-qr { width: 48px !important; height: 48px !important; }
+  .pdf-export .result-pdf-qr svg { width: 48px !important; height: 48px !important; }
+  .pdf-export .border-b-2 { padding-bottom: 8px !important; margin-bottom: 8px !important; }
+  .pdf-export .p-6 { padding: 12px 16px !important; }
+  .pdf-export .mb-6 { margin-bottom: 10px !important; }
+  .pdf-export .mb-4 { margin-bottom: 8px !important; }
+  .pdf-export .result-selected-viva-badge { font-size: 12px !important; padding: 2px 8px !important; }
+  @media print {
+    body, .result-page-root { margin: 0 !important; padding: 0 !important; min-height: 0 !important; height: auto !important; background: #fff !important; }
+    .no-print { display: none !important; }
+    .result-page-root > *:not(.result-print-card) { display: none !important; }
+    .result-print-card { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; }
+    .result-sheet-print { page-break-inside: avoid; }
+  }
 `;
 
 // Written result: published 2 March 2 PM; search allowed from 2 March 12 PM
 const RESULT_PUBLISH_LABEL = "লিখিত পরীক্ষার ফলাফল প্রকাশ — ২ মার্চ দুপুর ২টায়";
-const SEARCH_AVAILABLE_FROM = new Date(2026, 2, 2, 12, 0, 0); // 2 March 2026, 12:00 PM
+const DMF_LOGO = "https://i.ibb.co/F4XV8dKL/1.png";
+// ভাইভা স্থান (শুধু ভাইভায় সিলেক্টদের জন্য দেখানো হয়)
+const VIVA_LOCATION_LINE1 = "দারুল মুত্তাক্বীন ফাউন্ডেশন";
+const VIVA_LOCATION_LINE2 = "হতেয়া রোড (তক্তারচালা দাখিল মাদ্রাসার পূর্ব পাশে)";
+
+// শ্রেণী অনুযায়ী ভাইভা রুম ও সময় (অ্যানেক্স অনুযায়ী)
+const getVivaSlotByClass = (classNumber) => {
+  const n = classNumber != null ? Number(classNumber) : 0;
+  if (n >= 9 && n <= 12) return { room: "রুম: ১", timeSlot: "০৯:০০ - ১০:৩০", roomEn: "Room 1" };
+  if (n === 5) return { room: "রুম: ২", timeSlot: "০৯:০০ - ১০:০০", roomEn: "Room 2" };
+  if (n >= 6 && n <= 8) return { room: "রুম: ৩", timeSlot: "১০:৩০ - ১১:৩০", roomEn: "Room 3" };
+  if (n >= 3 && n <= 4) return { room: "রুম: ২", timeSlot: "১০:৩০ - ১১:৩০", roomEn: "Room 2" }; // Three, Four
+  if (n === 2) return { room: "রুম: ৩", timeSlot: "০৯:০০ - ১০:৩০", roomEn: "Room 3" };
+  return { room: "রুম: ৩", timeSlot: "০৯:০০ - ১০:৩০", roomEn: "Room 3" };
+};
+
+// Next Friday's date (শুক্রবার = 5)
+const BENGALI_MONTHS = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+const getNextFridayDate = () => {
+  const d = new Date();
+  let daysUntil = (5 - d.getDay() + 7) % 7;
+  if (daysUntil === 0) daysUntil = 7;
+  const next = new Date(d);
+  next.setDate(d.getDate() + daysUntil);
+  const day = next.getDate();
+  const month = BENGALI_MONTHS[next.getMonth()];
+  const year = next.getFullYear();
+  const dayBn = convertToBengali(day);
+  const yearBn = convertToBengali(year);
+  return `শুক্রবার, ${dayBn} ${month} ${yearBn}`;
+};
 
 const ResultPage = () => {
   const [resultData, setResultData] = useState({});
@@ -232,6 +219,7 @@ const ResultPage = () => {
     others: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
   });
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [isPdfExport, setIsPdfExport] = useState(false);
 
   const fetchLeaderboard = useCallback(async () => {
     try {
@@ -259,13 +247,9 @@ const ResultPage = () => {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
 
-  const isSearchAllowed = () => new Date() >= SEARCH_AVAILABLE_FROM;
+  const isSearchAllowed = () => true; // Result search always open
 
   const onFinish = async (values) => {
-    if (!isSearchAllowed()) {
-      toast.warning("লিখিত পরীক্ষার ফলাফল ২ মার্চ দুপুর ২টায় প্রকাশিত হবে। দুপুর ১২টার পর খুঁজতে পারবেন।");
-      return;
-    }
     try {
       setLoading(true);
       const normalizedRoll = normalizeRollNumber(values?.scholarshipRollNumber);
@@ -295,133 +279,64 @@ const ResultPage = () => {
       ? Math.max(0, totalMarksForExam - Number(correctAnswer))
       : null;
 
-  // Viva selection condition and message (70% or above of total marks)
+  // Viva: class 6–10 → 65%; other classes → 75%. Interview slot only when selected.
   const getVivaStatus = () => {
     if (!totalMarksForExam || correctAnswer == null) {
-      return { status: "No Result", selected: false, percentage: null };
+      return { status: "No Result", selected: false, percentage: null, threshold: null };
     }
     const obtained = Number(correctAnswer);
     const percentage = (obtained / totalMarksForExam) * 100;
-    if (percentage >= 70) {
+    const isClass6To10 = classNumber >= 6 && classNumber <= 10;
+    const threshold = isClass6To10 ? 65 : 75;
+    if (percentage >= threshold) {
       return {
         status: "Selected for Viva",
         selected: true,
         percentage,
+        threshold,
       };
     }
     return {
       status: "Not Selected for Viva",
       selected: false,
       percentage,
+      threshold,
     };
   };
 
-  // Download result as PDF
+  // Download result as PDF: use smaller standard text for a clean, compact PDF
   const downloadResultAsPDF = () => {
     const input = resultCardRef.current;
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save(`dmf-result-${resultData?.scholarshipRollNumber || resultData?.resultDetails?.[0]?.scholarshipRollNumber || "result"}.pdf`);
+    if (!input) return;
+    setIsPdfExport(true);
+    const finish = () => setIsPdfExport(false);
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        html2canvas(input, { useCORS: true }).then((canvas) => {
+          const imgData = canvas.toDataURL("image/png");
+          const pdf = new jsPDF("p", "mm", "a4");
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+          pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+          pdf.save(`dmf-result-${resultData?.scholarshipRollNumber || resultData?.resultDetails?.[0]?.scholarshipRollNumber || "result"}.pdf`);
+        }).finally(finish);
+      }, 120);
     });
   };
 
-  // Table data: correctAnswer for সঠিক উত্তর & প্রাপ্ত নম্বর; wrongAnswer = totalMarksForExam - correctAnswer
-  const resultTableData = [
-    { key: "1", label: "নাম", value: resultData?.name || "-" },
-    {
-      key: "2",
-      label: "শিক্ষা প্রতিষ্ঠান",
-      value: resultData?.institute || "-",
-    },
-    {
-      key: "3",
-      label: "শ্রেণী",
-      value: resultData?.instituteClass || "-",
-    },
-    {
-      key: "4",
-      label: "রোল নম্বর",
-      value:
-        resultData?.scholarshipRollNumber ||
-        resultData?.resultDetails?.[0]?.scholarshipRollNumber ||
-        "-",
-    },
-    {
-      key: "5",
-      label: "মোট নম্বর",
-      value:
-        totalMarksForExam != null ? String(totalMarksForExam) : "-",
-    },
-    {
-      key: "6",
-      label: "সঠিক উত্তর",
-      value:
-        correctAnswer != null ? String(correctAnswer) : "-",
-    },
-    {
-      key: "7",
-      label: "ভুল উত্তর",
-      value: wrongAnswer != null ? String(wrongAnswer) : "-",
-    },
-    {
-      key: "8",
-      label: "প্রাপ্ত নম্বর",
-      value:
-        correctAnswer != null ? String(correctAnswer) : "-",
-    },
-    {
-      key: "9",
-      label: "স্ট্যাটাস",
-      value: getVivaStatus().status,
-    },
-  ];
-
-  const columns = [
-    {
-      title: "বিবরণ",
-      dataIndex: "label",
-      key: "label",
-      width: "40%",
-      render: (text) => (
-        <Text className="tt" style={{ fontSize: "16px" }}>
-          {text}
-        </Text>
-      ),
-    },
-    {
-      title: "ফলাফল",
-      dataIndex: "value",
-      key: "value",
-      width: "60%",
-      render: (text, record) => {
-        if (record?.label === "স্ট্যাটাস" && text === "Selected for Viva") {
-          return (
-            <span className="result-selected-viva-badge tt">
-              ✨ {text} ✨
-            </span>
-          );
-        }
-        return (
-          <Text className="tt" style={{ fontSize: "16px" }}>
-            {text}
-          </Text>
-        );
-      },
-    },
-  ];
-
+  const rollDisplay =
+    resultData?.scholarshipRollNumber ||
+    resultData?.resultDetails?.[0]?.scholarshipRollNumber ||
+    "";
   const isSelectedForViva = getVivaStatus().selected;
+  const vivaSlot = getVivaSlotByClass(classNumber);
 
   return (
-    <div className="bg-gray-50 min-h-screen p-4 mx-0 xl:mx-24 ">
+    <div className="result-page-root bg-gray-50 min-h-screen p-4 mx-0 xl:mx-24">
       <style>{resultPageStyles}</style>
       {/* Header with white title */}
-      <div className=" p-4 mb-6 rounded">
+      <div className="no-print p-4 mb-6 rounded">
         <Title
           level={3}
           className="text-center text-white tt mb-0"
@@ -435,6 +350,7 @@ const ResultPage = () => {
 
       {/* Objection / Recheck Notice */}
       <Alert
+        className="no-print mb-6"
         message={
           <div className="tt" style={{ fontSize: "16px" }}>
             <div className="mb-1">
@@ -448,11 +364,10 @@ const ResultPage = () => {
         }
         type="info"
         showIcon
-        className="mb-6"
       />
 
       {/* Scholarship Criteria Card */}
-      <Card className="mb-6">
+      <Card className="no-print mb-6">
         <Form form={form} onFinish={onFinish} layout="vertical">
           <Form.Item
             name="scholarshipRollNumber"
@@ -476,150 +391,139 @@ const ResultPage = () => {
               htmlType="submit"
               icon={<SearchOutlined />}
               loading={loading}
-              disabled={!isSearchAllowed()}
               block
               style={{ height: "45px", fontSize: "16px" }}>
               ফলাফল দেখুন
             </Button>
-            {!isSearchAllowed() && (
-              <p className="tt text-center text-gray-500 mt-2 mb-0" style={{ fontSize: "14px" }}>
-                ২ মার্চ দুপুর ১২টার পর খুঁজতে পারবেন
-              </p>
-            )}
           </Form.Item>
         </Form>
       </Card>
 
       {Object.keys(resultData).length > 0 && (
-        <Card className={`overflow-visible ${showCelebration ? "result-card-enter" : ""}`}>
+        <Card className="result-print-card overflow-visible">
           <div
             ref={resultCardRef}
-            className="p-4 border border-gray-300 bg-white relative overflow-visible">
-            {isSelectedForViva && (
-              <>
-                <div className="absolute top-2 right-3 flex gap-1 text-lg select-none" style={{ pointerEvents: "none" }}>
-                  <span className="sparkle-dot">✨</span>
-                  <span className="sparkle-dot">⭐</span>
-                  <span className="sparkle-dot">✨</span>
-                  <span className="sparkle-dot">🎉</span>
-                  <span className="sparkle-dot">✨</span>
+            className={`max-w-4xl mx-auto bg-white border-2 border-green-600 relative overflow-visible print:border-green-700 result-sheet-print ${isPdfExport ? "pdf-export" : ""}`}>
+            <div className="p-6 print:p-6">
+              {/* Header - same as Admit Card */}
+              <div className="border-b-2 border-green-600 pb-5 mb-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <img src={DMF_LOGO} alt="DMF Logo" className="result-pdf-logo h-[80px] object-contain" crossOrigin="anonymous" />
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="result-pdf-header-org text-xl md:text-2xl font-bold text-green-800 mb-1 tt">দারুল মুত্তাক্বীন ফাউন্ডেশন</p>
+                    <h1 className="result-pdf-header-title text-2xl md:text-3xl font-bold text-green-800 tt">শিক্ষাবৃত্তি পরীক্ষা ২০২৬</h1>
+                    <p className="result-pdf-header-sub text-lg font-semibold text-green-700 tt mt-1">ফলাফল</p>
+                  </div>
+                  <div className="flex-1 flex justify-end">
+                    <QRCode type="svg" value={rollDisplay || "DMF2026"} size={80} className="result-pdf-qr border-2 border-green-600 p-1" />
+                  </div>
                 </div>
-                {/* Left side atos baji (fireworks) */}
-                <div className="atos-left select-none">
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-emoji">🎆</span>
-                  <span className="atos-emoji">✨</span>
-                  <span className="atos-emoji">🎇</span>
-                </div>
-                {/* Right side atos baji (fireworks) */}
-                <div className="atos-right select-none">
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-dot" />
-                  <span className="atos-emoji">🎆</span>
-                  <span className="atos-emoji">✨</span>
-                  <span className="atos-emoji">🎇</span>
-                </div>
-              </>
-            )}
-            {/* Header */}
-            <div className="text-center mb-6">
-              <Title level={4} className="tt mb-1" style={{ fontSize: "20px" }}>
-                দারুল মুত্তাক্বীন ফাউন্ডেশন
-              </Title>
-              <Text className="tt" style={{ fontSize: "16px" }}>
-                শিক্ষাবৃত্তি পরীক্ষা ২০২৬ - ফলাফল
-              </Text>
-              <Divider className="my-3 bg-gray-300" />
-            </div>
-
-            {/* Result Table */}
-            <Table
-              columns={columns}
-              dataSource={resultTableData}
-              pagination={false}
-              bordered
-              size="small"
-              className="mb-6"
-            />
-
-            {/* Messages based on viva selection status */}
-            {getVivaStatus().selected ? (
-              <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-600">
-                <Title
-                  level={5}
-                  className="tt text-green-800"
-                  style={{ fontSize: "18px" }}>
-                  <span className="text-xl">🎉</span> মাবরুক! আপনি ভাইভা পরীক্ষার
-                  জন্য নির্বাচিত হয়েছেন
-                </Title>
-                <Text className="tt block" style={{ fontSize: "16px" }}>
-                  ইনশাআল্লাহ আগামী শুক্রবার অনুষ্ঠিতব্য ভাইভা পরীক্ষায় অংশগ্রহণ
-                  করার জন্য আপনার রেজাল্ট যথেষ্ট ভালো হয়েছে (কমপক্ষে ৭০% নম্বর)।
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  <strong>দয়া করে নোট করুন:</strong> নির্ধারিত তারিখ ও সময়ে
-                  প্রয়োজনীয় কাগজপত্রসহ উপস্থিত থাকবেন।
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  আল্লাহ তাআলা আপনার জন্য আরও বরকতময় ভবিষ্যৎ নির্ধারণ করুন। আমীন।
-                </Text>
               </div>
-            ) : (
-              <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400">
-                <Title
-                  level={5}
-                  className="tt text-blue-800"
-                  style={{ fontSize: "18px" }}>
-                  <span className="text-xl">🤲</span> এইবার ভাইভার জন্য নির্বাচিত
-                  হননি
-                </Title>
-                <Text className="tt block" style={{ fontSize: "16px" }}>
-                  আপনার এই রেজাল্ট অনুযায়ী আপনি ভাইভা পরীক্ষার জন্য নির্বাচিত
-                  হননি (৭০% এর কম নম্বর)। তবে এটি আপনার জন্য শেষ নয়, বরং
-                  ভবিষ্যতে আরও ভালো করার একটি সুযোগ।
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  নিয়তকে শুদ্ধ রেখে জ্ঞানার্জনের প্রচেষ্টা চালিয়ে যান এবং
-                  আল্লাহর উপর ভরসা রাখুন।
-                </Text>
-                <Text className="tt block mt-2" style={{ fontSize: "16px" }}>
-                  ইনশাআল্লাহ পরবর্তীতে আরও ভালোভাবে প্রস্তুতি নিলে আল্লাহ তাআলা
-                  আপনাকে উত্তম ফল দান করবেন।
-                </Text>
-              </div>
-            )}
 
-            {/* Footer */}
-            <Divider className="my-3 bg-gray-300" />
-            <div className="text-center">
-              <Text className="block text-xs mt-1">
-                © 2026 Darul Muttakin Foundation
-              </Text>
+              {/* Roll Number - large display like Admit Card */}
+              {rollDisplay && (
+                <div className="text-center mb-6">
+                  <div className="flex justify-center items-baseline gap-2 flex-wrap">
+                    <p className="result-pdf-roll-label font-semibold text-green-700 tt" style={{ lineHeight: "1", paddingTop: "8px", fontSize: "18px" }}>রোল নম্বর -</p>
+                    {String(rollDisplay).split("").map((ch, idx) => (
+                      <span key={idx} className="result-pdf-roll-digit font-bold text-green-800 border-2 border-green-600 px-3 py-2 bg-green-50 inline-flex items-center justify-center tt" style={{ lineHeight: "1", fontSize: "28px" }}>{ch}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Result table - Admit Card style green bordered */}
+              <table className="result-pdf-table w-full text-lg border-2 border-green-600 tt mb-6" style={{ fontSize: "18px" }}>
+                <tbody>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 w-2/5 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>নাম:</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{resultData?.name || "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>শিক্ষা প্রতিষ্ঠান:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{resultData?.institute || "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>শ্রেণী:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{resultData?.instituteClass || "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>রোল নম্বর:</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{rollDisplay || "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>মোট নম্বর:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{totalMarksForExam != null ? String(totalMarksForExam) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>সঠিক উত্তর:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{correctAnswer != null ? String(correctAnswer) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>ভুল উত্তর:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{wrongAnswer != null ? String(wrongAnswer) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>প্রাপ্ত নম্বর:</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{correctAnswer != null ? String(correctAnswer) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>স্ট্যাটাস:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>
+                      {isSelectedForViva ? (
+                        <span className="result-selected-viva-badge tt font-semibold">✨ Selected for Viva ✨</span>
+                      ) : (
+                        <span className="tt">Not Selected for Viva</span>
+                      )}
+                    </td>
+                  </tr>
+                  {isSelectedForViva && (
+                    <>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা পরীক্ষার তারিখ ও সময়:</td>
+                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>{getNextFridayDate()}, সকাল {vivaSlot.timeSlot}</td>
+                      </tr>
+                      <tr className="border-b border-green-600">
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা রুম:</td>
+                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>{vivaSlot.room}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা পরীক্ষার স্থান:</td>
+                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>
+                          {VIVA_LOCATION_LINE1}<br />{VIVA_LOCATION_LINE2}
+                        </td>
+                      </tr>
+                    </>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Messages based on viva selection */}
+              {getVivaStatus().selected ? (
+                <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-600 tt">
+                  <Title level={5} className="result-pdf-msg-title tt text-green-800 mb-2" style={{ fontSize: "18px" }}><span className="text-xl">🎉</span> মাবরুক! আপনি ভাইভা পরীক্ষার জন্য নির্বাচিত হয়েছেন</Title>
+                  <Text className="result-pdf-msg-body tt block" style={{ fontSize: "15px" }}>ইনশাআল্লাহ {getNextFridayDate()} অনুষ্ঠিতব্য ভাইভা পরীক্ষায় অংশগ্রহণ করার জন্য আপনার রেজাল্ট যথেষ্ট ভালো হয়েছে (কমপক্ষে {getVivaStatus().threshold}% নম্বর)।</Text>
+                  <Text className="result-pdf-msg-body tt block mt-2" style={{ fontSize: "15px" }}>নির্ধারিত তারিখ ও সময়ে প্রয়োজনীয় কাগজপত্রসহ উপস্থিত থাকবেন। আল্লাহ তাআলা আপনার জন্য বরকতময় ভবিষ্যৎ নির্ধারণ করুন। আমীন।</Text>
+                  <Text className="result-pdf-msg-body tt block mt-2" style={{ fontSize: "15px" }}><strong>যোগাযোগ:</strong> 01927920081 (আশিকুর রহমান), 01918737415 (সাইফুল্লাহ সাদী), 01838243941 (তানভীর)</Text>
+                </div>
+              ) : (
+                <div className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-400 tt">
+                  <Title level={5} className="result-pdf-msg-title tt text-blue-800 mb-2" style={{ fontSize: "20px" }}><span className="text-xl">🤲</span> এইবার ভাইভার জন্য নির্বাচিত হননি</Title>
+                  <Text className="result-pdf-msg-body tt block" style={{ fontSize: "18px" }}>আপনার এই রেজাল্ট অনুযায়ী আপনি ভাইভা পরীক্ষার জন্য নির্বাচিত হননি (প্রয়োজনীয় নম্বরের চেয়ে কম)। নিয়তকে শুদ্ধ রেখে জ্ঞানার্জনের প্রচেষ্টা চালিয়ে যান এবং আল্লাহর উপর ভরসা রাখুন। ইনশাআল্লাহ পরবর্তীতে আরও ভালোভাবে প্রস্তুতি নিলে উত্তম ফল পাবেন।</Text>
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="pt-4 mt-4 border-t-2 border-green-600 text-center">
+                <Text className="result-pdf-footer tt text-gray-600" style={{ fontSize: "16px" }}>© 2026 Darul Muttaquine Foundation</Text>
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-center mt-4">
-            <Button
-              type="default"
-              icon={<DownloadOutlined />}
-              onClick={downloadResultAsPDF}
-              className="border border-gray-400"
-              style={{ height: "45px", fontSize: "16px" }}>
+          <div className="flex justify-center gap-3 mt-4 no-print">
+            <Button type="default" icon={<DownloadOutlined />} onClick={downloadResultAsPDF} className="border-2 border-green-600 text-green-800 hover:border-green-700 hover:text-green-900" style={{ height: "45px", fontSize: "16px" }}>
               ফলাফল ডাউনলোড করুন
             </Button>
           </div>
@@ -628,7 +532,7 @@ const ResultPage = () => {
 
       {/* Institute Leaderboard — ভাইভা পরীক্ষার জন্য, ভাইভার পর অটো আপডেট */}
       <Card
-        className="mb-6 overflow-hidden"
+        className="no-print mb-6 overflow-hidden"
         style={{
           borderRadius: 16,
           border: "1px solid rgba(5, 150, 105, 0.25)",
