@@ -1,11 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { Table, Button, Card, Spin, Collapse } from "antd";
+import React, { useEffect, useState, useMemo } from "react";
+import { Table, Button, Card, Collapse, Row, Col, Statistic, Typography, Skeleton, Input, Progress } from "antd";
+import { TrophyOutlined, TeamOutlined, ReloadOutlined, SearchOutlined, DownloadOutlined } from "@ant-design/icons";
+import { Bar } from "react-chartjs-2";
+import "chart.js/auto";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { coreAxios } from "../../../utilities/axios";
 import * as XLSX from "xlsx";
 
 const { Panel } = Collapse;
+const { Title, Text } = Typography;
 
 // ScholarshipTable Component
 const ScholarshipTable = ({ title, dataSource }) => (
@@ -110,6 +114,51 @@ const getClassNumber = (instituteClass) => {
   return CLASS_NAME_TO_NUMBER[s] ?? NaN;
 };
 
+const CLASS_NUMBER_TO_NAME = {
+  2: "Two", 3: "Three", 4: "Four", 5: "Five", 6: "Six", 7: "Seven",
+  8: "Eight", 9: "Nine", 10: "Ten", 11: "Eleven", 12: "Twelve",
+};
+const getClassDisplayName = (classNum) => {
+  const n = classNum != null ? Number(classNum) : NaN;
+  return CLASS_NUMBER_TO_NAME[n] ?? String(classNum ?? "Unknown");
+};
+
+// Normalize institute name for merging similar spellings (e.g. "Razabari Adarsha High School" vs "Razabari Adarsha High School.")
+const normalizeInstituteKey = (name) => {
+  if (name == null) return "";
+  return String(name)
+    .replace(/\r\n|\r|\n/g, " ")
+    .replace(/\u00A0/g, " ")
+    .trim()
+    .replace(/^[.,;:\s]+|[.,;:\s]+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+};
+const buildInstituteCanonicalMap = (students) => {
+  const byNormalized = {};
+  (students || []).forEach((s) => {
+    const inst = s.institute ?? "Unknown";
+    let norm = normalizeInstituteKey(inst);
+    if (norm.includes("razabari") && norm.includes("adarsha") && norm.includes("high school")) {
+      norm = "razabari adarsha high school";
+    }
+    if (norm.includes("razabari") && norm.includes("adorsho") && norm.includes("high school")) {
+      norm = "razabari adorsho high school";
+    }
+    if (!byNormalized[norm]) byNormalized[norm] = {};
+    byNormalized[norm][inst] = (byNormalized[norm][inst] || 0) + 1;
+  });
+  const map = {};
+  Object.entries(byNormalized).forEach(([, variants]) => {
+    const canonical = Object.entries(variants).sort((a, b) => b[1] - a[1])[0][0];
+    Object.keys(variants).forEach((orig) => {
+      map[orig] = canonical;
+    });
+  });
+  return map;
+};
+
 // Helper function to calculate positions within a class
 const calculateClassPositions = (students) => {
   if (!students || students.length === 0) return [];
@@ -137,6 +186,8 @@ const ResultDetails = () => {
   const [classGroups, setClassGroups] = useState({});
   const [instituteSummary, setInstituteSummary] = useState([]);
   const [totalSearches, setTotalSearches] = useState(0);
+  const [juniorSearch, setJuniorSearch] = useState("");
+  const [seniorSearch, setSeniorSearch] = useState("");
 
   useEffect(() => {
     fetchScholarshipInfo();
@@ -230,8 +281,9 @@ const ResultDetails = () => {
     setClassGroups(groups);
   };
 
-  // Prepare institute summary data
+  // Prepare institute summary data (merge similar institute names via canonical map)
   const prepareInstituteSummary = (data) => {
+    const canonicalMap = buildInstituteCanonicalMap(data || []);
     const instituteMap = {};
 
     data.forEach((student) => {
@@ -242,9 +294,10 @@ const ResultDetails = () => {
         const grade = getScholarshipGrade(student);
         if (!grade) return;
 
-        if (!instituteMap[student.institute]) {
-          instituteMap[student.institute] = {
-            name: student.institute,
+        const key = canonicalMap[student.institute] ?? student.institute ?? "Unknown";
+        if (!instituteMap[key]) {
+          instituteMap[key] = {
+            name: key,
             talentpool: 0,
             general: 0,
             total: 0,
@@ -252,12 +305,12 @@ const ResultDetails = () => {
         }
 
         if (grade === "Talentpool Grade") {
-          instituteMap[student.institute].talentpool++;
+          instituteMap[key].talentpool++;
         } else if (grade === "General Grade") {
-          instituteMap[student.institute].general++;
+          instituteMap[key].general++;
         }
 
-        instituteMap[student.institute].total++;
+        instituteMap[key].total++;
       }
     });
 
@@ -821,16 +874,304 @@ const ResultDetails = () => {
     doc.save(`DMF-Scholarship-Institute-Summary-${timestamp}.pdf`);
   };
 
-  if (loading) {
+  // Merge similar institute names (e.g. different capitalization) into one canonical name
+  const instituteCanonicalMap = useMemo(() => {
+    const all = (Object.values(classGroups) || []).flat();
+    return buildInstituteCanonicalMap(all);
+  }, [classGroups]);
+
+  // Viva Qualified Leaderboard — DO NOT CHANGE without product approval:
+  // - Class 2–5 (Junior): correctAnswer + vivaMarks ≥ 47.5
+  // - Class 6–10: correctAnswer + vivaMarks ≥ 83; Class 11–12: ≥ 85.
+  // Must run before any early return (hooks rules).
+  const vivaLeaderboard = useMemo(() => {
+    const all = (Object.values(classGroups) || []).flat();
+    const correct = (s) => s?.resultDetails?.[0]?.totalMarks ?? s?.correctAnswer ?? 0;
+    const viva = (s) => s?.vibaMarks ?? s?.vivaMarks ?? s?.resultDetails?.[0]?.vibaMarks ?? 0;
+    const qualified = all.filter((s) => {
+      const v = viva(s);
+      if (v == null || v === "") return false; // must have vivaMarks
+      const c = Number(correct(s)) || 0;
+      const total = c + Number(v);
+      const classNum = getClassNumber(s.instituteClass);
+      const minTotal = classNum >= 2 && classNum <= 5 ? 47.5 : (classNum >= 6 && classNum <= 10 ? 83 : 85); // Junior ≥ 47.5, Class 6–10 ≥ 83, Class 11–12 ≥ 85
+      return total >= minTotal;
+    });
+    const withTotal = qualified.map((s) => ({
+      ...s,
+      institute: instituteCanonicalMap[s.institute] ?? s.institute ?? "Unknown",
+      _correct: Number(correct(s)) || 0,
+      _viva: Number(viva(s)) || 0,
+      _total: (Number(correct(s)) || 0) + (Number(viva(s)) || 0),
+      _classNum: getClassNumber(s.instituteClass),
+    }));
+    withTotal.sort((a, b) => b._total - a._total);
+    const junior = withTotal.filter((s) => s._classNum >= 2 && s._classNum <= 5);
+    const senior = withTotal.filter((s) => s._classNum >= 6 && s._classNum <= 12);
+    const addRank = (arr) => arr.map((row, i) => ({ ...row, rank: i + 1 }));
+    return {
+      junior: addRank(junior),
+      senior: addRank(senior),
+      total: withTotal.length,
+      chartCounts: {
+        junior: junior.length,
+        senior: senior.length,
+      },
+      byClass: withTotal.reduce((acc, s) => {
+        const key = s._classNum;
+        if (!Number.isNaN(key)) {
+          acc[key] = (acc[key] || 0) + 1;
+        }
+        return acc;
+      }, {}),
+    };
+  }, [classGroups, instituteCanonicalMap]);
+
+  // Talentpool (green) vs General counts for table header: Junior ≥52.5 = Talentpool, Senior ≥100 = Talentpool
+  const vivaGradeCounts = useMemo(() => {
+    const jT = vivaLeaderboard.junior.filter((r) => (r._total ?? 0) >= 52.5).length;
+    const jG = vivaLeaderboard.junior.length - jT;
+    const sT = vivaLeaderboard.senior.filter((r) => (r._total ?? 0) >= 100).length;
+    const sG = vivaLeaderboard.senior.length - sT;
+    return { juniorTalentpool: jT, juniorGeneral: jG, seniorTalentpool: sT, seniorGeneral: sG };
+  }, [vivaLeaderboard]);
+
+  // 100% = written-qualified list: Class 2–5 ≥75% of 45 (≥34), Class 6–12 ≥65% (of 100). Progress = of that list, কত % ভাইভা মার্কস অ্যাড হয়েছে।
+  const vivaMarksProgress = useMemo(() => {
+    const all = (Object.values(classGroups) || []).flat();
+    const written = (s) => {
+      const c = s?.correctAnswer ?? s?.resultDetails?.[0]?.totalMarks;
+      return c != null && c !== "" ? Number(c) : NaN;
+    };
+    const hasVivaFilled = (s) => {
+      const v = s?.vibaMarks ?? s?.vivaMarks ?? s?.resultDetails?.[0]?.vibaMarks ?? s?.resultDetails?.[0]?.vivaMarks;
+      return v != null && v !== "";
+    };
+    const getClassNum = (s) => getClassNumber(s.instituteClass);
+    // Junior (Class 2–5): 75% of 45 = 33.75 → written ≥ 34
+    const juniorQualified = all.filter((s) => {
+      const n = getClassNum(s);
+      if (n < 2 || n > 5) return false;
+      const w = written(s);
+      return !Number.isNaN(w) && w >= 34;
+    });
+    // Senior: 65% of 100 = 65
+    const seniorQualified = all.filter((s) => {
+      const n = getClassNum(s);
+      if (n < 6 || n > 12) return false;
+      const w = written(s);
+      return !Number.isNaN(w) && w >= 65;
+    });
+    const juniorFilled = juniorQualified.filter(hasVivaFilled);
+    const seniorFilled = seniorQualified.filter(hasVivaFilled);
+    return {
+      junior: {
+        total: juniorQualified.length,
+        filled: juniorFilled.length,
+        percent: juniorQualified.length ? Math.round((juniorFilled.length / juniorQualified.length) * 100) : 0,
+      },
+      senior: {
+        total: seniorQualified.length,
+        filled: seniorFilled.length,
+        percent: seniorQualified.length ? Math.round((seniorFilled.length / seniorQualified.length) * 100) : 0,
+      },
+    };
+  }, [classGroups]);
+
+  const barClassNumbers = Object.keys(vivaLeaderboard.byClass)
+    .map(Number)
+    .filter((n) => !Number.isNaN(n))
+    .sort((a, b) => a - b);
+  const barLabels = barClassNumbers.map((n) => getClassDisplayName(n));
+  const barData = {
+    labels: barLabels,
+    datasets: [
+      {
+        label: "Students (Qualified)",
+        data: barClassNumbers.map((n) => vivaLeaderboard.byClass[n] || 0),
+        backgroundColor: "rgba(34, 197, 94, 0.7)",
+        borderColor: "#16a34a",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const handleRefresh = () => {
+    fetchScholarshipInfo();
+    fetchTotalSearches();
+  };
+
+  const buildFinalResultPDF = (group) => {
+    const isJunior = group === "junior";
+    const list = isJunior ? vivaLeaderboard.junior : vivaLeaderboard.senior;
+    const totalCount = list.length;
+    const talentpoolCount = isJunior ? vivaGradeCounts.juniorTalentpool : vivaGradeCounts.seniorTalentpool;
+    const generalCount = isJunior ? vivaGradeCounts.juniorGeneral : vivaGradeCounts.seniorGeneral;
+    const talentpoolThreshold = isJunior ? 52.5 : 100;
+    const subTitle = isJunior ? "Junior (Class 2–5)" : "Senior (Class 6–12)";
+
+    const doc = new jsPDF("p", "pt", "a4");
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const tableWidth = pageWidth - margin * 2;
+    const greenFill = [220, 252, 231];
+    const headFill = isJunior ? [22, 163, 74] : [37, 99, 235];
+
+    // Roll full visible; Name ekto choto; rest balanced
+    const rankW = 26;
+    const rollW = 56;
+    const classW = 30;
+    const writtenW = 38;
+    const vivaW = 30;
+    const totalW = 34;
+    const gradeW = 52;
+    const fixedSum = rankW + rollW + classW + writtenW + vivaW + totalW + gradeW;
+    const nameInstituteSum = tableWidth - fixedSum;
+    const nameW = Math.floor(nameInstituteSum * 0.36);
+    const instituteW = nameInstituteSum - nameW;
+    const headers = ["Rank", "Roll", "Name", "Institute", "Class", "Written", "Viva", "Total", "Grade"];
+    const colWidths = [rankW, rollW, nameW, instituteW, classW, writtenW, vivaW, totalW, gradeW];
+
+    const getRoll = (r) => String(r.scholarshipRollNumber ?? r.rollNumber ?? r.resultDetails?.[0]?.rollNumber ?? "").trim();
+    const toBodyRow = (r) => [
+      r.rank ?? "",
+      getRoll(r),
+      r.name ?? "",
+      r.institute ?? "",
+      r.instituteClass ?? "",
+      String(r._correct ?? ""),
+      String(r._viva ?? ""),
+      String(r._total ?? ""),
+      (r._total ?? 0) >= talentpoolThreshold ? "Talentpool" : "General",
+    ];
+    const body = list.map(toBodyRow);
+
+    let startY = 24;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("DMF Scholarship 2026 Final Result Sheet", margin, startY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(subTitle, margin, startY + 14);
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Total: ${totalCount}  |  Talentpool: ${talentpoolCount}  |  General: ${generalCount}`, margin, startY + 28);
+    doc.setTextColor(0, 0, 0);
+    startY += 40;
+
+    doc.autoTable({
+      head: [headers],
+      body,
+      startY,
+      margin: { left: margin, right: margin },
+      tableWidth,
+      columnStyles: {
+        0: { cellWidth: colWidths[0], halign: "center", overflow: "ellipsize" },
+        1: { cellWidth: colWidths[1], halign: "center", overflow: "ellipsize" },
+        2: { cellWidth: colWidths[2], overflow: "ellipsize" },
+        3: { cellWidth: colWidths[3], overflow: "ellipsize" },
+        4: { cellWidth: colWidths[4], halign: "center", overflow: "ellipsize" },
+        5: { cellWidth: colWidths[5], halign: "center", overflow: "ellipsize" },
+        6: { cellWidth: colWidths[6], halign: "center", overflow: "ellipsize" },
+        7: { cellWidth: colWidths[7], halign: "center", overflow: "ellipsize" },
+        8: { cellWidth: colWidths[8], halign: "center", overflow: "ellipsize" },
+      },
+      headStyles: { fillColor: headFill, textColor: 255, fontSize: 10, fontStyle: "bold", cellPadding: 3 },
+      styles: { fontSize: 9, cellPadding: 3, overflow: "ellipsize" },
+      didParseCell: (data) => {
+        if (data.section === "head") {
+          data.cell.styles.overflow = "visible";
+        }
+        if (data.section === "body" && data.column.index === 8 && data.cell.raw === "Talentpool") {
+          const cells = data.row.cells;
+          for (let i = 0; i < headers.length; i++) {
+            if (cells[i] && cells[i].styles) cells[i].styles.fillColor = greenFill;
+          }
+        }
+      },
+      theme: "grid",
+    });
+
+    // New page: Institutes ranked by scholarship count
+    doc.addPage();
+    startY = 24;
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Institutes (Rank-wise by scholarship count)", margin, startY);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(subTitle, margin, startY + 14);
+    startY += 32;
+
+    const instituteStats = {};
+    list.forEach((r) => {
+      const inst = r.institute ?? "Unknown";
+      if (!instituteStats[inst]) {
+        instituteStats[inst] = { count: 0, totalMarks: 0 };
+      }
+      instituteStats[inst].count += 1;
+      instituteStats[inst].totalMarks += Number(r._total) || 0;
+    });
+    const sortedInstitutes = Object.entries(instituteStats)
+      .sort((a, b) => {
+        const [nameA, statsA] = a;
+        const [nameB, statsB] = b;
+        if (statsB.count !== statsA.count) return statsB.count - statsA.count;
+        return statsB.totalMarks - statsA.totalMarks;
+      })
+      .map(([name, stats], idx) => [
+        idx + 1,
+        name,
+        stats.count,
+        (stats.totalMarks / 10).toFixed(1),
+      ]);
+
+    const instTableWidth = pageWidth - margin * 2;
+    const instRankW = 32;
+    const instCountW = 62;
+    const instCreditW = 66;
+    const instNameW = instTableWidth - instRankW - instCountW - instCreditW;
+    doc.autoTable({
+      head: [["Rank", "Institute Name", "Scholarship Count", "Credit Point"]],
+      body: sortedInstitutes,
+      startY,
+      margin: { left: margin, right: margin },
+      tableWidth: instTableWidth,
+      columnStyles: {
+        0: { cellWidth: instRankW, halign: "center", overflow: "ellipsize" },
+        1: { cellWidth: instNameW, overflow: "ellipsize" },
+        2: { cellWidth: instCountW, halign: "center", overflow: "ellipsize" },
+        3: { cellWidth: instCreditW, halign: "left", overflow: "ellipsize" },
+      },
+      headStyles: { fillColor: headFill, textColor: 255, fontSize: 10, fontStyle: "bold", cellPadding: 3 },
+      styles: { fontSize: 9, cellPadding: 3, overflow: "ellipsize" },
+      didParseCell: (data) => {
+        if (data.section === "head") data.cell.styles.overflow = "visible";
+      },
+      theme: "grid",
+    });
+
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const suffix = isJunior ? "Junior" : "Senior";
+    doc.save(`DMF-Scholarship-2026-Final-Result-Sheet-${suffix}-${timestamp}.pdf`);
+  };
+
+  const downloadJuniorFinalResultPDF = () => buildFinalResultPDF("junior");
+  const downloadSeniorFinalResultPDF = () => buildFinalResultPDF("senior");
+
+  if (!results && !loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Spin size="large" />
+      <div className="container mx-auto p-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <Title level={3} className="!mb-0 text-center sm:text-left">DMF Scholarship Result Details 2026</Title>
+          <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefresh} loading={loading}>
+            রিফ্রেশ
+          </Button>
+        </div>
+        <div className="text-center text-gray-500">No results found. Click refresh to load.</div>
       </div>
     );
-  }
-
-  if (!results) {
-    return <div>No results found.</div>;
   }
 
   // Count scholarship grades
@@ -858,14 +1199,240 @@ const ResultDetails = () => {
   const { generalGradeCount, talentpoolGradeCount, totalStudents } =
     countGrades();
 
+  if (loading) {
   return (
     <div className="container mx-auto p-5">
-      <h1 className="text-3xl font-bold text-center mb-6">
-        DMF Scholarship Results 2025
-      </h1>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+          <Title level={3} className="!mb-0 text-center sm:text-left">DMF Scholarship Result Details 2026</Title>
+          <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefresh} loading>
+            রিফ্রেশ
+          </Button>
+        </div>
+        <Skeleton active paragraph={{ rows: 2 }} className="mb-4" />
+        <div className="mb-4" style={{ height: 280 }}>
+          <Skeleton active title={{ width: "40%" }} paragraph={{ rows: 8 }} />
+        </div>
+        <Row gutter={[16, 16]} className="mb-4">
+          <Col span={8}><Skeleton active title={false} paragraph={{ rows: 2 }} /></Col>
+          <Col span={8}><Skeleton active title={false} paragraph={{ rows: 2 }} /></Col>
+          <Col span={8}><Skeleton active title={false} paragraph={{ rows: 2 }} /></Col>
+        </Row>
+        <Skeleton active paragraph={{ rows: 6 }} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-5">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-2">
+        <div className="text-center sm:text-left">
+          <Title level={3} className="!mb-0">DMF Scholarship Result Details 2026</Title>
+          <Text type="secondary" className="block mt-1">
+            Junior (Class 2–5): ≥ 47.5 — Class 6–10: ≥ 83 — Class 11–12: ≥ 85
+          </Text>
+        </div>
+        <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefresh} loading={loading}>
+          রিফ্রেশ
+        </Button>
+      </div>
+      <div className="mb-6" />
+
+      {/* Viva Qualified Leaderboard — Junior & Senior */}
+      <Card
+        className="mb-6 border-2 border-green-200"
+        title={
+          <span className="flex items-center gap-2">
+            <TrophyOutlined />
+            Viva Qualified Leaderboard (Junior ≥ 47.5, Class 6–10 ≥ 83, Class 11–12 ≥ 85)
+          </span>
+        }
+        extra={
+          <span className="flex gap-2">
+            <Button type="primary" icon={<DownloadOutlined />} onClick={downloadJuniorFinalResultPDF} size="small" className="bg-green-600 hover:bg-green-700 border-green-600">
+              Download Junior PDF
+            </Button>
+            <Button type="primary" icon={<DownloadOutlined />} onClick={downloadSeniorFinalResultPDF} size="small">
+              Download Senior PDF
+            </Button>
+          </span>
+        }>
+        <Row gutter={[16, 16]} className="mb-6">
+          <Col xs={24} sm={8}>
+            <Card size="small" className="bg-green-50 border-green-200">
+              <Statistic
+                title="Total Qualified"
+                value={vivaLeaderboard.total}
+                prefix={<TeamOutlined />}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card size="small" className="bg-emerald-50 border-emerald-200">
+              <Statistic title="Junior (Class 2–5)" value={vivaLeaderboard.junior.length} />
+            </Card>
+          </Col>
+          <Col xs={24} sm={8}>
+            <Card size="small" className="bg-blue-50 border-blue-200">
+              <Statistic title="Senior (Class 6–12)" value={vivaLeaderboard.senior.length} />
+            </Card>
+          </Col>
+        </Row>
+        <Row gutter={[24, 24]}>
+          <Col xs={24}>
+            <Card size="small" title="By Class">
+              <div style={{ height: 260 }}>
+                <Bar
+                  data={barData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                      y: { beginAtZero: true },
+                      x: { ticks: { maxRotation: 45 } },
+                    },
+                  }}
+                />
+              </div>
+            </Card>
+          </Col>
+        </Row>
+        <Row gutter={[24, 24]} className="mt-4">
+          <Col xs={24} lg={12}>
+            <div className="mb-3">
+              <Text strong className="text-green-800">Junior (৭৫%+ লিখিত): ভাইভা মার্কস কত % অ্যাড হয়েছে</Text>
+              <Progress
+                percent={vivaMarksProgress.junior.percent}
+                status="active"
+                strokeColor="#16a34a"
+                format={() => `${vivaMarksProgress.junior.filled} / ${vivaMarksProgress.junior.total} (${vivaMarksProgress.junior.percent}%)`}
+              />
+            </div>
+            <Card
+              size="small"
+              title={<span className="text-green-800 font-semibold">Junior Group (Class 2–5)</span>}
+              className="border-green-200"
+              extra={
+                <span className="text-sm">
+                  <span className="font-medium text-green-800">Total: {vivaLeaderboard.junior.length}</span>
+                  <span className="mx-2">|</span>
+                  <span className="text-green-600 font-medium">Talentpool: {vivaGradeCounts.juniorTalentpool}</span>
+                  <span className="mx-2">|</span>
+                  <span className="text-blue-600 font-medium">General: {vivaGradeCounts.juniorGeneral}</span>
+                </span>
+              }>
+              <Input
+                placeholder="Search all columns..."
+                prefix={<SearchOutlined className="text-gray-400" />}
+                value={juniorSearch}
+                onChange={(e) => setJuniorSearch(e.target.value)}
+                allowClear
+                className="mb-3"
+              />
+              <Table
+                dataSource={vivaLeaderboard.junior.filter((row) => {
+                  if (!juniorSearch.trim()) return true;
+                  const q = juniorSearch.trim().toLowerCase();
+                  const rank = String(row.rank ?? "");
+                  const roll = String(row.scholarshipRollNumber ?? "");
+                  const name = String(row.name ?? "");
+                  const cls = String(row.instituteClass ?? "");
+                  const written = String(row._correct ?? "");
+                  const viva = String(row._viva ?? "");
+                  const total = String(row._total ?? "");
+                  const grade = (row._total ?? 0) >= 52.5 ? "Talentpool" : "General";
+                  return [rank, roll, name, cls, written, viva, total, grade].some((s) => s.toLowerCase().includes(q));
+                })}
+                rowKey={(r) => r.scholarshipRollNumber + (r.rank || 0)}
+                pagination={{ pageSize: 10, size: "small" }}
+                size="small"
+                bordered
+                onRow={(record) => ({
+                  style: (record._total ?? 0) >= 52.5 ? { backgroundColor: "#dcfce7" } : {},
+                })}
+                columns={[
+                  { title: "Rank", dataIndex: "rank", key: "rank", width: 52, align: "center" },
+                  { title: "Roll", dataIndex: "scholarshipRollNumber", key: "roll", width: 72 },
+                  { title: "Name", dataIndex: "name", key: "name" },
+                  { title: "Class", dataIndex: "instituteClass", key: "class", width: 56, align: "center" },
+                  { title: "Written", dataIndex: "_correct", key: "correct", width: 64, align: "center" },
+                  { title: "Viva", dataIndex: "_viva", key: "viva", width: 48, align: "center" },
+                  { title: "Total", dataIndex: "_total", key: "total", width: 56, align: "center", render: (v) => <strong>{v}</strong> },
+                  { title: "Grade", key: "grade", width: 80, align: "center", render: (_, r) => ((r._total ?? 0) >= 52.5 ? <span className="text-green-600 font-medium">Talentpool</span> : <span className="text-blue-600 font-medium">General</span>) },
+                ]}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <div className="mb-3">
+              <Text strong className="text-blue-800">Senior (৬৫%+ লিখিত): ভাইভা মার্কস কত % অ্যাড হয়েছে</Text>
+              <Progress
+                percent={vivaMarksProgress.senior.percent}
+                status="active"
+                strokeColor="#2563eb"
+                format={() => `${vivaMarksProgress.senior.filled} / ${vivaMarksProgress.senior.total} (${vivaMarksProgress.senior.percent}%)`}
+              />
+            </div>
+            <Card
+              size="small"
+              title={<span className="text-blue-800 font-semibold">Senior Group (Class 6–12)</span>}
+              className="border-blue-200"
+              extra={
+                <span className="text-sm">
+                  <span className="font-medium text-blue-800">Total: {vivaLeaderboard.senior.length}</span>
+                  <span className="mx-2">|</span>
+                  <span className="text-green-600 font-medium">Talentpool: {vivaGradeCounts.seniorTalentpool}</span>
+                  <span className="mx-2">|</span>
+                  <span className="text-blue-600 font-medium">General: {vivaGradeCounts.seniorGeneral}</span>
+                </span>
+              }>
+              <Input
+                placeholder="Search all columns..."
+                prefix={<SearchOutlined className="text-gray-400" />}
+                value={seniorSearch}
+                onChange={(e) => setSeniorSearch(e.target.value)}
+                allowClear
+                className="mb-3"
+              />
+              <Table
+                dataSource={vivaLeaderboard.senior.filter((row) => {
+                  if (!seniorSearch.trim()) return true;
+                  const q = seniorSearch.trim().toLowerCase();
+                  const rank = String(row.rank ?? "");
+                  const roll = String(row.scholarshipRollNumber ?? "");
+                  const name = String(row.name ?? "");
+                  const cls = String(row.instituteClass ?? "");
+                  const written = String(row._correct ?? "");
+                  const viva = String(row._viva ?? "");
+                  const total = String(row._total ?? "");
+                  const grade = (row._total ?? 0) >= 100 ? "Talentpool" : "General";
+                  return [rank, roll, name, cls, written, viva, total, grade].some((s) => s.toLowerCase().includes(q));
+                })}
+                rowKey={(r) => r.scholarshipRollNumber + (r.rank || 0)}
+                pagination={{ pageSize: 10, size: "small" }}
+                size="small"
+                bordered
+                onRow={(record) => ({
+                  style: (record._total ?? 0) >= 100 ? { backgroundColor: "#dcfce7" } : {},
+                })}
+                columns={[
+                  { title: "Rank", dataIndex: "rank", key: "rank", width: 52, align: "center" },
+                  { title: "Roll", dataIndex: "scholarshipRollNumber", key: "roll", width: 72 },
+                  { title: "Name", dataIndex: "name", key: "name" },
+                  { title: "Class", dataIndex: "instituteClass", key: "class", width: 56, align: "center" },
+                  { title: "Written", dataIndex: "_correct", key: "correct", width: 64, align: "center" },
+                  { title: "Viva", dataIndex: "_viva", key: "viva", width: 48, align: "center" },
+                  { title: "Total", dataIndex: "_total", key: "total", width: 56, align: "center", render: (v) => <strong>{v}</strong> },
+                  { title: "Grade", key: "grade", width: 80, align: "center", render: (_, r) => ((r._total ?? 0) >= 100 ? <span className="text-green-600 font-medium">Talentpool</span> : <span className="text-blue-600 font-medium">General</span>) },
+                ]}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </Card>
 
       <div className="text-center mb-8 p-4 bg-green-50 rounded-lg">
-        <h2 className="text-xl font-semibold mb-2">Summary Statistics</h2>
+        <h2 className="text-xl font-semibold mb-2">Summary Statistics (All Results)</h2>
         <div className="flex justify-center gap-8">
           <div className="bg-white p-3 rounded shadow">
             <p className="text-gray-600">Total Students</p>

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
+  Alert,
   Button,
   Card,
   Typography,
@@ -9,16 +10,63 @@ import {
   Form,
   Row,
   Col,
-  Alert,
   Spin,
   QRCode,
+  Modal,
+  Table,
+  Progress,
 } from "antd";
-import { DownloadOutlined, SearchOutlined, TrophyOutlined, CrownOutlined, ReloadOutlined } from "@ant-design/icons";
+import { DownloadOutlined, SearchOutlined, TrophyOutlined, CrownOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
 import { coreAxios } from "../../../utilities/axios";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
 const { Text, Title } = Typography;
+
+// Same as ResultDetails: class number and institute canonical for viva institute leaderboard
+const CLASS_NAME_TO_NUMBER = {
+  Two: 2, Three: 3, Four: 4, Five: 5, Six: 6, Seven: 7, Eight: 8, Nine: 9,
+  Ten: 10, Eleven: 11, Twelve: 12,
+};
+const getClassNumber = (instituteClass) => {
+  if (instituteClass == null) return NaN;
+  const s = String(instituteClass).trim();
+  const n = parseInt(s, 10);
+  if (!Number.isNaN(n)) return n;
+  return CLASS_NAME_TO_NUMBER[s] ?? NaN;
+};
+const normalizeInstituteKey = (name) => {
+  if (name == null) return "";
+  return String(name)
+    .replace(/\r\n|\r|\n/g, " ")
+    .replace(/\u00A0/g, " ")
+    .trim()
+    .replace(/^[.,;:\s]+|[.,;:\s]+$/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+};
+const buildInstituteCanonicalMap = (students) => {
+  const byNormalized = {};
+  (students || []).forEach((s) => {
+    const inst = s.institute ?? "Unknown";
+    let norm = normalizeInstituteKey(inst);
+    if (norm.includes("razabari") && norm.includes("adarsha") && norm.includes("high school")) {
+      norm = "razabari adarsha high school";
+    }
+    if (norm.includes("razabari") && norm.includes("adorsho") && norm.includes("high school")) {
+      norm = "razabari adorsho high school";
+    }
+    if (!byNormalized[norm]) byNormalized[norm] = {};
+    byNormalized[norm][inst] = (byNormalized[norm][inst] || 0) + 1;
+  });
+  const map = {};
+  Object.entries(byNormalized).forEach(([, variants]) => {
+    const canonical = Object.entries(variants).sort((a, b) => b[1] - a[1])[0][0];
+    Object.keys(variants).forEach((orig) => { map[orig] = canonical; });
+  });
+  return map;
+};
 
 // Normalize roll: DMS26580F / DMS26580M → DMS26580; DMS26580 stays as is
 const normalizeRollNumber = (roll) => {
@@ -174,8 +222,11 @@ const resultPageStyles = `
   }
 `;
 
-// Written result: published 2 March 2 PM (search always open)
+// Full result (written + viva) visible from 9 March 2026, 11:00 AM Bangladesh time (UTC+6)
+const RESULT_LIVE_AT = new Date("2026-03-09T11:00:00+06:00");
+const isResultLive = () => new Date() >= RESULT_LIVE_AT;
 const RESULT_PUBLISH_LABEL = "লিখিত পরীক্ষার ফলাফল প্রকাশ — ২ মার্চ দুপুর ২টায়";
+const RESULT_NOT_YET_MESSAGE = "ফলাফল ৯ মার্চ ২০২৬ সকাল ১১টা থেকে দেখা যাবে। তার আগে ফলাফল দেখানো হবে না।";
 const DMF_LOGO = "https://i.ibb.co/F4XV8dKL/1.png";
 // ভাইভা স্থান (শুধু ভাইভায় সিলেক্টদের জন্য দেখানো হয়)
 const VIVA_LOCATION_LINE1 = "দারুল মুত্তাক্বীন ফাউন্ডেশন";
@@ -214,30 +265,90 @@ const ResultPage = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const resultCardRef = useRef(null);
   const [form] = Form.useForm();
+  // Institute leaderboard: same rank as ResultDetails PDF (Junior Class 2–5, Senior Class 6–12; rank by scholarship count then credit point)
   const [leaderboard, setLeaderboard] = useState({
-    class3To5: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
-    others: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
+    junior: { institutes: [] },
+    senior: { institutes: [] },
   });
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [isPdfExport, setIsPdfExport] = useState(false);
+  const [instituteDetailsModal, setInstituteDetailsModal] = useState(null);
 
   const fetchLeaderboard = useCallback(async () => {
     try {
       setLeaderboardLoading(true);
-      const res = await coreAxios.get("/institute-wise-stats");
-      if (res?.status === 200 && res?.data?.success && res?.data?.data) {
-        const d = res.data.data;
-        setLeaderboard({
-          class3To5: d.class3To5 ?? { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
-          others: d.others ?? { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
-        });
+      const res = await coreAxios.get("/scholarship-info");
+      if (res?.status !== 200 || !Array.isArray(res?.data)) {
+        setLeaderboard({ junior: { institutes: [] }, senior: { institutes: [] } });
+        return;
       }
+      const data = (res.data || []).slice().sort(
+        (a, b) => new Date(b?.submittedAt) - new Date(a?.submittedAt)
+      );
+      // Same as ResultDetails vivaLeaderboard: correct/viva, minTotal (47.5 / 83 for 6–10 / 85 for 11–12), sort by _total desc, tie-break by submittedAt desc
+      const correct = (s) => s?.resultDetails?.[0]?.totalMarks ?? s?.correctAnswer ?? 0;
+      const viva = (s) => s?.vibaMarks ?? s?.vivaMarks ?? s?.resultDetails?.[0]?.vibaMarks ?? 0;
+      const canonicalMap = buildInstituteCanonicalMap(data);
+      const qualified = data.filter((s) => {
+        const v = viva(s);
+        if (v == null || v === "") return false;
+        const c = Number(correct(s)) || 0;
+        const total = c + Number(v);
+        const classNum = getClassNumber(s.instituteClass);
+        const minTotal = classNum >= 2 && classNum <= 5 ? 47.5 : (classNum >= 6 && classNum <= 10 ? 83 : 85);
+        return total >= minTotal;
+      });
+      const withTotal = qualified.map((s) => ({
+        ...s,
+        institute: canonicalMap[s.institute] ?? s.institute ?? "Unknown",
+        _total: (Number(correct(s)) || 0) + (Number(viva(s)) || 0),
+        _classNum: getClassNumber(s.instituteClass),
+      }));
+      withTotal.sort((a, b) => {
+        const d = (b._total ?? 0) - (a._total ?? 0);
+        if (d !== 0) return d;
+        return new Date(b?.submittedAt || 0) - new Date(a?.submittedAt || 0);
+      });
+      const juniorList = withTotal.filter((s) => s._classNum >= 2 && s._classNum <= 5);
+      const seniorList = withTotal.filter((s) => s._classNum >= 6 && s._classNum <= 12);
+      const getRoll = (r) => String(r.scholarshipRollNumber ?? r.rollNumber ?? r.resultDetails?.[0]?.rollNumber ?? "").trim();
+      const addRank = (arr) => arr.map((row, i) => ({ ...row, _normalizedRoll: normalizeRollNumber(getRoll(row)), _meritRank: i + 1 }));
+      const meritOrderJunior = addRank(juniorList);
+      const meritOrderSenior = addRank(seniorList);
+        const toInstituteRank = (list, group) => {
+          const isJunior = group === "junior";
+          const stats = {};
+          list.forEach((r) => {
+            const inst = r.institute ?? "Unknown";
+            if (!stats[inst]) stats[inst] = { count: 0, totalMarks: 0, rollDetails: [] };
+            stats[inst].count += 1;
+            stats[inst].totalMarks += Number(r._total) || 0;
+            const roll = getRoll(r);
+            const grade = (isJunior && (r._total ?? 0) >= 52.5) || (!isJunior && (r._total ?? 0) >= 100) ? "Talentpool" : "General";
+            const g = (r.gender ?? "").toString().toLowerCase();
+            const genderSuffix = g === "male" ? "M" : g === "female" ? "F" : "";
+            if (roll) stats[inst].rollDetails.push({ roll, grade, genderSuffix });
+          });
+          return Object.entries(stats)
+            .sort((a, b) => {
+              if (b[1].count !== a[1].count) return b[1].count - a[1].count;
+              return b[1].totalMarks - a[1].totalMarks;
+            })
+            .map(([name, s], idx) => ({
+              rank: idx + 1,
+              institute: name,
+              count: s.count,
+              creditPoint: (s.totalMarks / 10).toFixed(1),
+              rollDetails: s.rollDetails || [],
+            }));
+        };
+      setLeaderboard({
+        junior: { institutes: toInstituteRank(juniorList, "junior"), meritOrder: meritOrderJunior },
+        senior: { institutes: toInstituteRank(seniorList, "senior"), meritOrder: meritOrderSenior },
+      });
     } catch (err) {
       console.error("Institute leaderboard fetch error:", err);
-      setLeaderboard({
-        class3To5: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
-        others: { totalApplications: 0, totalNumberOfInstitutions: 0, institutes: [] },
-      });
+      setLeaderboard({ junior: { institutes: [] }, senior: { institutes: [] } });
     } finally {
       setLeaderboardLoading(false);
     }
@@ -278,6 +389,33 @@ const ResultPage = () => {
     totalMarksForExam != null && correctAnswer != null
       ? Math.max(0, totalMarksForExam - Number(correctAnswer))
       : null;
+
+  // Written + Viva for scholarship (same as ResultDetails viva leaderboard)
+  const writtenMarks =
+    resultData?.resultDetails?.[0]?.totalMarks ?? resultData?.correctAnswer ?? resultData?.resultDetails?.[0]?.correctAnswer;
+  const vivaMarksRaw =
+    resultData?.vibaMarks ?? resultData?.vivaMarks ?? resultData?.resultDetails?.[0]?.vibaMarks;
+  const vivaMarks = vivaMarksRaw != null && vivaMarksRaw !== "" ? Number(vivaMarksRaw) : null;
+  const totalMarksCombined =
+    (Number(writtenMarks) || 0) + (vivaMarks != null ? vivaMarks : 0);
+
+  // বৃত্তি প্রাপ্ত: ভাইভা নম্বর থাকা সাপেক্ষে লিখিত+ভাইভা মোট অনুযায়ী (Junior ≥47.5, Class 6–12 ≥83)
+  const getScholarshipResult = () => {
+    if (vivaMarks == null) {
+      return { qualified: false, grade: null, hasVivaMarks: false };
+    }
+    const minTotal =
+      classNumber >= 2 && classNumber <= 5 ? 47.5 : (classNumber >= 6 && classNumber <= 12 ? 83 : 47.5);
+    if (totalMarksCombined < minTotal) {
+      return { qualified: false, grade: null, hasVivaMarks: true };
+    }
+    const isJunior = classNumber >= 2 && classNumber <= 5;
+    const talentpoolThreshold = isJunior ? 52.5 : 100;
+    const grade =
+      totalMarksCombined >= talentpoolThreshold ? "Talentpool" : "General";
+    return { qualified: true, grade, hasVivaMarks: true };
+  };
+  const scholarshipResult = getScholarshipResult();
 
   // Viva: class 6–10 → 65%; other classes → 75%. Interview slot only when selected.
   const getVivaStatus = () => {
@@ -329,8 +467,11 @@ const ResultPage = () => {
     resultData?.scholarshipRollNumber ||
     resultData?.resultDetails?.[0]?.scholarshipRollNumber ||
     "";
-  const isSelectedForViva = getVivaStatus().selected;
-  const vivaSlot = getVivaSlotByClass(classNumber);
+  const currentNormalizedRoll = rollDisplay ? normalizeRollNumber(rollDisplay) : "";
+  const meritOrder = classNumber >= 2 && classNumber <= 5 ? leaderboard?.junior?.meritOrder : leaderboard?.senior?.meritOrder;
+  const meritPosition = (Array.isArray(meritOrder) && currentNormalizedRoll)
+    ? (meritOrder.find((r) => r._normalizedRoll === currentNormalizedRoll)?._meritRank ?? null)
+    : null;
 
   return (
     <div className="result-page-root bg-gray-50 min-h-screen p-4 mx-0 xl:mx-24">
@@ -344,27 +485,53 @@ const ResultPage = () => {
           দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ফলাফল ২০২৬
         </Title>
         <p className="text-center text-white/90 tt mt-2 mb-0" style={{ fontSize: "15px" }}>
-          {RESULT_PUBLISH_LABEL}
+          {isResultLive() ? RESULT_PUBLISH_LABEL : "ফলাফল ৯ মার্চ ২০২৬ সকাল ১১টা থেকে দেখা যাবে"}
         </p>
       </div>
 
-      {/* Objection / Recheck Notice */}
-      <Alert
+      {/* পরীক্ষার নম্বর ও বৃত্তি গ্রেড মানদণ্ড */}
+      <Card
         className="no-print mb-6"
-        message={
-          <div className="tt" style={{ fontSize: "16px" }}>
-            <div className="mb-1">
-              আপনার ফলাফল নিয়ে আপত্তি থাকলে আমাদের ইমেইল করুন{" "}
-              <strong style={{ color: "#0ea5e9" }}>ourdmf@gmail.com</strong>-এ আপনার রোল নম্বর সহ লিখে পাঠান।
-            </div>
-            <div style={{ fontSize: "14px", color: "#475569", marginTop: "6px" }}>
-              ফলাফল প্রকাশের পর রিচেক আবেদনের সময় থাকবে ২ (দুই) দিন। এর পর আবেদন বিবেচনা করা হবে না।
-            </div>
-          </div>
+        title={
+          <span className="tt font-semibold" style={{ fontSize: "17px" }}>
+            পরীক্ষার নম্বর ও বৃত্তি গ্রেড মানদণ্ড
+          </span>
         }
-        type="info"
-        showIcon
-      />
+        style={{
+          borderRadius: 12,
+          border: "1px solid #e5e7eb",
+          overflow: "hidden",
+        }}
+        bodyStyle={{ padding: "12px 16px 16px" }}>
+        <Row gutter={[16, 8]} className="tt" style={{ fontSize: "14px", lineHeight: 1.55 }}>
+          <Col xs={24} md={12}>
+            <div className="font-semibold text-green-800 mb-1" style={{ fontSize: "15px" }}>📝 কোন পরীক্ষায় কত নম্বর</div>
+            <ul className="list-none pl-0 mb-0" style={{ marginTop: 4 }}>
+              <li style={{ marginBottom: 2 }}>• <strong>জুনিয়র (২–৫):</strong> লিখিত <strong>৪৫</strong>, ভাইভা <strong>১৫</strong> নম্বর</li>
+              <li style={{ marginBottom: 2 }}>• <strong>সিনিয়র (৬–১২):</strong> লিখিত <strong>১০০</strong>, ভাইভা <strong>২০</strong> নম্বর</li>
+              <li style={{ marginBottom: 0 }}>• লিখিত + ভাইভা যোগ করে মোট ধরা হয়।</li>
+            </ul>
+          </Col>
+          <Col xs={24} md={12}>
+            <div className="font-semibold text-green-800 mb-1" style={{ fontSize: "15px" }}>🏆 বৃত্তি নির্বাচন ও গ্রেড</div>
+            <ul className="list-none pl-0 mb-0" style={{ marginTop: 4 }}>
+              <li style={{ marginBottom: 2 }}>• <strong>জুনিয়র:</strong> মোট <strong>৪৭.৫+</strong> বৃত্তি। <strong>৫২.৫+</strong> → <span className="text-green-700 font-medium">ট্যালেন্টপুল</span>; <strong>৪৭.৫ থেকে ৫২.৫ এর নিচে</strong> → <span className="text-blue-700 font-medium">জেনারেল</span></li>
+              <li style={{ marginBottom: 0 }}>• <strong>ক্লাস ৬–১২:</strong> মোট <strong>৮৩+</strong> বৃত্তি। <strong>১০০+</strong> → <span className="text-green-700 font-medium">ট্যালেন্টপুল</span>; <strong>৮৩ থেকে ১০০ এর নিচে</strong> → <span className="text-blue-700 font-medium">জেনারেল</span></li>
+            </ul>
+          </Col>
+        </Row>
+      </Card>
+
+      {/* Before result time: message + disabled search */}
+      {!isResultLive() && (
+        <Alert
+          className="no-print mb-6 tt"
+          message={RESULT_NOT_YET_MESSAGE}
+          type="info"
+          showIcon
+          style={{ fontSize: "15px" }}
+        />
+      )}
 
       {/* Scholarship Criteria Card */}
       <Card className="no-print mb-6">
@@ -382,6 +549,7 @@ const ResultPage = () => {
               className="tt"
               size="large"
               style={{ fontSize: "16px" }}
+              disabled={!isResultLive()}
             />
           </Form.Item>
 
@@ -392,6 +560,7 @@ const ResultPage = () => {
               icon={<SearchOutlined />}
               loading={loading}
               block
+              disabled={!isResultLive()}
               style={{ height: "45px", fontSize: "16px" }}>
               ফলাফল দেখুন
             </Button>
@@ -399,7 +568,7 @@ const ResultPage = () => {
         </Form>
       </Card>
 
-      {Object.keys(resultData).length > 0 && (
+      {Object.keys(resultData).length > 0 && isResultLive() && (
         <Card className="result-print-card overflow-visible">
           <div
             ref={resultCardRef}
@@ -466,42 +635,56 @@ const ResultPage = () => {
                     <td className="py-3 px-4" style={{ fontSize: "18px" }}>{wrongAnswer != null ? String(wrongAnswer) : "-"}</td>
                   </tr>
                   <tr className="border-b border-green-600">
-                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>প্রাপ্ত নম্বর:</td>
-                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{correctAnswer != null ? String(correctAnswer) : "-"}</td>
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>প্রাপ্ত নম্বর (লিখিত):</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{writtenMarks != null ? String(writtenMarks) : "-"}</td>
                   </tr>
                   <tr className="border-b border-green-600">
-                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>স্ট্যাটাস:</td>
-                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>
-                      {isSelectedForViva ? (
-                        <span className="result-selected-viva-badge tt font-semibold">✨ Selected for Viva ✨</span>
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>ভাইভা নম্বর:</td>
+                    <td className="py-3 px-4" style={{ fontSize: "18px" }}>{vivaMarks != null ? String(vivaMarks) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>মোট নম্বর (লিখিত+ভাইভা):</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>{scholarshipResult.hasVivaMarks ? String(totalMarksCombined) : "-"}</td>
+                  </tr>
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>বৃত্তি প্রাপ্ত:</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>
+                      {scholarshipResult.qualified ? (
+                        <span className="tt text-green-700">
+                          হ্যাঁ — <span className="font-bold">{scholarshipResult.grade} Grade</span>
+                        </span>
+                      ) : scholarshipResult.hasVivaMarks ? (
+                        <span className="tt text-amber-700">না</span>
                       ) : (
-                        <span className="tt">Not Selected for Viva</span>
+                        <span className="tt text-gray-600">ভাইভা নম্বর প্রাপ্তির পর নির্ধারিত হবে</span>
                       )}
                     </td>
                   </tr>
-                  {isSelectedForViva && (
-                    <>
-                      <tr className="border-b border-green-600">
-                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা পরীক্ষার তারিখ ও সময়:</td>
-                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>{getNextFridayDate()}, সকাল {vivaSlot.timeSlot}</td>
-                      </tr>
-                      <tr className="border-b border-green-600">
-                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা রুম:</td>
-                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>{vivaSlot.room}</td>
-                      </tr>
-                      <tr>
-                        <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "15px" }}>ভাইভা পরীক্ষার স্থান:</td>
-                        <td className="py-3 px-4 font-semibold text-green-700" style={{ fontSize: "15px" }}>
-                          {VIVA_LOCATION_LINE1}<br />{VIVA_LOCATION_LINE2}
-                        </td>
-                      </tr>
-                    </>
-                  )}
+                  <tr className="border-b border-green-600">
+                    <td className="py-3 px-4 font-semibold bg-green-100 border-r border-green-600 text-green-800" style={{ fontSize: "18px" }}>মেরিট পজিশন:</td>
+                    <td className="py-3 px-4 font-semibold" style={{ fontSize: "18px" }}>
+                      {meritPosition != null ? (
+                        <span className="tt text-green-800">{(classNumber >= 2 && classNumber <= 5 ? "জুনিয়র " : "সিনিয়র ")}{meritPosition}</span>
+                      ) : (
+                        <span className="tt text-gray-500">—</span>
+                      )}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
 
-              {/* Messages based on viva selection */}
-              {getVivaStatus().selected ? (
+              {/* Messages: বৃত্তি পেয়েছেন / সান্ত্বনা (না পেলে) / ভাইভা নির্বাচিত */}
+              {scholarshipResult.qualified ? (
+                <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-600 tt">
+                  <Title level={5} className="result-pdf-msg-title tt text-green-800 mb-2" style={{ fontSize: "18px" }}><span className="text-xl">🎉</span> মাবরুক! আপনি শিক্ষাবৃত্তি পেয়েছেন — {scholarshipResult.grade} Grade</Title>
+                  <Text className="result-pdf-msg-body tt block" style={{ fontSize: "15px" }}>লিখিত ও ভাইভা মিলে মোট {totalMarksCombined} নম্বর অনুযায়ী আপনাকে বৃত্তির জন্য নির্বাচিত করা হয়েছে। আল্লাহ তাআলা আপনার জ্ঞান ও পরিশ্রমে বরকত দিন। আমীন।</Text>
+                </div>
+              ) : scholarshipResult.hasVivaMarks ? (
+                <div className="mb-4 p-4 bg-amber-50 border-l-4 border-amber-500 tt">
+                  <Title level={5} className="result-pdf-msg-title tt text-amber-800 mb-2" style={{ fontSize: "18px" }}><span className="text-xl">🤲</span> এইবার বৃত্তি পাননি</Title>
+                  <Text className="result-pdf-msg-body tt block" style={{ fontSize: "15px" }}>লিখিত ও ভাইভার মোট নম্বর অনুযায়ী এইবার বৃত্তির তালিকায় আসেনি। হতাশ হবেন না — নিয়ত শুদ্ধ রেখে পড়াশোনা চালিয়ে যান। আল্লাহর উপর ভরসা রাখুন, ইনশাআল্লাহ পরবর্তীতে আরও ভালো ফল আসবে। আপনাকে শুভকামনা।</Text>
+                </div>
+              ) : getVivaStatus().selected ? (
                 <div className="mb-4 p-4 bg-green-50 border-l-4 border-green-600 tt">
                   <Title level={5} className="result-pdf-msg-title tt text-green-800 mb-2" style={{ fontSize: "18px" }}><span className="text-xl">🎉</span> মাবরুক! আপনি ভাইভা পরীক্ষার জন্য নির্বাচিত হয়েছেন</Title>
                   <Text className="result-pdf-msg-body tt block" style={{ fontSize: "15px" }}>ইনশাআল্লাহ {getNextFridayDate()} অনুষ্ঠিতব্য ভাইভা পরীক্ষায় অংশগ্রহণ করার জন্য আপনার রেজাল্ট যথেষ্ট ভালো হয়েছে (কমপক্ষে {getVivaStatus().threshold}% নম্বর)।</Text>
@@ -530,7 +713,34 @@ const ResultPage = () => {
         </Card>
       )}
 
-      {/* Institute Leaderboard — ভাইভা পরীক্ষার জন্য, ভাইভার পর অটো আপডেট */}
+      {/* Ayat-ul-'Ilm Excellence Award — লিডারবোর্ডের ওপরে */}
+      <Card
+        className="no-print mb-4"
+        size="small"
+        style={{
+          borderRadius: 12,
+          border: "1px solid rgba(120, 53, 15, 0.2)",
+          background: "linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%)",
+          boxShadow: "0 1px 8px rgba(120, 53, 15, 0.06)",
+        }}
+        bodyStyle={{ padding: "12px 16px" }}>
+        <div className="tt" style={{ fontSize: "14px", lineHeight: 1.6, color: "#78350f" }}>
+          <div className="font-semibold mb-2" style={{ fontSize: "15px", color: "#92400e" }}>
+            Ayat-ul-'Ilm Excellence Award
+          </div>
+          <p style={{ margin: 0 }}>
+            লিখিত ও ভাইভা পরীক্ষায় শীর্ষ হওয়ায় কেবল এই পুরস্কারের জন্য বিবেচিত হবেন — এমন নয়; এই পুরস্কারের সাথে শিক্ষাবৃত্তির কোনো সম্পর্ক নেই। পুরস্কার প্রদান সম্পূর্ণভাবে <strong>Ayat-ul-'Ilm Award Committee</strong>-র সিদ্ধান্ত। বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে জুনিয়র (২–৫) থেকে <strong>১ জন</strong> ও সিনিয়র (৬–১২) থেকে <strong>১ জন</strong> — মোট দুজনকে এই পুরস্কার দেওয়া হবে। বিবেচনায় বিভিন্ন বিষয় রাখা হবে, যা সম্পূর্ণ গোপনীয়। তাই এই পুরস্কার নিয়ে কেউ যেন বিব্রত না হন — বিনীত অনুরোধ।
+          </p>
+          <div style={{ marginTop: 12, textAlign: "right", fontStyle: "italic" }}>
+            অনুরোধক্রমে<br />
+            <strong>Anisur Rahman</strong><br />
+            Director, Ayatul Ilm Award Committee
+          </div>
+        </div>
+      </Card>
+
+      {/* Institute Leaderboard — ভাইভা পরীক্ষার জন্য, ভাইভার পর অটো আপডেট (শুধু ফলাফল লাইভ হলে দেখাবে) */}
+      {isResultLive() && (
       <Card
         className="no-print mb-6 overflow-hidden"
         style={{
@@ -555,37 +765,66 @@ const ResultPage = () => {
                 রিফ্রেশ
               </Button>
             </div>
-            <p className="tt text-center mb-0 mt-1.5 text-gray-500" style={{ fontSize: "12px" }}>
-              কেবল ভাইভা পরীক্ষার জন্য। ভাইভা পরীক্ষার পর এটি স্বয়ংক্রিয়ভাবে আপডেট হবে।
-            </p>
           </div>
         }>
         <Spin spinning={leaderboardLoading} tip="লোড হচ্ছে...">
-          {!leaderboardLoading && (
+          {!leaderboardLoading && (() => {
+            const juniorStudents = (leaderboard.junior?.institutes || []).reduce((s, i) => s + (i.count || 0), 0);
+            const seniorStudents = (leaderboard.senior?.institutes || []).reduce((s, i) => s + (i.count || 0), 0);
+            const total = juniorStudents + seniorStudents;
+            const juniorPercent = total > 0 ? Math.round((juniorStudents / total) * 100) : 50;
+            return (
+            <>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6, fontSize: 12 }}>
+                <span style={{ color: "#15803d", fontWeight: 600 }}>Junior (Class 2–5): {juniorStudents} শিক্ষার্থী</span>
+                <span style={{ color: "#1d4ed8", fontWeight: 600 }}>Senior (Class 6–12): {seniorStudents} শিক্ষার্থী</span>
+              </div>
+              <Progress
+                percent={100}
+                showInfo={false}
+                strokeColor="#2563eb"
+                success={{ percent: juniorPercent, strokeColor: "#16a34a" }}
+                strokeWidth={14}
+                style={{ marginBottom: 0 }}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, fontSize: 11, color: "#64748b" }}>
+                <span>{juniorPercent}%</span>
+                <span>{100 - juniorPercent}%</span>
+              </div>
+            </div>
             <Row gutter={[16, 16]}>
               <Col xs={24} md={12}>
                 <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 260 }}>
                   <div className="tt flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>৩য়–৫ম শ্রেণী</span>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.class3To5?.totalApplications ?? 0} আবেদন · {leaderboard.class3To5?.totalNumberOfInstitutions ?? 0} প্রতিষ্ঠান</Text>
+                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>Junior (Class 2–5)</span>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.junior?.institutes?.length ?? 0} প্রতিষ্ঠান</Text>
                   </div>
-                  {leaderboard.class3To5?.institutes?.length > 0 ? (
+                  {leaderboard.junior?.institutes?.length > 0 ? (
                     <div className="max-h-[380px] overflow-y-auto -mx-1 px-1">
-                      {leaderboard.class3To5.institutes.map((inst, idx) => (
-                        <div key={`c35-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
+                      {leaderboard.junior.institutes.map((inst, idx) => (
+                        <div key={`junior-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
                           <div className="leaderboard-row-inner">
                             <div className="flex-1 min-w-0">
                               <div className="leaderboard-detail-name">{inst.institute || "—"}</div>
                               <div className="leaderboard-detail-stats">
-                                <span className="leaderboard-detail-stat s-0"><span className="label">আবেদন</span><span className="value">{inst.applicationCount}</span></span>
-                                <span className="leaderboard-detail-stat s-1"><span className="label">উপস্থিত</span><span className="value">{inst.presentCount} ({inst.presentPercentOfOwn}%)</span></span>
-                                <span className="leaderboard-detail-stat s-2"><span className="label">রেজাল্ট</span><span className="value">{inst.resultAddedRatioPercent}%</span></span>
-                                <span className="leaderboard-detail-stat s-3"><span className="label">পাস</span><span className="value">{inst.passRatioPercent}%</span></span>
-                                <span className="leaderboard-detail-stat s-4"><span className="label">৭০%+</span><span className="value">{inst.got70RatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-0"><span className="label">Scholarship</span><span className="value">{inst.count}</span></span>
+                                <span className="leaderboard-detail-stat s-1"><span className="label">Credit Point</span><span className="value">{inst.creditPoint}</span></span>
                               </div>
                             </div>
-                            <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
-                              {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                              <Button
+                                type="default"
+                                size="small"
+                                icon={<EyeOutlined />}
+                                onClick={() => setInstituteDetailsModal({ institute: inst.institute, group: "Junior (Class 2–5)", rollDetails: inst.rollDetails || [] })}
+                                style={{ fontSize: 11, color: "#15803d", borderColor: "#86efac" }}
+                              >
+                                View details
+                              </Button>
+                              <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
+                                {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -599,26 +838,34 @@ const ResultPage = () => {
               <Col xs={24} md={12}>
                 <div className="rounded-lg border border-gray-200 bg-white p-3" style={{ minHeight: 260 }}>
                   <div className="tt flex items-center justify-between mb-2 pb-2 border-b border-gray-100">
-                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>অন্যান্য (৬ষ্ঠ–১২)</span>
-                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.others?.totalApplications ?? 0} আবেদন · {leaderboard.others?.totalNumberOfInstitutions ?? 0} প্রতিষ্ঠান</Text>
+                    <span className="font-semibold text-gray-800" style={{ fontSize: "14px" }}>Senior (Class 6–12)</span>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{leaderboard.senior?.institutes?.length ?? 0} প্রতিষ্ঠান</Text>
                   </div>
-                  {leaderboard.others?.institutes?.length > 0 ? (
+                  {leaderboard.senior?.institutes?.length > 0 ? (
                     <div className="max-h-[380px] overflow-y-auto -mx-1 px-1">
-                      {leaderboard.others.institutes.map((inst, idx) => (
-                        <div key={`oth-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
+                      {leaderboard.senior.institutes.map((inst, idx) => (
+                        <div key={`senior-${inst.rank}-${inst.institute}`} className={`leaderboard-row tt lb-soft-${idx % 5}`}>
                           <div className="leaderboard-row-inner">
                             <div className="flex-1 min-w-0">
                               <div className="leaderboard-detail-name">{inst.institute || "—"}</div>
                               <div className="leaderboard-detail-stats">
-                                <span className="leaderboard-detail-stat s-0"><span className="label">আবেদন</span><span className="value">{inst.applicationCount}</span></span>
-                                <span className="leaderboard-detail-stat s-1"><span className="label">উপস্থিত</span><span className="value">{inst.presentCount} ({inst.presentPercentOfOwn}%)</span></span>
-                                <span className="leaderboard-detail-stat s-2"><span className="label">রেজাল্ট</span><span className="value">{inst.resultAddedRatioPercent}%</span></span>
-                                <span className="leaderboard-detail-stat s-3"><span className="label">পাস</span><span className="value">{inst.passRatioPercent}%</span></span>
-                                <span className="leaderboard-detail-stat s-4"><span className="label">৭০%+</span><span className="value">{inst.got70RatioPercent}%</span></span>
+                                <span className="leaderboard-detail-stat s-0"><span className="label">Scholarship</span><span className="value">{inst.count}</span></span>
+                                <span className="leaderboard-detail-stat s-1"><span className="label">Credit Point</span><span className="value">{inst.creditPoint}</span></span>
                               </div>
                             </div>
-                            <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
-                              {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                              <Button
+                                type="default"
+                                size="small"
+                                icon={<EyeOutlined />}
+                                onClick={() => setInstituteDetailsModal({ institute: inst.institute, group: "Senior (Class 6–12)", rollDetails: inst.rollDetails || [] })}
+                                style={{ fontSize: 11, color: "#1d4ed8", borderColor: "#93c5fd" }}
+                              >
+                                View details
+                              </Button>
+                              <div className={`leaderboard-rank-badge ${inst.rank <= 3 ? "top" : ""}`}>
+                                {inst.rank === 1 ? <CrownOutlined style={{ fontSize: 16 }} /> : inst.rank}
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -630,9 +877,81 @@ const ResultPage = () => {
                 </div>
               </Col>
             </Row>
-          )}
+            </>
+            );
+          })()}
         </Spin>
       </Card>
+      )}
+
+      <Modal
+        title={
+          instituteDetailsModal ? (
+            <div className="tt">
+              <div style={{ fontSize: 16, fontWeight: 600, color: "#1e293b" }}>{instituteDetailsModal.institute}</div>
+              <Text type="secondary" style={{ fontSize: 12 }}>বৃত্তি প্রাপ্ত শিক্ষার্থীদের তালিকা</Text>
+            </div>
+          ) : ""
+        }
+        open={!!instituteDetailsModal}
+        onCancel={() => setInstituteDetailsModal(null)}
+        footer={null}
+        width={480}
+        styles={{ body: { paddingTop: 8 } }}
+        className="tt"
+      >
+        {instituteDetailsModal && (
+          <div className="tt">
+            {instituteDetailsModal.rollDetails && instituteDetailsModal.rollDetails.length > 0 ? (
+              <Table
+                dataSource={instituteDetailsModal.rollDetails.map((item, i) => ({ ...item, key: `${item.roll}-${i}` }))}
+                columns={[
+                  {
+                    title: "#",
+                    key: "index",
+                    width: 48,
+                    align: "center",
+                    render: (_, __, idx) => idx + 1,
+                  },
+                  {
+                    title: "Scholarship Roll Number",
+                    dataIndex: "roll",
+                    key: "roll",
+                    render: (v, row) => <Text strong>{v}{row.genderSuffix || ""}</Text>,
+                  },
+                  {
+                    title: "Grade",
+                    dataIndex: "grade",
+                    key: "grade",
+                    width: 110,
+                    align: "center",
+                    render: (grade) => (
+                      <span
+                        style={{
+                          padding: "2px 8px",
+                          borderRadius: 6,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: grade === "Talentpool" ? "rgba(34, 197, 94, 0.15)" : "rgba(59, 130, 246, 0.15)",
+                          color: grade === "Talentpool" ? "#15803d" : "#1d4ed8",
+                        }}
+                      >
+                        {grade}
+                      </span>
+                    ),
+                  },
+                ]}
+                pagination={false}
+                size="small"
+                scroll={{ y: 340 }}
+                style={{ marginTop: 8 }}
+              />
+            ) : (
+              <div className="tt text-center py-8 text-gray-500">কোন রোল নম্বর নেই</div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

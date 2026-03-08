@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Tag,
-  Timeline,
   Alert,
   Row,
   Col,
@@ -85,6 +84,19 @@ const normalizeInstituteName = (instituteName) => {
   normalized = normalized.trim();
   
   return normalized;
+};
+
+// Class name to number (for scholarship qualification logic, same as ResultDetails)
+const CLASS_NAME_TO_NUMBER = {
+  Two: 2, Three: 3, Four: 4, Five: 5, Six: 6, Seven: 7, Eight: 8, Nine: 9,
+  Ten: 10, Eleven: 11, Twelve: 12,
+};
+const getClassNumber = (instituteClass) => {
+  if (instituteClass == null) return NaN;
+  const s = String(instituteClass).trim();
+  const n = parseInt(s, 10);
+  if (!Number.isNaN(n)) return n;
+  return CLASS_NAME_TO_NUMBER[s] ?? NaN;
 };
 
 // Improved Levenshtein distance calculation
@@ -1503,6 +1515,7 @@ export default function Home() {
   const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [totalApplicants, setTotalApplicants] = useState(0);
   const [totalInstitutions, setTotalInstitutions] = useState(0);
+  const [totalScholarshipRecipients, setTotalScholarshipRecipients] = useState(0);
 
   // Application period: Dec 27, 2025 2:00 PM to Feb 25, 2026 12:00 PM
   const applicationStart = new Date('2025-12-27T14:00:00');
@@ -1518,32 +1531,38 @@ export default function Home() {
           const sortedData = response.data.sort((a, b) => {
             return new Date(b?.submittedAt) - new Date(a?.submittedAt);
           });
-          
+
           setTotalApplicants(sortedData.length);
-          
+
           // Count unique institutions using smart matching
-          const uniqueInstitutesList = []; // List of unique institute names (after similarity matching)
-          
+          const uniqueInstitutesList = [];
           sortedData.forEach((student) => {
             if (student.institute && student.institute.trim()) {
-              // Try to find a similar institute in the existing list
               const similarInstitute = findSimilarInstitute(student.institute, uniqueInstitutesList);
-              
-              if (!similarInstitute) {
-                // No similar institute found, add this as a new unique institute
-                uniqueInstitutesList.push(student.institute);
-              }
-              // If similar institute found, we don't add it (it's already counted)
+              if (!similarInstitute) uniqueInstitutesList.push(student.institute);
             }
           });
-          
           setTotalInstitutions(uniqueInstitutesList.length);
+
+          // Count scholarship recipients (same logic as ResultDetails: written + viva ≥ threshold)
+          const correct = (s) => s?.resultDetails?.[0]?.totalMarks ?? s?.correctAnswer ?? 0;
+          const viva = (s) => s?.vibaMarks ?? s?.vivaMarks ?? s?.resultDetails?.[0]?.vibaMarks ?? 0;
+          const qualified = sortedData.filter((s) => {
+            const v = viva(s);
+            if (v == null || v === "") return false;
+            const c = Number(correct(s)) || 0;
+            const total = c + Number(v);
+            const classNum = getClassNumber(s.instituteClass);
+            const minTotal = classNum >= 2 && classNum <= 5 ? 47.5 : (classNum >= 6 && classNum <= 10 ? 83 : 85);
+            return total >= minTotal;
+          });
+          setTotalScholarshipRecipients(qualified.length);
         }
       } catch (error) {
         console.error("Error fetching scholarship data:", error);
-        // Set default values on error
         setTotalApplicants(0);
         setTotalInstitutions(0);
+        setTotalScholarshipRecipients(0);
       }
     };
 
@@ -1719,16 +1738,24 @@ export default function Home() {
   };
 
   const currentContent = content[language];
-  
-  // Update stats with real data
-  const updatedStats = [
-    { value: totalApplicants, label: language === "bangla" ? "শিক্ষার্থী" : "Students", icon: <TeamOutlined />, showPlus: true },
-    { value: totalInstitutions, label: language === "bangla" ? "শিক্ষা প্রতিষ্ঠান" : "Institutions", icon: <BankOutlined />, showPlus: true },
-    { value: 2026, label: language === "bangla" ? "সাল" : "Year", icon: <CalendarOutlined />, showPlus: false },
-  ];
 
   return (
     <div className="home-container">
+      {/* Hero Section - Banner background with title */}
+      <div
+        className="relative w-full min-h-[45vh] md:min-h-[55vh] lg:min-h-[65vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: "url('https://i.ibb.co/Zp6R4mm5/Banner-26.jpg')",
+        }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/55" />
+        <div className="relative z-10 text-center px-4 py-16 md:py-20">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.8)] tracking-tight leading-tight max-w-5xl mx-auto">
+            Darul Muttaquine Foundation & Islamic Center
+          </h1>
+        </div>
+      </div>
+
       {/* Ayat-ul-'Ilm Excellence Award Announcement - Top Banner */}
       <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-8 md:py-10 px-4 md:px-6 relative overflow-hidden shadow-lg">
         {/* Animated Background Elements */}
@@ -1751,8 +1778,8 @@ export default function Home() {
               </h3>
               <p className="text-base md:text-lg lg:text-xl text-blue-100 bangla-text">
                 {language === "bangla"
-                  ? "শিক্ষাবৃত্তি প্রোগ্রামের সেরা শিক্ষার্থীকে এই পুরস্কার প্রদান করা হবে"
-                  : "This award will be given to the best student from the scholarship program"}
+                  ? "বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে এই পুরস্কারের জন্য মনোনীত করা হবে"
+                  : "Recipients will be nominated for this award from among the scholarship recipients"}
               </p>
             </div>
 
@@ -1773,66 +1800,63 @@ export default function Home() {
         </div>
         
         <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className="mb-6 md:mb-8 animate-fade-in">
-            <span className="inline-flex items-center bg-yellow-400 text-green-900 text-sm md:text-lg font-bold px-5 md:px-7 py-2 md:py-3 rounded-full shadow-xl transform hover:scale-105 transition-transform duration-300">
-              <ClockCircleOutlined className="mr-2 text-xl" />
-              {language === "bangla" ? "লিখিত পরীক্ষা ২৭ ফেব্রুয়ারি ২০২৬" : "Written Exam 27 February 2026"}
-            </span>
-          </div>
-
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-extrabold mb-6 md:mb-8 leading-tight drop-shadow-2xl">
-            {currentContent.scholarshipTitle}
-          </h2>
-
-          <p className="text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed opacity-95">
-            {currentContent.scholarshipText}
-          </p>
-
-          <div className="mb-8 md:mb-10 max-w-2xl mx-auto">
-            <div className="bg-amber-400/30 border border-amber-300/50 rounded-xl px-4 py-3 text-amber-100 text-sm md:text-base backdrop-blur-md">
-              {currentContent.vivaNotice}
+          {/* This Year's Highlights - Institutes, Applicants, Scholarship Recipients */}
+          <div className="pt-6 md:pt-8 pb-2">
+            <div className="bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl border-2 border-white/40 shadow-2xl overflow-hidden ring-4 ring-white/30">
+              <div className="px-5 py-4 md:px-8 md:py-5 border-b-2 border-white/30 bg-white/10">
+                <h3 className="text-center text-xl md:text-2xl lg:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
+                  {language === "bangla" ? "২০২৬ শিক্ষাবৃত্তি — এই বছরের হাইলাইট" : "Scholarship 2026 — This Year's Highlights"}
+                </h3>
+                <div className="w-20 h-1 bg-amber-400 rounded-full mx-auto mt-3 opacity-90" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 p-5 md:p-8">
+                <div className="flex items-center gap-4 bg-white/20 rounded-xl p-4 md:p-5 border border-white/30 hover:bg-white/25 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/30 flex items-center justify-center">
+                    <BankOutlined className="text-2xl md:text-3xl text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
+                      {totalInstitutions}
+                    </div>
+                    <div className="text-sm md:text-base text-green-100 font-medium mt-0.5">
+                      {language === "bangla"
+                        ? "টি শিক্ষা প্রতিষ্ঠান অংশগ্রহণ করেছে"
+                        : "Institutions participated"}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 bg-white/20 rounded-xl p-4 md:p-5 border border-white/30 hover:bg-white/25 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/30 flex items-center justify-center">
+                    <TeamOutlined className="text-2xl md:text-3xl text-white" />
+                  </div>
+                  <div>
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
+                      {totalApplicants}+
+                    </div>
+                    <div className="text-sm md:text-base text-green-100 font-medium mt-0.5">
+                      {language === "bangla"
+                        ? "জন শিক্ষার্থী আবেদন করেছিল"
+                        : "Students applied"}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4 bg-amber-400/30 rounded-xl p-4 md:p-5 border-2 border-amber-300/50 hover:bg-amber-400/40 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-amber-400/50 flex items-center justify-center">
+                    <TrophyOutlined className="text-2xl md:text-3xl text-amber-100" />
+                  </div>
+                  <div>
+                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
+                      {totalScholarshipRecipients}
+                    </div>
+                    <div className="text-sm md:text-base text-amber-100 font-medium mt-0.5">
+                      {language === "bangla"
+                        ? "জন বৃত্তি পেয়েছে"
+                        : "Received scholarship"}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 mb-10 md:mb-16">
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => setNoticeModalVisible(true)}
-              className="bg-green-100 text-green-800 hover:bg-green-200 border-0 font-bold px-8 py-4 text-base md:text-lg h-auto rounded-2xl shadow-lg"
-            >
-              {language === "bangla" ? "নোটিস ও সময়সূচী" : "Notice & Schedule"}
-              <ArrowRightOutlined className="ml-2" />
-            </Button>
-            <Button
-              type="primary"
-              size="large"
-              onClick={() => window.location.href = "/scholarship-public"}
-              className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/40 hover:bg-white/30 font-bold px-8 py-4 text-base md:text-lg h-auto rounded-2xl"
-            >
-              {currentContent.viewAdmitCard}
-            </Button>
-            <button
-              onClick={toggleLanguage}
-              className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 px-6 md:px-10 py-3 md:py-4 text-base md:text-lg rounded-2xl hover:bg-white/30 transition-all duration-300 flex items-center justify-center w-full md:w-auto shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <GlobalOutlined className="mr-2 md:mr-3" />
-              {currentContent.languageButton}
-            </button>
-          </div>
-
-          {/* Stats Section with Animated Counters */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mt-8 md:mt-12">
-            {updatedStats.map((stat, index) => (
-              <Counter
-                key={index}
-                end={stat.value}
-                duration={2000}
-                label={stat.label}
-                icon={stat.icon}
-                showPlus={stat.showPlus}
-              />
-            ))}
           </div>
         </div>
       </div>
@@ -1858,8 +1882,8 @@ export default function Home() {
                 </h3>
                 <p className="text-lg md:text-xl lg:text-2xl text-blue-100 mb-3 bangla-text">
                   {language === "bangla"
-                    ? "শিক্ষাবৃত্তি প্রোগ্রামের সেরা শিক্ষার্থীকে এই পুরস্কার প্রদান করা হবে"
-                    : "This award will be given to the best student from the scholarship program"}
+                    ? "বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে এই পুরস্কারের জন্য মনোনীত করা হবে"
+                    : "Recipients will be nominated for this award from among the scholarship recipients"}
                 </p>
                 <div className="flex items-center gap-3 mt-4">
                   <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xl md:text-2xl lg:text-3xl shadow-xl">
@@ -1987,28 +2011,6 @@ export default function Home() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Timeline Section */}
-      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
-              {language === "bangla"
-                ? "স্কলারশিপ সময়সূচী ২০২৬"
-                : "Scholarship Timeline"}
-            </h2>
-            <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="px-2 md:px-0 bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200">
-            <Timeline
-              items={currentContent.timeline}
-              mode="alternate"
-              className="scholarship-timeline"
-            />
           </div>
         </div>
       </div>

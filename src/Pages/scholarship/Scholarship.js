@@ -1100,6 +1100,9 @@ const Scholarship = () => {
                     Correct Answer
                   </th>
                   <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
+                    Viba Marks
+                  </th>
+                  <th className="border border-green-200 text-center p-2 md:p-3 font-semibold">
                     Grade
                   </th>
                   <th className="border border-green-200 text-center p-2 md:p-3 font-semibold hidden lg:table-cell">
@@ -1201,6 +1204,12 @@ const Scholarship = () => {
                       </td>
                       <td className="border border-green-200 p-2 text-center font-medium">
                         {roll?.correctAnswer != null && roll?.correctAnswer !== "" ? roll.correctAnswer : "—"}
+                      </td>
+                      <td className="border border-green-200 p-2 text-center font-medium">
+                        {(() => {
+                          const v = roll?.vibaMarks ?? roll?.resultDetails?.[0]?.vibaMarks;
+                          return v != null && v !== "" ? v : "—";
+                        })()}
                       </td>
                       <td className="border border-green-200 p-2 text-center font-semibold">
                         <span className={`px-2 py-1 rounded-full text-xs ${

@@ -261,15 +261,16 @@ const AddResult = () => {
       if (res?.status === 200 && res?.data) {
         const data = res.data;
         const correctAnswer = data.correctAnswer;
+        const vivaMarksVal = data.vivaMarks ?? data.vibaMarks;
         form.setFieldsValue({
           scholarshipRollNumber: data.scholarshipRollNumber || normalizedRoll,
           correctAnswer:
             correctAnswer !== undefined && correctAnswer !== null
               ? correctAnswer
               : undefined,
-          vibaMarks:
-            data.vibaMarks !== undefined && data.vibaMarks !== null
-              ? data.vibaMarks
+          vivaMarks:
+            vivaMarksVal !== undefined && vivaMarksVal !== null
+              ? vivaMarksVal
               : undefined,
         });
         setSearchResult(data);
@@ -279,7 +280,7 @@ const AddResult = () => {
     } catch (err) {
       toast.error(err?.response?.data?.message || "রোল নম্বর পাওয়া যায়নি");
       setSearchResult(null);
-      form.setFieldsValue({ correctAnswer: undefined, vibaMarks: undefined });
+      form.setFieldsValue({ correctAnswer: undefined, vivaMarks: undefined });
       setIsEditMode(false);
     } finally {
       setSearching(false);
@@ -288,7 +289,7 @@ const AddResult = () => {
 
   // Insert or Update
   const onFinish = async (values) => {
-    const { scholarshipRollNumber, correctAnswer, vibaMarks } = values;
+    const { scholarshipRollNumber, correctAnswer, vivaMarks } = values;
     if (
       correctAnswer === undefined ||
       correctAnswer === null ||
@@ -302,8 +303,9 @@ const AddResult = () => {
       scholarshipRollNumber: normalizedRoll,
       correctAnswer: Number(correctAnswer),
     };
-    if (vibaMarks !== undefined && vibaMarks !== null && String(vibaMarks).trim() !== "") {
-      payload.vibaMarks = Number(vibaMarks);
+    if (vivaMarks !== undefined && vivaMarks !== null && String(vivaMarks).trim() !== "") {
+      payload.vivaMarks = Number(vivaMarks);
+      payload.vibaMarks = Number(vivaMarks); // backward compat with API
     }
     try {
       setLoading(true);
@@ -312,7 +314,7 @@ const AddResult = () => {
         toast.success(res?.data?.message || "সফলভাবে সংরক্ষণ হয়েছে");
         setSearchResult((prev) =>
           prev && prev.scholarshipRollNumber === normalizedRoll
-            ? { ...prev, correctAnswer: Number(correctAnswer), vibaMarks: payload.vibaMarks }
+            ? { ...prev, correctAnswer: Number(correctAnswer), vivaMarks: payload.vivaMarks }
             : prev
         );
         setIsEditMode(true);
@@ -360,7 +362,7 @@ const AddResult = () => {
     const source = list ?? vivaList;
     return source.map((s, idx) => {
       const written = s.resultDetails?.[0]?.totalMarks ?? s.correctAnswer;
-      const viva = s.vibaMarks ?? s.resultDetails?.[0]?.vibaMarks;
+      const viva = s.vivaMarks ?? s.vibaMarks ?? s.resultDetails?.[0]?.vivaMarks ?? s.resultDetails?.[0]?.vibaMarks;
       const classNum = getClassNumber(s.instituteClass);
       const totalMarks = (Number.isNaN(classNum) || (classNum >= 6 && classNum <= 12)) ? 100 : 45;
       const totalRaw = Number(written) + Number(viva ?? 0);
@@ -538,7 +540,7 @@ const AddResult = () => {
 
           const bodyRows = candidates.map((s, i) => {
             const written = s.resultDetails?.[0]?.totalMarks ?? s.correctAnswer;
-            const viva = s.vibaMarks ?? s.resultDetails?.[0]?.vibaMarks;
+            const viva = s.vivaMarks ?? s.vibaMarks ?? s.resultDetails?.[0]?.vivaMarks ?? s.resultDetails?.[0]?.vibaMarks;
             const classNum = getClassNumber(s.instituteClass);
             const totalMarks = (Number.isNaN(classNum) || (classNum >= 6 && classNum <= 12)) ? 100 : 45;
             const totalRaw = Number(written) + Number(viva ?? 0);
@@ -610,16 +612,15 @@ const AddResult = () => {
       key: "correctAnswer",
       render: (val) => (val !== undefined && val !== null ? val : "-"),
     },
-    ...(isVibaMarksVisible()
-      ? [
-          {
-            title: "ভাইভা মার্কস",
-            dataIndex: "vibaMarks",
-            key: "vibaMarks",
-            render: (val) => (val !== undefined && val !== null ? val : "-"),
-          },
-        ]
-      : []),
+    {
+      title: "ভাইভা মার্কস (Viva Marks)",
+      dataIndex: "vivaMarks",
+      key: "vivaMarks",
+      render: (val, row) => {
+        const v = row?.vivaMarks ?? row?.vibaMarks;
+        return v !== undefined && v !== null ? v : "-";
+      },
+    },
   ];
 
   const overall = stats?.overall ?? null;
@@ -666,7 +667,7 @@ const AddResult = () => {
             form={form}
             layout="vertical"
             onFinish={onFinish}
-            initialValues={{ scholarshipRollNumber: "", correctAnswer: undefined, vibaMarks: undefined }}
+            initialValues={{ scholarshipRollNumber: "", correctAnswer: undefined, vivaMarks: undefined }}
           >
             <Row gutter={[16, 0]}>
               <Col xs={24} sm={24} md={14}>
@@ -721,21 +722,19 @@ const AddResult = () => {
               />
             </Form.Item>
 
-            {isVibaMarksVisible() && (
-              <Form.Item
-                name="vibaMarks"
-                label="ভাইভা মার্কস (Optional)"
-              >
-                <InputNumber
-                  placeholder="ভাইভা মার্কস (ঐচ্ছিক)"
-                  min={0}
-                  max={100}
-                  size="large"
-                  className="w-full"
-                  style={{ width: "100%" }}
-                />
-              </Form.Item>
-            )}
+            <Form.Item
+              name="vivaMarks"
+              label="ভাইভা মার্কস (Viva Marks) (Optional)"
+            >
+              <InputNumber
+                placeholder="ভাইভা মার্কস (ঐচ্ছিক)"
+                min={0}
+                max={100}
+                size="large"
+                className="w-full"
+                style={{ width: "100%" }}
+              />
+            </Form.Item>
 
             <Form.Item className="!mb-0">
               <Space wrap size="middle">
@@ -833,7 +832,7 @@ const AddResult = () => {
                   key: "1",
                   scholarshipRollNumber: searchResult.scholarshipRollNumber,
                   correctAnswer: searchResult.correctAnswer,
-                  vibaMarks: searchResult.vibaMarks,
+                  vivaMarks: searchResult.vivaMarks ?? searchResult.vibaMarks,
                 },
               ]}
               pagination={false}
