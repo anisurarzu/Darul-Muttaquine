@@ -5,26 +5,20 @@ import SingleQuiz from "./SingleQuize";
 import { toast } from "react-toastify";
 import MainLoader from "../../components/Loader/MainLoader";
 import { formatDate } from "../../utilities/dateFormate";
-import useUserInfo from "../../hooks/useUserInfo";
 import ViewResult from "./ViewResult";
 import ViewAllResult from "./ViewAllResult";
-import { useHistory } from "react-router-dom";
 import {
   FaBook,
   FaTrophy,
   FaChartBar,
-  FaArrowLeft,
-  FaMoneyBillAlt,
   FaCalendarAlt,
   FaQuestionCircle,
   FaAward,
   FaClock,
   FaPauseCircle,
   FaLock,
+  FaPhone,
 } from "react-icons/fa";
-import { LockOutlined } from "@ant-design/icons";
-
-const { Meta } = Card;
 
 export default function Quize() {
   const [loading, setLoading] = useState(false);
@@ -35,40 +29,22 @@ export default function Quize() {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isModalOpen3, setIsModalOpen3] = useState(false);
   const [leaderBoard, setLeaderBoard] = useState();
-  const [quizMoney, setQuizMoney] = useState([]);
   const [skeletonLoading, setSkeletonLoading] = useState(true);
+  const [lastQuizTopFive, setLastQuizTopFive] = useState([]);
+  const [lastQuizName, setLastQuizName] = useState("");
+  const [topFiveLoading, setTopFiveLoading] = useState(false);
 
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
   const userId = userInfo?.uniqueId;
-  const history = useHistory();
 
   useEffect(() => {
     getQuizzes();
-    getQuizMoneyInfo();
     // Simulate skeleton loading for 1.5 seconds
     const timer = setTimeout(() => {
       setSkeletonLoading(false);
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
-
-  const getQuizMoneyInfo = async () => {
-    try {
-      setLoading(true);
-      const response = await coreAxios.get(`/quiz-money/${userId}`);
-
-      if (response?.status === 200) {
-        const filteredData = response?.data?.filter(
-          (item) => item.status !== "Paid"
-        );
-        setQuizMoney(filteredData);
-      }
-
-      setLoading(false);
-    } catch (err) {
-      setLoading(false);
-    }
-  };
 
   const getQuizzes = async () => {
     try {
@@ -78,12 +54,43 @@ export default function Quize() {
         const sortedData = response?.data?.sort((a, b) => {
           return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
+        if (sortedData?.length > 0) {
+          fetchLastQuizTopFive(sortedData[0]);
+        } else {
+          setLastQuizTopFive([]);
+          setLastQuizName("");
+        }
         setLoading(false);
         setQuizzes(sortedData);
       }
     } catch (err) {
       setLoading(false);
       console.log(err);
+    }
+  };
+
+  const fetchLastQuizTopFive = async (latestQuiz) => {
+    if (!latestQuiz?._id) return;
+    try {
+      setTopFiveLoading(true);
+      const response = await coreAxios.get(`/quizzes-results/${latestQuiz._id}`);
+      if (response?.status === 200) {
+        const sortedTopFive = [...(response?.data || [])]
+          .sort((a, b) => {
+            if (b?.totalMarks === a?.totalMarks) {
+              return Number(a?.answerTime || 0) - Number(b?.answerTime || 0);
+            }
+            return Number(b?.totalMarks || 0) - Number(a?.totalMarks || 0);
+          })
+          .slice(0, 5);
+        setLastQuizTopFive(sortedTopFive);
+        setLastQuizName(latestQuiz?.quizName || "শেষ কুইজ");
+      }
+    } catch (err) {
+      setLastQuizTopFive([]);
+      setLastQuizName(latestQuiz?.quizName || "শেষ কুইজ");
+    } finally {
+      setTopFiveLoading(false);
     }
   };
 
@@ -154,23 +161,6 @@ export default function Quize() {
     } catch (err) {
       console.log(err);
     }
-  };
-
-  const totalQuizAmount = quizMoney?.reduce(
-    (total, deposit) => Number(total) + Number(deposit?.amount),
-    0 || 0
-  );
-
-  const showConfirm = () => {
-    Modal.confirm({
-      title: "আপনি কি টাকা তুলতে চাচ্ছেন?",
-      content: `আপনি যদি আপনার কুইজের টাকা তুলতে চান নিচের "Yes" বাটনটি চাপুন, পরবর্তী পেইজে যাওয়ার পর  "New" বাটনে ক্লিক করে প্রয়োজনীয় তথ্যাদি দিয়ে আপনার আবেদন সম্পন্ন করুন, পরবর্তী ৬ ঘন্টার মধ্যে আপনার টাকাটি প্রদান করা হবে ইং শা আল্লাহ।`,
-      okText: "Yes",
-      cancelText: "No",
-      onOk() {
-        history.push("/dashboard/withdraw");
-      },
-    });
   };
 
   // Enhanced Skeleton loading component
@@ -246,70 +236,67 @@ export default function Quize() {
         <div className="container mx-auto px-4 lg:px-8 py-8">
           {/* Enhanced Top Bar */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <Button
-              type="primary"
-              className="flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-6 py-6 h-auto font-semibold"
-              onClick={() => history.goBack()}
-              icon={<FaArrowLeft className="mr-2" />}>
-              Back
-            </Button>
-
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-              {/* Enhanced Money Display Card */}
-              <div className="flex items-center bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-2xl rounded-2xl px-6 py-4 transform hover:scale-105 transition-all duration-300 border-2 border-white/20">
-                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl mr-3">
-                  <FaMoneyBillAlt className="text-2xl" />
-                </div>
-                <div>
-                  <p className="text-xs opacity-90 font-medium mb-1">Total Balance</p>
-                  <span className="text-3xl font-extrabold drop-shadow-lg">
-                  ৳{totalQuizAmount}
-                </span>
-                </div>
-              </div>
-              <Button
-                type="primary"
-                className="flex items-center bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl px-6 py-6 h-auto font-semibold"
-                onClick={showConfirm}
-                icon={<FaMoneyBillAlt className="mr-2" />}>
-                Withdraw
-              </Button>
-            </div>
+            <div className="w-full md:w-auto" />
           </div>
 
-          {/* Enhanced Info Section */}
-          <div className="bg-gradient-to-br from-white via-blue-50/50 to-purple-50/30 rounded-2xl shadow-2xl p-8 mb-10 border-2 border-indigo-100/50">
-            <div className="prose max-w-none text-center mb-8">
-              <div className="space-y-5 text-[15px] md:text-base">
-                <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500">
-                এই সপ্তাহের কুইজ নিচে দেয়া আছে, আপনি কেবল একবার সুযোগ পাবেন
-                এটিতে অংশগ্রহণ করার নির্দিষ্ট সময় থাকবে, আপনাকে আমরা প্রশ্ন এবং
-                সময় দিয়ে এখানে পরীক্ষা করবো।
-              </p>
-                <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-emerald-50 to-teal-50 p-4 rounded-xl border-l-4 border-emerald-500">
-                প্রিয় গ্রাহক, আপনি যদি আপনার টাকা উত্তোলন করতে চান, তবে আমাদের
-                সেবার জন্য প্রতি লেনদেনে একটি চার্জ প্রযোজ্য হবে। ১০০ টাকা থেকে
-                ৫০০ টাকা উত্তোলনের জন্য আমরা ৫ টাকা সেবা চার্জ কেটে নেব।
-              </p>
-                <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-amber-50 to-orange-50 p-4 rounded-xl border-l-4 border-amber-500">
-                ৫০০ টাকা থেকে ১০০০ টাকা উত্তোলনের জন্য ১০ টাকা সেবা চার্জ কেটে
-                নেওয়া হবে। আপনি আপনার টাকা বিকাশের মাধ্যমে উত্তোলন করতে পারবেন।
-                তবে, বিকাশের মাধ্যমে টাকা পাঠানোর খরচ আপনার দিক থেকে কাটা হবে।
-              </p>
-                <p className="text-gray-700 leading-relaxed bg-gradient-to-r from-purple-50 to-pink-50 p-4 rounded-xl border-l-4 border-purple-500">
-                ধন্যবাদ। আপনি মোবাইল রিচার্জের মাধ্যমে টাকা তুলতেও পারবেন, এই
-                ক্ষেত্রে একই সেবা চার্জ প্রযোজ্য হবে।
-              </p>
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-10">
+            <div className="xl:col-span-8 bg-gradient-to-br from-white via-blue-50/40 to-indigo-50/40 rounded-2xl shadow-xl p-6 border border-indigo-100">
+              <h3 className="text-2xl font-extrabold text-gray-800 mb-4">
+                কুইজ ড্যাশবোর্ড
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 shadow-lg">
+                  <p className="text-xs opacity-90">মোট কুইজ</p>
+                  <p className="text-3xl font-extrabold">{quizzes?.length || 0}</p>
+                </div>
+                <div className="rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-4 shadow-lg">
+                  <p className="text-xs opacity-90">চলমান কুইজ</p>
+                  <p className="text-3xl font-extrabold">
+                    {quizzes?.filter((item) => item?.status === "running")?.length || 0}
+                  </p>
+                </div>
+                <div className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 shadow-lg">
+                  <p className="text-xs opacity-90">সমাপ্ত কুইজ</p>
+                  <p className="text-3xl font-extrabold">
+                    {quizzes?.filter((item) => item?.status === "closed" || item?.status === "continue")?.length || 0}
+                  </p>
+                </div>
               </div>
-            </div>
-
-            <div className="flex justify-center">
               <Alert
-                message={`পরবর্তী কুইজের বিষয় হল "বি'দাত"`}
-                type="success"
-                className="text-center font-bold bangla-text max-w-md rounded-xl shadow-lg border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50"
+                message="প্রতি কুইজে একবার অংশগ্রহণ করা যাবে। কুইজ ওপেন থাকলে অংশ নিন, আর প্রতিটি কুইজের Leaderboard বাটনে ক্লিক করে সবার নম্বরসহ ফলাফল দেখুন।"
+                type="info"
+                className="rounded-xl border border-blue-200"
                 showIcon
               />
+            </div>
+
+            <div className="xl:col-span-4 bg-white rounded-2xl shadow-xl border border-amber-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-600 text-white px-5 py-4">
+                <h4 className="font-extrabold text-lg">শেষ কুইজের Top 5</h4>
+                <p className="text-xs opacity-90 truncate">{lastQuizName || "শেষ কুইজ"}</p>
+              </div>
+              <div className="p-4 space-y-3">
+                {topFiveLoading ? (
+                  [...Array(5)].map((_, idx) => <Skeleton key={idx} active paragraph={{ rows: 1 }} />)
+                ) : lastQuizTopFive?.length > 0 ? (
+                  lastQuizTopFive.map((item, index) => (
+                    <div key={`${item?.userId || item?.userPhone}-${index}`} className="flex items-center justify-between bg-amber-50 rounded-xl p-3 border border-amber-100">
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          #{index + 1} {item?.name || "User"}
+                        </p>
+                        <p className="text-sm md:text-base text-amber-700 flex items-center gap-1 font-semibold">
+                          <FaPhone />
+                          {item?.userPhone || item?.phone || "No phone"}
+                        </p>
+                      </div>
+                      <p className="text-sm font-bold text-amber-700">{item?.totalMarks || 0}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">এখনও কোন ফলাফল পাওয়া যায়নি।</p>
+                )}
+              </div>
             </div>
           </div>
 

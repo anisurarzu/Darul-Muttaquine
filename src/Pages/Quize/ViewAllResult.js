@@ -65,8 +65,9 @@ const ViewAllResult = ({ leaderBoard, isLoading }) => {
           <h3 className="text-lg font-semibold text-gray-800 capitalize leading-tight">
             {participant.name.toLowerCase()}
           </h3>
-          <p className="text-sm text-gray-600 leading-tight">
-            {participant.answerTime}s
+          <p className="text-sm text-gray-600 leading-tight">{participant.answerTime}s</p>
+          <p className="text-sm md:text-base text-emerald-700 font-bold leading-tight">
+            {participant.userPhone || participant.phone || "No phone"}
           </p>
         </div>
       </div>

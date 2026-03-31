@@ -1510,7 +1510,6 @@ const JoinUsSection = ({ language }) => {
 
 export default function Home() {
   const [language, setLanguage] = useState("bangla");
-  const [noticeModalVisible, setNoticeModalVisible] = useState(false);
   const [isApplicationOpen, setIsApplicationOpen] = useState(true);
   const [globalTimeLeft, setGlobalTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [totalApplicants, setTotalApplicants] = useState(0);
@@ -1910,68 +1909,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Scholarship Notice Section */}
-      <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-white py-10 md:py-14 px-4 md:px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
-            <div className="flex items-center flex-1">
-              <div className="bg-white/20 backdrop-blur-sm p-4 md:p-5 rounded-2xl mr-4 md:mr-6 shadow-lg">
-                <NotificationOutlined className="text-3xl md:text-4xl" />
-              </div>
-              <div>
-                <h3 className="text-xl md:text-3xl font-extrabold mb-2 md:mb-3">
-                  {language === "bangla"
-                    ? "শিক্ষাবৃত্তি নোটিস"
-                    : "Scholarship Notice"}
-                </h3>
-                <p className="text-base md:text-xl opacity-95 leading-relaxed">
-                  {language === "bangla"
-                    ? "দারুল মুত্তাক্বীন শিক্ষাবৃত্তি ২০২৬ এর সম্পূর্ণ তথ্য"
-                    : "Complete information about Darul Muttaqine Scholarship 2026"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 md:gap-5 w-full md:w-auto">
-              <Button
-                type="primary"
-                icon={<EyeOutlined />}
-                size="large"
-                onClick={() => setNoticeModalVisible(true)}
-                className="bg-green-100 text-green-800 hover:bg-green-200 border-0 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-              >
-                <span className="hidden md:inline">
-                  {language === "bangla" ? "নোটিস দেখুন" : "View Notice"}
-                </span>
-                <span className="md:hidden">
-                  {language === "bangla" ? "দেখুন" : "View"}
-                </span>
-              </Button>
-
-              <Button
-                type="default"
-                icon={<FilePdfOutlined />}
-                size="large"
-                onClick={() =>
-                  window.open(
-                    "https://drive.google.com/file/d/1ECZU-7SvYJD77rColdg8eqHibsrn6OQa/view?usp=sharing",
-                    "_blank"
-                  )
-                }
-                className="bg-white/20 backdrop-blur-sm text-white border-2 border-white/30 hover:bg-white/30 font-bold h-12 md:h-14 px-6 md:px-8 text-base md:text-lg flex-1 md:flex-none rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-              >
-                <span className="hidden md:inline">
-                  {language === "bangla" ? "PDF ডাউনলোড" : "Download PDF"}
-                </span>
-                <span className="md:hidden">
-                  {language === "bangla" ? "PDF" : "PDF"}
-                </span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Image Gallery Section */}
       <ImageGallery language={language} />
 
@@ -2030,36 +1967,6 @@ export default function Home() {
       {/* Committee Members Section */}
       <CommitteeMembersSection language={language} />
 
-      {/* Scholarship Notice Modal */}
-      <ScholarshipNotice
-        language={language}
-        isOpen={noticeModalVisible}
-        onClose={() => setNoticeModalVisible(false)}
-      />
-
-      {/* Mobile Alert */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden animate-bounce">
-        <div className="bg-gradient-to-r from-green-600 via-green-500 to-green-400 text-white p-5 rounded-2xl shadow-xl max-w-xs border-2 border-white/20 backdrop-blur-sm">
-          <div className="flex items-start gap-3">
-            <div className="bg-white/20 p-2 rounded-lg">
-              <NotificationOutlined className="text-xl flex-shrink-0" />
-            </div>
-            <div>
-              <p className="text-sm font-bold mb-2">
-                {language === "bangla"
-                  ? "শিক্ষাবৃত্তি নোটিস"
-                  : "Scholarship Notice"}
-              </p>
-              <button
-                onClick={() => setNoticeModalVisible(true)}
-                className="text-green-100 hover:text-white text-sm font-semibold underline decoration-2"
-              >
-                {language === "bangla" ? "এখানে ক্লিক করুন" : "Click here"}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
