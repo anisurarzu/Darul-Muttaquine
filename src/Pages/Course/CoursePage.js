@@ -73,6 +73,12 @@ export default function CoursePage() {
             আধুনিক প্রযুক্তি ও ডিজিটাল দক্ষতা উন্নয়নের জন্য আমাদের বিশেষায়িত
             কোর্সসমূহ
           </p>
+          <button
+            onClick={() => history.push("/my-courses")}
+            className="mt-4 bg-white text-green-700 font-semibold px-4 py-2 rounded-lg"
+          >
+            আমার Enrollment List
+          </button>
         </div>
       </div>
 
@@ -201,6 +207,7 @@ export default function CoursePage() {
         onEnrollSuccess={() => {
           message.success("সফলভাবে এনরোল করা হয়েছে!");
           closeEnrollModal();
+          history.push("/my-courses");
         }}
       />
     </div>

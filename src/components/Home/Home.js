@@ -45,8 +45,6 @@ import {
   MobileOutlined,
   FireOutlined,
 } from "@ant-design/icons";
-import ReviewsSection from "./ReviewsSection";
-import CommitteeMembersSection from "./CommitteeMembersSection";
 import { coreAxios } from "../../utilities/axios";
 
 const { Option } = Select;
@@ -1960,12 +1958,6 @@ export default function Home() {
 
       {/* Join Us Section */}
       <JoinUsSection language={language} />
-
-      {/* Reviews Section */}
-      {/* <ReviewsSection language={language} /> */}
-
-      {/* Committee Members Section */}
-      <CommitteeMembersSection language={language} />
 
     </div>
   );

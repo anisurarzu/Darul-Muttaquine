@@ -29,12 +29,15 @@ import PublicScholarship from "./Pages/scholarship/PublicScholarship";
 import CheckoutPage from "./Pages/Product/CheckoutPage";
 import CoursePage from "./Pages/Course/CoursePage";
 import CourseDetailsPage from "./Pages/Course/CourseDetailsPage";
+import MyEnrollmentsPage from "./Pages/Course/MyEnrollmentsPage";
+import CourseRunPage from "./Pages/Course/CourseRunPage";
 import ApplicationForm from "./Pages/scholarship/ApplicationForm";
 import PublicQuiz from "./Pages/Quize/PublicQuize";
 import ScholarshipPayment from "./Pages/Dashboard/ScholarshipPayment";
 import Investment from "./Pages/Investment/Investment";
 import InvestmentProfile from "./Pages/Investment/InvestmentProfile";
 import InvestmentRegistration from "./Pages/Investment/InvestmentRegistration ";
+import DmfVotePannel from "./Pages/DmfVotePannel/DmfVotePannel";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -64,10 +67,17 @@ const App = () => {
         <Route exact path="/checkout" component={CheckoutPage} />
         <Route exact path="/registration" component={Registration} />
         <Route exact path="/contact" component={Contact} />
+        <Route exact path="/dmfVotePannel" component={DmfVotePannel} />
         <Route exact path="/result" component={ResultPage} />
         <Route exact path="/history" component={History} />
         <Route exact path="/course" component={CoursePage} />
         <Route exact path="/course/:id" component={CourseDetailsPage} />
+        <PrivateRoute exact path="/my-courses" component={MyEnrollmentsPage} />
+        <PrivateRoute
+          exact
+          path="/my-courses/:courseId/learn"
+          component={CourseRunPage}
+        />
         <Route exact path="/about" component={About} />
 
         <Route exact path="/scholarship-public" component={PublicScholarship} />

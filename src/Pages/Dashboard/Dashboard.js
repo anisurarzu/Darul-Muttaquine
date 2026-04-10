@@ -53,6 +53,8 @@ import ResultDetails from "./ResultDetails/ResultDetails";
 import EducationCentre from "../EducationCentre/EducationCentre";
 import CreateCourse from "../Course/CreateCourse";
 import CourseDashboard from "../Course/CourseDashboard";
+import UpdateCoursePage from "../Course/UpdateCoursePage";
+import MyEnrollmentsPage from "../Course/MyEnrollmentsPage";
 import Notice from "../Notice/Notice";
 import OldScholarshipData from "../scholarship/OldScholarshipData";
 import SeatPlan from "../scholarship/SeatPlan";
@@ -209,6 +211,11 @@ export default function Dashboard() {
     {
       route: "courseDashboard",
       label: "Course Dashboard",
+      icon: <BookOutlined />,
+    },
+    {
+      route: "myEnrollments",
+      label: "My Enrollments",
       icon: <BookOutlined />,
     },
     { route: "notice", label: "Notice", icon: <FileOutlined /> },
@@ -590,8 +597,14 @@ export default function Dashboard() {
             <Route path={`${path}/orderDetails`}>
               <OrderDashboard />
             </Route>
-            <Route path={`${path}/courseDashboard`}>
+            <Route path={`${path}/courseDashboard/update/:courseId`}>
+              <UpdateCoursePage />
+            </Route>
+            <Route exact path={`${path}/courseDashboard`}>
               <CourseDashboard />
+            </Route>
+            <Route exact path={`${path}/myEnrollments`}>
+              <MyEnrollmentsPage />
             </Route>
             <Route path={`${path}/createQuize`}>
               <CreateQuize />

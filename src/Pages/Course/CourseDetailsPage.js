@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
-import { Button, Skeleton, message } from "antd";
+import { Button, Collapse, Skeleton, message } from "antd";
 import { coreAxios } from "../../utilities/axios";
 
 export default function CourseDetailsPage() {
@@ -9,16 +9,6 @@ export default function CourseDetailsPage() {
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "জানা যায়নি";
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("bn-BD", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }).format(date);
-  };
 
   const fetchCourseById = async () => {
     try {
@@ -61,7 +51,7 @@ export default function CourseDetailsPage() {
       </Button>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 bangla-text">
-        <div className="relative">
+        <div className="relative rounded-xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center min-h-[280px] md:min-h-[340px]">
           {loading ? (
             <Skeleton.Image
               style={{
@@ -80,51 +70,20 @@ export default function CourseDetailsPage() {
                 "https://via.placeholder.com/600x400/EDF2F7/64748B?text=Course+Image"
               }
               alt={course?.title}
-              className="w-full max-h-[440px] object-cover rounded-lg"
-              style={{ maxHeight: "440px" }}
+              className="w-full h-full max-h-[500px] object-contain p-2"
+              style={{ maxHeight: "500px" }}
             />
           )}
         </div>
 
         <div>
-          <Skeleton loading={loading} active paragraph={{ rows: 6 }}>
+          <Skeleton loading={loading} active paragraph={{ rows: 4 }}>
             <h1 className="text-3xl sm:text-4xl font-bold text-[#2D6A3F] mb-6 leading-tight">
               {course?.title}
             </h1>
             <p className="text-base sm:text-lg leading-relaxed text-gray-700 mb-6">
               {course?.description}
             </p>
-
-            <div className="space-y-3">
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">ইন্সট্রাক্টর:</span>{" "}
-                {course?.instructor || "জানা যায়নি"}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">পেশা:</span>{" "}
-                {course?.instructorProfession || "জানা যায়নি"}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">শিক্ষাগত যোগ্যতা:</span>{" "}
-                {course?.instructorEducation || "জানা যায়নি"}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">শুরু তারিখ:</span>{" "}
-                {formatDate(course?.startDate)}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">শেষ তারিখ:</span>{" "}
-                {formatDate(course?.endDate)}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">যোগ্যতা:</span>{" "}
-                {course?.qualifications || "জানা যায়নি"}
-              </p>
-              <p className="text-lg sm:text-xl font-semibold text-gray-800">
-                <span className="font-normal">সার্টিফিকেশন:</span>{" "}
-                {course?.certifications || "জানা যায়নি"}
-              </p>
-            </div>
           </Skeleton>
         </div>
       </div>
@@ -133,30 +92,49 @@ export default function CourseDetailsPage() {
         <div className="mt-10">
           <Skeleton active paragraph={{ rows: 4 }} />
         </div>
-      ) : course?.outline?.length > 0 ? (
-        <div className="mt-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#2D6A3F] mb-6">
-            কোর্সের বিষয়বস্তু
+      ) : course?.modules?.length > 0 ? (
+        <div className="mt-12 max-w-4xl">
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#2D6A3F] mb-2">
+            কোর্স আউটলাইন
           </h2>
-          {course.outline.map((item, index) => (
-            <div key={index} className="mb-8 sm:mb-10">
-              <h3 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-3">
-                {item?.classNumber}ম ক্লাস:
-              </h3>
-              <ul className="list-disc list-inside text-base sm:text-lg text-gray-700">
-                {item?.topics?.map((topic, idx) => (
-                  <li key={idx} className="mb-1 sm:mb-2">
-                    {topic}
-                  </li>
-                ))}
-              </ul>
-              {item.description && (
-                <p className="text-base sm:text-lg text-gray-500 mt-2">
-                  {item.description}
-                </p>
-              )}
-            </div>
-          ))}
+          <p className="text-gray-600 mb-6 text-sm sm:text-base">
+            প্রতিটি মডিউলের লেসনের শিরোনাম—বিস্তারিত পাঠ ও কুইজ শুধু কোর্সে প্রবেশের
+            পর দেখতে পারবেন।
+          </p>
+          <Collapse
+            bordered={false}
+            defaultActiveKey={[]}
+            className="!bg-transparent [&_.ant-collapse-item]:!mb-3 [&_.ant-collapse-item]:!rounded-xl [&_.ant-collapse-item]:!border [&_.ant-collapse-item]:!border-slate-200 [&_.ant-collapse-item]:!bg-white [&_.ant-collapse-item]:!overflow-hidden [&_.ant-collapse-content-box]:!pt-0"
+            expandIconPosition="end"
+            items={course.modules.map((mod, index) => ({
+              key: String(index),
+              label: (
+                <span className="font-semibold text-gray-900 pr-2">
+                  <span className="text-[#2D6A3F]">মডিউল {index + 1}:</span>{" "}
+                  {mod?.title}
+                </span>
+              ),
+              children: (
+                <ul className="m-0 pl-0 list-none space-y-2 pb-1">
+                  {(mod?.lessons || []).length === 0 ? (
+                    <li className="text-gray-500 text-sm">কোনো লেসন যোগ করা হয়নি।</li>
+                  ) : (
+                    (mod.lessons || []).map((lesson, li) => (
+                      <li
+                        key={lesson?.lessonId || `${index}-${li}`}
+                        className="flex gap-3 text-gray-700 text-sm sm:text-base border-b border-slate-100 last:border-0 pb-2 last:pb-0"
+                      >
+                        <span className="text-slate-400 tabular-nums shrink-0 w-6">
+                          {li + 1}.
+                        </span>
+                        <span className="leading-snug">{lesson?.title}</span>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              ),
+            }))}
+          />
         </div>
       ) : null}
 

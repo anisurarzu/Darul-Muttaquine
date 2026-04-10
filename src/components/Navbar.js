@@ -92,6 +92,9 @@ const Navbar = () => {
             >
               স্কলারশিপ ফান্ড
             </NavLink>
+            <NavLink to="/dmfVotePannel" className="hover:text-green-500 pt-2">
+              পরিচালনা পর্ষদ
+            </NavLink>
             {/* <NavLink to="/product" className="hover:text-green-500 pt-2">
               আমাদের পণ্য
             </NavLink> */}
@@ -224,6 +227,17 @@ const Navbar = () => {
                   <ProductOutlined /> <span className="pl-1"> আমাদের পণ্য</span>
                 </NavLink>
               </li> */}
+              <li
+                style={{ background: "#408F49" }}
+                className="   p-2 text-white rounded-lg text-center"
+              >
+                <NavLink
+                  to="/dmfVotePannel"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  পরিচালনা পর্ষদ
+                </NavLink>
+              </li>
               <li
                 style={{ background: "#408F49" }}
                 className="   p-2 text-white rounded-lg text-center"

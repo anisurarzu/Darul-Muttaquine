@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useHistory } from "react-router-dom/cjs/react-router-dom";
 
 import {
@@ -22,14 +21,10 @@ import { formatDate } from "../../utilities/dateFormate";
 const CourseDashboard = () => {
   const history = useHistory();
   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-  const [showDialog, setShowDialog] = useState(false);
-  const [showDialog1, setShowDialog1] = useState(false);
-  const [selectedRoll, setSelectedRoll] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [rowData, setRowData] = useState({});
   const [instructors, setInstructors] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
@@ -37,15 +32,12 @@ const CourseDashboard = () => {
     setIsModalOpen(true);
   };
 
-  const handleOk = () => {
+  const handleCancel = (shouldRefresh = true) => {
     setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setIsModalOpen2(false);
     setIsViewModalOpen(false);
-    fetchQuizeInfo();
+    if (shouldRefresh) {
+      fetchQuizeInfo(false);
+    }
   };
 
   const showViewModal = (course) => {
@@ -54,26 +46,24 @@ const CourseDashboard = () => {
   };
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [showConfirmationDialog, setShowConfirmationDialog] = useState(false);
-  const [customerIdToDelete, setCustomerIdToDelete] = useState(null);
   const [rollData, setRollData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(18);
 
-  const fetchQuizeInfo = async () => {
+  const fetchQuizeInfo = async (showLoader = true) => {
     try {
-      setLoading(true);
+      if (showLoader) setLoading(true);
       const response = await coreAxios.get("/courses");
       if (response?.status === 200) {
-        setLoading(false);
         const sortedData = response?.data?.courses?.sort((a, b) => {
           return new Date(b?.createdAt) - new Date(a?.createdAt);
         });
         setRollData(sortedData);
       }
     } catch (err) {
-      setLoading(false);
       console.log(err);
+    } finally {
+      if (showLoader) setLoading(false);
     }
   };
 
@@ -91,25 +81,18 @@ const CourseDashboard = () => {
     fetchInstructors();
   }, []);
 
-  const onHideDialog = () => {
-    setShowDialog(false);
-    setShowDialog1(false);
-  };
-
   const handleDelete = async (RollID) => {
-    console.log(RollID);
     try {
-      setLoading(true);
+      setActionLoadingId(RollID);
       const response = await coreAxios.delete(`/courses/${RollID}`);
       if (response.data) {
         toast.success("Successfully Deleted!");
-        setLoading(false);
-        fetchQuizeInfo();
-      } else {
-        setLoading(false);
+        fetchQuizeInfo(false);
       }
     } catch (error) {
-      setLoading(false);
+      toast.error("Delete failed");
+    } finally {
+      setActionLoadingId("");
     }
   };
 
@@ -129,12 +112,7 @@ const CourseDashboard = () => {
   const handleBackClick = () => {
     history.goBack();
   };
-  const confirm = (e) => {
-    console.log(e);
-    toast.success("Click on Yes");
-  };
   const cancel = (e) => {
-    console.log(e);
     toast.error("Click on No");
   };
 
@@ -142,10 +120,15 @@ const CourseDashboard = () => {
     setCurrentPage(pageNumber);
   };
 
-  const totalDepositAmount = rollData?.reduce(
-    (total, deposit) => total + deposit?.amount,
-    0
-  );
+  const getCourseStatus = (course) => {
+    const now = new Date();
+    const start = course?.startDate ? new Date(course.startDate) : null;
+    const end = course?.endDate ? new Date(course.endDate) : null;
+    if (!start || !end) return "Unknown";
+    if (now < start) return "Upcoming";
+    if (now > end) return "Completed";
+    return "Running";
+  };
 
   return (
     <>
@@ -270,8 +253,18 @@ const CourseDashboard = () => {
                       {formatDate(roll?.endDate)}
                     </td>
                     <td className="border border-tableBorder pl-1 text-center">
-                      <Tag color={roll?.status === "Active" ? "green" : "red"}>
-                        {roll?.status || "Inactive"}
+                      <Tag
+                        color={
+                          getCourseStatus(roll) === "Running"
+                            ? "green"
+                            : getCourseStatus(roll) === "Upcoming"
+                            ? "blue"
+                            : getCourseStatus(roll) === "Completed"
+                            ? "red"
+                            : "default"
+                        }
+                      >
+                        {getCourseStatus(roll)}
                       </Tag>
                     </td>
 
@@ -292,8 +285,9 @@ const CourseDashboard = () => {
                               <button
                                 className="font-semibold gap-2.5 rounded-lg bg-editbuttonColor text-white py-2 px-4 text-xl"
                                 onClick={() => {
-                                  setRowData(roll);
-                                  setIsModalOpen2(true);
+                                  history.push(
+                                    `/dashboard/courseDashboard/update/${roll?._id}`
+                                  );
                                 }}
                               >
                                 <span>
@@ -310,7 +304,7 @@ const CourseDashboard = () => {
                               onConfirm={() => {
                                 if (
                                   userInfo?.userRole === "Super-Admin" ||
-                                  "Admin"
+                                  userInfo?.userRole === "Admin"
                                 ) {
                                   handleDelete(roll?._id);
                                 } else {
@@ -321,10 +315,13 @@ const CourseDashboard = () => {
                               okText="Yes"
                               cancelText="No"
                             >
-                              <button className="font-semibold gap-2.5 rounded-lg bg-red-500 text-white py-2 px-4 text-xl">
+                              <button
+                                disabled={actionLoadingId === roll?._id}
+                                className="font-semibold gap-2.5 rounded-lg bg-red-500 text-white py-2 px-4 text-xl disabled:opacity-60"
+                              >
                                 <span>
                                   <i className="pi pi-trash font-semibold">
-                                    Delete
+                                    {actionLoadingId === roll?._id ? "Deleting..." : "Delete"}
                                   </i>
                                 </span>
                               </button>
@@ -353,8 +350,8 @@ const CourseDashboard = () => {
       <Modal
         title="Create New Course"
         open={isModalOpen}
-        onCancel={handleCancel}
-        width={800}
+        onCancel={() => handleCancel(false)}
+        width={1000}
         footer={null}
       >
         <CreateCourse handleCancel={handleCancel} instructors={instructors} />
@@ -364,7 +361,7 @@ const CourseDashboard = () => {
       <Modal
         title="Course Details"
         open={isViewModalOpen}
-        onCancel={handleCancel}
+        onCancel={() => handleCancel(false)}
         width={800}
         footer={null}
       >
@@ -390,7 +387,10 @@ const CourseDashboard = () => {
                 {selectedCourse.description}
               </Descriptions.Item>
               <Descriptions.Item label="Instructor">
-                {selectedCourse.instructorName}
+                {selectedCourse.instructor?.name || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Instructor Qualification">
+                {selectedCourse.instructor?.qualification || "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Batch Number">
                 {selectedCourse.batchNumber}
@@ -407,26 +407,60 @@ const CourseDashboard = () => {
               <Descriptions.Item label="Available Seats">
                 {selectedCourse.availableSeats}
               </Descriptions.Item>
+              <Descriptions.Item label="Modules">
+                {selectedCourse.modules?.length || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Final Exam Questions">
+                {selectedCourse.finalExam?.length || 0}
+              </Descriptions.Item>
               <Descriptions.Item label="Qualifications">
                 {selectedCourse.qualifications}
-              </Descriptions.Item>
-              <Descriptions.Item label="Price">
-                {selectedCourse.price} BDT
               </Descriptions.Item>
               <Descriptions.Item label="Certifications">
                 {selectedCourse.certifications || "N/A"}
               </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag
-                  color={selectedCourse.status === "Active" ? "green" : "red"}
+                  color={
+                    getCourseStatus(selectedCourse) === "Running"
+                      ? "green"
+                      : getCourseStatus(selectedCourse) === "Upcoming"
+                      ? "blue"
+                      : getCourseStatus(selectedCourse) === "Completed"
+                      ? "red"
+                      : "default"
+                  }
                 >
-                  {selectedCourse.status || "Inactive"}
+                  {getCourseStatus(selectedCourse)}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Created At">
                 {formatDate(selectedCourse.createdAt)}
               </Descriptions.Item>
             </Descriptions>
+
+            {selectedCourse.modules?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-3">
+                  Modules ({selectedCourse.modules.length})
+                </h3>
+                <div className="space-y-3">
+                  {selectedCourse.modules.map((module, mIndex) => (
+                    <div
+                      key={module.moduleId || mIndex}
+                      className="border rounded p-3 bg-gray-50"
+                    >
+                      <p className="font-bold">{module.title}</p>
+                      <p className="text-gray-700">{module.description}</p>
+                      <p className="text-sm mt-1">
+                        Lessons: {module.lessons?.length || 0} | Module Quiz:{" "}
+                        {module.moduleQuiz?.length || 0}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {selectedCourse.enrollments?.length > 0 && (
               <div className="mt-6">
