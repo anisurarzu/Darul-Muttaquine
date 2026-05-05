@@ -1,70 +1,80 @@
-# Darul Muttaquine FOundation
+# 🌐 Darul Muttaquine Foundation Platform (DMF)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack **Education & Charity Management Platform** built for a real-world non-profit organization to manage student admissions, donations, events, and operational workflows.
 
-## Available Scripts
+🔗 Live Platform: https://ourdmf.com/  
+💻 Frontend: https://github.com/anisurarzu/Darul-Muttaquine  
+⚙️ Backend: https://github.com/anisurarzu/Darul-Muttaquine-Server  
 
-In the project directory, you can run:
+---
 
-### `yarn start`
+## 🚀 Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Darul Muttaquine Foundation is a **non-profit organization focused on education, dawah, and social welfare** :contentReference[oaicite:0]{index=0}.  
+This platform digitalizes their operations by providing a scalable system for managing students, donations, and organizational activities.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+---
 
-### `yarn test`
+## ✨ Key Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🎓 Student Management
+- Online admission system  
+- Application tracking & approval workflow  
+- Seat planning & result management  
 
-### `yarn build`
+### 💰 Donation System
+- Donation collection & tracking  
+- Financial reporting & transparency  
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 📚 Education System
+- Course enrollment  
+- Quiz & assessment system  
+- Student performance tracking  
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 📅 Event & Operations
+- Event registration & management  
+- Internal workflow automation  
+- Admin dashboard & reporting  
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 🔐 Authentication & Security
+- Firebase authentication  
+- Role-based access control  
 
-### `yarn eject`
+---
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## 🧱 Tech Stack
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 💻 Frontend
+- React.js  
+- Tailwind CSS  
+- Ant Design  
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### ⚙️ Backend
+- Node.js  
+- Express.js  
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 🗄️ Database
+- MongoDB  
 
-## Learn More
+### 🔥 Services & Tools
+- Firebase (Authentication)  
+- REST API Architecture  
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🏗️ Architecture
 
-### Code Splitting
+- Full-stack **client-server architecture**
+- REST API-based communication  
+- Scalable modular structure  
+- Reusable UI components  
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 📦 Installation & Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 1️⃣ Clone the repository
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```bash
+git clone https://github.com/anisurarzu/Darul-Muttaquine
+cd Darul-Muttaquine
