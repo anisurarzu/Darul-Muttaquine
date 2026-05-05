@@ -10,7 +10,7 @@ A full-stack **Education & Charity Management Platform** built for a real-world 
 
 ## 🚀 Overview
 
-Darul Muttaquine Foundation is a **non-profit organization focused on education, dawah, and social welfare** :contentReference[oaicite:0]{index=0}.  
+Darul Muttaquine Foundation is a **non-profit organization focused on education, dawah, and social welfare**.  
 This platform digitalizes their operations by providing a scalable system for managing students, donations, and organizational activities.
 
 ---
