@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
+import { coreAxios } from "../../utilities/axios";
+import { extractVoteDetailRows } from "../../utilities/dmfVoteRecords";
 import CommitteeMembersSection from "../../components/Home/CommitteeMembersSection";
 
 const RULES = [
@@ -31,6 +33,26 @@ const VALUES = [
 ];
 
 const DmfVotePannel = () => {
+  const [datasetVoteLoading, setDatasetVoteLoading] = useState(true);
+  const [voteDetailRows, setVoteDetailRows] = useState([]);
+
+  const fetchVoteDatasetLength = useCallback(async () => {
+    setDatasetVoteLoading(true);
+    try {
+      const res = await coreAxios.get("/dmf-vote-panel/votes");
+      const rows = extractVoteDetailRows(res?.data);
+      setVoteDetailRows(rows);
+    } catch {
+      setVoteDetailRows([]);
+    } finally {
+      setDatasetVoteLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchVoteDatasetLength();
+  }, [fetchVoteDatasetLength]);
+
   return (
     <div className="bg-[linear-gradient(180deg,#f3f8f1_0%,#ffffff_28%,#f8fafc_100%)] min-h-screen">
       <div className="px-4 md:px-8 xl:px-10 2xl:px-14 pt-3 md:pt-4">
@@ -42,9 +64,11 @@ const DmfVotePannel = () => {
             <ClockCircleOutlined className="text-2xl md:text-3xl text-emerald-600 shrink-0 mt-0.5" />
             <p className="text-slate-800 text-base md:text-lg leading-relaxed md:leading-7">
               <span className="font-semibold text-emerald-900">ভোটের সময়: </span>
-              <strong className="font-semibold text-slate-900">১১ এপ্রিল ২০২৬</strong>, বাংলাদেশ সময়{" "}
-              <strong className="font-semibold text-slate-900">সকাল ১০টা</strong> থেকে{" "}
-              <strong className="font-semibold text-slate-900">রাত ১২টা</strong> পর্যন্ত।
+              বাংলাদেশ সময়{" "}
+              <strong className="font-semibold text-slate-900">১১ এপ্রিল ২০২৬</strong> বিকেল{" "}
+              <strong className="font-semibold text-slate-900">৫টা</strong> থেকে শুরু হয়ে{" "}
+              <strong className="font-semibold text-slate-900">১২ এপ্রিল ২০২৬</strong> দুপুর{" "}
+              <strong className="font-semibold text-slate-900">১২টা</strong> পর্যন্ত।
             </p>
           </div>
         </div>
@@ -120,6 +144,10 @@ const DmfVotePannel = () => {
         highlightSubtitle
         hideRoleLabels={true}
         showDirectorsSection={false}
+        datasetVoteLoading={datasetVoteLoading}
+        voteDetailRows={voteDetailRows}
+        voteDetailLoading={datasetVoteLoading}
+        onVoteRecorded={fetchVoteDatasetLength}
       />
     </div>
   );

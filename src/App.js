@@ -67,7 +67,7 @@ const App = () => {
         <Route exact path="/checkout" component={CheckoutPage} />
         <Route exact path="/registration" component={Registration} />
         <Route exact path="/contact" component={Contact} />
-        <Route exact path="/dmfVotePannel" component={DmfVotePannel} />
+        <PrivateRoute exact path="/dmfVotePannel" component={DmfVotePannel} />
         <Route exact path="/result" component={ResultPage} />
         <Route exact path="/history" component={History} />
         <Route exact path="/course" component={CoursePage} />
