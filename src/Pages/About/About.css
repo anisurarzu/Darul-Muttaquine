@@ -1,0 +1,477 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Outfit:wght@300;400;500;600;700&display=swap");
+
+.about-page {
+  --dmf-ink: #0f2419;
+  --dmf-forest: #163528;
+  --dmf-green: #1f6b45;
+  --dmf-leaf: #2f8f5b;
+  --dmf-gold: #c4a035;
+  --dmf-gold-soft: #e8d48b;
+  --dmf-mist: #eef6f1;
+  --dmf-fog: #f7faf8;
+  --dmf-line: rgba(22, 53, 40, 0.12);
+  --about-display: "Cormorant Garamond", "Noto Serif Bengali", Georgia, serif;
+  --about-sans: "Outfit", "Hind Siliguri", "Jost", sans-serif;
+  overflow-x: hidden;
+  background: var(--dmf-fog);
+  color: var(--dmf-ink);
+  font-family: var(--about-sans);
+}
+
+.about-page .bangla-text {
+  font-family: "Hind Siliguri", "Noto Sans Bengali", sans-serif !important;
+}
+
+/* ---------- Hero ---------- */
+.about-hero {
+  position: relative;
+  min-height: min(48vh, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: #fff;
+}
+
+.about-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.about-hero__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  animation: aboutKenBurns 20s ease-in-out infinite alternate;
+}
+
+.about-hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(15, 36, 25, 0.4) 0%, rgba(10, 28, 18, 0.82) 100%),
+    radial-gradient(ellipse at 70% 20%, rgba(47, 143, 91, 0.25), transparent 50%);
+}
+
+.about-hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 4rem 1.5rem 3.25rem;
+  max-width: 900px;
+}
+
+.about-hero__eyebrow {
+  display: inline-block;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dmf-gold-soft);
+  margin-bottom: 0.85rem;
+}
+
+.about-hero__title {
+  font-family: var(--about-display);
+  font-weight: 600;
+  font-size: clamp(3.2rem, 6vw, 5.2rem);
+  line-height: 1.1;
+  margin: 0 0 0.85rem;
+  letter-spacing: -0.02em;
+}
+
+.about-hero__lead {
+  font-size: clamp(1.3rem, 1.8vw, 1.55rem);
+  font-weight: 300;
+  line-height: 1.65;
+  opacity: 0.9;
+  margin: 0 auto;
+  max-width: 42rem;
+}
+
+.about-lang {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 3;
+  display: inline-flex;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.about-lang button {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.7rem 1.2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.about-lang button.is-active {
+  background: #fff;
+  color: var(--dmf-forest);
+}
+
+/* ---------- Shared ---------- */
+.about-section {
+  padding: clamp(3.5rem, 7vw, 5.5rem) 1.25rem;
+}
+
+.about-section__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.about-section__eyebrow {
+  display: inline-block;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dmf-leaf);
+  margin-bottom: 0.85rem;
+}
+
+.about-section__title {
+  font-family: var(--about-display);
+  font-weight: 600;
+  font-size: clamp(2.6rem, 4vw, 3.8rem);
+  line-height: 1.15;
+  color: var(--dmf-forest);
+  margin: 0 0 0.75rem;
+}
+
+.about-divider {
+  width: 3.25rem;
+  height: 2px;
+  background: var(--dmf-gold);
+  margin: 1rem 0 0;
+  border: 0;
+}
+
+.about-section__header {
+  text-align: center;
+  margin-bottom: clamp(2rem, 4vw, 3rem);
+}
+
+.about-section__header .about-divider {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ---------- Content layout ---------- */
+.about-content {
+  background: #fff;
+}
+
+.about-content__layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.about-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.about-nav__item {
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(15, 36, 25, 0.72);
+  padding: 1rem 1.15rem;
+  border-radius: 0.65rem;
+  font-family: var(--about-sans);
+  font-size: 1.35rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.about-nav__item:hover {
+  background: rgba(47, 143, 91, 0.06);
+  color: var(--dmf-forest);
+}
+
+.about-nav__item.is-active {
+  background: var(--dmf-mist);
+  color: var(--dmf-forest);
+  border-color: rgba(47, 143, 91, 0.2);
+  font-weight: 600;
+}
+
+.about-panel {
+  border: 1px solid var(--dmf-line);
+  background: #fff;
+  padding: clamp(1.75rem, 3vw, 2.75rem);
+  min-height: 320px;
+  box-shadow: 0 18px 40px rgba(22, 53, 40, 0.04);
+}
+
+.about-panel__title {
+  font-family: var(--about-display);
+  font-size: clamp(2.2rem, 3vw, 2.8rem);
+  font-weight: 600;
+  color: var(--dmf-forest);
+  margin: 0 0 1.25rem;
+}
+
+.about-panel__text {
+  font-size: 1.45rem;
+  line-height: 1.85;
+  color: rgba(15, 36, 25, 0.78);
+  text-align: justify;
+  margin: 0;
+}
+
+.about-panel__signature {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--dmf-line);
+}
+
+.about-panel__signature-text {
+  text-align: right;
+}
+
+.about-panel__signature-text p:first-child {
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--dmf-forest);
+  margin: 0 0 0.2rem;
+}
+
+.about-panel__signature-text p:last-child {
+  font-size: 1.2rem;
+  color: rgba(15, 36, 25, 0.6);
+  margin: 0;
+}
+
+.about-panel__signature img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(47, 143, 91, 0.35);
+}
+
+.about-panel .custom-steps .ant-steps-item-title {
+  font-family: "Hind Siliguri", var(--about-sans), sans-serif !important;
+  line-height: 1.7 !important;
+  font-size: 1.35rem !important;
+  color: rgba(15, 36, 25, 0.78) !important;
+}
+
+.about-panel .ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon .ant-steps-icon-dot,
+.about-panel .ant-steps-item-process .ant-steps-item-icon > .ant-steps-icon .ant-steps-icon-dot {
+  background: var(--dmf-green) !important;
+}
+
+.about-panel .ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after {
+  background-color: rgba(47, 143, 91, 0.35) !important;
+}
+
+/* ---------- Members ---------- */
+.about-members {
+  background: var(--dmf-mist);
+}
+
+.about-members__appeal {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 2rem;
+  border-left: 3px solid #c0392b;
+  background: rgba(192, 57, 43, 0.06);
+  color: #7a1f1a;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+
+.about-members__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  justify-content: center;
+  margin-bottom: 2.25rem;
+}
+
+.about-members__search {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+}
+
+.about-members__search input {
+  width: 100%;
+  border: 1px solid var(--dmf-line);
+  border-radius: 999px;
+  padding: 1.1rem 1.2rem 1.1rem 3.4rem;
+  font-size: 1.3rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.about-members__search input:focus {
+  border-color: rgba(47, 143, 91, 0.45);
+  box-shadow: 0 0 0 3px rgba(47, 143, 91, 0.12);
+}
+
+.about-members__search svg {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgba(15, 36, 25, 0.45);
+}
+
+.about-members__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.about-user-card {
+  background: #fff;
+  border: 1px solid var(--dmf-line);
+  padding: 1.5rem 1.2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  box-shadow: 0 10px 28px rgba(22, 53, 40, 0.04);
+}
+
+.about-user-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 36px rgba(22, 53, 40, 0.1);
+  border-color: rgba(47, 143, 91, 0.28);
+}
+
+.about-user-card__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 1rem;
+  border: 3px solid rgba(47, 143, 91, 0.18);
+}
+
+.about-user-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.about-user-card h3 {
+  font-family: var(--about-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--dmf-forest);
+  margin: 0 0 0.3rem;
+}
+
+.about-user-card__role {
+  color: var(--dmf-green);
+  font-weight: 600;
+  font-size: 1.25rem;
+  text-transform: capitalize;
+  margin: 0 0 0.4rem;
+}
+
+.about-user-card__meta {
+  color: rgba(15, 36, 25, 0.62);
+  font-size: 1.2rem;
+  margin: 0 0 0.85rem;
+}
+
+.about-user-card__btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  background: var(--dmf-mist);
+  color: var(--dmf-forest);
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.about-user-card:hover .about-user-card__btn {
+  background: var(--dmf-green);
+  color: #fff;
+}
+
+@keyframes aboutKenBurns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1%, -1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-hero__media img {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 980px) {
+  .about-content__layout {
+    grid-template-columns: 1fr;
+  }
+
+  .about-nav {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .about-members__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .about-hero {
+    min-height: 42vh;
+  }
+
+  .about-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .about-members__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-lang {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+}

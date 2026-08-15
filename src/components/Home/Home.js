@@ -1,37 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   Button,
-  Card,
-  Tag,
-  Alert,
-  Row,
-  Col,
   Form,
   Input,
   Select,
   Modal,
-  Divider,
   Typography,
+  Divider,
 } from "antd";
 import {
   CalendarOutlined,
-  GlobalOutlined,
-  RocketOutlined,
   DollarOutlined,
   HeartOutlined,
   GiftOutlined,
   LaptopOutlined,
-  ToolOutlined,
   UserOutlined,
-  MedicineBoxOutlined,
   TeamOutlined,
-  BankOutlined,
-  UserSwitchOutlined,
   ArrowRightOutlined,
-  PhoneOutlined,
-  MailOutlined,
-  FilePdfOutlined,
-  EyeOutlined,
   DownloadOutlined,
   NotificationOutlined,
   CloseOutlined,
@@ -40,12 +25,16 @@ import {
   ClockCircleOutlined,
   BookOutlined,
   TrophyOutlined,
-  DollarCircleOutlined,
   GroupOutlined,
+  GlobalOutlined,
+  DollarCircleOutlined,
+  PhoneOutlined,
   MobileOutlined,
-  FireOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
+import { motion } from "framer-motion";
 import { coreAxios } from "../../utilities/axios";
+import "./home.css";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -1031,6 +1020,31 @@ const ScholarshipNotice = ({ language, isOpen, onClose }) => {
   );
 };
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+const galleryContainer = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.14, delayChildren: 0.1 },
+  },
+};
+
+const galleryItem = {
+  hidden: { opacity: 0, y: 48 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
 // Image Gallery Component
 const ImageGallery = ({ language }) => {
   const galleryImages = [
@@ -1044,6 +1058,7 @@ const ImageGallery = ({ language }) => {
         language === "bangla"
           ? "মেধাবী শিক্ষার্থীদের মধ্যে শিক্ষাবৃত্তি বিতরণ"
           : "Scholarship distribution among meritorious students",
+      variant: "hero",
     },
     {
       src: "https://i.ibb.co.com/N2B4LW3n/1758013530203-1758013521553-9aa36e5-IMG-20250905-162026-344.jpg",
@@ -1052,6 +1067,7 @@ const ImageGallery = ({ language }) => {
         language === "bangla"
           ? "আমাদের মানসম্মত ক্লাসরুম শিক্ষা কার্যক্রম"
           : "Our quality classroom education program",
+      variant: "side",
     },
     {
       src: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
@@ -1060,6 +1076,7 @@ const ImageGallery = ({ language }) => {
         language === "bangla"
           ? "শিক্ষকদের জন্য নিয়মিত প্রশিক্ষণের ব্যবস্থা"
           : "Regular training programs for teachers",
+      variant: "side",
     },
     {
       src: "https://i.ibb.co.com/LdsjLT1f/1758013462786-1758013451531-9aa36e5-IMG-20250905-114921-957.jpg",
@@ -1069,234 +1086,242 @@ const ImageGallery = ({ language }) => {
         language === "bangla"
           ? "বিভিন্ন শিক্ষামূলক সেমিনার ও ওয়ার্কশপ"
           : "Various educational seminars and workshops",
+      variant: "wide",
     },
   ];
 
   return (
-    <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
-            {language === "bangla" ? "আমাদের কার্যক্রম" : "Our Activities"}
-          </h2>
-          <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
-        </div>
+    <section className="home-section home-gallery">
+      <div className="home-section__inner">
+        <motion.div
+          className="home-section__header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.35 }}
+          variants={fadeUp}
+        >
+          <div className="home-section__header-copy">
+            <span className="home-section__eyebrow">
+              {language === "bangla" ? "কার্যক্রম" : "Our Work"}
+            </span>
+            <h2 className={`home-section__title ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla" ? "আমাদের কার্যক্রম" : "Our Activities"}
+            </h2>
+            <hr className="home-divider" />
+            <p className={`home-section__lead ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "শিক্ষা, প্রশিক্ষণ ও সমাজসেবার মাধ্যমে আমরা যে পরিবর্তন গড়ে তুলছি—তার একটি ঝলক।"
+                : "A glimpse of the change we build through education, training, and community service."}
+            </p>
+          </div>
+          <div className="home-gallery__index" aria-hidden="true">
+            04
+          </div>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <motion.div
+          className="home-gallery__mosaic"
+          variants={galleryContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.12 }}
+        >
           {galleryImages.map((image, index) => (
-            <div
+            <motion.article
               key={index}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden border border-gray-100"
+              className={`home-gallery__tile home-gallery__tile--${image.variant}`}
+              variants={galleryItem}
             >
-              <div className="relative h-56 md:h-64 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
-                <img
-                  alt={image.title}
-                  src={image.src}
-                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute bottom-4 left-4 right-4 z-20 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-500">
-                  <h3 className="text-white font-bold text-lg md:text-xl mb-1 drop-shadow-lg">
-                    {image.title}
-                  </h3>
-                </div>
-              </div>
-              <div className="p-5 md:p-6 group-hover:bg-gradient-to-br group-hover:from-green-50 group-hover:to-emerald-50 transition-colors duration-300">
-                <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-2 group-hover:text-green-700 transition-colors">
+              <img alt={image.title} src={image.src} loading="lazy" />
+              <div className="home-gallery__tile-shade" />
+              <div className="home-gallery__tile-content">
+                <span className="home-gallery__tile-num">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <h3 className={language === "bangla" ? "bangla-text" : ""}>
                   {image.title}
                 </h3>
-                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
+                <div className="home-gallery__tile-line" />
+                <p className={language === "bangla" ? "bangla-text" : ""}>
                   {image.description}
                 </p>
               </div>
-            </div>
+            </motion.article>
           ))}
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
 
 // Donation Section Component
 const DonationSection = ({ language }) => {
-  const [donationAmount, setDonationAmount] = useState("");
-  const [donationFund, setDonationFund] = useState("");
-
   const onFinish = (values) => {
     console.log("Donation details:", values);
   };
 
   return (
-    <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-white via-green-50/30 to-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 text-green-800">
+    <section className="home-section home-donation">
+      <div className="home-section__inner">
+        <motion.div
+          className="home-section__header"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+        >
+          <span className="home-section__eyebrow">
+            {language === "bangla" ? "সমর্থন" : "Support"}
+          </span>
+          <h2 className={`home-section__title ${language === "bangla" ? "bangla-text" : ""}`}>
             {language === "bangla" ? "দান করুন" : "Make Your Donation"}
           </h2>
-          <div className="w-24 h-1 bg-green-600 mx-auto rounded-full mb-6"></div>
-          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+          <hr className="home-divider" />
+          <p className={`home-section__lead ${language === "bangla" ? "bangla-text" : ""}`} style={{ marginTop: "1rem" }}>
             {language === "bangla"
               ? "আপনার দান অসহায় মানুষদের সাহায্য করতে এবং শিক্ষা প্রসারে গুরুত্বপূর্ণ ভূমিকা পালন করে"
               : "Your donation plays a vital role in helping the underprivileged and promoting education"}
           </p>
-        </div>
+        </motion.div>
 
-        <div className="bg-green-50 rounded-3xl p-8 md:p-12 shadow-lg border-2 border-green-200">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16">
-            {/* Left side content */}
-            <div className="flex flex-col justify-center">
-              <h3 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-6 md:mb-8">
-                {language === "bangla"
-                  ? "দারুল মুত্তাক্বীন ফাউন্ডেশন"
-                  : "Darul Muttaqine Foundation"}
-              </h3>
-              <p className="text-base md:text-lg text-gray-700 mb-8 leading-relaxed">
-                {language === "bangla"
-                  ? "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক প্রতিষ্ঠান যা শিক্ষা, দাওয়াহ ও মানবকল্যাণে নিবেদিত। বর্তমানে এটি সরকারের নিবন্ধন প্রক্রিয়াধীন রয়েছে।"
-                  : "Darul Muttaqine Foundation is a non-political, non-profit organization dedicated to education, da'wah, and human welfare. Government registration is currently under process."}
-              </p>
-              <div className="p-6 md:p-8 bg-white rounded-2xl shadow-xl border-2 border-green-200 transform hover:scale-105 transition-transform duration-300">
-                <p className="text-green-700 font-semibold text-lg md:text-xl flex items-start gap-4">
-                  <HeartOutlined className="text-green-600 mt-1 text-2xl" />
-                  <span>
-                    {language === "bangla"
-                      ? "আপনার দান দারুল মুত্তাক্বীন ফাউন্ডেশনের শিক্ষা ও মানবকল্যাণমূলক কার্যক্রমে সহায়তা করবে।"
-                      : "Your donation will support Darul Muttaqine Foundation's education and welfare activities."}
-                  </span>
-                </p>
-              </div>
-            </div>
+        <div className="home-donation__layout">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeUp}
+          >
+            <h3
+              className={`home-section__title ${language === "bangla" ? "bangla-text" : ""}`}
+              style={{ fontSize: "clamp(1.6rem, 3vw, 2.2rem)" }}
+            >
+              {language === "bangla"
+                ? "দারুল মুত্তাক্বীন ফাউন্ডেশন"
+                : "Darul Muttaqine Foundation"}
+            </h3>
+            <p className={`home-section__lead ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "দারুল মুত্তাক্বীন ফাউন্ডেশন একটি অরাজনৈতিক, অলাভজনক প্রতিষ্ঠান যা শিক্ষা, দাওয়াহ ও মানবকল্যাণে নিবেদিত। বর্তমানে এটি সরকারের নিবন্ধন প্রক্রিয়াধীন রয়েছে।"
+                : "Darul Muttaqine Foundation is a non-political, non-profit organization dedicated to education, da'wah, and human welfare. Government registration is currently under process."}
+            </p>
+            <p className={`home-donation__quote ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "আপনার দান দারুল মুত্তাক্বীন ফাউন্ডেশনের শিক্ষা ও মানবকল্যাণমূলক কার্যক্রমে সহায়তা করবে।"
+                : "Your donation will support Darul Muttaqine Foundation's education and welfare activities."}
+            </p>
+          </motion.div>
 
-            {/* Right side form */}
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl border-2 border-gray-100">
-              <Form
-                name="donation"
-                onFinish={onFinish}
-                layout="vertical"
-                className="space-y-4 md:space-y-6"
+          <motion.div
+            className="home-donation__form"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            custom={1}
+            variants={fadeUp}
+          >
+            <Form
+              name="donation"
+              onFinish={onFinish}
+              layout="vertical"
+              className="space-y-4"
+            >
+              <Form.Item
+                label={language === "bangla" ? "দান তহবিল" : "Donation Fund"}
+                name="fund"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === "bangla"
+                        ? "অনুগ্রহ করে একটি তহবিল নির্বাচন করুন"
+                        : "Please select a fund",
+                  },
+                ]}
               >
-                <Form.Item
-                  label={
-                    <span className="text-base md:text-lg font-semibold">
-                      {language === "bangla" ? "দান তহবিল" : "Donation Fund"}
-                    </span>
-                  }
-                  name="fund"
-                  rules={[
-                    {
-                      required: true,
-                      message:
-                        language === "bangla"
-                          ? "অনুগ্রহ করে একটি তহবিল নির্বাচন করুন"
-                          : "Please select a fund",
-                    },
-                  ]}
+                <Select
+                  placeholder={language === "bangla" ? "নির্বাচন করুন" : "Select"}
+                  size="large"
                 >
-                  <Select
-                    placeholder={
-                      language === "bangla" ? "নির্বাচন করুন" : "Select"
-                    }
-                    size="large"
-                    onChange={setDonationFund}
-                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
-                  >
-                    <Option value="education">
-                      {language === "bangla"
-                        ? "শিক্ষা তহবিল"
-                        : "Education Fund"}
-                    </Option>
-                    <Option value="orphan">
-                      {language === "bangla" ? "এতিম তহবিল" : "Orphan Fund"}
-                    </Option>
-                    <Option value="food">
-                      {language === "bangla"
-                        ? "খাদ্য বিতরণ"
-                        : "Food Distribution"}
-                    </Option>
-                    <Option value="general">
-                      {language === "bangla" ? "সাধারণ তহবিল" : "General Fund"}
-                    </Option>
-                  </Select>
-                </Form.Item>
+                  <Option value="education">
+                    {language === "bangla" ? "শিক্ষা তহবিল" : "Education Fund"}
+                  </Option>
+                  <Option value="orphan">
+                    {language === "bangla" ? "এতিম তহবিল" : "Orphan Fund"}
+                  </Option>
+                  <Option value="food">
+                    {language === "bangla" ? "খাদ্য বিতরণ" : "Food Distribution"}
+                  </Option>
+                  <Option value="general">
+                    {language === "bangla" ? "সাধারণ তহবিল" : "General Fund"}
+                  </Option>
+                </Select>
+              </Form.Item>
 
-                <Form.Item
-                  label={
-                    <span className="text-base md:text-lg font-semibold">
-                      {language === "bangla" ? "ফোন / ইমেইল" : "Phone / Email"}
-                    </span>
-                  }
-                  name="contact"
-                  rules={[
-                    {
-                      required: true,
-                      message:
-                        language === "bangla"
-                          ? "অনুগ্রহ করে আপনার যোগাযোগের তথ্য দিন"
-                          : "Please provide your contact information",
-                    },
-                  ]}
-                >
-                  <Input
-                    size="large"
-                    placeholder={
+              <Form.Item
+                label={language === "bangla" ? "ফোন / ইমেইল" : "Phone / Email"}
+                name="contact"
+                rules={[
+                  {
+                    required: true,
+                    message:
                       language === "bangla"
-                        ? "মোবাইল/ইমেইল লিখুন"
-                        : "Type mobile/email"
-                    }
-                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  label={
-                    <span className="text-base md:text-lg font-semibold">
-                      {language === "bangla"
-                        ? "দানের পরিমাণ"
-                        : "Donation Amount"}
-                    </span>
+                        ? "অনুগ্রহ করে আপনার যোগাযোগের তথ্য দিন"
+                        : "Please provide your contact information",
+                  },
+                ]}
+              >
+                <Input
+                  size="large"
+                  placeholder={
+                    language === "bangla"
+                      ? "মোবাইল/ইমেইল লিখুন"
+                      : "Type mobile/email"
                   }
-                  name="amount"
-                  rules={[
-                    {
-                      required: true,
-                      message:
-                        language === "bangla"
-                          ? "অনুগ্রহ করে দানের পরিমাণ লিখুন"
-                          : "Please enter donation amount",
-                    },
-                  ]}
-                >
-                  <Input
-                    size="large"
-                    type="number"
-                    placeholder={
-                      language === "bangla"
-                        ? "সংখ্যায় লিখুন"
-                        : "Write in number"
-                    }
-                    onChange={(e) => setDonationAmount(e.target.value)}
-                    prefix={<DollarOutlined className="text-gray-400" />}
-                    className="h-12 md:h-14 text-base md:text-lg rounded-lg"
-                  />
-                </Form.Item>
+                />
+              </Form.Item>
 
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    size="large"
-                    className="w-full bg-green-600 hover:bg-green-700 h-14 md:h-16 text-base md:text-xl font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
-                    icon={<HeartOutlined className="text-xl" />}
-                  >
-                    {language === "bangla" ? "দান করুন" : "Donate Now"}
-                  </Button>
-                </Form.Item>
-              </Form>
-            </div>
-          </div>
+              <Form.Item
+                label={
+                  language === "bangla" ? "দানের পরিমাণ" : "Donation Amount"
+                }
+                name="amount"
+                rules={[
+                  {
+                    required: true,
+                    message:
+                      language === "bangla"
+                        ? "অনুগ্রহ করে দানের পরিমাণ লিখুন"
+                        : "Please enter donation amount",
+                  },
+                ]}
+              >
+                <Input
+                  size="large"
+                  type="number"
+                  placeholder={
+                    language === "bangla" ? "সংখ্যায় লিখুন" : "Write in number"
+                  }
+                  prefix={<DollarOutlined className="text-gray-400" />}
+                />
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  block
+                  className="home-donation__submit"
+                  icon={<HeartOutlined />}
+                >
+                  {language === "bangla" ? "দান করুন" : "Donate Now"}
+                </Button>
+              </Form.Item>
+            </Form>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -1430,79 +1455,47 @@ const BlogSection = ({ language }) => {
 // Join Us Section Component
 const JoinUsSection = ({ language }) => {
   return (
-    <div
-      className="py-16 md:py-28 px-4 md:px-6 bg-cover bg-center relative"
-      style={{
-        backgroundImage:
-          "url('https://i.ibb.co.com/v4MdvZyX/1758086923536-1758086915189-714c07e-IMG-20250725-160733-154.jpg')",
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50"></div>
-
-      <div className="max-w-7xl mx-auto relative z-10 text-center text-white">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6">
-          {language === "bangla" ? "আমাদের সাথে যোগ দিন" : "Join Us"}
-        </h2>
-        <p className="text-lg md:text-xl mb-8 md:mb-12 max-w-4xl mx-auto">
-          {language === "bangla"
-            ? "আমাদের মিশনে অংশগ্রহণ করুন এবং একটি ভালো পরিবর্তন আনতে সাহায্য করুন"
-            : "Participate in our mission and help make a positive change"}
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
-            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
-              <UserOutlined />
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
-              {language === "bangla" ? "স্বেচ্ছাসেবক" : "Volunteer"}
-            </h3>
-            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
-              {language === "bangla"
-                ? "আপনার সময় এবং দক্ষতা দান করুন আমাদের বিভিন্ন কার্যক্রমে সাহায্য করার জন্য"
-                : "Donate your time and skills to help with our various activities"}
-            </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
-              {language === "bangla" ? "যোগ দিন" : "Join Now"}
-            </button>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
-            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
-              <HeartOutlined />
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
-              {language === "bangla" ? "দান করুন" : "Donate"}
-            </h3>
-            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
-              {language === "bangla"
-                ? "আর্থিকভাবে আমাদের মিশন সমর্থন করুন এবং একটি পার্থক্য তৈরি করুন"
-                : "Support our mission financially and make a difference"}
-            </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
-              {language === "bangla" ? "দান করুন" : "Donate Now"}
-            </button>
-          </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 md:p-8 h-full transform hover:scale-105 transition-all duration-300 border border-white/20">
-            <div className="text-4xl md:text-5xl mb-4 md:mb-6 text-green-400">
-              <TeamOutlined />
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold mb-3 md:mb-4">
-              {language === "bangla" ? "অংশীদার হন" : "Partner With Us"}
-            </h3>
-            <p className="mb-4 md:mb-6 text-base md:text-lg opacity-90">
-              {language === "bangla"
-                ? "আমাদের সাথে অংশীদারিত্ব করুন এবং আমাদের প্রভাব বৃদ্ধি করুন"
-                : "Partner with us and amplify our impact"}
-            </p>
-            <button className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-2xl text-base md:text-lg w-full transition-all duration-300 shadow-lg hover:shadow-xl">
-              {language === "bangla" ? "যোগাযোগ করুন" : "Contact Us"}
-            </button>
-          </div>
-        </div>
+    <section className="home-join">
+      <div className="home-join__media">
+        <img
+          src="https://i.ibb.co.com/v4MdvZyX/1758086923536-1758086915189-714c07e-IMG-20250725-160733-154.jpg"
+          alt=""
+        />
+        <div className="home-join__veil" />
       </div>
-    </div>
+
+      <div className="home-join__content">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.4 }}
+          variants={fadeUp}
+        >
+          <h2 className={`home-join__title ${language === "bangla" ? "bangla-text" : ""}`}>
+            {language === "bangla" ? "আমাদের সাথে যোগ দিন" : "Join Our Mission"}
+          </h2>
+          <p className={`home-join__lead ${language === "bangla" ? "bangla-text" : ""}`}>
+            {language === "bangla"
+              ? "আমাদের মিশনে অংশগ্রহণ করুন এবং শিক্ষা ও মানবকল্যাণে একটি ভালো পরিবর্তন আনতে সাহায্য করুন"
+              : "Take part in our mission and help create lasting change through education and welfare"}
+          </p>
+          <div className="home-join__links">
+            <a href="/contact" className="home-btn home-btn--primary">
+              <UserOutlined />
+              {language === "bangla" ? "স্বেচ্ছাসেবক হোন" : "Become a Volunteer"}
+            </a>
+            <a href="#donation" className="home-btn home-btn--ghost">
+              <HeartOutlined />
+              {language === "bangla" ? "দান করুন" : "Donate"}
+            </a>
+            <a href="/contact" className="home-btn home-btn--ghost">
+              <TeamOutlined />
+              {language === "bangla" ? "অংশীদার হন" : "Partner With Us"}
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    </section>
   );
 };
 
@@ -1738,227 +1731,244 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      {/* Hero Section - Banner background with title */}
-      <div
-        className="relative w-full min-h-[45vh] md:min-h-[55vh] lg:min-h-[65vh] flex items-center justify-center bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('https://i.ibb.co/Zp6R4mm5/Banner-26.jpg')",
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/35 to-black/55" />
-        <div className="relative z-10 text-center px-4 py-16 md:py-20">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white drop-shadow-[0_2px_20px_rgba(0,0,0,0.8)] tracking-tight leading-tight max-w-5xl mx-auto">
-            Darul Muttaquine Foundation & Islamic Center
-          </h1>
-        </div>
-      </div>
+      {/* Hero — brand-first, full-bleed */}
+      <section className="home-hero">
+        <button
+          type="button"
+          className="home-lang-toggle"
+          onClick={toggleLanguage}
+          aria-label="Toggle language"
+        >
+          <GlobalOutlined style={{ marginRight: 6 }} />
+          {currentContent.languageButton}
+        </button>
 
-      {/* Ayat-ul-'Ilm Excellence Award Announcement - Top Banner */}
-      <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-8 md:py-10 px-4 md:px-6 relative overflow-hidden shadow-lg">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div className="home-hero__media" aria-hidden="true">
+          <img
+            src="https://i.ibb.co/Zp6R4mm5/Banner-26.jpg"
+            alt=""
+          />
         </div>
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-5 md:gap-8">
-            {/* Trophy Icon */}
-            <div className="bg-white/20 backdrop-blur-sm p-4 md:p-5 rounded-xl shadow-lg">
-              <TrophyOutlined className="text-4xl md:text-5xl lg:text-6xl text-yellow-300" />
-            </div>
-            
-            {/* Award Info */}
-            <div className="text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-extrabold mb-2 bangla-text">
-                Ayat-ul-'Ilm Excellence Award
-              </h3>
-              <p className="text-base md:text-lg lg:text-xl text-blue-100 bangla-text">
-                {language === "bangla"
-                  ? "বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে এই পুরস্কারের জন্য মনোনীত করা হবে"
-                  : "Recipients will be nominated for this award from among the scholarship recipients"}
-              </p>
-            </div>
+        <div className="home-hero__veil" />
+        <div className="home-hero__grain" />
 
-            {/* Prize Badge */}
-            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xl md:text-2xl lg:text-3xl shadow-xl transform hover:scale-105 transition-transform duration-300 whitespace-nowrap">
-              {language === "bangla" ? "পুরস্কার:" : "Prize:"} 10,000 Tk
-            </div>
-          </div>
+        <div className="home-hero__content">
+          <motion.h1
+            className={`home-hero__brand ${language === "bangla" ? "bangla-text" : ""}`}
+            initial={{ opacity: 0, y: 36 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {language === "bangla"
+              ? "দারুল মুত্তাক্বীন ফাউন্ডেশন"
+              : "Darul Muttaquine Foundation"}
+          </motion.h1>
+
+          <motion.p
+            className={`home-hero__headline ${language === "bangla" ? "bangla-text" : ""}`}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {language === "bangla"
+              ? "শিক্ষা · দাওয়াহ · মানবকল্যাণ"
+              : "Education · Da'wah · Human Welfare"}
+          </motion.p>
+
+          <motion.p
+            className={`home-hero__support ${language === "bangla" ? "bangla-text" : ""}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, delay: 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {language === "bangla"
+              ? "শুধুমাত্র আল্লাহর সন্তুষ্টির জন্য দ্বীন শিক্ষা, প্রচার-প্রসার ও কল্যাণকর কাজে নিবেদিত।"
+              : "Dedicated to religious education, outreach, and welfare solely for the pleasure of Allah."}
+          </motion.p>
+
+          <motion.div
+            className="home-hero__actions"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <a href="/scholarship-public" className="home-btn home-btn--primary">
+              <BookOutlined />
+              {language === "bangla" ? "শিক্ষাবৃত্তি দেখুন" : "View Scholarship"}
+            </a>
+            <a href="#donation" className="home-btn home-btn--ghost">
+              <HeartOutlined />
+              {language === "bangla" ? "দান করুন" : "Donate"}
+            </a>
+          </motion.div>
         </div>
-      </div>
 
-      {/* Scholarship Announcement Banner */}
-      <div className="w-full relative bg-gradient-to-b from-green-700 via-green-600 to-green-500 text-white py-12 md:py-20 px-4 md:px-6 overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          {/* This Year's Highlights - Institutes, Applicants, Scholarship Recipients */}
-          <div className="pt-6 md:pt-8 pb-2">
-            <div className="bg-white/20 backdrop-blur-md rounded-2xl md:rounded-3xl border-2 border-white/40 shadow-2xl overflow-hidden ring-4 ring-white/30">
-              <div className="px-5 py-4 md:px-8 md:py-5 border-b-2 border-white/30 bg-white/10">
-                <h3 className="text-center text-xl md:text-2xl lg:text-3xl font-extrabold text-white drop-shadow-md tracking-tight">
-                  {language === "bangla" ? "২০২৬ শিক্ষাবৃত্তি — এই বছরের হাইলাইট" : "Scholarship 2026 — This Year's Highlights"}
-                </h3>
-                <div className="w-20 h-1 bg-amber-400 rounded-full mx-auto mt-3 opacity-90" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 p-5 md:p-8">
-                <div className="flex items-center gap-4 bg-white/20 rounded-xl p-4 md:p-5 border border-white/30 hover:bg-white/25 transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/30 flex items-center justify-center">
-                    <BankOutlined className="text-2xl md:text-3xl text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                      {totalInstitutions}
-                    </div>
-                    <div className="text-sm md:text-base text-green-100 font-medium mt-0.5">
-                      {language === "bangla"
-                        ? "টি শিক্ষা প্রতিষ্ঠান অংশগ্রহণ করেছে"
-                        : "Institutions participated"}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 bg-white/20 rounded-xl p-4 md:p-5 border border-white/30 hover:bg-white/25 transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/30 flex items-center justify-center">
-                    <TeamOutlined className="text-2xl md:text-3xl text-white" />
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                      {totalApplicants}+
-                    </div>
-                    <div className="text-sm md:text-base text-green-100 font-medium mt-0.5">
-                      {language === "bangla"
-                        ? "জন শিক্ষার্থী আবেদন করেছিল"
-                        : "Students applied"}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 bg-amber-400/30 rounded-xl p-4 md:p-5 border-2 border-amber-300/50 hover:bg-amber-400/40 transition-colors">
-                  <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-amber-400/50 flex items-center justify-center">
-                    <TrophyOutlined className="text-2xl md:text-3xl text-amber-100" />
-                  </div>
-                  <div>
-                    <div className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white">
-                      {totalScholarshipRecipients}
-                    </div>
-                    <div className="text-sm md:text-base text-amber-100 font-medium mt-0.5">
-                      {language === "bangla"
-                        ? "জন বৃত্তি পেয়েছে"
-                        : "Received scholarship"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        <div className="home-hero__scroll" aria-hidden="true" />
+      </section>
 
-      {/* Ayat-ul-'Ilm Excellence Award - Detailed Banner */}
-      <div className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white py-10 md:py-14 px-4 md:px-6 relative overflow-hidden">
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-            {/* Left Side - Award Info */}
-            <div className="flex items-center gap-5 md:gap-6 flex-1">
-              <div className="bg-white/20 backdrop-blur-sm p-5 md:p-6 rounded-2xl shadow-xl">
-                <TrophyOutlined className="text-5xl md:text-6xl text-yellow-300" />
-              </div>
-              <div>
-                <h3 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-3 bangla-text">
-                  Ayat-ul-'Ilm Excellence Award
-                </h3>
-                <p className="text-lg md:text-xl lg:text-2xl text-blue-100 mb-3 bangla-text">
-                  {language === "bangla"
-                    ? "বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে এই পুরস্কারের জন্য মনোনীত করা হবে"
-                    : "Recipients will be nominated for this award from among the scholarship recipients"}
-                </p>
-                <div className="flex items-center gap-3 mt-4">
-                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-6 md:px-8 py-3 md:py-4 rounded-full font-bold text-xl md:text-2xl lg:text-3xl shadow-xl">
-                    {language === "bangla" ? "পুরস্কার:" : "Prize:"} 10,000 Tk
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Side - Decorative Element */}
-            <div className="hidden md:flex items-center justify-center">
-              <div className="relative">
-                <div className="w-40 h-40 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm border-4 border-white/20">
-                  <div className="text-center">
-                    <div className="text-5xl font-bold text-yellow-300">10,000</div>
-                    <div className="text-lg text-blue-100 mt-2 font-semibold">Tk</div>
-                  </div>
-                </div>
-                <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full animate-ping"></div>
-                <div className="absolute -top-2 -right-2 w-10 h-10 bg-yellow-400 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Image Gallery Section */}
-      <ImageGallery language={language} />
-
-      {/* Features Section */}
-      <div className="w-full py-16 md:py-24 px-4 md:px-6 bg-gradient-to-b from-green-50 to-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 text-green-800">
-              {language === "bangla" ? "আমাদের সেবাসমূহ" : "Our Services"}
+      {/* Scholarship impact */}
+      <section className="home-impact">
+        <div className="home-impact__inner">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={fadeUp}
+          >
+            <h2 className={`home-impact__title ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "শিক্ষাবৃত্তি ২০২৬ — এই বছরের প্রভাব"
+                : "Scholarship 2026 — This Year's Impact"}
             </h2>
-            <div className="w-24 h-1 bg-green-600 mx-auto rounded-full"></div>
-            <p className="text-gray-700 text-lg md:text-xl mt-6 max-w-2xl mx-auto">
-              {language === "bangla" 
-                ? "মানবকল্যাণে আমাদের নিবেদিত সেবাসমূহ" 
-                : "Our dedicated services for human welfare"}
+            <p className={`home-impact__sub ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "মেধাবী শিক্ষার্থীদের পাশে দাঁড়ানোর বাস্তব চিত্র"
+                : "Real outcomes from standing beside meritorious students"}
             </p>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {currentContent.features.map((feature, index) => (
-              <div
-                key={index}
-                className="group bg-white p-6 md:p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 text-center"
+          <div className="home-impact__grid">
+            {[
+              {
+                value: totalInstitutions,
+                suffix: "",
+                label:
+                  language === "bangla"
+                    ? "শিক্ষা প্রতিষ্ঠান অংশগ্রহণ করেছে"
+                    : "Institutions participated",
+              },
+              {
+                value: totalApplicants,
+                suffix: "+",
+                label:
+                  language === "bangla"
+                    ? "শিক্ষার্থী আবেদন করেছিল"
+                    : "Students applied",
+              },
+              {
+                value: totalScholarshipRecipients,
+                suffix: "",
+                label:
+                  language === "bangla"
+                    ? "জন বৃত্তি পেয়েছে"
+                    : "Received scholarship",
+              },
+            ].map((stat, index) => (
+              <motion.div
+                key={stat.label}
+                className="home-impact__item"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.4 }}
+                custom={index}
+                variants={fadeUp}
               >
-                <div className="relative z-10">
-                  <div className="w-16 h-16 md:w-20 md:h-24 rounded-xl flex items-center justify-center mx-auto mb-4 bg-green-100">
-                    <div className="text-green-600 text-2xl md:text-3xl">
-                      {feature.icon}
-                    </div>
-                  </div>
-                  <h3 className="text-lg md:text-xl font-bold mb-3 text-gray-800">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                    {feature.description}
-                  </p>
+                <div className="home-impact__value">
+                  {stat.value}
+                  {stat.suffix}
                 </div>
-              </div>
+                <div className={`home-impact__label ${language === "bangla" ? "bangla-text" : ""}`}>
+                  {stat.label}
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Excellence Award — single refined section */}
+      <section className="home-award">
+        <div className="home-award__panel">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={fadeUp}
+          >
+            <span className="home-section__eyebrow">
+              {language === "bangla" ? "স্বীকৃতি" : "Recognition"}
+            </span>
+            <h2 className="home-award__title">Ayat-ul-'Ilm Excellence Award</h2>
+            <p className={`home-award__text ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla"
+                ? "বৃত্তিপ্রাপ্ত শিক্ষার্থীদের মধ্য থেকে এই পুরস্কারের জন্য মনোনীত করা হবে — জ্ঞান ও মেধার সর্বোচ্চ সম্মান।"
+                : "Recipients will be nominated from among scholarship awardees — honouring the highest pursuit of knowledge."}
+            </p>
+          </motion.div>
+
+          <motion.div
+            className="home-award__prize"
+            initial={{ opacity: 0, scale: 0.88 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="home-award__prize-amount">10,000</div>
+            <div className="home-award__prize-unit">
+              {language === "bangla" ? "টাকা" : "Tk Prize"}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <ImageGallery language={language} />
+
+      {/* Services */}
+      <section className="home-section home-services">
+        <div className="home-section__inner">
+          <motion.div
+            className="home-section__header"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.4 }}
+            variants={fadeUp}
+          >
+            <span className="home-section__eyebrow">
+              {language === "bangla" ? "সেবা" : "Services"}
+            </span>
+            <h2 className={`home-section__title ${language === "bangla" ? "bangla-text" : ""}`}>
+              {language === "bangla" ? "আমাদের সেবাসমূহ" : "What We Offer"}
+            </h2>
+            <hr className="home-divider" />
+            <p
+              className={`home-section__lead ${language === "bangla" ? "bangla-text" : ""}`}
+              style={{ marginTop: "1rem" }}
+            >
+              {language === "bangla"
+                ? "মানবকল্যাণে আমাদের নিবেদিত সেবাসমূহ"
+                : "Dedicated programmes for education and human welfare"}
+            </p>
+          </motion.div>
+
+          <div className="home-services__grid">
+            {currentContent.features.map((feature, index) => (
+              <motion.article
+                key={feature.title}
+                className="home-services__item"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                custom={index}
+                variants={fadeUp}
+              >
+                <div className="home-services__icon">{feature.icon}</div>
+                <h3 className={language === "bangla" ? "bangla-text" : ""}>
+                  {feature.title}
+                </h3>
+                <p className={language === "bangla" ? "bangla-text" : ""}>
+                  {feature.description}
+                </p>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div id="donation">
+        <DonationSection language={language} />
       </div>
 
-      {/* Donation Section */}
-      <DonationSection language={language} />
-
-      {/* Blog Section */}
-      {/* <BlogSection language={language} /> */}
-
-      {/* Join Us Section */}
       <JoinUsSection language={language} />
-
     </div>
   );
 }
